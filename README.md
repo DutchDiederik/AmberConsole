@@ -510,7 +510,7 @@ repository. The deviations from it, and the discrepancies resolved along the way
 
 ## License
 
-MIT — see [LICENSE](LICENSE). The bundled webfonts are SIL OFL 1.1; see `fonts/OFL-*.txt`.
+BSD 3-Clause License — see [LICENSE](LICENSE). The bundled webfonts are SIL OFL 1.1; see `fonts/OFL-*.txt`.
 
 ## Acknowledgements
 
