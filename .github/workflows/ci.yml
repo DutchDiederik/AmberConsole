@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Playwright is a devDependency of `npm run test:visual` only, and that job
+      # does not run here (see the note at the bottom). Without this its install
+      # script downloads a browser bundle on every run that nothing ever launches.
+      - run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
+      - name: Lint stylesheets
+        run: npm run lint
+
+      - name: Check prohibitions
+        run: npm run check
+
+      - name: Check contrast ratios
+        run: npm run contrast
+
+      - name: Build
+        run: npm run build
+
+      # dist/ is committed so the framework works from a raw GitHub URL and from
+      # the Pages demo without a build step. This fails the run if someone edits
+      # src/ and forgets to rebuild.
+      - name: Verify dist/ is up to date
+        run: git diff --exit-code -- dist/
+
+  # Visual regression is not run here: the baselines in test/visual/baselines
+  # were captured on Windows, and font rasterisation differs enough on Linux
+  # runners to produce false failures. Run `npm run test:visual` locally.
