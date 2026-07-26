@@ -1,0 +1,61 @@
+/* ===========================================================================
+   Banner — the loudest element the system allows. One per screen.
+
+   The ✳✳ glyphs are injected by ::before / ::after, so the markup stays clean
+   text. Combine with .ac-blink for a live, unacknowledged alarm — and note that
+   the glyphs and the inverse-video pairing are what make it still read as an
+   alarm when the blink is switched off by prefers-reduced-motion.
+
+   Put role="alert" on it when it announces a state change.
+   =========================================================================== */
+
+.ac-banner {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-6);
+  border: var(--border-w) solid var(--stroke);
+  border-radius: 2px;
+  padding: 10px 24px;
+  font-family: var(--font-terminal);
+  font-size: var(--type-display);
+  line-height: 1;
+  letter-spacing: 0.14em;
+  color: var(--ink-bright);
+  text-transform: uppercase;
+  text-shadow: var(--glow-text);
+}
+
+.ac-banner::before,
+.ac-banner::after {
+  content: "✳✳";
+  letter-spacing: 0;
+}
+
+/* At display size a two-word banner has a min-content width around 400px, which
+   does not fit a 390px phone. Step down to title size and tighten the gap
+   rather than let the frame clip it. The glyphs and the inverse-video pairing —
+   the parts that carry the alarm — are untouched. */
+@media (max-width: 480px) {
+  .ac-banner {
+    gap: var(--space-3);
+    padding: 10px var(--space-3);
+    font-size: var(--type-title);
+    flex-wrap: wrap;
+  }
+}
+
+/* Inverse video for an alarm that must survive a static screenshot. */
+.ac-banner--filled {
+  background: var(--fill);
+  color: var(--on-fill);
+  text-shadow: none;
+  box-shadow: var(--glow-box);
+}
+
+.ac-banner--dim {
+  color: var(--ink-faint);
+  border-color: var(--stroke-dim);
+  text-shadow: none;
+}

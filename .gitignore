@@ -1,0 +1,30 @@
+node_modules/
+
+# Publish artifacts. `npm pack` drops amber-console-<version>.tgz in the repo
+# root — 180kb of the repo, committed back into the repo.
+*.tgz
+*.log
+
+# NEVER COMMIT THIS. `npm login` and `npm token` can write an auth token into a
+# project-local .npmrc, and committing one publishes a credential that can push
+# to this package. Ignored by default; if you ever need a checked-in .npmrc for
+# registry config, `git add -f .npmrc` after checking there is no token in it.
+.npmrc
+.env
+.env.*
+
+# Visual-regression run output. Only baselines/ is committed.
+test/visual/*.actual.png
+
+# scripts/make-assets.mjs unlinks this; it only survives a crashed run.
+docs/.make-assets.tmp.html
+
+# Local tool state, machine-specific
+.claude/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

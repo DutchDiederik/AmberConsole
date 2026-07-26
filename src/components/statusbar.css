@@ -1,0 +1,37 @@
+/* ===========================================================================
+   Status bar — the machine's voice.
+
+   Inverse video, terse KEY:VALUE strings, no pleasantries: "STATUS:AUTO MODE",
+   not "Your show is currently running".
+
+   Put role="status" on it so a screen reader announces changes.
+
+   --line is the quiet sibling: transparent, ruled top and bottom, no glow, for
+   data rows that report rather than assert.
+   =========================================================================== */
+
+.ac-statusbar {
+  box-sizing: border-box;
+  display: flex;
+  gap: var(--space-8);
+  align-items: baseline;
+  flex-wrap: wrap;
+  background: var(--fill);
+  color: var(--on-fill);
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-body);
+  padding: 6px var(--space-4);
+  box-shadow: var(--glow-box);
+  min-width: 0;
+}
+
+.ac-statusbar--line {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: none;
+  border-top: var(--border-w) solid var(--stroke-dim);
+  border-bottom: var(--border-w) solid var(--stroke-dim);
+}

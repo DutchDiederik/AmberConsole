@@ -1,0 +1,382 @@
+/* ===========================================================================
+   Docs-only styles. Not part of the framework.
+
+   Everything here is prefixed doc- so it is obvious at a glance which classes
+   are Amber Console and which are page chrome for these two demos. Nothing in
+   this file is required to use the framework.
+   =========================================================================== */
+
+/* --------------------------------------------------------------- shared -- */
+
+.doc-byline {
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  text-decoration: none;
+}
+.doc-byline:hover {
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+}
+
+.doc-nav-sims {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.doc-nav-sims .ac-toggle {
+  font-size: var(--type-small);
+}
+
+/* ------------------------------------------------------- console screen -- */
+
+.doc-console-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.doc-wordmark {
+  font-size: var(--type-title);
+  letter-spacing: 0.18em;
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+}
+
+.doc-console-head h1 {
+  font-size: var(--type-display);
+  letter-spacing: var(--tracking-display);
+  text-shadow: var(--glow-text);
+  border-bottom: var(--border-w) solid var(--stroke);
+  padding-bottom: 4px;
+}
+
+.doc-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.doc-fields .ac-field {
+  width: min(100%, 60%);
+}
+
+.doc-bits {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+.doc-lamp {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.doc-alarms td:nth-child(1),
+.doc-alarms td:nth-child(2) {
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------- guide page -- */
+
+.doc-wrap {
+  /* width:100% and min-width:0 are both load-bearing. This is a flex item of
+     .ac-screen, and `margin: 0 auto` on a flex item cancels align-items:stretch
+     — leaving it sized to fit-content, which a wide descendant then blows past.
+     Without these two it renders 535px wide inside a 390px viewport. */
+  width: 100%;
+  min-width: 0;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-8) 80px;
+}
+
+/* Documentation tables have a large min-content width (long token names in
+   narrow cells). Let them scroll inside their own box rather than widening
+   the page. */
+.doc-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.doc-head {
+  border-bottom: var(--border-w) solid var(--stroke);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+.doc-head h1 {
+  font-size: 56px;
+  letter-spacing: var(--tracking-display);
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+}
+.doc-kicker {
+  font-size: var(--type-title);
+  letter-spacing: 0.2em;
+  color: var(--ink-dim);
+}
+.doc-lede {
+  max-width: 62ch;
+  color: var(--ink);
+  font-size: var(--type-body);
+  margin: 20px 0 0;
+}
+
+.doc-wrap section {
+  margin-top: 56px;
+}
+.doc-wrap h2 {
+  font-size: var(--type-title);
+  letter-spacing: 0.14em;
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+}
+.doc-wrap h3 {
+  font-size: var(--type-body);
+  letter-spacing: 0.1em;
+  color: var(--ink);
+}
+.doc-wrap p {
+  max-width: 68ch;
+  font-size: var(--type-body);
+  margin: 0 0 var(--space-3);
+}
+
+.doc-sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  border-bottom: var(--border-w) solid var(--stroke-dim);
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+.doc-num,
+.doc-mono {
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+}
+
+.doc-dim { color: var(--ink-dim); }
+.doc-faint { color: var(--ink-faint); }
+.doc-small { font-size: var(--type-small); }
+
+.doc-grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+.doc-grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+.doc-span2 { grid-column: span 2; }
+
+.doc-law {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.doc-law-n {
+  font-size: var(--type-title);
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+  line-height: 1;
+}
+.doc-law h3 { margin: 0 0 6px; }
+.doc-law p {
+  margin: 0;
+  font-size: var(--type-small);
+  color: var(--ink-dim);
+}
+
+/* A specimen card. Dim frame so it never competes with what it contains. */
+.doc-demo {
+  border: var(--border-w) solid var(--stroke-dim);
+  border-radius: var(--radius);
+  padding: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  min-width: 0;
+}
+.doc-demo--col {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.doc-cap {
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  display: block;
+  margin: 0 0 10px;
+  width: 100%;
+}
+
+.doc-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 120px;
+}
+.doc-chip {
+  height: 72px;
+  border: 1px solid var(--ink-trace);
+}
+
+/* Plain documentation tables — deliberately not .ac-table, which is a data
+   grid for the UI itself. */
+.doc-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: var(--type-small);
+}
+.doc-table th {
+  text-align: left;
+  font-weight: 400;
+  color: var(--ink-faint);
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  padding: 0 var(--space-4) var(--space-2) 0;
+  border-bottom: var(--border-w) solid var(--stroke-dim);
+}
+.doc-table td {
+  padding: var(--space-2) var(--space-4) var(--space-2) 0;
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink-trace);
+  vertical-align: top;
+}
+.doc-table td.doc-tok {
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+.doc-dodont {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  border: var(--border-w) solid var(--stroke-dim);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.doc-dodont > div { padding: 18px 20px; }
+.doc-dodont > div + div { border-left: var(--border-w) solid var(--stroke-dim); }
+.doc-dd-h {
+  background: var(--fill);
+  color: var(--on-fill);
+  padding: 3px 10px;
+  display: inline-block;
+  font-size: var(--type-small);
+  margin-bottom: var(--space-3);
+}
+.doc-dd-h--off {
+  background: transparent;
+  color: var(--ink-faint);
+  border: var(--border-w) solid var(--stroke-dim);
+}
+
+.doc-wrap ul {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: var(--type-small);
+  color: var(--ink-dim);
+}
+.doc-wrap li { margin-bottom: 6px; }
+
+.doc-wrap code {
+  font-family: var(--font-terminal);
+  font-size: 20px;
+  color: var(--ink-bright);
+}
+
+/* The copyable class string under every component specimen. */
+.doc-code {
+  display: block;
+  width: 100%;
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--screen-well);
+  border: var(--border-w) solid var(--stroke-dim);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-terminal);
+  font-size: var(--type-small);
+  line-height: 1.3;
+  color: var(--ink-bright);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* "When not to use it" — deliberately faint; it is a caveat, not a heading. */
+.doc-when {
+  width: 100%;
+  margin: var(--space-2) 0 0;
+  font-size: var(--type-small);
+  color: var(--ink-faint);
+}
+.doc-when::before {
+  content: "NOT FOR: ";
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+}
+
+.doc-foot {
+  margin-top: 72px;
+  border-top: var(--border-w) solid var(--stroke-dim);
+  padding-top: var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* Side-by-side PLASMA/CRT comparison tiles. Each tile is its own frame, which
+   is the only place in the system a simulation may be nested. */
+.doc-sim-tile {
+  position: relative;
+  min-height: 150px;
+  padding: var(--space-4);
+  border: var(--border-w) solid var(--stroke-dim);
+  border-radius: var(--radius);
+  background: var(--screen);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .doc-grid2,
+  .doc-grid3,
+  .doc-dodont {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .doc-span2 { grid-column: auto; }
+  .doc-dodont > div + div {
+    border-left: none;
+    border-top: var(--border-w) solid var(--stroke-dim);
+  }
+  .doc-wrap {
+    padding: var(--space-6) var(--space-4) 64px;
+  }
+  .doc-head h1 { font-size: var(--type-display); }
+}

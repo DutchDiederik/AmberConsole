@@ -1,0 +1,33 @@
+/* ===========================================================================
+   Badge — a micro tag.
+
+   The one place in this system with a 1px border: a badge is a chip, not
+   structure, and 2px on something 8px tall reads as a solid block.
+
+   Silkscreen at 8px. This is the ONLY size range where VT323 must not be used —
+   it is a bitmap face and turns to mud below 18px.
+   =========================================================================== */
+
+.ac-badge {
+  display: inline-block;
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  line-height: 1.4;
+  letter-spacing: var(--tracking-micro);
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border: 1px solid var(--stroke);
+  border-radius: 2px;
+  color: var(--ink);
+}
+
+.ac-badge--filled {
+  background: var(--fill);
+  color: var(--on-fill);
+  border-color: var(--fill);
+}
+
+.ac-badge--dim {
+  color: var(--ink-faint);
+  border-color: var(--stroke-dim);
+}

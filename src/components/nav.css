@@ -1,0 +1,113 @@
+/* ===========================================================================
+   Nav — the screen/site menu bar.
+
+   Link labels are Title Case: they are operator soft keys, not system text.
+   The active link is [aria-current="page"] — inverse video, no underline.
+
+   MOBILE: the links wrap to a second row. There is deliberately no hamburger —
+   law 6 forbids an icon set, and a three-line glyph is an icon. A control
+   panel shows you every key it has.
+   =========================================================================== */
+
+.ac-nav {
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  border-bottom: var(--border-w) solid var(--stroke);
+  background: var(--screen);
+  padding: 0 var(--space-6);
+}
+
+.ac-nav--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.ac-nav__mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  margin-right: auto;
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: 1;
+  letter-spacing: 0.22em;
+  color: var(--ink-bright);
+  text-transform: uppercase;
+  text-shadow: var(--glow-text);
+}
+
+/* A typeset block, not a logo. There is no logo — see law 6 in README.md. */
+.ac-nav__mark::before {
+  content: "█";
+  font-size: 16px;
+  color: var(--fill);
+}
+
+.ac-nav__links {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.ac-nav__link {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  margin: 6px 0;
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: 1;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: var(--tracking-body);
+  border: var(--border-w) solid transparent;
+  border-radius: var(--radius-sm);
+  text-shadow: var(--glow-text);
+}
+
+.ac-nav__link:hover {
+  color: var(--ink-bright);
+  border-color: var(--stroke);
+  box-shadow: var(--glow-box);
+}
+
+.ac-nav__link[aria-current="page"],
+.ac-nav__link--active {
+  background: var(--fill);
+  color: var(--on-fill);
+  border-color: var(--fill);
+  text-shadow: none;
+}
+
+.ac-nav__link:focus-visible {
+  outline: 2px dashed var(--ink-dim);
+  outline-offset: 3px;
+}
+
+.ac-nav__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+}
+
+@media (max-width: 720px) {
+  .ac-nav {
+    padding: 0 var(--space-4);
+  }
+  /* Wrap to a second row rather than hiding anything behind a menu glyph. */
+  .ac-nav__mark {
+    margin-right: 0;
+    width: 100%;
+  }
+}

@@ -1,0 +1,54 @@
+/* ===========================================================================
+   Keypad — a 3-column numeric entry grid.
+
+   These panels are operated with gloves, so the keys are large and square-ish
+   and the digit is centred rather than parked top-left: on a key with one
+   character there is no label/value split for the top-left rule to serve.
+
+   Keys are ordinary .ac-btn elements, so every button state applies unchanged.
+
+   Markup: <div class="ac-keypad">
+             <button class="ac-btn ac-keypad__key">7</button>  … 1-9 …
+             <button class="ac-btn ac-keypad__key ac-keypad__key--fn">Clr</button>
+             <button class="ac-btn ac-keypad__key">0</button>
+             <button class="ac-btn ac-keypad__key ac-keypad__key--fn">Ent</button>
+           </div>
+
+   Clr / Ent are Title Case: they are operator soft keys, like tabs.
+
+   WHEN NOT TO USE: free text, or anything a hardware keyboard is present for.
+   An on-screen keypad exists because there is no keyboard in a projection booth.
+   =========================================================================== */
+
+.ac-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  max-width: 420px;
+  min-width: 0;
+}
+
+.ac-keypad__key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* Comfortably past the 44px floor without four rows running off a phone. */
+  min-height: 72px;
+  min-width: 0;
+  padding: 10px 16px;
+  font-size: var(--type-title);
+}
+
+/* CLR / ENT read as commands rather than digits. */
+.ac-keypad__key--fn {
+  font-size: var(--type-body);
+}
+
+.ac-keypad__key--wide {
+  grid-column: span 2;
+}
+
+.ac-keypad--dense .ac-keypad__key {
+  min-height: 56px;
+}

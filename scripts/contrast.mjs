@@ -1,0 +1,156 @@
+#!/usr/bin/env node
+/**
+ * contrast.mjs — compute WCAG 2.1 contrast ratios for every text/background
+ * pair the system actually uses. Zero dependencies.
+ *
+ *   node scripts/contrast.mjs           human-readable table
+ *   node scripts/contrast.mjs --md      markdown, for pasting into README.md
+ *
+ * Ratios are COMPUTED from src/tokens/colors.css, never typed by hand. If a
+ * required pair fails, this exits non-zero and names the number — the fix is to
+ * document the limitation, not to quietly lighten the palette.
+ */
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+/**
+ * Parse colors.css into ONE TOKEN MAP PER PALETTE.
+ *
+ * The file declares every colour twice — once under `:root, [data-ac-gas=neon]`
+ * and once under `[data-ac-gas=amber]` — so a flat scrape of every
+ * `--name: value;` in the file silently keeps whichever block is written last
+ * and reports a table for a palette that half the users never see. Blocks have
+ * to be kept apart and the pair table run against each.
+ */
+async function loadTokens() {
+  const css = (await readFile(path.join(ROOT, "src/tokens/colors.css"), "utf8"))
+    .replace(/\/\*[\s\S]*?\*\//g, ""); /* comments can hold colons and braces */
+
+  /* selector { declarations } — the file has no nesting or at-rules. */
+  const blocks = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, sel, body]) => ({
+    sel: sel.trim(),
+    decls: Object.fromEntries(
+      [...body.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)].map(([, n, v]) => [n, v.trim()])
+    ),
+  }));
+
+  const gases = [...css.matchAll(/\[data-ac-gas=["']?([\w-]+)["']?\]/g)].map((m) => m[1]);
+  const names = [...new Set(gases)];
+  if (!names.length) throw new Error("no [data-ac-gas] palettes found in colors.css");
+
+  return Object.fromEntries(
+    names.map((gas) => {
+      /* :root blocks are the shared base — the aliases live in one of them and
+         apply to every palette. A palette block then overlays its own colours. */
+      const raw = {};
+      for (const b of blocks) {
+        const isBase = b.sel.split(",").some((s) => s.trim().startsWith(":root"));
+        const isMine = b.sel.includes(`[data-ac-gas="${gas}"]`) || b.sel.includes(`[data-ac-gas=${gas}]`);
+        if (isBase || isMine) Object.assign(raw, b.decls);
+      }
+
+      const resolve = (v, depth = 0) => {
+        if (depth > 10) throw new Error("circular var reference");
+        const ref = /^var\(\s*--([\w-]+)\s*\)$/.exec(v);
+        return ref ? resolve(raw[ref[1]], depth + 1) : v;
+      };
+      return [gas, Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, resolve(v)]))];
+    })
+  );
+}
+
+const srgb = (hex) => {
+  const h = hex.replace("#", "");
+  const full = h.length === 3 ? [...h].map((c) => c + c).join("") : h;
+  return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255);
+};
+
+/** WCAG relative luminance. */
+const luminance = (hex) => {
+  const [r, g, b] = srgb(hex).map((c) =>
+    c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  );
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+const ratio = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+
+/* Each pair records whether it must pass. "Required" means the pair carries
+   information a user has to read. Decorative and disabled pairs are exempt by
+   WCAG 1.4.3 itself, but we still report their numbers. */
+const PAIRS = [
+  ["--ink", "--screen", "Body text on the panel", true, "body"],
+  ["--ink-bright", "--screen", "Live values, hover, input text", true, "body"],
+  ["--ink-dim", "--screen", "Field labels, legends, secondary text", true, "body"],
+  ["--ink-faint", "--screen", "Disabled text — decorative only", false, "disabled"],
+  ["--ink-trace", "--screen", "Row separators, leader dots — non-text", false, "decorative"],
+  ["--on-fill", "--fill", "Inverse video: dark text on amber", true, "body"],
+  ["--on-fill", "--fill-bright", "Inverse video, hover state", true, "body"],
+  ["--ink-bright", "--screen-well", "Input text in a recessed well", true, "body"],
+  ["--ink-faint", "--screen-well", "Placeholder text", false, "placeholder"],
+  ["--ink", "--screen-raised", "Body text on a zebra table row", true, "body"],
+  ["--stroke", "--screen", "2px borders — non-text, needs 3:1", true, "ui"],
+  ["--stroke-dim", "--screen", "Dim borders — non-text, needs 3:1", true, "ui"],
+];
+
+const palettes = await loadTokens();
+const md = process.argv.includes("--md");
+
+const table = (tokens) =>
+  PAIRS.map(([fg, bg, use, required, kind]) => {
+    const r = ratio(tokens[fg.slice(2)], tokens[bg.slice(2)]);
+    /* Non-text UI components need 3:1 (WCAG 1.4.11); text needs 4.5:1 (1.4.3).
+       All body text here is 18px+, which is "large" at 18.66px bold / 24px
+       regular — we hold everything to the stricter 4.5:1 anyway. */
+    const threshold = kind === "ui" ? 3 : 4.5;
+    return { fg, bg, use, required, threshold, value: r, pass: r >= threshold };
+  });
+
+const fmt = (n) => `${n.toFixed(2)}:1`;
+const broken = [];
+
+for (const [gas, tokens] of Object.entries(palettes)) {
+  const rows = table(tokens);
+  for (const r of rows) if (r.required && !r.pass) broken.push({ gas, ...r });
+
+  if (md) {
+    console.log(`\n#### \`data-ac-gas="${gas}"\`\n`);
+    console.log("| Foreground | Background | Ratio | Needs | Verdict | Use |");
+    console.log("| --- | --- | --- | --- | --- | --- |");
+    for (const r of rows) {
+      const verdict = r.pass
+        ? `**${r.threshold === 3 ? "AA (non-text)" : "AA"}**`
+        : r.required
+          ? "**FAILS**"
+          : "fails — exempt";
+      console.log(
+        `| \`${r.fg}\` | \`${r.bg}\` | ${fmt(r.value)} | ${r.threshold}:1 | ${verdict} | ${r.use} |`
+      );
+    }
+  } else {
+    console.log(`\n  ${gas.toUpperCase()}`);
+    for (const r of rows) {
+      const mark = r.pass ? "PASS" : r.required ? "FAIL" : "exempt";
+      console.log(
+        `  ${mark.padEnd(7)}${fmt(r.value).padStart(8)}  (needs ${r.threshold}:1)  ` +
+          `${r.fg} on ${r.bg} — ${r.use}`
+      );
+    }
+  }
+}
+
+/* A pair that passes under one gas and fails under another is a failure. Both
+   palettes ship; neither is a preview. */
+if (broken.length) {
+  console.error(
+    `\n  ${broken.length} REQUIRED pair(s) below threshold:\n` +
+      broken.map((r) => `    [${r.gas}] ${r.fg} on ${r.bg} = ${fmt(r.value)}`).join("\n")
+  );
+  process.exit(1);
+}

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SYSTEM GUIDE — Amber Console</title>
+<meta name="description" content="The Amber Console design guide: philosophy, colour, type, effects, geometry and every component with its class string.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#100600">
+
+<!-- Social cards. og:image MUST be absolute — a relative path is ignored by
+     every scraper — so these are the only URLs in the project hardcoded to the
+     Pages host. They are inert over file://, which costs nothing. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Amber Console">
+<meta property="og:title" content="System Guide — Amber Console">
+<meta property="og:description" content="The Amber Console design guide: six laws, two gas palettes, every component with its class string.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/guide.html">
+<meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ORION-70 projection console: an amber plasma control panel of framed regions, inverse-video status strips and instrument readouts.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@DutchDiederik">
+
+<link rel="stylesheet" href="../dist/amber-console.css">
+<link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<!-- The nav lives INSIDE the frame. A menu bar floating above the simulations
+     is a menu bar that is not part of the screen — no bleed, no scanlines, no
+     vignette on it. .ac-screen uses overflow:clip precisely so a sticky bar can
+     sit inside the frame and still stick to the viewport.
+
+     The frame ships in the DEFAULT state, not the everything-on state: plasma on,
+     CRT off. Any class or overlay node that is off by default must be absent here,
+     or it paints for one frame on every load before initSims removes it. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+<span class="ac-mesh"></span>
+
+<nav class="ac-nav ac-nav--sticky">
+  <span class="ac-nav__mark">Amber Console</span>
+  <div class="ac-nav__links">
+    <a class="ac-nav__link" href="index.html">Console</a>
+    <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
+  </div>
+  <span class="ac-nav__meta">
+    <span class="doc-nav-sims">
+      <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
+        <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+      </button>
+      <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+        <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+      </button>
+      <button type="button" class="ac-toggle" data-ac-gas-toggle>
+        <span>Gas</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">NEON</span>
+      </button>
+      <span>REV 1.0</span>
+      <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
+    </span>
+  </span>
+</nav>
+
+<div class="doc-wrap">
+
+  <header class="doc-head">
+    <div class="doc-kicker">AMBER CONSOLE</div>
+    <h1>SYSTEM GUIDE</h1>
+  </header>
+  <div class="doc-mono">REV 1.0 · MONOCHROME PLASMA UI · INDUSTRIAL CONTROL PANEL GENRE</div>
+  <p class="doc-lede">A design system for interfaces that look like they run machinery. Everything here is
+    derived from the physical limits of a late-80s amber plasma display: one lit color, a character
+    grid, 2-pixel strokes, and no time for decoration. The constraints are the design.</p>
+
+  <!-- ================================================================ 01 -->
+  <section id="philosophy">
+    <div class="doc-sec-head"><span class="doc-num">01</span><h2>PHILOSOPHY</h2></div>
+    <p class="doc-dim">Six laws, each inherited from a hardware limitation rather than a style preference.
+      Break one and the illusion collapses.</p>
+    <div class="doc-grid2" style="margin-top:24px;row-gap:26px">
+      <div class="doc-law"><span class="doc-law-n">1</span><div><h3>ONE GAS, MANY INTENSITIES</h3>
+        <p>There is no phosphor in here. A monochrome plasma panel is a grid of gas gaps holding a
+          neon–argon mixture, and the amber is neon emitting directly when the gap strikes — around
+          590nm, the colour neon simply is. Phosphors arrive only with colour plasma, where xenon UV
+          excites red, green and blue stripes. So the panel can light one colour and vary how hard.
+          Hierarchy comes from brightness, inverse video, and blink — never hue. There is no red, no
+          green, no success color.</p></div></div>
+      <div class="doc-law"><span class="doc-law-n">2</span><div><h3>INVERSE VIDEO IS IMPORTANCE</h3>
+        <p>A solid amber block with dark text is the machine speaking: live status, section headers,
+          the active mode. Ration it — two or three per screen, no more.</p></div></div>
+      <div class="doc-law"><span class="doc-law-n">3</span><div><h3>EVERYTHING IS A BOX</h3>
+        <p>Regions are drawn with rules. Controls are large bordered rectangles with the label parked
+          top-left and empty space below — targets for a gloved finger. Borders do the layout work;
+          elevation and shadow do not exist.</p></div></div>
+      <div class="doc-law"><span class="doc-law-n">4</span><div><h3>THE CHARACTER GRID RULES</h3>
+        <p>Text sits on terminal rows. Labels are <code>KEY:VALUE</code> pairs, columns align, leading
+          is tight at 1.15. Space is measured in 4px half-cells, never eyeballed.</p></div></div>
+      <div class="doc-law"><span class="doc-law-n">5</span><div><h3>CASING IS SEMANTIC</h3>
+        <p>System and machine text is ALL CAPS. Operator-facing soft keys — the labels a human presses
+          — are Title Case. That split is information, so preserve it.</p></div></div>
+      <div class="doc-law"><span class="doc-law-n">6</span><div><h3>ORNAMENT IS TYPOGRAPHIC</h3>
+        <p>Emphasis is built from repeated glyphs, dashes, and colons: <code>✳✳ REMOTE MODE ✳✳</code>.
+          No icon libraries, no illustration, no imagery of any kind.</p></div></div>
+    </div>
+    <hr class="ac-hr" style="margin:32px 0">
+    <div class="doc-dodont">
+      <div><span class="doc-dd-h">DO</span>
+        <ul>
+          <li>Say <code>STATUS:AUTO MODE</code> — terse, declarative, no pleasantries.</li>
+          <li>Abbreviate like firmware: <code>MM:SS</code>, <code>FRM</code>, <code>LAMP V</code>.</li>
+          <li>Zero-pad fixed-width numbers: <code>0000:00</code>, <code>07/23/26</code>.</li>
+          <li>Signal danger with blink plus inverse video.</li>
+        </ul></div>
+      <div><span class="doc-dd-h doc-dd-h--off">DO NOT</span>
+        <ul>
+          <li>Write "Your presets have been completed!" — no exclamation, no second person.</li>
+          <li>Introduce a second hue, a gradient, or a drop shadow.</li>
+          <li>Use emoji or an SVG icon set. Ever.</li>
+          <li>Animate with fades, eases, or slides — state changes are instant redraws.</li>
+        </ul></div>
+    </div>
+  </section>
+
+  <!-- ================================================================ 02 -->
+  <section id="color">
+    <div class="doc-sec-head"><span class="doc-num">02</span><h2>COLOR</h2></div>
+    <p class="doc-dim">Five discharge intensities over three warm blacks. Every color decision in the system
+      is a choice of intensity, and intensity means energization: bright is live, faint is inert.</p>
+    <p class="doc-dim">There are <strong>two palettes</strong>, and they are not a light/dark pair — they are two
+      different pieces of hardware. Switch with <code>data-ac-gas</code> on the root element, or use the GAS
+      toggle in the menu bar. Both ramps are shown below regardless of which one is active; both are held to
+      the same contrast gate.</p>
+
+    <h3 style="margin:28px 0 12px">DATA-AC-GAS="NEON" · 24° · THE DEFAULT</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">A monochrome AC plasma panel. The light is neon
+      emitting directly from the gas — no phosphor anywhere in the stack. The hue is derived, not picked:
+      weight the Ne I visible lines by the CIE 1931 observer and the discharge sits at x=0.631 y=0.369, just
+      outside sRGB. That maps to 19°, which is a DC neon tube; a pulsed sustain enriches the 585.2nm line and
+      walks it up. 19–31° is the defensible band and 24° is its middle.</p>
+    <div class="doc-demo" data-ac-gas="neon" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-100)"></div><span class="doc-mono">--AMBER-100 · #FFA86D</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-90)"></div><span class="doc-mono">--AMBER-90 · #FF6B08</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-70)"></div><span class="doc-mono">--AMBER-70 · #DD5800</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-50)"></div><span class="doc-mono">--AMBER-50 · #AB4500</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-30)"></div><span class="doc-mono">--AMBER-30 · #5B2500</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-gas="neon" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #100600</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #1B0C02</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1E0C00</span></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">DATA-AC-GAS="AMBER" · 38° · THE PHOSPHOR</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">The classic amber CRT phosphor (P3): a broad
+      ~590nm band with real green content, where neon is a line spectrum with almost none. Historically this is
+      a <em>different</em> display technology — but it is what most people mean by "amber terminal", it is the
+      ramp the source design system was drawn against, and it pairs naturally with <code>.ac-crt</code>.</p>
+    <div class="doc-demo" data-ac-gas="amber" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-100)"></div><span class="doc-mono">--AMBER-100 · #FFD052</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-90)"></div><span class="doc-mono">--AMBER-90 · #FFAE1E</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-70)"></div><span class="doc-mono">--AMBER-70 · #CD8817</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-50)"></div><span class="doc-mono">--AMBER-50 · #8D5B10</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-30)"></div><span class="doc-mono">--AMBER-30 · #4A2F08</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-gas="amber" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0D0700</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #170E02</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1A0E00</span></div>
+    </div>
+
+    <p class="doc-dim doc-small" style="margin-top:18px">The <code>--amber-*</code> prefix names the
+      <em>ramp</em>, not the hue — it is historical, and under NEON those tokens are not amber. Adding a third
+      gas means adding one block to <code>colors.css</code>: five stops, three surfaces,
+      <code>--on-fill</code>, and the four <code>--gas-N</code> triples the glow is built from.</p>
+    <h3 style="margin:32px 0 12px">SEMANTIC ALIASES</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>TOKEN</th><th>MAPS TO</th><th>USE</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">--ink / --ink-bright</td><td class="doc-tok">amber-90 / 100</td><td>Body text; bright for live values and hover.</td></tr>
+        <tr><td class="doc-tok">--ink-dim / --ink-faint</td><td class="doc-tok">amber-70 / 50</td><td>Labels and legends; faint for disabled — and faint never glows.</td></tr>
+        <tr><td class="doc-tok">--fill / --on-fill</td><td class="doc-tok">amber-90 / per palette</td><td>Inverse-video surfaces and the dark text on them.</td></tr>
+        <tr><td class="doc-tok">--stroke / --stroke-dim</td><td class="doc-tok">amber-90 / 50</td><td>All borders, always 2px. Dim for secondary frames.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="doc-demo doc-demo--col" style="margin-top:24px">
+      <span class="doc-cap">THE THREE EMPHASIS LEVELS — NO FOURTH EXISTS</span>
+      <span style="text-shadow:var(--glow-text)">STATUS:AUTO MODE&nbsp;&nbsp;PRESETS COMPLETED</span>
+      <span style="background:var(--fill);color:var(--on-fill);padding:4px 14px;box-shadow:var(--glow-box)">STATUS:AUTO MODE&nbsp;&nbsp;PRESETS COMPLETED</span>
+      <span class="ac-blink" style="background:var(--fill);color:var(--on-fill);padding:4px 14px">✳ LAMP FAULT ✳</span>
+    </div>
+  </section>
+
+  <!-- ================================================================ 03 -->
+  <section id="type">
+    <div class="doc-sec-head"><span class="doc-num">03</span><h2>TYPE</h2></div>
+    <p class="doc-dim">Two bitmap faces. VT323 — a digitization of the DEC VT320 terminal ROM — carries
+      everything at 18px and above. Silkscreen handles 8px bit labels where VT323 loses its grid.
+      Below 18px, VT323 is unreadable: that is the floor, not a guideline.</p>
+    <div class="doc-demo doc-demo--col" style="margin-top:20px;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">DISPLAY · 44 / 0.1EM</span><span style="font-size:var(--type-display);letter-spacing:var(--tracking-display);color:var(--ink-bright);text-shadow:var(--glow-text)">SHOW LOCAL - AUTO</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">TITLE · 30</span><span style="font-size:var(--type-title);text-shadow:var(--glow-text)">RESET FRAME COUNT</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">BODY · 22</span><span style="font-size:var(--type-body)">SHOW TIME 0000:00 (MM:SS) DATE 07/23/26</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">SMALL · 18</span><span style="font-size:var(--type-small);color:var(--ink-dim)">SHOW INFORMATION ──────────────</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">MICRO · 8 SILKSCREEN</span><span style="font-family:var(--font-micro);font-size:var(--type-micro);letter-spacing:var(--tracking-micro)">REMOTE START BIT · REEL UNIT READY · SYSTEM READY</span></div>
+    </div>
+    <div class="doc-grid2" style="margin-top:24px">
+      <div><h3>CASING</h3><p class="doc-dim doc-small">ALL CAPS for machine text,
+        Title Case for operator soft keys. <code>SHOW LOCAL - AUTO MODE</code> is the system reporting;
+        <code>Change Show</code> is a key a human presses.</p></div>
+      <div><h3>SUBSTITUTION NOTE</h3><p class="doc-faint doc-small">The source
+        hardware used a mask-ROM face with no digital release. VT323 and Silkscreen are era-correct
+        stand-ins. Supply a licensed bitmap face and only <code>--font-terminal</code> changes.</p></div>
+    </div>
+  </section>
+
+  <!-- ================================================================ 04 -->
+  <section id="effects">
+    <div class="doc-sec-head"><span class="doc-num">04</span><h2>GLOW, BLINK, SCANLINES</h2></div>
+    <p class="doc-dim">The only three effects in the system. Glow marks energization, blink marks alarm,
+      scanlines sit once on the outermost frame. There is no fourth effect, and no component
+      anywhere in the CSS carries a transition — a control does not ease into being pressed. The one
+      timing function in the whole framework belongs to the gas, not to the UI: see
+      <code>.ac-afterglow</code> below.</p>
+    <p class="doc-dim"><strong>The switches above default to PLASMA on, CRT off.</strong> Plasma is
+      what this panel is; CRT simulates a different display technology, and its blanking gaps are the
+      one thing a plasma screen conspicuously does not have. Turn it on to compare — the choice
+      persists. <code>.ac-afterglow</code> rides the CRT switch, so it is off by default too.</p>
+    <p class="doc-dim">Three screen simulations layer on top, driven from two switches —
+      <code>.ac-afterglow</code> rides with <code>.ac-crt</code>, because persistence is a property
+      of the same glass the scanlines are on, and a tube that scans without holding is not a tube
+      anybody has watched. Each class still works alone if you wire it yourself:
+      <code>.ac-bloom</code> (the panel — hotter glow tokens for every descendant, a soft
+      center-weighted bleed breathing on a 9s mains cycle, and the cell mesh with its shimmer),
+      <code>.ac-crt</code> (the tube —
+      scanline texture, edge vignette, one-cell line drift per 11s, ±2% flicker, and a retrace band
+      sweeping down every 13s) and <code>.ac-afterglow</code> (plasma persistence — see below).
+      All three are tuned near the threshold of perception: if you can point at
+      the effect, it is too strong. The motion describes energized hardware, not a UI transition —
+      state changes stay instant — and everything stops under <code>prefers-reduced-motion</code>.
+      <code>.ac-scanlines</code> is the static, motion-free texture for cards and print.</p>
+    <p class="doc-dim"><strong>A screen door is not a scanline, and the difference is the whole
+      point of <code>.ac-bloom</code>.</strong> A cell here lights at the crossing of a row wire and
+      a column wire, boxed in on four sides by barrier ribs that carry no discharge and emit nothing
+      — so a lit pixel is a neon dot trapped in a square aperture, and what you see with your eye
+      close to the glass is a fine mesh in <em>both</em> axes. The dark horizontal blanking gaps
+      between raster lines belong to <code>.ac-crt</code> and to the tube it simulates. There is no
+      scan in a plasma panel, so there is nothing to blank. The ribs are drawn in pure black rather
+      than a tint, which is what makes the grid appear only where the panel is lit: over the unlit
+      screen a black veil has nothing to take away. On top of it sits the shimmer — the sustain
+      voltage is AC, so the gas is struck and re-struck rather than held, and a sub-pixel buzz on
+      two detuned cycles is the visible residue of that. Both stop under
+      <code>prefers-reduced-motion</code>; the mesh itself does not, because it is the shape of the
+      hardware rather than an effect playing over it.</p>
+    <p class="doc-dim">All three go on the outermost frame, and the frame is the whole screen —
+      <strong>including the menu bar</strong>. A nav that floats above the simulations is a nav that
+      is not part of the panel, so <code>.ac-nav--sticky</code> sits inside the frame at z-index 20
+      and every overlay paints above it, from 40 up. That is also why <code>.ac-screen</code> clips
+      with <code>overflow: clip</code> rather than <code>hidden</code>: <code>hidden</code> would
+      make the frame a scroll container, and a sticky bar inside one sticks to nothing.</p>
+    <div class="doc-grid3" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">GLOW — ENERGIZED</span>
+        <span style="font-size:44px;color:var(--ink-bright);text-shadow:var(--glow-text)">255315</span>
+        <span class="doc-faint doc-small">--glow-text on live values, --glow-box on filled and focused elements.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">NO GLOW — INERT</span>
+        <span style="font-size:44px;color:var(--ink-faint)">255315</span>
+        <span class="doc-faint doc-small">Dim and disabled states never glow. Glow is a signal, not a texture.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
+        <span class="ac-blink" style="font-size:var(--type-title)">✳✳ CHECK DOUSER ✳✳</span>
+        <span class="doc-faint doc-small">steps(1) hard on/off, 1.1s. Never a fade — until <code>.ac-afterglow</code> is on, which softens the OFF edge only. The ON edge stays instant either way.</span></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">PLASMA AFTERGLOW</h3>
+    <p class="doc-dim">A gas gap that stops being driven does not go dark on the next refresh. The
+      discharge leaves excited and metastable neon behind it, and that population keeps emitting
+      while it relaxes and recombines — the afterglow, which is a property of the gas and not of any
+      coating. Most of the light is gone in the first fifth of a second, then a short dim tail.
+      <code>.ac-afterglow</code> is that relaxation, and it is several separate things because
+      persistence is six separate phenomena — and only four are reachable from CSS alone.</p>
+    <div class="doc-grid3" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">1 · DECAY-OUT</span>
+        <span class="doc-faint doc-small">Anything that disappears drains instead of switching off —
+          a tab panel, a closing dialog, an acknowledged alarm. Pure CSS, and the one part that
+          carries the effect on its own. The transition is declared on the hidden state only, so
+          hiding decays and showing snaps back instantly. Nothing here ever fades <em>in</em>.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">2 · GHOSTING</span>
+        <span class="doc-faint doc-small">Text rewritten in place leaves the previous value behind
+          for a beat. Watch the clock and the frame counter on the console page. This is the one part
+          CSS cannot do — nothing in the cascade remembers the old string — so a MutationObserver in
+          <code>amber-console.js</code> parks a copy at the rect it occupied.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">3 · RESIDUAL PATCHES</span>
+        <span class="doc-faint doc-small">The glass never sits perfectly uniform; charge relaxes
+          unevenly. Four overlapping pools at 3% over the amber, drifting on a 47s cycle. You do not
+          notice it directly — you notice when it stops.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">4 · THE BLINK OFF-EDGE</span>
+        <span class="doc-faint doc-small">A blinking alarm is the thing on the panel that stops being
+          driven most often — once a second, forever — so it is the last place the decay should be
+          missing. <code>.ac-blink</code> stays <code>steps(1)</code> by default; with persistence on,
+          only the <em>ON</em> edge stays hard. Instant up, curve down.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">5 · DE-ENERGIZING</span>
+        <span class="doc-faint doc-small">The commonest light-off event on a control panel is not a
+          node disappearing, it is a lamp going out: a pressed button releasing, a tab deselecting,
+          an interlock unchecking, the pointer leaving a control. Those never hide, so decay-out
+          never saw them and they snapped off in one frame while everything around them relaxed.
+          Press RUN then STOP on the console and watch the pad drain.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">6 · SCROLL SMEAR</span>
+        <span class="doc-faint doc-small">Scrolling hands every cell on the panel a new value at
+          once, which is the largest light-off event there is, and the image trails. Scaled by real
+          scroll speed and drained when you stop. Scroll this page briskly.</span></div>
+    </div>
+    <div class="doc-grid2" style="margin-top:16px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
+        <span class="ac-blink" style="background:var(--fill);color:var(--on-fill);padding:4px 14px">✳ LAMP FAULT ✳</span>
+        <span class="doc-faint doc-small">Toggle CRT in the nav and watch this one. Off, it
+          snaps between full and 10%. On, it holds, then drains over an ~88ms window of the 1.1s
+          cycle — deliberately near the floor of what registers as a decay at all.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">EVERY BLINK SITE FOLLOWS</span>
+        <span class="doc-faint doc-small">One rule swaps the <em>animation-name</em> rather than the
+          shorthand, so <code>.ac-blink</code>, <code>.ac-cursor</code>, an invalid
+          <code>.ac-input</code> and an over-range <code>.ac-meter--alarm</code> bar all keep their own
+          cycle length and pick up the same curve. The de-energizing rules use the same trick as
+          decay-out: the transition is declared on the UNLIT half, so going out drains and coming
+          on is instant.</span></div>
+    </div>
+    <code class="doc-code">&lt;div class="ac-screen ac-afterglow"&gt;&lt;span class="ac-persist"&gt;&lt;/span&gt; … &lt;/div&gt;</code>
+    <p class="doc-when">Assuming a removed node ghosts itself. The observer only sees text change;
+      a node that stops existing has no rect left to pin a ghost to, so ghost it
+      <em>before</em> you remove it — <code>AmberConsole.afterglow(row)</code>, then
+      <code>row.remove()</code>. Retune the decay with <code>--ac-decay</code> (105ms),
+      <code>--ac-decay-fast</code> (60ms, for rewritten text and de-energizing controls) and
+      <code>--ac-decay-ease</code>.</p>
+
+    <h3 style="margin:32px 0 12px">THE THREE SIMULATIONS, SIDE BY SIDE</h3>
+    <p class="doc-dim doc-small">Each tile is its own frame. Use the PLASMA and CRT switches in the nav
+      to compare these against the live page — the difference should be almost too small to name.
+      CRT takes the afterglow with it. Note that the switches reach the menu bar too.</p>
+    <div class="doc-grid2" style="margin-top:16px">
+      <div class="doc-sim-tile">
+        <span class="doc-cap">FLAT — NO SIMULATION</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">The baseline. Everything still reads.</span>
+      </div>
+      <div class="doc-sim-tile ac-bloom">
+        <span class="ac-mesh"></span>
+        <span class="doc-cap">.AC-BLOOM — THE PANEL</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">Hotter glow tokens, a soft bleed, and the cell mesh. Put your eye close.</span>
+      </div>
+      <div class="doc-sim-tile ac-crt">
+        <span class="ac-retrace"></span>
+        <span class="doc-cap">.AC-CRT — THE TUBE</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">Scanlines, vignette, drift, flicker, retrace.</span>
+      </div>
+      <div class="doc-sim-tile ac-afterglow">
+        <span class="ac-persist"></span>
+        <span class="doc-cap">.AC-AFTERGLOW — PERSISTENCE</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">Residual patches only, here — a static tile has nothing to decay.</span>
+      </div>
+      <div class="doc-sim-tile ac-scanlines">
+        <span class="doc-cap">.AC-SCANLINES — STATIC TEXTURE</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">No motion at all. For print, cards and thumbnails.</span>
+      </div>
+    </div>
+    <code class="doc-code">&lt;div class="ac-screen ac-bloom ac-crt ac-afterglow"&gt;&lt;span class="ac-mesh"&gt;&lt;/span&gt;&lt;span class="ac-retrace"&gt;&lt;/span&gt;&lt;span class="ac-persist"&gt;&lt;/span&gt; … &lt;/div&gt;</code>
+    <p class="doc-when">Nesting a simulation inside another one. Once per screen, on the outermost frame
+      — the tiles above are the exception that proves it, and they are documentation, not UI.</p>
+
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BLOCK CURSOR</span><span class="ac-cursor" style="font-size:var(--type-body)">TITLE:HEAT</span>
+        <code class="doc-code">class="ac-cursor"</code></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">GLYPHS — THE ONLY ICON SET</span>
+        <span style="font-size:var(--type-title);text-shadow:var(--glow-text)">✳✳ &nbsp; █ ▮ ▯ &nbsp; ▲ ▼ ◄ ► &nbsp; ┌─┐ └─┘</span>
+        <span class="doc-faint doc-small">Typeset in the terminal font. Never an SVG, never an emoji.</span></div>
+    </div>
+  </section>
+
+  <!-- ================================================================ 05 -->
+  <section id="geometry">
+    <div class="doc-sec-head"><span class="doc-num">05</span><h2>GEOMETRY</h2></div>
+    <div class="doc-grid3" style="margin-top:4px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">SPACING · 4 8 12 16 24 32 48</span>
+        <div style="display:flex;flex-direction:column;gap:8px;width:100%">
+          <div style="height:12px;width:4px;background:var(--amber-50)"></div>
+          <div style="height:12px;width:8px;background:var(--amber-50)"></div>
+          <div style="height:12px;width:16px;background:var(--amber-50)"></div>
+          <div style="height:12px;width:32px;background:var(--amber-50)"></div>
+          <div style="height:12px;width:48px;background:var(--amber-50)"></div>
+        </div>
+        <span class="doc-faint doc-small">4px half-cells of the character grid.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">STROKE · 2PX ONLY</span>
+        <div style="width:100%;height:56px;border:var(--border-w) solid var(--stroke)"></div>
+        <span class="doc-faint doc-small">No hairlines — a 1px rule cannot exist on this panel. The one
+          exception is <code>.ac-badge</code>, which is a chip rather than structure.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">RADIUS · 8 PADS / 4 WELLS / 0 STRIPS</span>
+        <div style="display:flex;gap:10px">
+          <div style="width:56px;height:44px;border:var(--border-w) solid var(--stroke);border-radius:var(--radius)"></div>
+          <div style="width:56px;height:44px;border:var(--border-w) solid var(--stroke-dim);border-radius:var(--radius-sm);background:var(--screen-well)"></div>
+          <div style="width:56px;height:44px;background:var(--fill)"></div>
+        </div>
+        <span class="doc-faint doc-small">CRT-rounded corners, never pills.</span></div>
+    </div>
+  </section>
+
+  <!-- ================================================================ 06 -->
+  <section id="controls">
+    <div class="doc-sec-head"><span class="doc-num">06</span><h2>CONTROLS</h2></div>
+    <p class="doc-dim">Live components from the library. Hover to brighten, press to invert, tab to see the
+      dashed focus ring.</p>
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:20px">
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — VARIANTS</span>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+          <button type="button" class="ac-btn">Run</button>
+          <button type="button" class="ac-btn ac-btn--filled">Manual</button>
+          <button type="button" class="ac-btn ac-btn--dim">Spare</button>
+          <button type="button" class="ac-btn" disabled>Locked</button>
+          <button type="button" class="ac-btn ac-blink">Ack Alarm</button>
+        </div>
+        <span class="doc-faint doc-small">Outline is default. Filled is inverse video — one primary per region. Dim is secondary. Disabled drops to faint and loses its glow.</span>
+        <code class="doc-code">class="ac-btn"  ac-btn--filled  ac-btn--dim  ac-btn--block  [disabled]
+&lt;!-- or drive it with ARIA: --&gt;  &lt;button class="ac-btn" aria-pressed="true"&gt;</code>
+        <p class="doc-when">More than one filled button in a region. Inverse video means "the machine is
+          doing this"; two of them means neither reads.</p>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — SIZES</span>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <button type="button" class="ac-btn ac-btn--sm">Jog</button>
+          <button type="button" class="ac-btn">Auto Load</button>
+          <button type="button" class="ac-btn ac-btn--lg">Change Show</button>
+        </div>
+        <code class="doc-code">class="ac-btn ac-btn--sm"   ac-btn   ac-btn--lg</code>
+        <p class="doc-when"><code>--sm</code> on a touch panel: it computes to about 30px tall, under the
+          44px hit-target floor. Use it only in dense, mouse-driven tooling.</p>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — TOUCH PADS (LABEL TOP-LEFT, BODY EMPTY)</span>
+        <div class="ac-row ac-row--wrap" style="--gap:16px;width:100%">
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-btn--filled ac-grow">Run</button>
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow">Jog</button>
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow">Stop</button>
+        </div>
+        <span class="doc-faint doc-small">Sized for a gloved finger; the active mode is the filled one. Selection is state, not decoration.</span>
+        <code class="doc-code">class="ac-btn ac-btn--lg ac-btn--pad ac-grow"</code>
+        <p class="doc-when">A row of pads without <code>.ac-grow</code> (or <code>min-width:0</code>) —
+          the 130px min-width floor will overflow a narrow viewport.</p>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">TABS — SOFT KEYS, TITLE CASE</span>
+        <div class="ac-tabs" role="tablist" data-ac="tabs">
+          <button type="button" class="ac-tab" role="tab" aria-selected="true">Functions</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false">Alarms</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false">Presets</button>
+        </div>
+        <span class="doc-faint doc-small">Arrow keys, Home and End move between them when the optional JS module is loaded.</span>
+        <code class="doc-code">&lt;div class="ac-tabs" role="tablist" data-ac="tabs"&gt;
+  &lt;button class="ac-tab" role="tab" aria-selected="true" aria-controls="panel-1"&gt;Functions&lt;/button&gt;
+&lt;/div&gt;</code>
+        <p class="doc-when">Navigation between pages — that is <code>.ac-nav</code>. Tabs swap a region,
+          not a screen.</p>
+      </div>
+
+      <div class="doc-grid2">
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">INPUT + SELECT — RECESSED WELLS</span>
+          <label class="ac-field ac-field--block"><span class="ac-field__label">Title:</span><input class="ac-input ac-input--block" type="text" value="HEAT"></label>
+          <label class="ac-field ac-field--block"><span class="ac-field__label">Trailer:</span><input class="ac-input ac-input--block" type="text" placeholder="NONE LOADED"></label>
+          <label class="ac-field ac-field--block"><span class="ac-field__label">Mode</span>
+            <span class="ac-select ac-select--block"><select class="ac-input"><option>AUTO</option><option>MANUAL</option><option>REMOTE</option></select></span>
+          </label>
+          <label class="ac-field ac-field--block ac-field--invalid"><span class="ac-field__label">Reel:</span><input class="ac-input ac-input--block" type="text" value="OUT OF RANGE" aria-invalid="true"></label>
+          <span class="doc-faint doc-small">Invalid is blink plus inverse video. There is no red border, because there is no red.</span>
+          <code class="doc-code">&lt;label class="ac-field"&gt;
+  &lt;span class="ac-field__label"&gt;Title:&lt;/span&gt;
+  &lt;input class="ac-input" type="text"&gt;
+&lt;/label&gt;
+&lt;span class="ac-select"&gt;&lt;select class="ac-input"&gt;…&lt;/select&gt;&lt;/span&gt;</code>
+        </div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">CHECKBOX — STATUS BITS (NO CHECK GLYPH)</span>
+          <label class="ac-check"><input type="checkbox"><span>Spare</span></label>
+          <label class="ac-check"><input type="checkbox"><span>Remote Start Bit</span></label>
+          <label class="ac-check"><input type="checkbox" checked><span>In Show Position</span></label>
+          <label class="ac-check"><input type="checkbox" checked><span>Reel Unit Ready</span></label>
+          <label class="ac-check ac-check--disabled"><input type="checkbox" disabled><span>Locked Out</span></label>
+          <span class="doc-faint doc-small">A set bit fills solid, exactly like a hardware indicator lamp.</span>
+          <code class="doc-code">&lt;label class="ac-check"&gt;&lt;input type="checkbox"&gt;&lt;span&gt;Spare&lt;/span&gt;&lt;/label&gt;</code>
+          <p class="doc-when">A single yes/no setting the operator flips — that reads better as an
+            <code>.ac-toggle</code>, which states ON or OFF in words.</p>
+        </div>
+      </div>
+
+      <div class="doc-grid2">
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">RADIO — EXCLUSIVE MODES</span>
+          <label class="ac-radio"><input type="radio" name="doc-mode" checked><span>Auto</span></label>
+          <label class="ac-radio"><input type="radio" name="doc-mode"><span>Manual</span></label>
+          <label class="ac-radio"><input type="radio" name="doc-mode"><span>Remote</span></label>
+          <code class="doc-code">&lt;label class="ac-radio"&gt;&lt;input type="radio" name="mode"&gt;&lt;span&gt;Auto&lt;/span&gt;&lt;/label&gt;</code>
+          <p class="doc-when">More than about five options — that is an <code>.ac-select</code>.</p>
+        </div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">TOGGLE — HARD SNAP, ON/OFF READOUT</span>
+          <button type="button" class="ac-toggle" data-ac="toggle" aria-pressed="true"><span>Lamp</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button>
+          <label class="ac-toggle ac-toggle--input"><span>Douser</span><input type="checkbox"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state"></span></label>
+          <button type="button" class="ac-toggle" disabled><span>Spare</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span></button>
+          <span class="doc-faint doc-small">The thumb jumps; it does not slide. Text state is mandatory — a switch position alone is ambiguous on a monochrome panel. The middle one is the CSS-only variant: no JavaScript at all.</span>
+          <code class="doc-code">&lt;button class="ac-toggle" data-ac="toggle" aria-pressed="false"&gt;…&lt;/button&gt;
+&lt;label class="ac-toggle ac-toggle--input"&gt;…&lt;input type="checkbox"&gt;…&lt;/label&gt;</code>
+        </div>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">KEYPAD — NUMERIC ENTRY FOR GLOVED HANDS</span>
+        <div class="ac-keypad">
+          <button type="button" class="ac-btn ac-keypad__key">7</button>
+          <button type="button" class="ac-btn ac-keypad__key">8</button>
+          <button type="button" class="ac-btn ac-keypad__key">9</button>
+          <button type="button" class="ac-btn ac-keypad__key">4</button>
+          <button type="button" class="ac-btn ac-keypad__key">5</button>
+          <button type="button" class="ac-btn ac-keypad__key">6</button>
+          <button type="button" class="ac-btn ac-keypad__key">1</button>
+          <button type="button" class="ac-btn ac-keypad__key">2</button>
+          <button type="button" class="ac-btn ac-keypad__key">3</button>
+          <button type="button" class="ac-btn ac-keypad__key ac-keypad__key--fn">Clr</button>
+          <button type="button" class="ac-btn ac-keypad__key">0</button>
+          <button type="button" class="ac-btn ac-keypad__key ac-keypad__key--fn ac-btn--filled">Ent</button>
+        </div>
+        <code class="doc-code">&lt;div class="ac-keypad"&gt;&lt;button class="ac-btn ac-keypad__key"&gt;7&lt;/button&gt;…&lt;/div&gt;</code>
+        <p class="doc-when">Any screen with a keyboard attached. This exists because there is no keyboard
+          in a projection booth.</p>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">DIALOG — IT APPEARS; IT DOES NOT FADE IN</span>
+        <button type="button" class="ac-btn" data-ac-dialog-open="guide-dialog">Open Dialog</button>
+        <span class="doc-faint doc-small">Flat backdrop, no blur, no scale. Built on native <code>&lt;dialog&gt;</code>, so Escape and focus trapping come from the browser.</span>
+        <code class="doc-code">&lt;dialog class="ac-dialog"&gt;&lt;form method="dialog"&gt;
+  &lt;h2 class="ac-dialog__title"&gt;Confirm&lt;/h2&gt;
+  &lt;div class="ac-dialog__body"&gt;…&lt;/div&gt;
+  &lt;div class="ac-dialog__actions"&gt;…&lt;/div&gt;
+&lt;/form&gt;&lt;/dialog&gt;</code>
+        <p class="doc-when">Anything the operator must see machine state behind. A modal on a control
+          surface hides the panel; use an <code>.ac-banner</code> instead.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================================================================ 07 -->
+  <section id="display">
+    <div class="doc-sec-head"><span class="doc-num">07</span><h2>DISPLAY</h2></div>
+    <p class="doc-dim">The machine's own voice: frames, strips, readouts, and the single loudest element
+      the system permits.</p>
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:20px">
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">STATUSBAR — INVERSE (MACHINE VOICE) AND LINE (DATA ROW)</span>
+        <div style="width:100%;display:flex;flex-direction:column;gap:10px">
+          <div class="ac-statusbar" role="status"><span>STATUS:AUTO MODE</span><span>PRESETS COMPLETED</span></div>
+          <div class="ac-statusbar ac-statusbar--line"><span>SHOW TIME 0000:00 (MM:SS)</span><span>DATE 07/23/26</span><span>TIME 22:28:45</span></div>
+        </div>
+        <code class="doc-code">class="ac-statusbar"  ac-statusbar--line   role="status"</code>
+        <p class="doc-when">Prose. A status bar holds <code>KEY:VALUE</code> strings, not sentences.</p>
+      </div>
+
+      <div class="doc-grid3">
+        <div class="doc-demo doc-demo--col doc-span2"><span class="doc-cap">PANEL — LEGEND CHIP BREAKS THE BORDER</span>
+          <div class="ac-panel" style="width:100%"><span class="ac-panel__title">Show Information</span>
+            <div style="color:var(--ink-dim);font-size:var(--type-small)">TRAILER:</div>
+            <div>TITLE:HEAT</div>
+          </div>
+          <code class="doc-code">&lt;div class="ac-panel"&gt;&lt;span class="ac-panel__title"&gt;Show Information&lt;/span&gt;…&lt;/div&gt;</code>
+          <p class="doc-when">A panel over a non-<code>--screen</code> background, unless you also set
+            <code>--ac-panel-title-bg</code> — the chip paints its own background to mask the border.</p>
+        </div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">PANEL — INVERSE BAR TITLE</span>
+          <div class="ac-panel ac-panel--bar" style="width:100%"><div class="ac-panel__barTitle">Frame Count</div>
+            <div class="ac-readout"><div class="ac-readout__value">255315</div></div>
+          </div>
+          <code class="doc-code">class="ac-panel ac-panel--bar"</code>
+        </div>
+      </div>
+
+      <div class="doc-grid3">
+        <div class="doc-demo doc-demo--col doc-span2"><span class="doc-cap">READOUT — INSTRUMENT VALUE</span>
+          <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap">
+            <div class="ac-readout"><div class="ac-readout__label">Lamp Volts</div><div class="ac-readout__value">41.0<span class="ac-readout__unit">V</span></div></div>
+            <div class="ac-readout"><div class="ac-readout__label">Lamp Amps</div><div class="ac-readout__value">154<span class="ac-readout__unit">A</span></div></div>
+            <div class="ac-readout ac-readout--lg"><div class="ac-readout__label ac-readout__label--plain">Frames</div><div class="ac-readout__value">255315</div></div>
+          </div>
+          <code class="doc-code">&lt;div class="ac-readout"&gt;
+  &lt;div class="ac-readout__label"&gt;Lamp Volts&lt;/div&gt;
+  &lt;div class="ac-readout__value"&gt;41.0&lt;span class="ac-readout__unit"&gt;V&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;</code>
+          <p class="doc-when">Text. A readout is for a number that changes.</p>
+        </div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">BADGE — MICRO TAGS, PIXEL FACE</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="ac-badge">CH 04</span><span class="ac-badge ac-badge--filled">Armed</span><span class="ac-badge ac-badge--dim">Spare</span>
+          </div>
+          <code class="doc-code">class="ac-badge"  ac-badge--filled  ac-badge--dim</code>
+          <p class="doc-when">Anything the operator must read at a glance — 8px is a label, not a message.</p>
+        </div>
+      </div>
+
+      <div class="doc-grid3">
+        <div class="doc-demo doc-demo--col doc-span2"><span class="doc-cap">TABLE — THE DATA GRID THIS GENRE LIVES ON</span>
+          <div class="ac-table-scroll" style="width:100%">
+            <table class="ac-table ac-table--zebra">
+              <thead><tr><th>TIME</th><th>CODE</th><th>DESCRIPTION</th><th class="ac-table__num">FRAME</th><th>STATE</th></tr></thead>
+              <tbody>
+                <tr class="ac-table__row--active"><td>22:28:41</td><td>E-114</td><td>DOUSER NOT CONFIRMED</td><td class="ac-table__num">255315</td><td>ACTIVE</td></tr>
+                <tr><td>22:14:02</td><td>W-062</td><td>LAMP CURRENT LOW 148A</td><td class="ac-table__num">234880</td><td>CLEARED</td></tr>
+                <tr><td>21:58:37</td><td>W-041</td><td>REEL UNIT SLACK</td><td class="ac-table__num">212104</td><td>CLEARED</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <code class="doc-code">class="ac-table ac-table--zebra ac-table--dense"   &lt;td class="ac-table__num"&gt;
+&lt;tr class="ac-table__row--active ac-blink"&gt;</code>
+          <p class="doc-when">A fixed set of named readings — that is <code>.ac-list</code>.</p>
+        </div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">LIST — KEYED LOG WITH LEADER DOTS</span>
+          <dl class="ac-list" style="width:100%">
+            <div class="ac-list__item"><dt class="ac-list__key">Lamp Hours</dt><span class="ac-list__fill"></span><dd class="ac-list__value">1284</dd></div>
+            <div class="ac-list__item"><dt class="ac-list__key">Reel</dt><span class="ac-list__fill"></span><dd class="ac-list__value">04 / 06</dd></div>
+            <div class="ac-list__item"><dt class="ac-list__key">Format</dt><span class="ac-list__fill"></span><dd class="ac-list__value">70MM</dd></div>
+          </dl>
+          <code class="doc-code">&lt;dl class="ac-list"&gt;&lt;div class="ac-list__item"&gt;
+  &lt;dt class="ac-list__key"&gt;Reel&lt;/dt&gt;&lt;span class="ac-list__fill"&gt;&lt;/span&gt;
+  &lt;dd class="ac-list__value"&gt;04 / 06&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;</code>
+          <p class="doc-when">Sortable or multi-column data. That is a table.</p>
+        </div>
+      </div>
+
+      <div class="doc-grid2">
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">METER — STEPPED BARGRAPH, NEVER A SMOOTH FILL</span>
+          <div class="ac-meter" style="width:100%">
+            <div class="ac-meter__track" style="--ac-meter-value:72" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="Lamp current"><div class="ac-meter__bar"></div></div>
+            <div class="ac-meter__scale"><span>0</span><span>50</span><span>100</span></div>
+          </div>
+          <div class="ac-meter ac-meter--dim" style="width:100%">
+            <div class="ac-meter__track" style="--ac-meter-value:28"><div class="ac-meter__bar"></div></div>
+          </div>
+          <code class="doc-code">&lt;div class="ac-meter__track" style="--ac-meter-value: 72"&gt;
+  &lt;div class="ac-meter__bar"&gt;&lt;/div&gt;&lt;/div&gt;</code>
+          <p class="doc-when">A single precise reading. A number the operator can write down beats a bar
+            they have to estimate — use an <code>.ac-readout</code>.</p>
+        </div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">SPINNER — A CHARACTER, NOT A CIRCLE</span>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="ac-spinner" role="status" aria-label="Working"></span>
+            <span>LOADING PRESET BANK</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="ac-spinner ac-spinner--lg ac-spinner--dim"></span>
+            <span class="doc-faint">steps(4), 0.8s</span>
+          </div>
+          <code class="doc-code">&lt;span class="ac-spinner" role="status" aria-label="Working"&gt;&lt;/span&gt;</code>
+          <p class="doc-when">Anything whose duration you know. A machine that can measure progress should
+            show an <code>.ac-meter</code>; a spinner admits it cannot.</p>
+        </div>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BANNER — ONE PER SCREEN, THE LOUDEST ELEMENT</span>
+        <div style="width:100%;display:flex;flex-direction:column;gap:12px">
+          <div class="ac-banner">Remote Mode</div>
+          <div class="ac-banner ac-banner--filled ac-blink" role="alert">Lamp Fault</div>
+        </div>
+        <span class="doc-faint doc-small">✳✳ glyphs are added by the component. Blink is reserved for a live, unacknowledged condition — and it is always paired with inverse video and the glyphs, so it still reads as an alarm when blink is switched off.</span>
+        <code class="doc-code">&lt;div class="ac-banner ac-banner--filled ac-blink" role="alert"&gt;Lamp Fault&lt;/div&gt;</code>
+        <p class="doc-when">Two banners on one screen. The second one makes the first one furniture.</p>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">PANEL — DIM FRAME (RECEDES)</span>
+        <div class="ac-panel ac-panel--dim" style="width:100%"><span class="ac-panel__title">Interlocks</span>
+          <span class="doc-faint doc-small">SECONDARY REGION — READ-ONLY INSTRUMENTATION</span>
+        </div>
+        <code class="doc-code">class="ac-panel ac-panel--dim"</code>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================================================================ 08 -->
+  <section id="anatomy">
+    <div class="doc-sec-head"><span class="doc-num">08</span><h2>SCREEN ANATOMY</h2></div>
+    <p class="doc-dim">How a full console screen assembles. Title and soft keys on top; the operating
+      column left, instrumentation right; destructive or exiting actions bottom-right, far from
+      RUN.</p>
+    <div class="doc-scroll" style="margin-top:16px">
+    <table class="doc-table">
+      <thead><tr><th>ZONE</th><th>CONTENTS</th><th>RULES</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">HEADER</td><td>Wordmark, page title (ALL CAPS, underlined), Title Case tabs right.</td><td>One display-size line only.</td></tr>
+        <tr><td class="doc-tok">LEFT COLUMN</td><td>Legend panel with input wells, status strips, motion pads, banner.</td><td>Reading order top to bottom is the operator's workflow.</td></tr>
+        <tr><td class="doc-tok">RIGHT COLUMN</td><td>Bit-field checkboxes in a dim panel, bar panels with readouts.</td><td>Read-only instrumentation; dim frames so it recedes.</td></tr>
+        <tr><td class="doc-tok">FOOTER ROW</td><td>Mode changes left, exit and destructive actions bottom-right.</td><td>Never adjacent to a motion control.</td></tr>
+        <tr><td class="doc-tok">FRAME</td><td><code>.ac-crt</code>, <code>.ac-bloom</code> and/or <code>.ac-afterglow</code> on the outermost element, plus one companion child per simulation: <code>.ac-mesh</code> for bloom, <code>.ac-retrace</code> for CRT, <code>.ac-persist</code> for afterglow. The nav goes inside it.</td><td>Once per screen, never nested. All three should be operator-toggleable — the demos put afterglow on the CRT switch.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <code class="doc-code">&lt;div class="ac-screen ac-bloom ac-crt ac-afterglow" data-ac-screen&gt;
+  &lt;span class="ac-mesh"&gt;&lt;/span&gt;
+  &lt;span class="ac-retrace"&gt;&lt;/span&gt;
+  &lt;span class="ac-persist"&gt;&lt;/span&gt;
+  &lt;nav class="ac-nav ac-nav--sticky"&gt;…&lt;/nav&gt;
+  &lt;div class="ac-screen__body"&gt;
+    &lt;div class="ac-grid ac-grid--console ac-grow"&gt;
+      &lt;div class="ac-stack"&gt;…operate…&lt;/div&gt;
+      &lt;div class="ac-stack"&gt;…instrument…&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code>
+    <p class="doc-faint doc-small" style="margin-top:20px">See the assembled reference
+      screen: <a href="index.html">ORION-70 PROJECTION CONSOLE</a>.</p>
+  </section>
+
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="index.html" style="color:var(--ink-dim)">GO TO CONSOLE ►</a>
+  </footer>
+
+</div>
+</div>
+
+<dialog class="ac-dialog" id="guide-dialog">
+  <form method="dialog">
+    <h2 class="ac-dialog__title">Confirm</h2>
+    <div class="ac-dialog__body">
+      THE BACKDROP IS FLAT BLACK AT 72%. NO BLUR, NO SCALE, NO FADE —
+      A REDRAWN SCREEN HAS NO IN-BETWEEN FRAMES.
+    </div>
+    <div class="ac-dialog__actions">
+      <button type="submit" class="ac-btn" value="cancel">Cancel</button>
+      <button type="submit" class="ac-btn ac-btn--filled" value="ok">Acknowledge</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="../dist/amber-console.global.js"></script>
+</body>
+</html>

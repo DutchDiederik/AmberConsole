@@ -1,0 +1,141 @@
+/* ===========================================================================
+   Toggle — a two-position switch.
+
+   The literal ON / OFF text is MANDATORY. On a monochrome panel a thumb
+   position alone is ambiguous: there is no colour to say "this one is live".
+
+   The thumb jumps. No transition.
+
+   Two equivalent forms, both shipped:
+
+     button    <button class="ac-toggle" aria-pressed="false">
+                 <span>Plasma</span>
+                 <span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span>
+                 <span class="ac-toggle__state">OFF</span>
+               </button>
+               State hook: aria-pressed (or .ac-toggle--on). Needs JS to flip.
+
+     checkbox  <label class="ac-toggle ac-toggle--input">
+                 <span>Plasma</span>
+                 <input type="checkbox">
+                 <span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span>
+                 <span class="ac-toggle__state"></span>
+               </label>
+               Pure CSS, no JS. The state text is generated from :checked.
+   =========================================================================== */
+
+.ac-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: 1;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-body);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ac-toggle__track {
+  position: relative;
+  width: 64px;
+  height: 28px;
+  flex: none;
+  border: var(--border-w) solid var(--stroke);
+  border-radius: var(--radius-sm);
+}
+
+.ac-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 18px;
+  background: var(--ink-faint);
+}
+
+.ac-toggle--on .ac-toggle__thumb,
+.ac-toggle[aria-pressed="true"] .ac-toggle__thumb {
+  left: auto;
+  right: 3px;
+  background: var(--fill);
+  box-shadow: var(--glow-box);
+}
+
+.ac-toggle__state {
+  min-width: 2.2em;
+  text-align: left;
+  color: var(--ink-dim);
+}
+
+.ac-toggle--on .ac-toggle__state,
+.ac-toggle[aria-pressed="true"] .ac-toggle__state {
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+}
+
+.ac-toggle:disabled {
+  color: var(--ink-faint);
+  cursor: default;
+}
+.ac-toggle:disabled .ac-toggle__track {
+  border-color: var(--stroke-dim);
+}
+.ac-toggle:disabled .ac-toggle__thumb {
+  background: var(--ink-trace);
+  box-shadow: none;
+}
+
+.ac-toggle:focus-visible {
+  outline: 2px dashed var(--ink-dim);
+  outline-offset: 3px;
+}
+
+/* --- CSS-only variant: <label> wrapping a real checkbox --- */
+.ac-toggle--input input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ac-toggle--input .ac-toggle__state::after {
+  content: "OFF";
+}
+
+.ac-toggle--input input:checked ~ .ac-toggle__track .ac-toggle__thumb {
+  left: auto;
+  right: 3px;
+  background: var(--fill);
+  box-shadow: var(--glow-box);
+}
+
+.ac-toggle--input input:checked ~ .ac-toggle__state {
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+}
+.ac-toggle--input input:checked ~ .ac-toggle__state::after {
+  content: "ON";
+}
+
+.ac-toggle--input input:disabled ~ .ac-toggle__track {
+  border-color: var(--stroke-dim);
+}
+.ac-toggle--input input:disabled ~ .ac-toggle__track .ac-toggle__thumb {
+  background: var(--ink-trace);
+  box-shadow: none;
+}
+
+.ac-toggle--input input:focus-visible ~ .ac-toggle__track {
+  outline: 2px dashed var(--ink-dim);
+  outline-offset: 3px;
+}

@@ -1,0 +1,70 @@
+{
+  "name": "amber-console",
+  "version": "1.0.0",
+  "description": "A monochrome amber-terminal CSS framework — the look of a late-1980s industrial control panel. Zero runtime dependencies.",
+  "keywords": [
+    "css",
+    "css-framework",
+    "design-system",
+    "retro",
+    "terminal",
+    "amber",
+    "crt",
+    "monochrome",
+    "no-dependencies"
+  ],
+  "license": "MIT",
+  "author": "Diederik (https://diederik.blog)",
+  "type": "module",
+  "main": "dist/amber-console.css",
+  "style": "dist/amber-console.css",
+  "sideEffects": [
+    "*.css",
+    "./dist/amber-console.js",
+    "./dist/amber-console.global.js",
+    "./src/amber-console.js"
+  ],
+  "exports": {
+    ".": "./dist/amber-console.css",
+    "./layer": "./dist/amber-console.layer.css",
+    "./layer/min": "./dist/amber-console.layer.min.css",
+    "./min": "./dist/amber-console.min.css",
+    "./js": "./dist/amber-console.js",
+    "./js/global": "./dist/amber-console.global.js",
+    "./src/*": "./src/*",
+    "./fonts/*": "./fonts/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "fonts",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "fonts": "node scripts/fetch-fonts.mjs",
+    "assets": "node scripts/make-assets.mjs",
+    "contrast": "node scripts/contrast.mjs",
+    "check": "node scripts/check-prohibitions.mjs",
+    "dev": "node scripts/build.mjs --watch --serve",
+    "lint": "stylelint \"src/**/*.css\"",
+    "test:visual": "node test/visual/capture.mjs",
+    "test": "npm run check && npm run contrast && npm run build"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.0",
+    "stylelint": "^16.26.1",
+    "stylelint-config-standard": "^36.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DutchDiederik/amber-console.git"
+  },
+  "homepage": "https://github.com/DutchDiederik/amber-console#readme"
+}

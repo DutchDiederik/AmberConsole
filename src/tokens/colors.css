@@ -1,0 +1,120 @@
+/* TWO GASES, ONE RAMP.
+ *
+ * The system ships two palettes and the switch between them is `data-ac-gas` on
+ * the root element. They are not a light/dark pair and not a theme — they are
+ * two different pieces of hardware:
+ *
+ *   data-ac-gas="neon"   24deg. The default. A monochrome AC plasma panel, where
+ *                        the light is neon emitting directly and there is no
+ *                        phosphor anywhere in the stack. This is what law 1
+ *                        describes and what the rest of the system simulates.
+ *
+ *   data-ac-gas="amber"  38deg. The classic amber CRT phosphor (P3), a broad
+ *                        ~590nm band with real green content. Historically this
+ *                        is a DIFFERENT display technology — but it is the look
+ *                        most people mean by "amber terminal", it is the ramp the
+ *                        source design system was drawn against, and it pairs
+ *                        naturally with the .ac-crt simulation.
+ *
+ * Everything below is defined twice and only twice: the five discharge stops,
+ * the three surfaces, --on-fill, and the four glow triples. Every other token in
+ * the system is an alias or is built from those, so adding a third gas means
+ * adding one block and nothing else.
+ *
+ * BOTH PALETTES ARE GATED. scripts/contrast.mjs runs the full pair table against
+ * each block independently — a ratio that passes under neon and fails under
+ * amber is a failure. Do not add a stop to one block without the other.
+ */
+
+:root,
+[data-ac-gas="neon"] {
+  /* Surfaces — warm blacks (the unlit gas panel) */
+  --screen: #100600;        /* base panel */
+  --screen-raised: #1b0c02; /* subtly lifted region */
+  --screen-well: #060200;   /* recessed input wells */
+
+  /* Discharge scale — ONE hue, five intensities. Never introduce a second hue
+     WITHIN a palette; the two blocks here are hardware, not decoration.
+
+     THE HUE IS 24deg AND IT IS DERIVED, NOT PICKED. Weight the Ne I visible
+     lines by the CIE 1931 observer and the discharge lands at x=0.631 y=0.369 —
+     just outside sRGB, gamut-mapping to hue 19deg. That is a DC neon tube. This
+     panel is not one: the sustain is a short high-field pulse, which enriches
+     the 585.2nm line (the highest-energy of the 2p->1s group, and already the
+     strongest) against the 640nm red group, and the hue walks up with it. At the
+     ~2x enrichment a pulsed cell plausibly sees, 24deg. The band 19-31deg is the
+     defensible range; 24 sits in the middle of it.
+
+     Saturation is held at 100% for every stop the gas emits, because a
+     near-monochromatic emitter has no way to be pale. --amber-100 is the sole
+     exception and the exception is also physics: no fully-saturated colour at
+     this hue can exceed L=0.318, so a HOTTER cell can only get there by
+     whitening — which is exactly what an overdriven neon cell does.
+
+     Luminance is not free-floating either. Each stop is solved to a contrast
+     ratio against --screen (10.5 / 7.0 / 5.2 / 3.4), because rotating hue at
+     constant lightness drops --amber-50 to 2.79:1 and silently fails the 3:1
+     non-text gate. Re-solve, never re-tint. scripts/contrast.mjs is the check.
+
+     The --amber-* prefix is historical and now names the ramp, not the hue —
+     under this palette it is not amber. Renaming is a public API break; see the
+     token table in README.md. */
+  --amber-100: #ffa86d; /* hot highlight / focus — 10.57:1 */
+  --amber-90:  #ff6b08; /* primary discharge    —  7.02:1 */
+  --amber-70:  #dd5800; /* secondary            —  5.22:1 */
+  --amber-50:  #ab4500; /* dim / disabled       —  3.42:1 */
+  --amber-30:  #5b2500; /* trace / ghost        —  1.63:1, decorative */
+  --on-fill:   #1e0c00;
+
+  /* THE GLOW SOURCE. Four points on the discharge hue, as bare "r, g, b" triples
+     so tokens/effects.css can build every halo from them with its own alphas —
+     rgba(var(--gas-1), 0.4). That indirection is the whole reason the palettes
+     switch cleanly: the halo is the same photons the cell emits, scattered in
+     the glass, so a glow left behind at the other hue puts an amber corona
+     around neon text. Twelve hardcoded rgba() used to live in effects.css and
+     every one of them was a place to forget. */
+  --gas-1: 255, 120, 30; /* core halo */
+  --gas-2: 255, 109, 12; /* mid */
+  --gas-3: 255, 102, 0;  /* deep / outermost */
+  --gas-4: 255, 140, 64; /* pale — hot cores and the retrace band */
+}
+
+/* --- AMBER CRT PHOSPHOR (P3) — the source design system's ramp, kept as an
+       option. Same structure as the block above, same contrast gate. --- */
+[data-ac-gas="amber"] {
+  --screen: #0d0700;
+  --screen-raised: #170e02;
+  --screen-well: #060200;
+
+  --amber-100: #ffd052; /* hot highlight / focus — 13.74:1 */
+  --amber-90:  #ffae1e; /* primary discharge    — 10.81:1 */
+  --amber-70:  #cd8817; /* secondary            —  6.81:1 */
+  --amber-50:  #8d5b10; /* dim / disabled       —  3.47:1 */
+  --amber-30:  #4a2f08; /* trace / ghost        —  1.62:1, decorative */
+  --on-fill:   #1a0e00;
+
+  --gas-1: 255, 174, 30;
+  --gas-2: 255, 150, 12;
+  --gas-3: 255, 120, 0;
+  --gas-4: 255, 186, 64;
+}
+
+/* Aliases and structural tokens — defined ONCE, for every palette. Anything
+   that is the same shape regardless of which gas is in the panel belongs here;
+   anything that is a colour belongs in a palette block above. */
+:root {
+  --ink: var(--amber-90);
+  --ink-bright: var(--amber-100);
+  --ink-dim: var(--amber-70);
+  --ink-faint: var(--amber-50);
+  --ink-trace: var(--amber-30);
+
+  /* Inverse video (solid discharge block, dark text) */
+  --fill: var(--amber-90);
+  --fill-bright: var(--amber-100);
+
+  --stroke: var(--amber-90);
+  --stroke-dim: var(--amber-50);
+
+  /* No red, no green. Alarm/danger = inverse video + blink, never a new hue. */
+}

@@ -1,0 +1,6 @@
+# Text files are LF in the repository regardless of the checkout platform,
+# so dist/ and src/ are byte-identical for everyone.
+* text=auto eol=lf
+
+*.woff2 binary
+*.png binary

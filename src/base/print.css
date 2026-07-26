@@ -1,0 +1,149 @@
+/* ===========================================================================
+   Print
+
+   A console screenshot has to print legibly on a booth wall, so the whole
+   palette inverts to black on white by re-pointing the semantic tokens. Every
+   component keys off those tokens, so nothing else needs restating.
+
+   The 2px rules stay — they are the layout. Glow, bloom, scanlines and every
+   animation go, because they describe energized hardware and paper is not.
+
+   This is the one file besides tokens/colors.css and tokens/effects.css that is
+   allowed to contain literal hex colours; scripts/check-prohibitions.mjs
+   enforces that.
+   =========================================================================== */
+
+@media print {
+  :root {
+    --screen: #ffffff;
+    --screen-raised: #f2f2f2;
+    --screen-well: #ffffff;
+
+    --ink: #000000;
+    --ink-bright: #000000;
+    --ink-dim: #333333;
+    --ink-faint: #666666;
+    --ink-trace: #999999;
+
+    --fill: #000000;
+    --fill-bright: #000000;
+    --on-fill: #ffffff;
+
+    --stroke: #000000;
+    --stroke-dim: #666666;
+
+    --glow-text: none;
+    --glow-box: none;
+  }
+
+  /* .ac-bloom redefines the glow tokens on the frame itself, which is a closer
+     ancestor than :root and so wins for every descendant. Reset it here or the
+     whole page prints with an amber halo around the text. */
+  .ac-bloom {
+    --glow-text: none;
+    --glow-box: none;
+  }
+
+  body {
+    background: #ffffff;
+    color: #000000;
+    -webkit-font-smoothing: auto;
+  }
+
+  .ac-bloom::before,
+  .ac-crt::after,
+  .ac-scanlines::after,
+  .ac-retrace,
+  .ac-persist,
+  .ac-mesh {
+    display: none;
+  }
+
+  /* Paper holds an image indefinitely, which is the opposite problem. A hidden
+     element must print as absent, not as a 40%-opacity smudge over the live one. */
+  .ac-afterglow [hidden],
+  .ac-afterglow dialog:not([open]) {
+    transition: none;
+    filter: none;
+  }
+
+  /* Blanket, for the same reason as the reduced-motion block in
+     tokens/effects.css: every decay is a descendant rule under .ac-afterglow and
+     outranks a plain reset, so catching them by name means missing the next one. */
+  .ac-afterglow *,
+  .ac-afterglow *::before,
+  .ac-afterglow *::after {
+    transition: none !important;
+  }
+
+  /* And the scroll smear, in case the page is captured mid-scroll. The :not()
+     list mirrors the one in tokens/effects.css — keep them identical. */
+  .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh) {
+    filter: none;
+  }
+
+  .ac-blink,
+  .ac-cursor::after,
+  .ac-spinner::before,
+  .ac-meter--alarm .ac-meter__bar,
+  .ac-field--invalid .ac-input,
+  /* Restated at the afterglow override's own weight — see tokens/effects.css. */
+  .ac-afterglow .ac-blink,
+  .ac-afterglow .ac-cursor::after,
+  .ac-afterglow .ac-field--invalid .ac-input,
+  .ac-afterglow .ac-input[aria-invalid="true"],
+  .ac-afterglow .ac-meter--alarm .ac-meter__bar {
+    animation: none;
+    filter: none;
+  }
+
+  /* EVERY FILLED SURFACE NEEDS THIS, and the reason is that browsers print with
+     "background graphics" OFF by default: a background-color without
+     print-color-adjust: exact is simply dropped. So this list is not a
+     nice-to-have, it is the difference between a page that carries its state to
+     paper and one that does not — a set interlock bit prints as an EMPTY
+     square, a thrown switch as an empty box, a meter as an empty track.
+     Anything whose meaning is "this cell is lit" belongs here.
+
+     The visual suite cannot catch a gap in this list. Playwright's
+     emulateMedia({ media: "print" }) renders to a screen surface, which honours
+     backgrounds regardless — so console-1280-print.png shows filled interlocks
+     that a real printer would not. Check it by hand against a print preview. */
+
+  /* Inverse video — a blinking alarm is invisible on paper, so the ✳✳ glyphs
+     and the fill are the only things left carrying it. */
+  .ac-statusbar,
+  .ac-panel__barTitle,
+  .ac-dialog__title,
+  .ac-readout__label,
+  .ac-table th,
+  .ac-table__row--active td,
+  .ac-btn--filled,
+  .ac-btn[aria-pressed="true"],
+  .ac-tab--active,
+  .ac-tab[aria-selected="true"],
+  .ac-nav__link[aria-current="page"],
+  .ac-badge--filled,
+  .ac-banner--filled,
+  .ac-field--invalid .ac-input,
+  .ac-input[aria-invalid="true"],
+  /* Lit lamps and fills — the bit field is the densest state on the panel.
+     The thumb is listed unconditionally, not just when thrown: an OFF thumb
+     that prints as nothing leaves an empty track with no readable position. */
+  .ac-check input:checked,
+  .ac-radio input:checked,
+  .ac-toggle__thumb,
+  .ac-meter__bar {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .ac-screen {
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .ac-nav--sticky {
+    position: static;
+  }
+}

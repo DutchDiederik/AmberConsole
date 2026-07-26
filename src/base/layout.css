@@ -1,0 +1,127 @@
+/* ===========================================================================
+   Layout utilities
+
+   Flex and grid with `gap` everywhere — never margins between siblings, which
+   would fight the 4px half-cell grid. Every container that can hold a
+   long string carries min-width: 0, because .ac-btn--pad has a 130px min-width
+   floor that will otherwise push a grid track wide and overflow the page.
+   =========================================================================== */
+
+/* --- Screen: the full-height frame that hosts .ac-bloom / .ac-crt --- */
+.ac-screen {
+  display: flex;
+  /* SMALL viewport height, not large and not dynamic.
+     `100vh` is the URL-bar-retracted height, so on a phone with the bar showing
+     the frame is taller than the glass and a short screen picks up 60-100px of
+     scroll containing nothing. `100dvh` would track the bar exactly — and
+     re-resolve every time it slides, reflowing a frame that is dragging a
+     viewport-sized backdrop-filter (.ac-bloom::before) behind it. `100svh` is
+     static and can never overflow. It leaves a gap when the bar retracts, and
+     that gap is invisible: this element paints no background of its own, `body`
+     owns --screen, and the overlays are fixed to the real viewport regardless.
+     Declared after the 100vh fallback, which older engines keep. */
+  min-height: 100vh;
+  min-height: 100svh;
+  flex-direction: column;
+  /* The simulation overlays are absolutely positioned to this box, so the frame
+     has to clip. `clip` rather than `hidden`, and the difference is load-bearing:
+     `hidden` makes this box a scroll container, and a scroll container is what
+     `position: sticky` resolves against. The frame never scrolls — the page does
+     — so .ac-nav--sticky inside an overflow:hidden frame silently did not stick
+     at all. `clip` clips without becoming a scrollport, so the bar sticks to the
+     viewport and the overlays still stop at the frame edge. */
+  overflow: clip;
+}
+
+.ac-screen__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  /* 20px 24px — five and six half-cells. Override with --ac-screen-pad. */
+  padding: var(--ac-screen-pad, 20px var(--space-6));
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* --- Stack / Row: one axis, gap driven by a --gap custom property --- */
+.ac-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap, var(--space-4));
+  min-width: 0;
+}
+
+.ac-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--gap, var(--space-4));
+  min-width: 0;
+}
+.ac-row--wrap { flex-wrap: wrap; }
+.ac-row--center { align-items: center; }
+.ac-row--baseline { align-items: baseline; }
+.ac-row--between { justify-content: space-between; }
+.ac-row--end { justify-content: flex-end; }
+
+/* Push everything after it to the far edge. */
+.ac-spacer { flex: 1; }
+
+/* These set `display`, which would otherwise beat the [hidden] attribute. */
+.ac-stack[hidden],
+.ac-row[hidden],
+.ac-grid[hidden],
+.ac-screen[hidden] {
+  display: none;
+}
+
+/* Children of a stack/row that should absorb the leftover space. */
+.ac-grow { flex: 1; min-width: 0; }
+
+/* Drop to the bottom of a flex column — the "pinned bottom-right" idiom. */
+.ac-push { margin-top: auto; }
+
+/* Available to assistive tech, invisible on the panel. For the <legend> of a
+   bit group whose visible label is already the panel's own title. */
+.ac-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Grid --- */
+.ac-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+  gap: var(--gap, var(--space-6));
+  min-width: 0;
+}
+
+/* The canonical console split: operate left, instrument right. */
+.ac-grid--console {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+}
+
+.ac-col-2 { grid-column: span 2; }
+.ac-col-3 { grid-column: span 3; }
+.ac-col-4 { grid-column: span 4; }
+.ac-col-6 { grid-column: span 6; }
+
+/* Below this the instrument column can no longer hold its 280px floor beside a
+   usable operating column, so both stack. Matches the source console screen. */
+@media (max-width: 900px) {
+  .ac-grid--console {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ac-col-2,
+  .ac-col-3,
+  .ac-col-4,
+  .ac-col-6 {
+    grid-column: auto;
+  }
+}

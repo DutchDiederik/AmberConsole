@@ -1,0 +1,186 @@
+/* ===========================================================================
+   Forced colors
+
+   This whole design is a colour trick, so high-contrast mode needs a real
+   fallback rather than a broken one. Per the Forced Colors Mode spec the UA
+   forces text-shadow and box-shadow to none, which kills the discharge glow —
+   but ONLY while an element keeps forced-color-adjust: auto. What is left to do:
+
+     1. Remove the simulation overlays entirely — they are decoration.
+     2. Restate every border in CanvasText, since our borders carry the layout.
+     3. Restate inverse video in Highlight / HighlightText, because "this block
+        is the machine speaking" is information, not styling, and it would
+        otherwise flatten into the page.
+     4. Kill the glow again on everything (3) opts out.
+
+   POINT 4 IS NOT BOOKKEEPING. `forced-color-adjust: none` opts an element out
+   of forced colors WHOLESALE, and that hands it back its box-shadow — so the
+   very rules that preserve inverse video also reinstate an amber discharge halo
+   around it, which is an off-palette colour bleeding into the one mode that
+   exists to have no off-palette colours. Every block below that sets
+   forced-color-adjust: none must also restate its shadows.
+
+   The inverse-video list is the whole set of components that fill with
+   var(--fill). Grep for it before adding a component: a state that reads as
+   "the machine is speaking" and flattens to an outline here has lost its
+   meaning, not just its styling.
+   =========================================================================== */
+
+@media (forced-colors: active) {
+  .ac-bloom::before,
+  .ac-crt::after,
+  .ac-scanlines::after,
+  .ac-retrace,
+  .ac-persist,
+  .ac-mesh {
+    display: none;
+  }
+
+  /* A decaying ghost is a low-contrast duplicate of live text, which is the one
+     thing high-contrast mode exists to prevent. Hiding goes back to instant. */
+  .ac-afterglow [hidden],
+  .ac-afterglow dialog:not([open]) {
+    transition: none;
+    filter: none;
+  }
+
+  /* Blanket, for the same reason as the reduced-motion block in
+     tokens/effects.css: every decay is a descendant rule under .ac-afterglow and
+     outranks a plain reset, so catching them by name means missing the next one. */
+  .ac-afterglow *,
+  .ac-afterglow *::before,
+  .ac-afterglow *::after {
+    transition: none !important;
+  }
+
+  /* And the scroll smear, in case the page is captured mid-scroll. The :not()
+     list mirrors the one in tokens/effects.css — keep them identical. */
+  .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh) {
+    filter: none;
+  }
+
+  /* Blink survives forced colors — it carries the alarm — but it goes back to a
+     hard steps(1) edge. Every frame the decay adds is a partly-transparent one,
+     and a user who asked for maximum contrast did not ask for an alarm that
+     spends a third of its cycle sliding through it. */
+  .ac-afterglow .ac-blink,
+  .ac-afterglow .ac-cursor::after,
+  .ac-afterglow .ac-field--invalid .ac-input,
+  .ac-afterglow .ac-input[aria-invalid="true"],
+  .ac-afterglow .ac-meter--alarm .ac-meter__bar {
+    animation-name: ac-blink;
+    animation-timing-function: steps(1);
+    filter: none;
+  }
+
+  .ac-btn,
+  .ac-tab,
+  .ac-panel,
+  .ac-input,
+  .ac-banner,
+  .ac-dialog,
+  .ac-toggle__track,
+  .ac-meter__track,
+  .ac-check input,
+  .ac-radio input {
+    border-color: CanvasText;
+  }
+
+  .ac-nav {
+    border-bottom-color: CanvasText;
+  }
+
+  .ac-hr {
+    border-top-color: CanvasText;
+  }
+
+  .ac-table td {
+    border-bottom-color: CanvasText;
+  }
+
+  .ac-list__fill {
+    border-bottom-color: CanvasText;
+  }
+
+  /* Inverse video — the machine's voice. Must survive. */
+  .ac-btn--filled,
+  .ac-btn[aria-pressed="true"],
+  .ac-tab--active,
+  .ac-tab[aria-selected="true"],
+  .ac-nav__link[aria-current="page"],
+  .ac-statusbar,
+  .ac-panel__barTitle,
+  .ac-dialog__title,
+  .ac-readout__label,
+  .ac-badge--filled,
+  /* The loudest element the system has. README says the inverse fill and the
+     ✳✳ glyphs are what carry the alarm once blink is switched off — so this is
+     the last thing that may flatten into an outlined box here. */
+  .ac-banner--filled,
+  .ac-table th,
+  .ac-table__row--active td {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+    box-shadow: none;
+    text-shadow: none;
+  }
+
+  /* Rejected entry. Invalid is inverse video PLUS blink, and the blink is
+     restated above — without the fill, an invalid field is a normal field that
+     flickers, which reads as a rendering fault rather than a rejection. */
+  .ac-field--invalid .ac-input,
+  .ac-input[aria-invalid="true"] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+    caret-color: HighlightText;
+    box-shadow: none;
+    text-shadow: none;
+  }
+  .ac-field--invalid .ac-input::placeholder,
+  .ac-input[aria-invalid="true"]::placeholder {
+    color: HighlightText;
+  }
+
+  .ac-statusbar--line,
+  .ac-readout__label--plain {
+    forced-color-adjust: auto;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  /* Lit indicator lamps and meter fill. The --input toggle is the CSS-only
+     variant and carries no aria-pressed at all, so it has to be matched through
+     :checked or an ON switch renders with the GrayText thumb below — i.e. it
+     reads as OFF. (The mandatory ON/OFF text is why that was survivable rather
+     than fatal, which is the rule earning its keep.) */
+  .ac-check input:checked,
+  .ac-toggle--on .ac-toggle__thumb,
+  .ac-toggle[aria-pressed="true"] .ac-toggle__thumb,
+  .ac-toggle--input input:checked ~ .ac-toggle__track .ac-toggle__thumb,
+  .ac-meter__bar {
+    forced-color-adjust: none;
+    background: Highlight;
+    box-shadow: none;
+  }
+
+  /* The radio keeps its ring: the gap is punched with an inset shadow, so this
+     one cannot take `box-shadow: none` with the rest — the lamp would fill in
+     solid and stop reading as a radio. Restate the gap in Canvas instead. */
+  .ac-radio input:checked {
+    forced-color-adjust: none;
+    background: Highlight;
+    box-shadow: inset 0 0 0 3px Canvas;
+  }
+
+  .ac-toggle__thumb {
+    forced-color-adjust: none;
+    background: GrayText;
+    box-shadow: none;
+  }
+
+  :focus-visible {
+    outline-color: CanvasText;
+  }
+}

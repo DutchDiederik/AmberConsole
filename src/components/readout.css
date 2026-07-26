@@ -1,0 +1,68 @@
+/* ===========================================================================
+   Readout — an instrument value.
+
+   The number is the largest thing on the panel and the only --ink-bright text
+   in its region. Units ride at body size so the digits keep the eye.
+
+   Markup: <div class="ac-readout">
+             <div class="ac-readout__label">Lamp</div>
+             <div class="ac-readout__value">41.0<span class="ac-readout__unit">V</span></div>
+           </div>
+   =========================================================================== */
+
+.ac-readout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-family: var(--font-terminal);
+  text-align: center;
+  min-width: 0;
+}
+
+.ac-readout__label {
+  background: var(--fill);
+  color: var(--on-fill);
+  padding: 3px 12px;
+  font-size: var(--type-small);
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.ac-readout__label--plain {
+  background: transparent;
+  color: var(--ink-dim);
+  padding: 0;
+}
+
+.ac-readout__value {
+  font-size: var(--type-display);
+  line-height: 1;
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ac-readout__unit {
+  font-size: var(--type-body);
+  color: var(--ink);
+  margin-left: 6px;
+}
+
+/* Hero value — one per screen at most. */
+.ac-readout--lg .ac-readout__value {
+  font-size: 64px;
+}
+
+/* Dense form: label left, value right, on one row. For instrument tables. */
+.ac-readout--inline {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  text-align: left;
+}
+.ac-readout--inline .ac-readout__value {
+  font-size: var(--type-title);
+}

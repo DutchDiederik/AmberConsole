@@ -1,0 +1,84 @@
+/* ===========================================================================
+   Meter — a horizontal bargraph in discrete cells.
+
+   The fill is a repeating-linear-gradient of 8px blocks with 4px gaps: a
+   stepped bar, never a smooth one. A continuous gradient would imply a
+   precision the panel does not have, and law 3 forbids decorative gradients.
+
+   Set the value as a 0-100 number on --ac-meter-value:
+
+     <div class="ac-meter">
+       <div class="ac-meter__track" style="--ac-meter-value: 72"
+            role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100">
+         <div class="ac-meter__bar"></div>
+       </div>
+       <div class="ac-meter__scale"><span>0</span><span>50</span><span>100</span></div>
+     </div>
+
+   WHEN NOT TO USE: a single precise reading. That is an .ac-readout — a number
+   the operator can write down beats a bar they have to estimate.
+   =========================================================================== */
+
+.ac-meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-family: var(--font-terminal);
+  min-width: 0;
+}
+
+.ac-meter__track {
+  position: relative;
+  height: 24px;
+  border: var(--border-w) solid var(--stroke-dim);
+  border-radius: var(--radius-sm);
+  background: var(--screen-well);
+  overflow: hidden;
+}
+
+.ac-meter__bar {
+  height: 100%;
+  width: calc(var(--ac-meter-value, 0) * 1%);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--fill) 0 8px,
+    transparent 8px 12px
+  );
+  box-shadow: var(--glow-box);
+}
+
+.ac-meter__scale {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+}
+
+.ac-meter--lg .ac-meter__track {
+  height: 32px;
+}
+
+.ac-meter--dim .ac-meter__bar {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ink-faint) 0 8px,
+    transparent 8px 12px
+  );
+  box-shadow: none;
+}
+
+/* Over-range. Inverse-video the whole track and blink it — there is no red. */
+.ac-meter--alarm .ac-meter__track {
+  border-color: var(--stroke);
+}
+.ac-meter--alarm .ac-meter__bar {
+  animation: ac-blink 1.1s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-meter--alarm .ac-meter__bar {
+    animation: none;
+  }
+}

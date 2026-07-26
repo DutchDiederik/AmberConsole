@@ -1,0 +1,14 @@
+/* ===========================================================================
+   Rule — a 2px divider. Use <hr class="ac-hr">.
+   =========================================================================== */
+
+.ac-hr {
+  border: none;
+  border-top: var(--border-w) solid var(--stroke-dim);
+  margin: var(--space-4) 0;
+}
+
+/* Full-strength divider, for separating two regions rather than two rows. */
+.ac-hr--bright {
+  border-top-color: var(--stroke);
+}

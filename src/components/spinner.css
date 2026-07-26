@@ -1,0 +1,59 @@
+/* ===========================================================================
+   Spinner — a wait indicator made of characters.
+
+   Not a rotating circle: a circle is an icon, and this system has no icon set.
+   This is the terminal's own idiom — one cell cycling through | / — \ on a hard
+   steps() clock, so it lands on whole characters the way a real one did.
+
+   Implemented as a 4-line block scrolled inside a 1-cell window by a transform,
+   which every browser animates. (Animating the `content` property directly is
+   not portable.)
+
+   Markup: <span class="ac-spinner" role="status" aria-label="Working"></span>
+
+   WHEN NOT TO USE: anything whose duration you know. A machine that can measure
+   progress should show an .ac-meter; a spinner admits it cannot.
+   =========================================================================== */
+
+.ac-spinner {
+  display: inline-block;
+  overflow: hidden;
+  width: 1ch;
+  height: 1em;
+  line-height: 1;
+  vertical-align: -0.1em;
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+}
+
+.ac-spinner::before {
+  content: "|\A/\A—\A\\";
+  display: block;
+  white-space: pre;
+  line-height: 1;
+  animation: ac-spinner-turn 0.8s steps(4) infinite;
+}
+
+@keyframes ac-spinner-turn {
+  to {
+    transform: translateY(-4em);
+  }
+}
+
+.ac-spinner--dim {
+  color: var(--ink-faint);
+  text-shadow: none;
+}
+
+.ac-spinner--lg {
+  font-size: var(--type-title);
+}
+
+/* Static, but still unmistakably "working". */
+@media (prefers-reduced-motion: reduce) {
+  .ac-spinner::before {
+    animation: none;
+  }
+}

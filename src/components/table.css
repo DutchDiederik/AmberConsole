@@ -1,0 +1,68 @@
+/* ===========================================================================
+   Table — the data grid this UI genre lives on.
+
+   Inverse-video <thead> in Silkscreen micro caps, --ink-trace row separators,
+   zero rounding. Numeric columns get .ac-table__num for tabular alignment.
+
+   __row--active is the live row: inverse video. Add .ac-blink for an
+   unacknowledged alarm — the inverse fill is what carries it when the blink is
+   suppressed by prefers-reduced-motion.
+
+   Wrap wide tables in <div class="ac-table-scroll"> so the page body never
+   scrolls sideways.
+   =========================================================================== */
+
+.ac-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-terminal);
+  font-size: var(--type-small);
+}
+
+.ac-table th {
+  text-align: left;
+  font-weight: 400;
+  text-transform: uppercase;
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  background: var(--fill);
+  color: var(--on-fill);
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+.ac-table td {
+  padding: 6px 12px;
+  color: var(--ink);
+  border-bottom: var(--border-w) solid var(--ink-trace);
+  text-transform: uppercase;
+}
+
+.ac-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ac-table__row--active td {
+  background: var(--fill);
+  color: var(--on-fill);
+}
+
+.ac-table--zebra tbody tr:nth-child(even) td {
+  background: var(--screen-raised);
+}
+
+.ac-table--dense td,
+.ac-table--dense th {
+  padding: 2px 10px;
+}
+
+.ac-table__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ac-table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}

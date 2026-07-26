@@ -1,0 +1,23 @@
+/* ===========================================================================
+   Amber Console — webfonts via CDN (alternative to tokens/fonts.css)
+
+   Use this instead of tokens/fonts.css if you would rather not vendor the woff2
+   binaries. One-line swap in amber-console.css:
+
+     @import "tokens/fonts.css";       ->  @import "tokens/fonts-cdn.css";
+
+   Trade-off: every page load makes a third-party request to fonts.googleapis.com
+   and fonts.gstatic.com. Offline and file:// pages fall back to Courier New,
+   which loses the bitmap grid the whole system depends on. tokens/fonts.css is
+   the default for exactly that reason.
+
+   NOTE: scripts/build.mjs does not bundle this file — it is not reachable from
+   the default import graph. If you swap it in, rebuild.
+
+   Both faces are SIL Open Font License 1.1, regular weight only — there is no
+   bold in this system, and requesting one would fetch a face nothing uses.
+   VT323      — digitization of the DEC VT320 terminal ROM. Body/display, 18px+.
+   Silkscreen — 1px pixel face, 8-10px micro labels only.
+   =========================================================================== */
+
+@import "https://fonts.googleapis.com/css2?family=VT323&family=Silkscreen&display=swap";

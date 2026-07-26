@@ -1,0 +1,60 @@
+/* ===========================================================================
+   Tabs — soft keys, Title Case.
+
+   Casing is semantic: these are operator-facing, so they are NOT uppercased
+   like system text. text-transform: none is load-bearing, not an oversight.
+
+   Markup: role="tablist" > role="tab" + aria-selected, and aria-controls
+   pointing at a role="tabpanel". src/amber-console.js adds the arrow-key model;
+   the component looks and reads correctly without it.
+   =========================================================================== */
+
+.ac-tabs {
+  display: flex;
+  gap: var(--space-2);
+  /* Three title-size soft keys need ~455px. Wrap to a second row rather than
+     be clipped — same rule as .ac-nav, and for the same reason: a control panel
+     shows you every key it has. */
+  flex-wrap: wrap;
+}
+
+.ac-tab {
+  font-family: var(--font-terminal);
+  font-size: var(--type-title);
+  line-height: 1;
+  color: var(--ink);
+  background: transparent;
+  text-transform: none;
+  border: var(--border-w) solid var(--stroke);
+  border-radius: var(--radius);
+  /* The 20px bottom padding is dead space that makes a soft key read as a
+     physical key. It is intentional. Do not snap it to the 4/8px grid. */
+  padding: 8px 24px 20px;
+  cursor: pointer;
+  text-shadow: var(--glow-text);
+}
+
+.ac-tab:hover {
+  color: var(--ink-bright);
+  border-color: var(--amber-100);
+}
+
+.ac-tab--active,
+.ac-tab[aria-selected="true"] {
+  background: var(--fill);
+  color: var(--on-fill);
+  text-shadow: none;
+  box-shadow: var(--glow-box);
+}
+
+.ac-tab:disabled {
+  color: var(--ink-faint);
+  border-color: var(--stroke-dim);
+  text-shadow: none;
+  cursor: default;
+}
+
+.ac-tab:focus-visible {
+  outline: 2px dashed var(--ink-dim);
+  outline-offset: 3px;
+}

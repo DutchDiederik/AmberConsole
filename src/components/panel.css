@@ -1,0 +1,61 @@
+/* ===========================================================================
+   Panel — the framed region. Borders do the layout work; there is no elevation.
+
+   Two title treatments:
+     .ac-panel__title     legend chip breaking the top border
+     .ac-panel--bar +
+     .ac-panel__barTitle  full-width inverse strip (the machine's own heading)
+
+   The legend chip paints --screen to mask the border behind it. On a panel
+   sitting over a different background, override --ac-panel-title-bg.
+   =========================================================================== */
+
+.ac-panel {
+  position: relative;
+  box-sizing: border-box;
+  border: var(--border-w) solid var(--stroke);
+  border-radius: var(--radius);
+  padding: var(--space-6) var(--space-4) var(--space-4);
+  min-width: 0;
+}
+
+/* Read-only / secondary regions recede. */
+.ac-panel--dim {
+  border-color: var(--stroke-dim);
+}
+
+.ac-panel__title {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  padding: 0 8px;
+  background: var(--ac-panel-title-bg, var(--screen));
+  font-family: var(--font-terminal);
+  font-size: var(--type-small);
+  line-height: 1;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-shadow: var(--glow-text);
+}
+
+.ac-panel--dim .ac-panel__title {
+  color: var(--ink-dim);
+}
+
+.ac-panel--bar {
+  padding-top: 0;
+  overflow: hidden;
+}
+
+.ac-panel__barTitle {
+  margin: 0 calc(-1 * var(--space-4)) var(--space-3);
+  padding: 4px 16px;
+  text-align: center;
+  background: var(--fill);
+  color: var(--on-fill);
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}

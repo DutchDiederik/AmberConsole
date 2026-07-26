@@ -1,0 +1,65 @@
+/* ===========================================================================
+   Checkbox — a status bit, not a to-do tick.
+
+   :checked fills the square solid, exactly like a hardware indicator lamp.
+   There is deliberately NO check glyph: the panel lights a cell or it does not.
+
+   Markup: <label class="ac-check"><input type="checkbox"><span>Label</span></label>
+   Group them in a <fieldset> with a <legend>.
+
+   The drawn square stays 20px. The clickable LABEL carries min-height: 44px to
+   meet the hit-target floor — see README, "Known constraints".
+   =========================================================================== */
+
+.ac-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: 1;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-body);
+  cursor: pointer;
+}
+
+.ac-check input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: none;
+  border: var(--border-w) solid var(--stroke);
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ac-check input:checked {
+  background: var(--fill);
+  box-shadow: var(--glow-box);
+}
+
+.ac-check--disabled,
+.ac-check:has(input:disabled) {
+  color: var(--ink-faint);
+  cursor: default;
+}
+.ac-check--disabled input,
+.ac-check input:disabled {
+  border-color: var(--stroke-dim);
+  cursor: default;
+}
+.ac-check--disabled input:checked,
+.ac-check input:disabled:checked {
+  background: var(--ink-faint);
+  box-shadow: none;
+}
+
+.ac-check input:focus-visible {
+  outline: 2px dashed var(--ink-dim);
+  outline-offset: 3px;
+}

@@ -1,0 +1,17 @@
+:root {
+  --font-terminal: "VT323", "Courier New", ui-monospace, monospace;
+  --font-micro: "Silkscreen", "VT323", ui-monospace, monospace;
+
+  /* VT323 is a bitmap face: it needs LARGE sizes. Never below 18px. */
+  --type-display: 44px; /* page titles, banners */
+  --type-title: 30px;   /* panel/soft-key headers */
+  --type-body: 22px;    /* default UI text */
+  --type-small: 18px;   /* field labels, legends */
+  --type-micro: 8px;    /* Silkscreen only — bit labels, badges */
+
+  --tracking-display: 0.1em;
+  --tracking-body: 0.04em;
+  --tracking-micro: 0.08em;
+
+  --leading: 1.15; /* terminal rows sit tight */
+}

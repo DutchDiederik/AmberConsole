@@ -1,0 +1,80 @@
+/* ===========================================================================
+   List — a keyed log. KEY:VALUE rows joined by leader dots.
+
+   Derived from law 4 (the character grid) and law 6 (ornament is typographic):
+   the filler is a 2px dotted rule, which at 2px renders as square cells rather
+   than round dots — the same grid the rest of the panel sits on.
+
+   Markup: <dl class="ac-list">
+             <div class="ac-list__item">
+               <dt class="ac-list__key">Lamp Hours</dt>
+               <span class="ac-list__fill"></span>
+               <dd class="ac-list__value">1284</dd>
+             </div>
+           </dl>
+
+   WHEN NOT TO USE: more than one value per key, or anything sortable — that is
+   a table. This is for a fixed set of named readings.
+   =========================================================================== */
+
+.ac-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-body);
+  min-width: 0;
+}
+
+.ac-list__item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  min-width: 0;
+}
+
+.ac-list__key {
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+/* An empty flex item's baseline is its bottom margin edge, so the dotted rule
+   lands exactly on the row's text baseline. */
+.ac-list__fill {
+  flex: 1;
+  min-width: var(--space-6);
+  align-self: baseline;
+  border-bottom: var(--border-w) dotted var(--ink-trace);
+}
+
+.ac-list__value {
+  margin: 0;
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Values that are the point of the panel rather than context. */
+.ac-list--bright .ac-list__value {
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+}
+
+.ac-list--dense {
+  gap: 0;
+  font-size: var(--type-small);
+}
+
+.ac-list--dim .ac-list__key {
+  color: var(--ink-faint);
+}
+.ac-list--dim .ac-list__value {
+  color: var(--ink-dim);
+}

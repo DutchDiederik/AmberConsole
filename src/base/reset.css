@@ -1,0 +1,71 @@
+/* ===========================================================================
+   Reset — minimal and deliberately opinionated.
+
+   This framework owns the look of a whole screen, so it is assertive: it styles
+   `body` directly. Embedding Amber Console inside an existing app instead?
+   Import base/reset-scoped.css, which applies the same rules under .ac-root.
+   =========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--screen);
+  color: var(--ink);
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: var(--leading);
+  letter-spacing: var(--tracking-body);
+  /* Antialiasing softens the bitmap grid and kills the effect. Keep this. */
+  -webkit-font-smoothing: none;
+}
+
+/* There is no bold in the terminal face — weight carries no meaning here.
+   Hierarchy comes from size, intensity and inverse video. */
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Undefined links render browser-default blue and instantly break the illusion. */
+a {
+  color: var(--ink-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: var(--fill-bright);
+  text-shadow: var(--glow-text);
+}
+
+::selection {
+  background: var(--fill);
+  color: var(--on-fill);
+}
+
+/* Form controls do not inherit type by default. On a character grid they must. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+/* The shared focus ring. Every interactive ac-* class repeats this so it still
+   works when a consumer imports components without the reset. */
+:focus-visible {
+  outline: 2px dashed var(--ink-dim);
+  outline-offset: 3px;
+}

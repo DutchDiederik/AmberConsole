@@ -1,0 +1,55 @@
+/* ===========================================================================
+   Amber Console — a monochrome amber-terminal CSS framework
+   MIT licensed. Fonts in fonts/ are SIL OFL 1.1; see fonts/OFL-*.txt.
+   https://github.com/DutchDiederik/amber-console
+
+   NO VERSION NUMBER LIVES IN src/. package.json is the single source of truth;
+   scripts/build.mjs stamps it into the dist/ banners. A version written here
+   would be inlined into the bundle beside the generated one and drift on the
+   first release that forgets it.
+
+   This file is an @import list and nothing else. Every rule lives in one of the
+   files below, so you can drop any single component you do not need.
+
+   To embed inside an existing app rather than owning the page, swap
+   base/reset.css for base/reset-scoped.css and wrap your markup in .ac-root.
+   To skip the vendored webfonts, swap tokens/fonts.css for tokens/fonts-cdn.css.
+   Either way, rebuild: `npm run build`.
+   =========================================================================== */
+
+/* --- Tokens: the entire API. Override any of these at runtime. --- */
+@import "tokens/fonts.css";
+@import "tokens/colors.css";
+@import "tokens/typography.css";
+@import "tokens/spacing.css";
+@import "tokens/effects.css";
+
+/* --- Base --- */
+@import "base/reset.css";
+@import "base/layout.css";
+
+/* --- Components --- */
+@import "components/button.css";
+@import "components/nav.css";
+@import "components/tabs.css";
+@import "components/panel.css";
+@import "components/input.css";
+@import "components/select.css";
+@import "components/checkbox.css";
+@import "components/radio.css";
+@import "components/toggle.css";
+@import "components/statusbar.css";
+@import "components/readout.css";
+@import "components/badge.css";
+@import "components/banner.css";
+@import "components/rule.css";
+@import "components/table.css";
+@import "components/list.css";
+@import "components/dialog.css";
+@import "components/meter.css";
+@import "components/keypad.css";
+@import "components/spinner.css";
+
+/* --- Environment overrides. Last, so they win. --- */
+@import "base/a11y.css";
+@import "base/print.css";

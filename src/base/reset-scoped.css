@@ -1,0 +1,68 @@
+/* ===========================================================================
+   Scoped reset — the same rules as base/reset.css, confined to .ac-root.
+
+   For embedding Amber Console in one region of an existing app without letting
+   it repaint the host page's `body`:
+
+     <div class="ac-root">  ...console UI...  </div>
+
+   Use ONE of reset.css or reset-scoped.css, not both. amber-console.css imports
+   the global one; to switch, edit that single @import line and rebuild.
+   =========================================================================== */
+
+.ac-root,
+.ac-root *,
+.ac-root *::before,
+.ac-root *::after {
+  box-sizing: border-box;
+}
+
+.ac-root {
+  background: var(--screen);
+  color: var(--ink);
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: var(--leading);
+  letter-spacing: var(--tracking-body);
+  -webkit-font-smoothing: none;
+}
+
+.ac-root h1,
+.ac-root h2,
+.ac-root h3,
+.ac-root h4 {
+  margin: 0;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.ac-root a {
+  color: var(--ink-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ac-root a:hover {
+  color: var(--fill-bright);
+  text-shadow: var(--glow-text);
+}
+
+.ac-root ::selection {
+  background: var(--fill);
+  color: var(--on-fill);
+}
+
+.ac-root button,
+.ac-root input,
+.ac-root select,
+.ac-root textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+.ac-root :focus-visible {
+  outline: 2px dashed var(--ink-dim);
+  outline-offset: 3px;
+}

@@ -1,0 +1,75 @@
+/* ===========================================================================
+   Dialog — built on the native <dialog> element.
+
+   It appears. There is no scale, no fade, no backdrop blur: law 3 says no
+   elevation, and the animation policy says state changes have no in-between
+   frames. The backdrop is flat black so the panel behind it reads as powered
+   down, not as a blurred photograph.
+
+   Markup: <dialog class="ac-dialog">
+             <form method="dialog">
+               <h2 class="ac-dialog__title">Confirm</h2>
+               <div class="ac-dialog__body">…</div>
+               <div class="ac-dialog__actions">
+                 <button class="ac-btn" value="cancel">Cancel</button>
+                 <button class="ac-btn ac-btn--filled" value="ok">Confirm</button>
+               </div>
+             </form>
+           </dialog>
+
+   Open it with dialog.showModal() — or let src/amber-console.js wire
+   [data-ac-dialog-open] / [data-ac-dialog-close] for you.
+
+   WHEN NOT TO USE: anything the operator must be able to see the panel behind.
+   A modal on a control surface hides machine state; prefer an .ac-banner.
+   =========================================================================== */
+
+.ac-dialog {
+  box-sizing: border-box;
+  max-width: min(90vw, 560px);
+  padding: 0;
+  border: var(--border-w) solid var(--stroke);
+  border-radius: var(--radius);
+  background: var(--screen);
+  color: var(--ink);
+  font-family: var(--font-terminal);
+  box-shadow: var(--glow-box);
+  overflow: hidden;
+}
+
+.ac-dialog::backdrop {
+  /* Flat, no blur. Overridable, but keep it opaque enough to kill the panel. */
+  background: var(--ac-backdrop, rgba(0, 0, 0, 0.72));
+}
+
+/* The machine's own heading — same inverse strip as .ac-panel--bar. */
+.ac-dialog__title {
+  margin: 0;
+  padding: 4px 16px;
+  text-align: center;
+  background: var(--fill);
+  color: var(--on-fill);
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.ac-dialog__body {
+  padding: var(--space-4);
+  font-size: var(--type-body);
+  line-height: var(--leading);
+}
+
+.ac-dialog__actions {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.ac-dialog--wide {
+  max-width: min(94vw, 860px);
+}

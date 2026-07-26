@@ -1,0 +1,49 @@
+/* ===========================================================================
+   Select — an .ac-input plus a typeset ▼.
+
+   The wrapper exists only to position the glyph. That glyph is a Unicode
+   character in the terminal font, not an SVG: law 6, ornament is typographic.
+
+   Markup: <span class="ac-select"><select class="ac-input">…</select></span>
+   =========================================================================== */
+
+.ac-select {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.ac-select--block {
+  display: flex;
+  width: 100%;
+}
+
+.ac-select .ac-input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 38px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.ac-select::after {
+  content: "▼";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--ink);
+  font-size: 14px;
+  font-family: var(--font-terminal);
+}
+
+/* The dropdown list is painted by the OS; this is as far as we can reach. */
+.ac-select .ac-input option {
+  background: var(--screen);
+  color: var(--ink);
+}
+
+.ac-select:has(.ac-input:disabled)::after {
+  color: var(--ink-faint);
+}

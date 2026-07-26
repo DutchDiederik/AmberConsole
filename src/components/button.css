@@ -1,0 +1,109 @@
+/* ===========================================================================
+   Button — the soft key.
+
+   Works on <button>, <a> and <input type="submit">. State hooks are both the
+   --filled class and [aria-pressed="true"], so a framework binding an ARIA
+   attribute needs no class juggling.
+
+   Ration inverse video: two or three filled surfaces per screen, no more.
+   =========================================================================== */
+
+.ac-btn {
+  display: inline-block;
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: var(--tracking-body);
+  color: var(--ink);
+  background: transparent;
+  border: var(--border-w) solid var(--stroke);
+  border-radius: var(--radius);
+  padding: 10px 22px;
+  cursor: pointer;
+  text-shadow: var(--glow-text);
+}
+
+.ac-btn:hover {
+  color: var(--ink-bright);
+  border-color: var(--amber-100);
+  box-shadow: var(--glow-box);
+}
+
+/* Press snaps to inverse video. No transition — a redrawn screen has no
+   in-between frames. */
+.ac-btn:active {
+  background: var(--fill);
+  color: var(--on-fill);
+  text-shadow: none;
+}
+
+.ac-btn--filled,
+.ac-btn[aria-pressed="true"] {
+  background: var(--fill);
+  color: var(--on-fill);
+  text-shadow: none;
+  box-shadow: var(--glow-box);
+}
+.ac-btn--filled:hover,
+.ac-btn[aria-pressed="true"]:hover {
+  background: var(--fill-bright);
+  color: var(--on-fill);
+}
+
+/* Dim never glows — glow is the signal of energization. */
+.ac-btn--dim {
+  color: var(--ink-faint);
+  border-color: var(--stroke-dim);
+  text-shadow: none;
+}
+
+.ac-btn--lg {
+  font-size: var(--type-title);
+  padding: 14px 28px;
+}
+
+/* NOTE: --sm computes to roughly 30px tall, below the 44px hit-target floor.
+   The value is fixed by the source design system, so it is documented rather
+   than changed — see "Known constraints" in README.md. Reserve it for dense,
+   mouse-driven tooling; never use it for a primary control on a touch panel. */
+.ac-btn--sm {
+  font-size: var(--type-small);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+}
+
+/* The gloved-finger touch pad: label parked top-left, body deliberately empty. */
+.ac-btn--pad {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  min-height: 96px;
+  min-width: 130px;
+  padding: 10px 16px;
+}
+
+.ac-btn--block {
+  display: block;
+  width: 100%;
+}
+.ac-btn--pad.ac-btn--block {
+  display: flex;
+}
+
+.ac-btn:disabled,
+.ac-btn[aria-disabled="true"] {
+  color: var(--ink-faint);
+  border-color: var(--stroke-dim);
+  background: transparent;
+  text-shadow: none;
+  box-shadow: none;
+  cursor: default;
+}
+
+.ac-btn:focus-visible {
+  outline: 2px dashed var(--ink-dim);
+  outline-offset: 3px;
+}
