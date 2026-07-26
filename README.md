@@ -2,7 +2,7 @@
 
 A project by <a href="https://diederik.blog" target="_blank" rel="noopener noreferrer">Diederik</a>, also on <a href="https://x.com/DutchDiederik" target="_blank" rel="noopener noreferrer">X</a>.
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
 [![CSS only](https://img.shields.io/badge/runtime%20deps-0-brightgreen.svg)](#install)
 [![Size](https://img.shields.io/badge/minified-35kb%20%C2%B7%206.6kb%20gzipped-lightgrey.svg)](#install)
 [![CI](https://github.com/DutchDiederik/amber-console/actions/workflows/ci.yml/badge.svg)](https://github.com/DutchDiederik/amber-console/actions/workflows/ci.yml)
