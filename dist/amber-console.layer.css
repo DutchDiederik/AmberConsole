@@ -99,35 +99,55 @@
 }
 
 /* >>> src/amber-console.css -> tokens/colors.css */
-/* TWO GASES, ONE RAMP.
+/* TECHNOLOGY, THEN EMITTER.
  *
- * The system ships two palettes and the switch between them is `data-ac-gas` on
- * the root element. They are not a light/dark pair and not a theme — they are
- * two different pieces of hardware:
+ * A palette in this system is not a theme and not a light/dark pair. It is a
+ * specific piece of hardware, and it takes TWO attributes on the root element to
+ * name one, because the same color word means different physics on different
+ * glass:
  *
- *   data-ac-gas="neon"   24deg. The default. A monochrome AC plasma panel, where
- *                        the light is neon emitting directly and there is no
- *                        phosphor anywhere in the stack. This is what law 1
- *                        describes and what the rest of the system simulates.
+ *   data-ac-tech      the display technology. What is making light at all.
+ *                     "plasma" — a gas gap struck by a sustain pulse, emitting
+ *                     DIRECTLY. No phosphor anywhere in the stack.
+ *                     "crt"    — an electron beam exciting a phosphor, which
+ *                     emits and then PERSISTS. The color is the phosphor's.
  *
- *   data-ac-gas="amber"  38deg. The classic amber CRT phosphor (P3), a broad
- *                        ~590nm band with real green content. Historically this
- *                        is a DIFFERENT display technology — but it is the look
- *                        most people mean by "amber terminal", it is the ramp the
- *                        source design system was drawn against, and it pairs
- *                        naturally with the .ac-crt simulation.
+ *   data-ac-emitter   which gas, or which phosphor, inside that technology.
+ *                     Only meaningful within its tech: "neon" is a gas and
+ *                     exists only under plasma; "p3" is a phosphor and exists
+ *                     only under crt. Every palette block below is selected by
+ *                     BOTH attributes, so a mismatched pair simply selects
+ *                     nothing rather than silently rendering the wrong hardware.
  *
- * Everything below is defined twice and only twice: the five discharge stops,
- * the three surfaces, --on-fill, and the four glow triples. Every other token in
- * the system is an alias or is built from those, so adding a third gas means
- * adding one block and nothing else.
+ * Currently installed:
  *
- * BOTH PALETTES ARE GATED. scripts/contrast.mjs runs the full pair table against
- * each block independently — a ratio that passes under neon and fails under
- * amber is a failure. Do not add a stop to one block without the other.
+ *   plasma / neon   24deg. The default. Law 1's panel: neon emitting directly,
+ *                   the color neon simply is. This is what .ac-bloom simulates.
+ *
+ *   crt / p3        38deg. The classic amber phosphor, a broad ~590nm band with
+ *                   real green content. This is the look most people mean by
+ *                   "amber terminal", it is the ramp the source design system was
+ *                   drawn against, and it pairs with the .ac-crt simulation.
+ *
+ * DEPRECATED: `data-ac-gas="neon"` and `data-ac-gas="amber"` are kept as aliases
+ * for the two blocks above and will be removed in 3.0. The name was the bug —
+ * "amber" was never a gas, it is a CRT phosphor, and calling it one is exactly
+ * the confusion the two attributes above exist to prevent. Migrate:
+ *   data-ac-gas="neon"   ->  data-ac-tech="plasma" data-ac-emitter="neon"
+ *   data-ac-gas="amber"  ->  data-ac-tech="crt"    data-ac-emitter="p3"
+ *
+ * Each palette defines the same eleven values and nothing else: the five
+ * discharge stops, the three surfaces, --on-fill, and the four glow triples.
+ * Every other token in the system is an alias or is built from those, so adding
+ * a technology or an emitter means adding one block and nothing else.
+ *
+ * EVERY PALETTE IS GATED. scripts/contrast.mjs runs the full pair table against
+ * each block independently — a ratio that passes under one emitter and fails
+ * under another is a failure. Do not add a stop to one block without the others.
  */
 
 :root,
+[data-ac-tech="plasma"][data-ac-emitter="neon"],
 [data-ac-gas="neon"] {
   /* Surfaces — warm blacks (the unlit gas panel) */
   --screen: #100600;        /* base panel */
@@ -148,7 +168,7 @@
 
      Saturation is held at 100% for every stop the gas emits, because a
      near-monochromatic emitter has no way to be pale. --amber-100 is the sole
-     exception and the exception is also physics: no fully-saturated colour at
+     exception and the exception is also physics: no fully-saturated color at
      this hue can exceed L=0.318, so a HOTTER cell can only get there by
      whitening — which is exactly what an overdriven neon cell does.
 
@@ -180,8 +200,11 @@
   --gas-4: 255, 140, 64; /* pale — hot cores and the retrace band */
 }
 
-/* --- AMBER CRT PHOSPHOR (P3) — the source design system's ramp, kept as an
-       option. Same structure as the block above, same contrast gate. --- */
+/* --- CRT / P3 — the amber phosphor, and the source design system's ramp. Same
+       structure as the block above, same contrast gate. NOT a gas: this is a
+       phosphor on a tube, which is why it is namespaced under a different
+       technology and not sitting beside neon. --- */
+[data-ac-tech="crt"][data-ac-emitter="p3"],
 [data-ac-gas="amber"] {
   --screen: #0d0700;
   --screen-raised: #170e02;
@@ -202,7 +225,7 @@
 
 /* Aliases and structural tokens — defined ONCE, for every palette. Anything
    that is the same shape regardless of which gas is in the panel belongs here;
-   anything that is a colour belongs in a palette block above. */
+   anything that is a color belongs in a palette block above. */
 :root {
   --ink: var(--amber-90);
   --ink-bright: var(--amber-100);
@@ -258,7 +281,7 @@
 /* >>> src/amber-console.css -> tokens/effects.css */
 :root {
   /* The halo is the same photons the cell emits, scattered in the glass, so it
-     tracks the discharge hue exactly. NOTHING in this file names a colour: every
+     tracks the discharge hue exactly. NOTHING in this file names a color: every
      rgba() is built from the --gas-N triples in tokens/colors.css, which is what
      makes `data-ac-gas` switch the panel and its glow together. Hardcode one and
      it will keep an amber corona around neon text, which is the one place the
@@ -306,6 +329,46 @@
 
 /* Block cursor */
 .ac-cursor::after { content: "█"; margin-left: 2px; animation: ac-blink 1s steps(1) infinite; }
+
+/* A STYLE FLAG, NOT A SIMULATION. Blink is law-2 emphasis and it is also the
+   single most tiring thing on the panel, so it is switchable independently of
+   which hardware is being simulated — every display technology in here blinks,
+   and turning it off says nothing about any of them.
+
+   Off settles LIT, not dark: the keyframe's dark half is 0.1 opacity, and a
+   blink stopped there is an element that has silently vanished. This is the same
+   resting state prefers-reduced-motion lands on, deliberately — see the bottom
+   of this file. README's note stands either way: once blink is off, the inverse
+   fill and the ✳✳ glyphs are what carry an alarm.
+
+   FOUR BLINK SITES, EACH STATED TWICE, and that is not repetition for its own
+   sake — it is the fourth time this file has had to make the same point. Every
+   blink has an .ac-afterglow-scoped decay variant later in this file, which is a
+   descendant selector and therefore outranks a bare `.ac-blink { animation:
+   none }` on specificity alone. Matching only the plain form switches blink off
+   on a bare panel and leaves it running the moment the CRT simulation is on —
+   which is precisely the panel a user reaching for this switch is looking at.
+   The flag attribute is on the ROOT, so prefixing it outranks both forms and the
+   rule no longer depends on where in the file it sits.
+
+   A blanket cannot serve here the way it does for `transition` under
+   reduced-motion: `animation: none` on * would take the bloom, the retrace and
+   the mesh buzz with it, and none of those is a blink. The list is the price.
+   Adding a fifth blink site means adding it here, and to the reduced-motion
+   block at the bottom of this file, and to print.css and a11y.css. */
+[data-ac-style-blink="off"] .ac-blink,
+[data-ac-style-blink="off"] .ac-cursor::after,
+[data-ac-style-blink="off"] .ac-field--invalid .ac-input,
+[data-ac-style-blink="off"] .ac-input[aria-invalid="true"],
+[data-ac-style-blink="off"] .ac-meter--alarm .ac-meter__bar,
+[data-ac-style-blink="off"] .ac-afterglow .ac-blink,
+[data-ac-style-blink="off"] .ac-afterglow .ac-cursor::after,
+[data-ac-style-blink="off"] .ac-afterglow .ac-field--invalid .ac-input,
+[data-ac-style-blink="off"] .ac-afterglow .ac-input[aria-invalid="true"],
+[data-ac-style-blink="off"] .ac-afterglow .ac-meter--alarm .ac-meter__bar {
+  animation: none;
+  filter: none;
+}
 
 /* ---------------------------------------------------------------------------
    Three independent screen simulations, all applied to the outermost frame:
@@ -391,7 +454,7 @@
    the unlit panel (--screen is a near-black under either gas) black alpha has
    nothing to take away and
    the mesh is simply not there, while over lit amber it occludes. The grid
-   appears only where the panel is lit, which is exactly the behaviour of a real
+   appears only where the panel is lit, which is exactly the behavior of a real
    screen door and costs nothing to get.
 
    z-index 48 puts it ABOVE the bleed, which is upside down physically — the ribs
@@ -441,7 +504,7 @@
    and then jumped, never interpolated: a wire that eases between two places is a
    wobble, and a wobble is a much bigger, much worse effect than this one. The
    0.35px ceiling is what keeps the wires reading as sharp — past about half a
-   pixel the resampling turns the mesh grey and the screen door is gone. */
+   pixel the resampling turns the mesh gray and the screen door is gone. */
 @keyframes ac-mesh-buzz {
   0%   { transform: translate3d(0, 0, 0); }
   14%  { transform: translate3d(0.28px, -0.16px, 0); }
@@ -1269,6 +1332,104 @@ textarea {
   }
 }
 
+/* >>> src/amber-console.css -> components/setup.css */
+/* ===========================================================================
+   Setup — the permanently-open control board under the menu bar.
+
+   It does not open, close, scroll or stick. That is the whole design: a machine
+   with a settings page does not hide it behind a key, and a board you have to
+   reveal is a board whose state you cannot read at a glance. Every switch the
+   panel has is on the glass, all the time, which is the same argument .ac-nav
+   makes for wrapping its links to a second row rather than folding them behind a
+   menu glyph — a control panel shows you every key it has.
+
+   Nothing here scrolls either, and that is a constraint on the CONTENTS rather
+   than a feature of this file: the regions have to be short enough to fit. It is
+   why the emitter catalog is split by technology across two regions instead of
+   stacked into one tall column — see the demo markup.
+
+     <nav class="ac-nav ac-nav--sticky">…</nav>
+     <div class="ac-setup">
+       <div class="ac-setup__grid">
+         <div class="ac-panel">…</div>   <!-- one region per quarter -->
+         …
+       </div>
+       <div class="ac-setup__foot">…</div>
+     </div>
+
+   NOT STICKY, deliberately. The bar above it can be — it is one row and it
+   carries the page links. This is four regions tall, and a sticky element that
+   size is not chrome any more, it is the page. It scrolls away like content
+   because it is content.
+
+   WHEN NOT TO USE: a control the operator reaches for mid-task. This is setup —
+   things you set once and then work under. Live controls belong on the console.
+   =========================================================================== */
+
+.ac-setup {
+  box-sizing: border-box;
+  border-bottom: var(--border-w) solid var(--stroke);
+  background: var(--screen);
+  padding: var(--space-8) var(--space-6) var(--space-6);
+}
+
+/* Quarters — and THREE COLUMNS IS NOT ONE OF THE STOPS, which is why this is
+   three stated breakpoints rather than the one auto-fit line it wants to be.
+   Four regions across three tracks wraps the fourth under the first and leaves a
+   region-sized hole beside it; the board measured 516px tall at four columns and
+   847px at three, for less content per row. Two-by-two is the honest middle: the
+   two catalogs share a row, the two control stacks share the next.
+
+   minmax(0, 1fr) rather than 1fr because a grid item's automatic minimum size is
+   its content, and an emitter row that cannot shrink pushes the track wider than
+   its share — one long "NOT FITTED" note and the quarters stop being quarters. */
+.ac-setup__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (min-width: 721px) {
+  .ac-setup__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .ac-setup__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* The board's own background is --screen, so the legend chips that mask the
+   panel border behind themselves already match. Stated rather than assumed:
+   drop the board on a raised surface and this is the one line to override. */
+.ac-setup .ac-panel {
+  --ac-panel-title-bg: var(--screen);
+}
+
+.ac-setup__foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: var(--border-w) solid var(--stroke-dim);
+}
+
+@media (max-width: 720px) {
+  .ac-setup {
+    padding: var(--space-8) var(--space-4) var(--space-4);
+  }
+  /* One column here, and the regions are tall. Open the gap up so two stacked
+     panels do not read as one region with a rule through it. */
+  .ac-setup__grid {
+    gap: var(--space-8);
+  }
+}
+
 /* >>> src/amber-console.css -> components/tabs.css */
 /* ===========================================================================
    Tabs — soft keys, Title Case.
@@ -1689,7 +1850,7 @@ textarea.ac-input {
    Toggle — a two-position switch.
 
    The literal ON / OFF text is MANDATORY. On a monochrome panel a thumb
-   position alone is ambiguous: there is no colour to say "this one is live".
+   position alone is ambiguous: there is no color to say "this one is live".
 
    The thumb jumps. No transition.
 
@@ -2370,7 +2531,7 @@ textarea.ac-input {
    Keypad — a 3-column numeric entry grid.
 
    These panels are operated with gloves, so the keys are large and square-ish
-   and the digit is centred rather than parked top-left: on a key with one
+   and the digit is centerd rather than parked top-left: on a key with one
    character there is no label/value split for the top-left rule to serve.
 
    Keys are ordinary .ac-btn elements, so every button state applies unchanged.
@@ -2488,7 +2649,7 @@ textarea.ac-input {
 /* ===========================================================================
    Forced colors
 
-   This whole design is a colour trick, so high-contrast mode needs a real
+   This whole design is a color trick, so high-contrast mode needs a real
    fallback rather than a broken one. Per the Forced Colors Mode spec the UA
    forces text-shadow and box-shadow to none, which kills the discharge glow —
    but ONLY while an element keeps forced-color-adjust: auto. What is left to do:
@@ -2503,8 +2664,8 @@ textarea.ac-input {
    POINT 4 IS NOT BOOKKEEPING. `forced-color-adjust: none` opts an element out
    of forced colors WHOLESALE, and that hands it back its box-shadow — so the
    very rules that preserve inverse video also reinstate an amber discharge halo
-   around it, which is an off-palette colour bleeding into the one mode that
-   exists to have no off-palette colours. Every block below that sets
+   around it, which is an off-palette color bleeding into the one mode that
+   exists to have no off-palette colors. Every block below that sets
    forced-color-adjust: none must also restate its shadows.
 
    The inverse-video list is the whole set of components that fill with
@@ -2684,7 +2845,7 @@ textarea.ac-input {
    animation go, because they describe energized hardware and paper is not.
 
    This is the one file besides tokens/colors.css and tokens/effects.css that is
-   allowed to contain literal hex colours; scripts/check-prohibitions.mjs
+   allowed to contain literal hex colors; scripts/check-prohibitions.mjs
    enforces that.
    =========================================================================== */
 
@@ -2781,7 +2942,7 @@ textarea.ac-input {
      Anything whose meaning is "this cell is lit" belongs here.
 
      The visual suite cannot catch a gap in this list. Playwright's
-     emulateMedia({ media: "print" }) renders to a screen surface, which honours
+     emulateMedia({ media: "print" }) renders to a screen surface, which honors
      backgrounds regardless — so console-1280-print.png shows filled interlocks
      that a real printer would not. Check it by hand against a print preview. */
 

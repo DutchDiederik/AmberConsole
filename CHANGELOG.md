@@ -6,7 +6,65 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **`.ac-setup`** — the permanently-open control board under the menu bar. It does not open, close,
+  scroll or stick, and that is the design: a machine with a settings page does not hide it behind a
+  key, and a board you have to reveal is a board whose state you cannot read at a glance. Four
+  quarters, degrading to two-by-two and then one column — three columns is deliberately not one of
+  the stops, because four regions across three tracks wraps the fourth under the first and leaves a
+  region-sized hole beside it.
+- **`[data-ac-display-info]`** — shows one node and hides the rest, so the board can carry a note
+  describing whatever hardware is currently in the panel. Keyed by technology, or by an exact
+  tech/emitter pair where one emitter does not behave like the rest of its family. Prose is markup,
+  like the catalog.
+- **Display presets** — `[data-ac-display]` on a radio, carrying `data-ac-tech`, `data-ac-emitter`
+  and `data-ac-sims`. Selecting one sets the palette, mounts the simulations that technology implies
+  and switches every other one off, in a single click. A preset is a starting point, not a lock:
+  deviate afterwards and the readout says `*MOD`, and `[data-ac-display-reset]` puts it back.
+  The catalog is **markup, not a table inside the JavaScript**, so a consumer with their own
+  palettes writes their own rows and the module needs no edit.
+- **`[data-ac-display-out]`** — readout hooks for `label`, `tech`, `emitter` and `mode`.
+- **`data-ac-style-*`, a third axis** — `blink` and `smear` to start. Deliberately separate from both
+  the palette and the simulations, on their own attributes, in their own region of the drawer: a
+  style is a preference and makes no claim about what the panel is. "Turn the blink off" is not a
+  statement about plasma and must never read as one.
+
+### Changed
+
+- **A palette now takes two attributes: `data-ac-tech` + `data-ac-emitter`.** The same color word
+  means different physics on different glass, so "which color" is not answerable on its own — a gas
+  and a phosphor can be the same color and are not the same thing. Every palette block is selected
+  by both, so a mismatched pair selects nothing rather than quietly rendering the wrong hardware, and
+  it is structurally impossible to offer a phosphor as a gas.
+- `scripts/contrast.mjs` identifies palettes by the tech/emitter pair rather than by gas name,
+  because an emitter alone is not unique across technologies and never will be — two technologies can
+  both ship a "white". The deprecated aliases ride on the same blocks and are deliberately not
+  enumerated, so a legacy name cannot double-count a palette already being checked.
+- The demo pages' three inline nav toggles moved onto the board. The bar keeps a `DISPLAY:` readout
+  that names the technology before the emitter — the board scrolls away and the sticky bar does not,
+  so that readout is the one thing always on screen, and nobody has to remember whether P39 was a gas.
+
+### Deprecated
+
+- **`data-ac-gas="neon"` / `data-ac-gas="amber"`**, and the `data-ac-gas-toggle` button hook. Both
+  still work and both go in 3.0. The name was the bug: `amber` was never a gas, it is the P3 CRT
+  phosphor, and a control that calls a phosphor a gas is the confusion this release exists to remove.
+  Migrate `neon` to `plasma`/`neon` and `amber` to `crt`/`p3`.
+
+### Fixed
+
+- Blink now switches off under the CRT simulation as well as on a bare panel. Every blink site has an
+  `.ac-afterglow`-scoped decay variant, which is a descendant selector and outranks a bare
+  `.ac-blink { animation: none }` — the fourth time this specificity trap has been hit in this file,
+  and the first time the override has been written to outrank both forms regardless of source order.
+- **Afterglow ghosts no longer keep the `data-ac-*` hooks they were cloned from.** `sanitize()`
+  stripped `id` and stopped there, so a ghost was still matched by every document-wide
+  `querySelectorAll` in the module: a ghosted readout got rewritten by the next paint — with the
+  *live* value, the one thing a ghost must never show — and a ghosted toggle had its thumb moved by
+  the next `applySim`. Worse, `.ac-persist` is prepended to the frame, so a stale ghost came first in
+  document order and was what a plain `querySelector` found instead of the real element. A ghost is a
+  photograph; nothing may keep writing on it.
 
 ## [1.0.0] — 2026-07-26
 
@@ -202,7 +260,7 @@ And one correction of fact, carried through the guide, the README and the source
 
 - **Law 1 called the panel's single hue a phosphor.** A monochrome plasma display has none: the gaps
   hold a neon–argon mixture and the amber is neon emitting directly at ~590nm when a gap strikes.
-  Phosphors belong to colour plasma, where xenon UV excites RGB stripes. Law 1 ships as ONE GAS,
+  Phosphors belong to color plasma, where xenon UV excites RGB stripes. Law 1 ships as ONE GAS,
   MANY INTENSITIES. No class, token or keyframe name was affected — `.ac-afterglow`, `.ac-persist`
   and `--ac-decay` were already neutral. "Afterglow" was always correct: it is the standard term for
   the decaying emission of a gas discharge after the current stops.

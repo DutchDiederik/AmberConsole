@@ -2,7 +2,7 @@
    Keypad — a 3-column numeric entry grid.
 
    These panels are operated with gloves, so the keys are large and square-ish
-   and the digit is centred rather than parked top-left: on a key with one
+   and the digit is centerd rather than parked top-left: on a key with one
    character there is no label/value split for the top-left rule to serve.
 
    Keys are ordinary .ac-btn elements, so every button state applies unchanged.

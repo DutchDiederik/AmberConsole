@@ -1,32 +1,52 @@
-/* TWO GASES, ONE RAMP.
+/* TECHNOLOGY, THEN EMITTER.
  *
- * The system ships two palettes and the switch between them is `data-ac-gas` on
- * the root element. They are not a light/dark pair and not a theme — they are
- * two different pieces of hardware:
+ * A palette in this system is not a theme and not a light/dark pair. It is a
+ * specific piece of hardware, and it takes TWO attributes on the root element to
+ * name one, because the same color word means different physics on different
+ * glass:
  *
- *   data-ac-gas="neon"   24deg. The default. A monochrome AC plasma panel, where
- *                        the light is neon emitting directly and there is no
- *                        phosphor anywhere in the stack. This is what law 1
- *                        describes and what the rest of the system simulates.
+ *   data-ac-tech      the display technology. What is making light at all.
+ *                     "plasma" — a gas gap struck by a sustain pulse, emitting
+ *                     DIRECTLY. No phosphor anywhere in the stack.
+ *                     "crt"    — an electron beam exciting a phosphor, which
+ *                     emits and then PERSISTS. The color is the phosphor's.
  *
- *   data-ac-gas="amber"  38deg. The classic amber CRT phosphor (P3), a broad
- *                        ~590nm band with real green content. Historically this
- *                        is a DIFFERENT display technology — but it is the look
- *                        most people mean by "amber terminal", it is the ramp the
- *                        source design system was drawn against, and it pairs
- *                        naturally with the .ac-crt simulation.
+ *   data-ac-emitter   which gas, or which phosphor, inside that technology.
+ *                     Only meaningful within its tech: "neon" is a gas and
+ *                     exists only under plasma; "p3" is a phosphor and exists
+ *                     only under crt. Every palette block below is selected by
+ *                     BOTH attributes, so a mismatched pair simply selects
+ *                     nothing rather than silently rendering the wrong hardware.
  *
- * Everything below is defined twice and only twice: the five discharge stops,
- * the three surfaces, --on-fill, and the four glow triples. Every other token in
- * the system is an alias or is built from those, so adding a third gas means
- * adding one block and nothing else.
+ * Currently installed:
  *
- * BOTH PALETTES ARE GATED. scripts/contrast.mjs runs the full pair table against
- * each block independently — a ratio that passes under neon and fails under
- * amber is a failure. Do not add a stop to one block without the other.
+ *   plasma / neon   24deg. The default. Law 1's panel: neon emitting directly,
+ *                   the color neon simply is. This is what .ac-bloom simulates.
+ *
+ *   crt / p3        38deg. The classic amber phosphor, a broad ~590nm band with
+ *                   real green content. This is the look most people mean by
+ *                   "amber terminal", it is the ramp the source design system was
+ *                   drawn against, and it pairs with the .ac-crt simulation.
+ *
+ * DEPRECATED: `data-ac-gas="neon"` and `data-ac-gas="amber"` are kept as aliases
+ * for the two blocks above and will be removed in 3.0. The name was the bug —
+ * "amber" was never a gas, it is a CRT phosphor, and calling it one is exactly
+ * the confusion the two attributes above exist to prevent. Migrate:
+ *   data-ac-gas="neon"   ->  data-ac-tech="plasma" data-ac-emitter="neon"
+ *   data-ac-gas="amber"  ->  data-ac-tech="crt"    data-ac-emitter="p3"
+ *
+ * Each palette defines the same eleven values and nothing else: the five
+ * discharge stops, the three surfaces, --on-fill, and the four glow triples.
+ * Every other token in the system is an alias or is built from those, so adding
+ * a technology or an emitter means adding one block and nothing else.
+ *
+ * EVERY PALETTE IS GATED. scripts/contrast.mjs runs the full pair table against
+ * each block independently — a ratio that passes under one emitter and fails
+ * under another is a failure. Do not add a stop to one block without the others.
  */
 
 :root,
+[data-ac-tech="plasma"][data-ac-emitter="neon"],
 [data-ac-gas="neon"] {
   /* Surfaces — warm blacks (the unlit gas panel) */
   --screen: #100600;        /* base panel */
@@ -47,7 +67,7 @@
 
      Saturation is held at 100% for every stop the gas emits, because a
      near-monochromatic emitter has no way to be pale. --amber-100 is the sole
-     exception and the exception is also physics: no fully-saturated colour at
+     exception and the exception is also physics: no fully-saturated color at
      this hue can exceed L=0.318, so a HOTTER cell can only get there by
      whitening — which is exactly what an overdriven neon cell does.
 
@@ -79,8 +99,11 @@
   --gas-4: 255, 140, 64; /* pale — hot cores and the retrace band */
 }
 
-/* --- AMBER CRT PHOSPHOR (P3) — the source design system's ramp, kept as an
-       option. Same structure as the block above, same contrast gate. --- */
+/* --- CRT / P3 — the amber phosphor, and the source design system's ramp. Same
+       structure as the block above, same contrast gate. NOT a gas: this is a
+       phosphor on a tube, which is why it is namespaced under a different
+       technology and not sitting beside neon. --- */
+[data-ac-tech="crt"][data-ac-emitter="p3"],
 [data-ac-gas="amber"] {
   --screen: #0d0700;
   --screen-raised: #170e02;
@@ -101,7 +124,7 @@
 
 /* Aliases and structural tokens — defined ONCE, for every palette. Anything
    that is the same shape regardless of which gas is in the panel belongs here;
-   anything that is a colour belongs in a palette block above. */
+   anything that is a color belongs in a palette block above. */
 :root {
   --ink: var(--amber-90);
   --ink-bright: var(--amber-100);

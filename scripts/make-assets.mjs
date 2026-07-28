@@ -54,7 +54,7 @@ const cssHref = "../dist/amber-console.css";
 
 /**
  * The mark. Optical centring, not geometric: VT323's cap height sits high in the
- * em box, so a glyph centred on its line box reads low. The grid is nudged up
+ * em box, so a glyph centerd on its line box reads low. The grid is nudged up
  * by 6% of the tile to put the letter's visual mass in the middle.
  */
 const icon = (px) => `
@@ -77,7 +77,7 @@ const icon = (px) => `
 <div class="tile">A</div>`;
 
 /* The card is the console demo, LETTERBOXED to 1.91:1 rather than cropped.
-   Filling the frame means centre-cropping a 16:10 capture, which slices through
+   Filling the frame means center-cropping a 16:10 capture, which slices through
    the footer row and reads as a broken screenshot rather than a bold one. The
    bars are --screen, so on this design they read as the bezel the glass sits in
    — the one case where letterboxing is on-genre instead of apologetic.

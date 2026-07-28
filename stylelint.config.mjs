@@ -27,7 +27,7 @@ export default {
     // Law: state changes are instant redraws. A screen has no in-between frames.
     "declaration-property-value-disallowed-list": { "/^transition/": ["/.*/"] },
 
-    // Law: one gas, one hue. Named colours would smuggle in a second one.
+    // Law: one gas, one hue. Named colors would smuggle in a second one.
     "color-named": "never",
 
     /* --- Deliberate opt-outs --- */

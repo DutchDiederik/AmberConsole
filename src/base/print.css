@@ -9,7 +9,7 @@
    animation go, because they describe energized hardware and paper is not.
 
    This is the one file besides tokens/colors.css and tokens/effects.css that is
-   allowed to contain literal hex colours; scripts/check-prohibitions.mjs
+   allowed to contain literal hex colors; scripts/check-prohibitions.mjs
    enforces that.
    =========================================================================== */
 
@@ -106,7 +106,7 @@
      Anything whose meaning is "this cell is lit" belongs here.
 
      The visual suite cannot catch a gap in this list. Playwright's
-     emulateMedia({ media: "print" }) renders to a screen surface, which honours
+     emulateMedia({ media: "print" }) renders to a screen surface, which honors
      backgrounds regardless — so console-1280-print.png shows filled interlocks
      that a real printer would not. Check it by hand against a print preview. */
 

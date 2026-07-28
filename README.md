@@ -48,11 +48,11 @@ import "amber-console/layer";    // wrapped in @layer amber-console
 | File | Use it when |
 | --- | --- |
 | `dist/amber-console.css` | Default. Readable, sourcemapped, custom properties intact. |
-| `dist/amber-console.min.css` | Production. 35kb, 6.6kb gzipped, same behaviour. |
+| `dist/amber-console.min.css` | Production. 35kb, 6.6kb gzipped, same behavior. |
 | `dist/amber-console.layer.css` | Dropping into an existing app — `@layer` makes the framework lose specificity fights against your own rules. Use *instead of*, never alongside. |
 | `dist/amber-console.layer.min.css` | The same, minified. Production embedding. |
-| `dist/amber-console.js` | Optional behaviour, ES module. For bundlers. |
-| `dist/amber-console.global.js` | Optional behaviour, classic script. Needed for `file://` pages, where `type="module"` is blocked. |
+| `dist/amber-console.js` | Optional behavior, ES module. For bundlers. |
+| `dist/amber-console.global.js` | Optional behavior, classic script. Needed for `file://` pages, where `type="module"` is blocked. |
 
 Custom properties survive into `dist/` unresolved — they are the public API, so you can override any
 of them at runtime without rebuilding.
@@ -102,10 +102,11 @@ That renders a framed, glowing, scanlined control panel. No build step, no serve
 | `.ac-btn` | Soft key | `--filled` `--dim` `--lg` `--sm` `--pad` `--block` | `<button>`, `<a>` or `<input type="submit">` |
 | `.ac-tabs` / `.ac-tab` | Soft-key tabs, Title Case | `.ac-tab--active` | `role="tablist"` > `role="tab"` + `aria-selected` |
 | `.ac-nav` | Screen menu bar | `--sticky` | `__mark` `__links` `__link` (`--active`) `__meta`; `aria-current="page"` |
+| `.ac-setup` | Permanently-open control board under the bar. Never opens, closes, scrolls or sticks | — | `__grid` (quarters) + `__foot`; regions are `.ac-panel` |
 | `.ac-check` | Status bit — fills solid, no ✓ glyph | `--disabled` | `<label>` > `<input type="checkbox">` + `<span>` |
 | `.ac-radio` | Exclusive mode | `--disabled` | `<label>` > `<input type="radio">` + `<span>` |
 | `.ac-toggle` | Two-position switch with mandatory ON/OFF text | `--on` `--input` (CSS-only) | `__track` > `__thumb`, plus `__state` |
-| `.ac-field` / `.ac-input` | Labelled recessed well | `--block` `--invalid` | `<label>` > `__label` + `<input>` |
+| `.ac-field` / `.ac-input` | Labeled recessed well | `--block` `--invalid` | `<label>` > `__label` + `<input>` |
 | `.ac-select` | `.ac-input` plus a typeset ▼ | `--block` | `<span class="ac-select">` > `<select class="ac-input">` |
 | `.ac-keypad` | 3-column numeric entry grid | `__key` `__key--fn` `__key--wide` `--dense` | keys are `.ac-btn` |
 
@@ -224,31 +225,45 @@ reads correctly without it. It covers only what CSS genuinely cannot do:
 3. the PLASMA and CRT simulations, persisted to `localStorage` — CRT carries the afterglow — and
    the afterglow ghosts
 4. opening and closing a `<dialog>`
-5. the NEON/AMBER [gas toggle](#two-gases), likewise persisted — the palettes themselves are pure
-   CSS and switch on a `data-ac-gas` attribute you can write into your own markup
+5. the [display presets](#three-axes-and-they-are-not-the-same-axis), likewise persisted — the
+   palettes themselves are pure CSS and switch on `data-ac-tech` + `data-ac-emitter`, which you can
+   write into your own markup
+6. the style flags, same deal on `data-ac-style-*`
 
 ```html
 <script src="dist/amber-console.global.js"></script>   <!-- classic; works from file:// -->
 <script type="module">import "./dist/amber-console.js";</script>   <!-- ES module -->
 ```
 
-Auto-initialises from `[data-ac]`. Call `AmberConsole.init(scope)` again after rendering new markup,
+Auto-initializes from `[data-ac]`. Call `AmberConsole.init(scope)` again after rendering new markup,
 and `AmberConsole.afterglow(el)` to ghost an element you are about to remove.
 
-## Two gases
+## Display: technology, then emitter
 
-The system ships **two palettes**, and they are not a light/dark pair — they are two different
-pieces of hardware. Switch with one attribute on the root element:
+A palette here is not a theme and not a light/dark pair — it is a specific piece of hardware, and it
+takes **two attributes** on the root element to name one, because the same color word means
+different physics on different glass:
 
 ```html
-<html data-ac-gas="neon">    <!-- default; omit and you get this -->
-<html data-ac-gas="amber">
+<html data-ac-tech="plasma" data-ac-emitter="neon">   <!-- default; omit and you get this -->
+<html data-ac-tech="crt"    data-ac-emitter="p3">
 ```
 
-| | hue | what it is |
-| --- | --- | --- |
-| **`neon`** *(default)* | 24° | A monochrome AC plasma panel. The light is neon emitting directly from the gas — no phosphor anywhere in the stack. This is what the six laws describe and what `.ac-bloom` simulates. |
-| **`amber`** | 38° | The classic amber CRT phosphor (P3): a broad ~590 nm band with real green content. A *different* display technology, but it is what most people mean by "amber terminal", it is the ramp the source design system was drawn against, and it pairs naturally with `.ac-crt`. |
+`data-ac-tech` is the **technology** — what is making light at all. `data-ac-emitter` is **which gas,
+or which phosphor**, inside it. An emitter is only meaningful within its technology: `neon` is a gas
+and exists only under plasma, `p3` is a phosphor and exists only under CRT. Every palette block is
+selected by *both*, so a mismatched pair selects nothing rather than quietly rendering the wrong
+hardware.
+
+| tech | emitter | hue | what it is |
+| --- | --- | --- | --- |
+| **`plasma`** *(default)* | **`neon`** | 24° | A monochrome AC plasma panel. The light is neon emitting directly from the gas — no phosphor anywhere in the stack. This is what the six laws describe and what `.ac-bloom` simulates. |
+| **`crt`** | **`p3`** | 38° | The classic amber CRT phosphor: a broad ~590 nm band with real green content. A *different* display technology — a beam exciting a phosphor, which emits and then persists — but it is what most people mean by "amber terminal", it is the ramp the source design system was drawn against, and it pairs with `.ac-crt`. |
+
+> **Deprecated:** `data-ac-gas="neon"` and `data-ac-gas="amber"` still work and will be removed in
+> 3.0. The name was the bug — `amber` was never a gas, it is a CRT phosphor, and calling it one is
+> exactly the confusion the pair above exists to prevent. `data-ac-gas-toggle` likewise still works
+> but can only ever reach those two palettes; migrate to `[data-ac-display]` radios.
 
 The neon hue is derived rather than picked. Weighting the Ne I visible lines by the CIE 1931
 observer puts the discharge at x=0.631 y=0.369 — just outside sRGB, gamut-mapping to 19°. That is a
@@ -257,17 +272,51 @@ against the 640 nm red group and walks the hue up. 19–31° is the defensible b
 
 Every stop is solved to a **contrast ratio**, never re-tinted — rotating hue at constant lightness
 drops `--amber-50` to 2.79:1 and silently fails the 3:1 non-text gate. `npm run contrast` runs the
-[full pair table](#accessibility) against **both** palettes independently; a ratio that passes under
-one and fails under the other is a build failure.
+[full pair table](#accessibility) against **every** palette independently; a ratio that passes under
+one and fails under another is a build failure.
 
-There is a toggle wired into both demo pages. It is optional — the palettes are pure CSS, so you can
-set `data-ac-gas` in your own markup and never load the JavaScript. If you do want a runtime switch,
-put `data-ac-gas-toggle` on an `.ac-toggle` button and [the module](#the-optional-javascript) handles
-persistence.
+Adding an emitter — or a whole technology — means adding one block to `src/tokens/colors.css` and
+nothing else: the five discharge stops, three surfaces, `--on-fill`, and the four `--gas-N` glow
+triples. Everything else in the system is an alias or is built from those.
 
-Adding a third gas means adding one block to `src/tokens/colors.css` and nothing else: the five
-discharge stops, three surfaces, `--on-fill`, and the four `--gas-N` glow triples. Everything else in
-the system is an alias or is built from those.
+### Three axes, and they are not the same axis
+
+The demo pages carry a **setup board** (`.ac-setup`) that separates the three things it is easy to
+conflate. It never opens, closes or scrolls — every switch the panel has is on the glass at once,
+which is affordable only because the emitter catalog is split by technology across two of the four
+quarters rather than stacked into one tall list:
+
+| axis | question it answers | where it lives | how many |
+| --- | --- | --- | --- |
+| **Display** | which hardware is in the panel | `data-ac-tech` + `data-ac-emitter` on the root | exactly one |
+| **Simulation** | what the glass does about it — bloom, scanlines, persistence | classes on the frame, via `data-ac-sim` | any combination |
+| **Style** | everything that is *not* the hardware — comfort, typography | `data-ac-style-*` on the root | any combination |
+
+Display sets color and simulation never does. A **preset** is a display row that also names the
+simulations its technology implies:
+
+```html
+<input type="radio" name="ac-display" data-ac-display
+       data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt">
+```
+
+Selecting it switches the palette to the P3 phosphor, mounts `.ac-crt`, and switches every *other*
+known simulation off — one click, and the `.ac-toggle` for each moves to prove it. `data-ac-sims` is
+a space-separated list; simulations this build does not have are ignored rather than throwing.
+
+A preset is a starting point, not a lock. Flip a simulation or a style afterwards and the readout
+says `*MOD`; nothing is prevented. `[data-ac-display-reset]` puts the preset's simulations back, and
+`[data-ac-display-out="label|tech|emitter|mode"]` gives you somewhere to show the state.
+
+`[data-ac-display-info]` shows one node and hides the rest, so the board can carry a note describing
+whatever is currently in the panel. A key is a technology (`crt`) or an exact palette (`crt/p3`);
+exact wins where one exists, so a phosphor that does not behave like the rest of its family can say
+so without every other phosphor needing its own paragraph. The prose is markup, like the catalog.
+
+**The catalog is markup, not a table inside the JavaScript** — write your own `[data-ac-display]`
+rows for your own palettes and the module needs no edit. All of it is optional: the palettes are pure
+CSS, so you can set `data-ac-tech` and `data-ac-emitter` in your own markup and never load the
+module.
 
 ## Tokens
 
@@ -312,7 +361,7 @@ exactly the mean loss of the CRT scanlines it sits beside. `scripts/contrast.mjs
 first.
 
 The `--amber-*` prefix names **the ramp, not the hue** — it is historical, and under
-`data-ac-gas="neon"` those tokens are not amber. Renaming is a public API break and has not been
+`data-ac-tech="plasma"` those tokens are not amber. Renaming is a public API break and has not been
 made; treat the numbers as intensity stops.
 
 Component-level hooks: `--gap`, `--cols`, `--ac-screen-pad`, `--ac-panel-title-bg`,
@@ -325,7 +374,7 @@ that glows is a lie about the hardware.
 
 1. **One gas, many intensities.** There is no phosphor in a monochrome plasma panel — the amber is
    neon emitting directly from the gas. Hierarchy is brightness, inverse video and blink — never hue.
-   There is no red, no green, no "success" colour.
+   There is no red, no green, no "success" color.
 2. **Inverse video is importance.** A solid amber block with dark text is the machine speaking.
    Ration it: two or three per screen.
 3. **Everything is a box.** 2px rules draw the regions. No elevation, no shadows-as-depth.
@@ -367,15 +416,15 @@ Prefer not to vendor the binaries? Swap `tokens/fonts.css` for `tokens/fonts-cdn
 to Courier New, which loses the bitmap grid the whole effect depends on.
 
 The ornament glyphs (`✳ █ ▼` …) fall outside the subsetted webfonts' `unicode-range` and render from
-the system font. This matches the upstream Google Fonts behaviour and is what the design was drawn
+the system font. This matches the upstream Google Fonts behavior and is what the design was drawn
 against.
 
 ## Accessibility
 
 Ratios below are **computed** from the tokens by `npm run contrast`, not estimated — and the
-gate runs against **both palettes**, so neither ships untested.
+gate runs against **every palette**, so none of them ships untested.
 
-#### `data-ac-gas="neon"`
+#### `data-ac-tech="plasma" data-ac-emitter="neon"`
 
 | Foreground | Background | Ratio | Needs | Verdict | Use |
 | --- | --- | --- | --- | --- | --- |
@@ -392,7 +441,7 @@ gate runs against **both palettes**, so neither ships untested.
 | `--stroke` | `--screen` | 7.02:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
 | `--stroke-dim` | `--screen` | 3.42:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
 
-#### `data-ac-gas="amber"`
+#### `data-ac-tech="crt" data-ac-emitter="p3"`
 
 | Foreground | Background | Ratio | Needs | Verdict | Use |
 | --- | --- | --- | --- | --- | --- |

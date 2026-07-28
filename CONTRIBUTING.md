@@ -39,7 +39,7 @@ without a build step. Rebuild before you commit or the demos will be stale.
 
 These are enforced by `scripts/check-prohibitions.mjs`, which fails the build:
 
-- **No second hue.** No red, no green, no "success" colour. Danger is blink plus inverse video.
+- **No second hue.** No red, no green, no "success" color. Danger is blink plus inverse video.
   Literal hex is allowed only in `tokens/colors.css`, `tokens/effects.css` and `base/print.css`.
 - **No `transition` in `src/components/`.** State changes are instant — a redrawn screen has no
   in-between frames. The only motion in the system is the `steps(1)` blink, the block cursor, and the
@@ -74,14 +74,14 @@ belong here. Every new component needs:
 - a header comment stating what it is, the minimum markup, and **when not to use it**
 - a specimen in `docs/guide.html` §06 or §07 with a copyable class string and that same caveat
 - a row in the README class reference
-- correct behaviour under `prefers-reduced-motion`, `forced-colors: active` and `@media print`
+- correct behavior under `prefers-reduced-motion`, `forced-colors: active` and `@media print`
 - a 44×44 minimum hit area if it is interactive, and a `:focus-visible` ring
 
 ## Accessibility is not optional
 
 This aesthetic actively fights accessibility, which is exactly why the gates exist. Anything
 interactive needs a visible focus ring on both `--screen` and inverse-video backgrounds. Anything
-that signals state must do so without relying on motion or on a single colour intensity. Run
+that signals state must do so without relying on motion or on a single color intensity. Run
 `npm run contrast` if you touch the palette, and paste the regenerated table into the README.
 
 ## Packaging
@@ -93,9 +93,9 @@ Two things in `package.json` look wrong and are not:
   nothing. They are needed only by `npm run lint` and `npm run test:visual`; `build`, `check` and
   `contrast` are pure Node and need no install at all.
 - **`sideEffects` lists the JS builds as well as `*.css`, and must keep doing so.**
-  `import "amber-console/js"` is a bare side-effect import — the module auto-initialises and its
+  `import "amber-console/js"` is a bare side-effect import — the module auto-initializes and its
   exports go unused — so a bundler told the file is side-effect free will drop it silently. Trim
-  that array to `["*.css"]` and the optional behaviour disappears from production builds with no
+  that array to `["*.css"]` and the optional behavior disappears from production builds with no
   error anywhere.
 
 ## Fonts

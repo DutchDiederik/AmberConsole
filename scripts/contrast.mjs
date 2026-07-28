@@ -19,11 +19,17 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 /**
  * Parse colors.css into ONE TOKEN MAP PER PALETTE.
  *
- * The file declares every colour twice — once under `:root, [data-ac-gas=neon]`
- * and once under `[data-ac-gas=amber]` — so a flat scrape of every
- * `--name: value;` in the file silently keeps whichever block is written last
- * and reports a table for a palette that half the users never see. Blocks have
- * to be kept apart and the pair table run against each.
+ * The file declares every color once per palette — a flat scrape of every
+ * `--name: value;` silently keeps whichever block is written last and reports a
+ * table for a palette most users never see. Blocks have to be kept apart and the
+ * pair table run against each.
+ *
+ * A palette is identified by the PAIR of technology and emitter, because the
+ * emitter alone is not unique across technologies and never will be: two techs
+ * can both ship a "white". Blocks are found by their
+ * [data-ac-tech][data-ac-emitter] selector; the deprecated [data-ac-gas] aliases
+ * ride along on the same blocks and are deliberately not enumerated, so the
+ * legacy names cannot double-count a palette that is already being checked.
  */
 async function loadTokens() {
   const css = (await readFile(path.join(ROOT, "src/tokens/colors.css"), "utf8"))
@@ -37,18 +43,29 @@ async function loadTokens() {
     ),
   }));
 
-  const gases = [...css.matchAll(/\[data-ac-gas=["']?([\w-]+)["']?\]/g)].map((m) => m[1]);
-  const names = [...new Set(gases)];
-  if (!names.length) throw new Error("no [data-ac-gas] palettes found in colors.css");
+  const PALETTE_RE =
+    /\[data-ac-tech=["']?([\w-]+)["']?\]\[data-ac-emitter=["']?([\w-]+)["']?\]/g;
+
+  const names = [
+    ...new Map(
+      [...css.matchAll(PALETTE_RE)].map((m) => [`${m[1]}/${m[2]}`, [m[1], m[2]]])
+    ),
+  ];
+  if (!names.length) {
+    throw new Error("no [data-ac-tech][data-ac-emitter] palettes found in colors.css");
+  }
 
   return Object.fromEntries(
-    names.map((gas) => {
+    names.map(([id, [tech, emitter]]) => {
       /* :root blocks are the shared base — the aliases live in one of them and
-         apply to every palette. A palette block then overlays its own colours. */
+         apply to every palette. A palette block then overlays its own colors. */
       const raw = {};
+      const mine = new RegExp(
+        `\\[data-ac-tech=["']?${tech}["']?\\]\\[data-ac-emitter=["']?${emitter}["']?\\]`
+      );
       for (const b of blocks) {
         const isBase = b.sel.split(",").some((s) => s.trim().startsWith(":root"));
-        const isMine = b.sel.includes(`[data-ac-gas="${gas}"]`) || b.sel.includes(`[data-ac-gas=${gas}]`);
+        const isMine = mine.test(b.sel);
         if (isBase || isMine) Object.assign(raw, b.decls);
       }
 
@@ -57,7 +74,7 @@ async function loadTokens() {
         const ref = /^var\(\s*--([\w-]+)\s*\)$/.exec(v);
         return ref ? resolve(raw[ref[1]], depth + 1) : v;
       };
-      return [gas, Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, resolve(v)]))];
+      return [id, Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, resolve(v)]))];
     })
   );
 }
@@ -115,12 +132,13 @@ const table = (tokens) =>
 const fmt = (n) => `${n.toFixed(2)}:1`;
 const broken = [];
 
-for (const [gas, tokens] of Object.entries(palettes)) {
+for (const [id, tokens] of Object.entries(palettes)) {
+  const [tech, emitter] = id.split("/");
   const rows = table(tokens);
-  for (const r of rows) if (r.required && !r.pass) broken.push({ gas, ...r });
+  for (const r of rows) if (r.required && !r.pass) broken.push({ id, ...r });
 
   if (md) {
-    console.log(`\n#### \`data-ac-gas="${gas}"\`\n`);
+    console.log(`\n#### \`data-ac-tech="${tech}" data-ac-emitter="${emitter}"\`\n`);
     console.log("| Foreground | Background | Ratio | Needs | Verdict | Use |");
     console.log("| --- | --- | --- | --- | --- | --- |");
     for (const r of rows) {
@@ -134,7 +152,7 @@ for (const [gas, tokens] of Object.entries(palettes)) {
       );
     }
   } else {
-    console.log(`\n  ${gas.toUpperCase()}`);
+    console.log(`\n  ${tech.toUpperCase()} / ${emitter.toUpperCase()}`);
     for (const r of rows) {
       const mark = r.pass ? "PASS" : r.required ? "FAIL" : "exempt";
       console.log(
@@ -145,12 +163,12 @@ for (const [gas, tokens] of Object.entries(palettes)) {
   }
 }
 
-/* A pair that passes under one gas and fails under another is a failure. Both
-   palettes ship; neither is a preview. */
+/* A pair that passes under one palette and fails under another is a failure.
+   Every palette ships; none of them is a preview. */
 if (broken.length) {
   console.error(
     `\n  ${broken.length} REQUIRED pair(s) below threshold:\n` +
-      broken.map((r) => `    [${r.gas}] ${r.fg} on ${r.bg} = ${fmt(r.value)}`).join("\n")
+      broken.map((r) => `    [${r.id}] ${r.fg} on ${r.bg} = ${fmt(r.value)}`).join("\n")
   );
   process.exit(1);
 }

@@ -1,6 +1,6 @@
 :root {
   /* The halo is the same photons the cell emits, scattered in the glass, so it
-     tracks the discharge hue exactly. NOTHING in this file names a colour: every
+     tracks the discharge hue exactly. NOTHING in this file names a color: every
      rgba() is built from the --gas-N triples in tokens/colors.css, which is what
      makes `data-ac-gas` switch the panel and its glow together. Hardcode one and
      it will keep an amber corona around neon text, which is the one place the
@@ -48,6 +48,46 @@
 
 /* Block cursor */
 .ac-cursor::after { content: "█"; margin-left: 2px; animation: ac-blink 1s steps(1) infinite; }
+
+/* A STYLE FLAG, NOT A SIMULATION. Blink is law-2 emphasis and it is also the
+   single most tiring thing on the panel, so it is switchable independently of
+   which hardware is being simulated — every display technology in here blinks,
+   and turning it off says nothing about any of them.
+
+   Off settles LIT, not dark: the keyframe's dark half is 0.1 opacity, and a
+   blink stopped there is an element that has silently vanished. This is the same
+   resting state prefers-reduced-motion lands on, deliberately — see the bottom
+   of this file. README's note stands either way: once blink is off, the inverse
+   fill and the ✳✳ glyphs are what carry an alarm.
+
+   FOUR BLINK SITES, EACH STATED TWICE, and that is not repetition for its own
+   sake — it is the fourth time this file has had to make the same point. Every
+   blink has an .ac-afterglow-scoped decay variant later in this file, which is a
+   descendant selector and therefore outranks a bare `.ac-blink { animation:
+   none }` on specificity alone. Matching only the plain form switches blink off
+   on a bare panel and leaves it running the moment the CRT simulation is on —
+   which is precisely the panel a user reaching for this switch is looking at.
+   The flag attribute is on the ROOT, so prefixing it outranks both forms and the
+   rule no longer depends on where in the file it sits.
+
+   A blanket cannot serve here the way it does for `transition` under
+   reduced-motion: `animation: none` on * would take the bloom, the retrace and
+   the mesh buzz with it, and none of those is a blink. The list is the price.
+   Adding a fifth blink site means adding it here, and to the reduced-motion
+   block at the bottom of this file, and to print.css and a11y.css. */
+[data-ac-style-blink="off"] .ac-blink,
+[data-ac-style-blink="off"] .ac-cursor::after,
+[data-ac-style-blink="off"] .ac-field--invalid .ac-input,
+[data-ac-style-blink="off"] .ac-input[aria-invalid="true"],
+[data-ac-style-blink="off"] .ac-meter--alarm .ac-meter__bar,
+[data-ac-style-blink="off"] .ac-afterglow .ac-blink,
+[data-ac-style-blink="off"] .ac-afterglow .ac-cursor::after,
+[data-ac-style-blink="off"] .ac-afterglow .ac-field--invalid .ac-input,
+[data-ac-style-blink="off"] .ac-afterglow .ac-input[aria-invalid="true"],
+[data-ac-style-blink="off"] .ac-afterglow .ac-meter--alarm .ac-meter__bar {
+  animation: none;
+  filter: none;
+}
 
 /* ---------------------------------------------------------------------------
    Three independent screen simulations, all applied to the outermost frame:
@@ -133,7 +173,7 @@
    the unlit panel (--screen is a near-black under either gas) black alpha has
    nothing to take away and
    the mesh is simply not there, while over lit amber it occludes. The grid
-   appears only where the panel is lit, which is exactly the behaviour of a real
+   appears only where the panel is lit, which is exactly the behavior of a real
    screen door and costs nothing to get.
 
    z-index 48 puts it ABOVE the bleed, which is upside down physically — the ribs
@@ -183,7 +223,7 @@
    and then jumped, never interpolated: a wire that eases between two places is a
    wobble, and a wobble is a much bigger, much worse effect than this one. The
    0.35px ceiling is what keeps the wires reading as sharp — past about half a
-   pixel the resampling turns the mesh grey and the screen door is gone. */
+   pixel the resampling turns the mesh gray and the screen door is gone. */
 @keyframes ac-mesh-buzz {
   0%   { transform: translate3d(0, 0, 0); }
   14%  { transform: translate3d(0.28px, -0.16px, 0); }

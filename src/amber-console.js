@@ -2,7 +2,7 @@
  * Amber Console — optional behavior module.
  *
  * STRICTLY OPTIONAL. Every component looks and reads correctly with this file
- * absent; nothing here affects appearance. It exists only for the five things
+ * absent; nothing here affects appearance. It exists only for the six things
  * CSS genuinely cannot express:
  *
  *   1. the role="tablist" keyboard model
@@ -12,11 +12,24 @@
  *      the afterglow that rides with CRT — whose ghosts need the value a readout
  *      held one frame ago, the one thing on that list CSS cannot see
  *   4. opening and closing a native <dialog>
- *   5. the NEON/AMBER gas toggle, which likewise persists — the palettes
- *      themselves are pure CSS and switch on a `data-ac-gas` attribute you can
+ *   5. the DISPLAY presets, which likewise persist — the palettes themselves are
+ *      pure CSS and switch on `data-ac-tech` + `data-ac-emitter`, which you can
  *      just as well write into your own markup
+ *   6. the STYLE flags, same deal on `data-ac-style-*`
  *
- * No dependencies, no build step, no framework. Auto-initialises on DOM ready
+ * THREE AXES, DELIBERATELY SEPARATE, AND NOT INTERCHANGEABLE:
+ *
+ *   DISPLAY     which hardware is in the panel — a technology plus the gas or
+ *               phosphor inside it. Root attributes. Color comes from here.
+ *   SIMULATION  what the glass does about it — bloom, scanlines, persistence.
+ *               Classes on the frame. Never a color.
+ *   STYLE       everything that is not the hardware — comfort and typography
+ *               preferences that make no claim about what the panel is.
+ *
+ * A DISPLAY preset sets the first two at once and then gets out of the way. It
+ * is a starting point, not a lock.
+ *
+ * No dependencies, no build step, no framework. Auto-initializes on DOM ready
  * when loaded with <script type="module" src="amber-console.js"></script>.
  * Using React/Vue/Svelte? Skip it — drive the same ARIA attributes yourself and
  * the CSS follows.
@@ -25,7 +38,7 @@
 const STORE_PREFIX = "ac.sim.";
 
 /**
- * Live, so a preference changed mid-session is honoured without a reload — and
+ * Live, so a preference changed mid-session is honored without a reload — and
  * guarded, so importing this module in a Node/SSR pass does not throw before it
  * reaches the DOM check at the bottom of the file.
  */
@@ -147,10 +160,33 @@ const GHOST_STYLES = [
  */
 const GHOST_LIMIT = 24;
 
-/** Ghosts are decoration made of duplicated content — hide them completely. */
+/**
+ * Ghosts are decoration made of duplicated content — hide them completely, and
+ * cut every wire the original had.
+ *
+ * `id` is the obvious one. The `data-ac-*` hooks are the subtle one and they
+ * matter more: every initializer here finds its elements with a document-wide
+ * querySelectorAll, so a clone that kept its hooks is still a match. A ghosted
+ * readout gets rewritten by the next paint — with the LIVE value, which is the
+ * one thing a ghost must never show, since the whole point of it is the value
+ * the panel held a moment ago. A ghosted toggle gets its thumb moved by the next
+ * applySim. The ghost is a photograph; nothing may keep writing on it.
+ *
+ * .ac-persist is PREPENDED to the frame, so ghosts also come first in document
+ * order — a stale ghost does not merely paint wrong, it is what a plain
+ * querySelector finds instead of the real element.
+ */
 function sanitize(node) {
-  node.removeAttribute?.("id");
-  for (const el of node.querySelectorAll?.("[id]") ?? []) el.removeAttribute("id");
+  const cut = (el) => {
+    el.removeAttribute?.("id");
+    for (const attr of [...(el.attributes ?? [])]) {
+      if (attr.name.startsWith("data-ac-")) el.removeAttribute(attr.name);
+    }
+  };
+
+  cut(node);
+  for (const el of node.querySelectorAll?.("*") ?? []) cut(el);
+
   node.setAttribute("aria-hidden", "true");
   node.inert = true;
   node.tabIndex = -1;
@@ -348,66 +384,87 @@ const SIMS = {
   },
 };
 
+/** The frame every simulation paints on. Resolved once, on first use. */
+function screenFrame() {
+  return (screenFrame.cached ??=
+    document.querySelector("[data-ac-screen]") ??
+    document.querySelector(".ac-screen") ??
+    null);
+}
+
 /**
- * PLASMA / CRT / AFTERGLOW toggles. `data-ac-sim="plasma|crt|afterglow"` on an
- * .ac-toggle button, `data-ac-screen` on the frame they apply to (defaults to
- * the first .ac-screen).
+ * Mount or unmount one simulation, and repaint every toggle that names it.
+ *
+ * Module scope rather than a closure inside initSims, because the DISPLAY
+ * presets drive the same switches: picking CRT/P3 has to be able to put the
+ * PLASMA toggle in the OFF position and mean it. Two code paths writing the
+ * frame independently is how you end up with a lit .ac-bloom and a toggle
+ * insisting plasma is off.
+ */
+function applySim(name, on) {
+  const sim = SIMS[name];
+  const frame = screenFrame();
+  if (!sim || !frame) return;
+
+  for (const klass of sim.classes) frame.classList.toggle(klass, on);
+
+  /* Reversed, because each one is PREPENDED: walking the list as written puts
+     the children into the frame back-to-front. That is not cosmetic —
+     .ac-retrace and .ac-persist both sit at z-index 45, so DOM order is the
+     only thing breaking the tie between them, and a frame that mounted them
+     from script composited fractionally differently from one that shipped them
+     in markup. The list is declared in paint order; keep it that way. */
+  for (const child of [...sim.children].reverse()) {
+    const existing = frame.querySelector(`:scope > .${child}`);
+    if (on && !existing) {
+      const span = document.createElement("span");
+      span.className = child;
+      frame.prepend(span);
+    } else if (!on && existing) {
+      existing.remove();
+    }
+  }
+
+  if (sim.classes.includes("ac-afterglow")) {
+    ghostObserver ??= makeGhostObserver(frame);
+    scrollSmear ??= makeScrollSmear(frame);
+    if (on) {
+      ghostObserver.observe(frame, {
+        subtree: true,
+        childList: true,
+        characterData: true,
+        characterDataOldValue: true,
+      });
+      if (styleOn("smear")) scrollSmear.connect();
+    } else {
+      ghostObserver.disconnect();
+      scrollSmear.disconnect();
+    }
+  }
+
+  for (const btn of document.querySelectorAll(`[data-ac-sim="${name}"]`)) {
+    btn.setAttribute("aria-pressed", String(on));
+    btn.classList.toggle("ac-toggle--on", on);
+    const state = btn.querySelector(".ac-toggle__state");
+    if (state) state.textContent = on ? "ON" : "OFF";
+  }
+
+  writeStored(name, on ? "1" : "0");
+}
+
+/**
+ * PLASMA / CRT toggles. `data-ac-sim="plasma|crt"` on an .ac-toggle button,
+ * `data-ac-screen` on the frame they apply to (defaults to the first .ac-screen).
+ *
+ * These switch the SIMULATION — what the glass does. They do not touch the
+ * palette; which gas or which phosphor is lighting up is initDisplay's business
+ * and lives on different attributes entirely. A user is free to run the CRT
+ * simulation with a plasma gas in it, and the DISPLAY presets will tell them
+ * they have (see MOD below), but nothing here stops them.
  */
 function initSims() {
   const buttons = [...document.querySelectorAll("[data-ac-sim]")];
-  if (!buttons.length) return;
-
-  const frame =
-    document.querySelector("[data-ac-screen]") ?? document.querySelector(".ac-screen");
-  if (!frame) return;
-
-  const apply = (name, on) => {
-    const sim = SIMS[name];
-    for (const klass of sim.classes) frame.classList.toggle(klass, on);
-
-    /* Reversed, because each one is PREPENDED: walking the list as written puts
-       the children into the frame back-to-front. That is not cosmetic —
-       .ac-retrace and .ac-persist both sit at z-index 45, so DOM order is the
-       only thing breaking the tie between them, and a frame that mounted them
-       from script composited fractionally differently from one that shipped them
-       in markup. The list is declared in paint order; keep it that way. */
-    for (const child of [...sim.children].reverse()) {
-      const existing = frame.querySelector(`:scope > .${child}`);
-      if (on && !existing) {
-        const span = document.createElement("span");
-        span.className = child;
-        frame.prepend(span);
-      } else if (!on && existing) {
-        existing.remove();
-      }
-    }
-
-    if (sim.classes.includes("ac-afterglow")) {
-      ghostObserver ??= makeGhostObserver(frame);
-      scrollSmear ??= makeScrollSmear(frame);
-      if (on) {
-        ghostObserver.observe(frame, {
-          subtree: true,
-          childList: true,
-          characterData: true,
-          characterDataOldValue: true,
-        });
-        scrollSmear.connect();
-      } else {
-        ghostObserver.disconnect();
-        scrollSmear.disconnect();
-      }
-    }
-
-    for (const btn of buttons.filter((b) => b.dataset.acSim === name)) {
-      btn.setAttribute("aria-pressed", String(on));
-      btn.classList.toggle("ac-toggle--on", on);
-      const state = btn.querySelector(".ac-toggle__state");
-      if (state) state.textContent = on ? "ON" : "OFF";
-    }
-
-    writeStored(name, on ? "1" : "0");
-  };
+  if (!buttons.length || !screenFrame()) return;
 
   for (const name of Object.keys(SIMS)) {
     if (!buttons.some((b) => b.dataset.acSim === name)) continue;
@@ -421,68 +478,305 @@ function initSims() {
        impression of the system was a plasma screen wearing a tube's blanking
        gaps. It stays one click away. */
     const stored = readStored(name);
-    apply(name, stored === null ? SIMS[name].defaultOn : stored === "1");
+    applySim(name, stored === null ? SIMS[name].defaultOn : stored === "1");
 
     for (const btn of buttons.filter((b) => b.dataset.acSim === name)) {
       if (wired.has(btn)) continue;
       wired.add(btn);
       btn.addEventListener("click", () => {
-        apply(name, btn.getAttribute("aria-pressed") !== "true");
+        applySim(name, btn.getAttribute("aria-pressed") !== "true");
+        /* Deviating from the preset is allowed and is the point of the toggles
+           still being there. It is just no longer the preset. */
+        markModified();
       });
     }
   }
 }
 
-/* -------------------------------------------------------------------- gas -- */
-
-/** Palette names, in toggle order. See the header of tokens/colors.css. */
-const GASES = ["neon", "amber"];
+/* ---------------------------------------------------------------- display -- */
 
 /**
- * GAS toggle. `data-ac-gas-toggle` on an .ac-toggle button; the attribute this
- * writes is `data-ac-gas` on the ROOT element, not on the frame.
+ * DISPLAY — which hardware is in the panel. Two attributes on the ROOT element:
  *
- * Root, because the palette is not a property of the screen the way .ac-bloom
- * is. Tokens cascade, and a page can put .ac-badge or a code sample outside
- * .ac-screen — scoping the switch to the frame would leave those on whichever
- * gas :root happened to declare, which is the kind of split nobody notices until
- * a screenshot has two hues in it.
+ *   data-ac-tech      the technology: "plasma" (gas emitting directly) or "crt"
+ *                     (a beam on a phosphor). What is making light at all.
+ *   data-ac-emitter   which gas, or which phosphor, inside that technology.
  *
- * Unlike the sims this is NOT on/off, so aria-pressed would be a lie: neither
- * state is "not pressed". The button carries the palette name instead, and
- * .ac-toggle--on tracks the non-default gas purely so the track renders as
- * thrown. CSS-only consumers can set data-ac-gas in their own markup and never
- * load this file.
+ * Root, not the frame, because the palette is not a property of the screen the
+ * way .ac-bloom is. Tokens cascade, and a page can put .ac-badge or a code
+ * sample outside .ac-screen — scoping the switch to the frame would leave those
+ * on whichever palette :root happened to declare, which is the kind of split
+ * nobody notices until a screenshot has two hues in it.
+ *
+ * TWO attributes and not one, because "which color" is not answerable on its
+ * own: a gas and a phosphor can be the same color and are not the same thing.
+ * Keeping the technology in the selector is what makes it impossible to offer
+ * P39 as a gas or krypton as a phosphor — see the header of tokens/colors.css.
+ *
+ * THE CATALOG IS MARKUP, NOT A TABLE IN HERE. Each preset is a radio:
+ *
+ *   <input type="radio" name="ac-display" data-ac-display
+ *          data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt">
+ *
+ * so a consumer who ships their own palettes writes their own rows and this file
+ * needs no edit. `data-ac-sims` is the space-separated list of simulations that
+ * technology implies; every other known simulation is switched OFF. That is the
+ * whole preset behavior — pick CRT P3 and the CRT glass comes on and the plasma
+ * bloom goes off, in one click, and both toggles move to prove it.
+ *
+ * A preset is a STARTING POINT, not a lock. Flip a simulation or a style
+ * afterwards and the readout says MOD; nothing is prevented.
  */
+function initDisplay() {
+  const radios = [...document.querySelectorAll("[data-ac-display]")];
+  const root = document.documentElement;
+
+  /** Write the palette. Attributes only — no simulation is touched. */
+  const paint = (tech, emitter) => {
+    root.setAttribute("data-ac-tech", tech);
+    root.setAttribute("data-ac-emitter", emitter);
+    /* Deprecated, removed in 3.0. Kept in sync so a page still selecting on
+       [data-ac-gas] does not silently fall back to :root mid-session. */
+    if (tech === "plasma" && emitter === "neon") root.setAttribute("data-ac-gas", "neon");
+    else if (tech === "crt" && emitter === "p3") root.setAttribute("data-ac-gas", "amber");
+    else root.removeAttribute("data-ac-gas");
+
+    for (const r of radios) {
+      r.checked = r.dataset.acTech === tech && r.dataset.acEmitter === emitter;
+    }
+
+    writeStored("tech", tech);
+    writeStored("emitter", emitter);
+    paintReadout();
+  };
+
+  /* Restore. The palette is restored WITHOUT applying the preset's simulations,
+     because initSims has already restored those from their own keys and they may
+     legitimately disagree — that disagreement is exactly what MOD records. Only
+     an actual click applies a whole preset. */
+  const storedTech = readStored("tech");
+  const storedEmitter = readStored("emitter");
+  const known = radios.some(
+    (r) => r.dataset.acTech === storedTech && r.dataset.acEmitter === storedEmitter
+  );
+  /* An unrecognized stored pair falls back rather than being written through — a
+     stale key from a palette that has since been removed must not leave the
+     panel unstyled. */
+  if (known) paint(storedTech, storedEmitter);
+  else if (radios.length) {
+    const first = radios.find((r) => r.checked) ?? radios[0];
+    paint(first.dataset.acTech, first.dataset.acEmitter);
+  }
+  modified = readStored("mod") === "1";
+  paintReadout();
+
+  for (const radio of radios) {
+    if (wired.has(radio)) continue;
+    wired.add(radio);
+    radio.addEventListener("change", () => {
+      if (!radio.checked) return;
+      paint(radio.dataset.acTech, radio.dataset.acEmitter);
+
+      /* The preset half of a preset: every simulation this technology implies
+         goes on, every other one goes off. Listed sims that are not installed
+         are ignored rather than throwing, so markup can name a simulation this
+         build does not have yet. */
+      const wanted = new Set((radio.dataset.acSims ?? "").split(/\s+/).filter(Boolean));
+      for (const name of Object.keys(SIMS)) applySim(name, wanted.has(name));
+
+      modified = false;
+      writeStored("mod", "0");
+      paintReadout();
+    });
+  }
+
+  /* [data-ac-display-reset] puts the selected preset's simulations back. */
+  for (const btn of document.querySelectorAll("[data-ac-display-reset]")) {
+    if (wired.has(btn)) continue;
+    wired.add(btn);
+    btn.addEventListener("click", () => {
+      const current = radios.find((r) => r.checked);
+      if (current) current.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  }
+}
+
+/**
+ * Fill every [data-ac-display-out] with the current state.
+ *
+ * `label` is the one that matters: it rides in the menu bar, it is always
+ * visible, and it always names the TECHNOLOGY first. Somebody three clicks into
+ * the drawer should never have to remember whether P39 was a gas.
+ */
+function paintReadout() {
+  const root = document.documentElement;
+  const tech = (root.getAttribute("data-ac-tech") ?? "").toUpperCase();
+  const emitter = (root.getAttribute("data-ac-emitter") ?? "").toUpperCase();
+  const mode = modified ? "MOD" : "PRESET";
+
+  const values = { tech, emitter, mode, label: `${tech} · ${emitter}${modified ? " *MOD" : ""}` };
+  for (const el of document.querySelectorAll("[data-ac-display-out]")) {
+    const key = el.dataset.acDisplayOut;
+    if (key in values) el.textContent = values[key];
+  }
+
+  paintInfo();
+}
+
+/**
+ * Show the note that describes the hardware currently in the panel.
+ *
+ * The prose is MARKUP, like the catalog is — one `[data-ac-display-info]` node
+ * per key, all but the matching one `hidden`. Keeping the copy out of here is
+ * what lets a page describe its own palettes, and what keeps the same string
+ * from having to be escaped through JavaScript to reach a paragraph.
+ *
+ * A key is either a technology ("crt") or an exact palette ("crt/p3"). Exact
+ * wins where one exists, so a phosphor whose behavior is not typical of its
+ * technology — P7, whose whole point is a second, much slower layer — can say so
+ * without every other phosphor needing its own paragraph.
+ */
+function paintInfo() {
+  const root = document.documentElement;
+  const tech = root.getAttribute("data-ac-tech");
+  const exact = `${tech}/${root.getAttribute("data-ac-emitter")}`;
+
+  const nodes = [...document.querySelectorAll("[data-ac-display-info]")];
+  const specific = nodes.some((el) => el.dataset.acDisplayInfo === exact);
+
+  for (const el of nodes) {
+    const key = el.dataset.acDisplayInfo;
+    el.hidden = specific ? key !== exact : key !== tech;
+  }
+}
+
+/** Any deviation from the selected preset, by simulation or by style. */
+function markModified() {
+  modified = true;
+  writeStored("mod", "1");
+  paintReadout();
+}
+
+/* ------------------------------------------------------- gas (deprecated) -- */
+
+/**
+ * DEPRECATED, removed in 3.0. The old two-position GAS toggle, kept working for
+ * pages that still ship `data-ac-gas-toggle` on a button.
+ *
+ * It was never a gas toggle. One of its two positions was a CRT phosphor, and a
+ * control that calls a phosphor a gas is the confusion this release exists to
+ * remove — see initDisplay. It now cycles the same two palettes through the new
+ * attributes, so a page using it stays correct while it migrates, but it cannot
+ * reach the rest of the catalog and will not grow to.
+ *
+ * Migrate to a [data-ac-display] radio per palette.
+ */
+const LEGACY_GASES = [
+  { gas: "neon", tech: "plasma", emitter: "neon" },
+  { gas: "amber", tech: "crt", emitter: "p3" },
+];
+
 function initGas() {
   const buttons = [...document.querySelectorAll("[data-ac-gas-toggle]")];
   if (!buttons.length) return;
 
-  const apply = (gas) => {
-    document.documentElement.setAttribute("data-ac-gas", gas);
+  const root = document.documentElement;
+  const apply = (entry) => {
+    root.setAttribute("data-ac-tech", entry.tech);
+    root.setAttribute("data-ac-emitter", entry.emitter);
+    root.setAttribute("data-ac-gas", entry.gas);
 
     for (const btn of buttons) {
-      btn.classList.toggle("ac-toggle--on", gas !== GASES[0]);
+      btn.classList.toggle("ac-toggle--on", entry.gas !== LEGACY_GASES[0].gas);
       const state = btn.querySelector(".ac-toggle__state");
-      if (state) state.textContent = gas.toUpperCase();
+      if (state) state.textContent = entry.gas.toUpperCase();
     }
 
-    writeStored("gas", gas);
+    writeStored("tech", entry.tech);
+    writeStored("emitter", entry.emitter);
+    paintReadout();
   };
 
-  /* NEON is the default because it is the one derived from the hardware this
-     system claims to be; AMBER is the phosphor look kept as an option. An
-     unrecognised stored value falls back rather than being written through — a
-     stale key from a future palette must not leave the panel unstyled. */
-  const stored = readStored("gas");
-  apply(GASES.includes(stored) ? stored : GASES[0]);
+  const stored = readStored("emitter");
+  apply(LEGACY_GASES.find((e) => e.emitter === stored) ?? LEGACY_GASES[0]);
 
   for (const btn of buttons) {
     if (wired.has(btn)) continue;
     wired.add(btn);
     btn.addEventListener("click", () => {
-      const now = document.documentElement.getAttribute("data-ac-gas");
-      apply(GASES[(GASES.indexOf(now) + 1) % GASES.length]);
+      const now = root.getAttribute("data-ac-emitter");
+      const i = LEGACY_GASES.findIndex((e) => e.emitter === now);
+      apply(LEGACY_GASES[(i + 1) % LEGACY_GASES.length]);
+    });
+  }
+}
+
+/* ------------------------------------------------------------------ style -- */
+
+/**
+ * STYLE — everything that is NOT the hardware.
+ *
+ * Deliberately a separate axis from both DISPLAY and SIMULATION, on its own
+ * attributes, in its own region of the drawer. A style is a preference: comfort,
+ * density, typography. It makes no claim about what the panel is. That boundary
+ * is the whole reason this is not simply more simulation toggles — "turn the
+ * blink off" is not a statement about plasma, and a user must never read it as
+ * one.
+ *
+ *   <button class="ac-toggle" data-ac-style="blink" aria-pressed="true">
+ *
+ * writes data-ac-style-blink="on|off" on the ROOT element. Always explicit, both
+ * ways: CSS selecting on the absence of an attribute cannot express "the author
+ * has not chosen" separately from "the author chose off", and the defaults below
+ * are the only place that distinction is allowed to live.
+ */
+const STYLES = {
+  blink: { defaultOn: true },
+  smear: { defaultOn: true },
+};
+
+/** Current value of a style flag, defaults included. Safe before init. */
+function styleOn(name) {
+  const set = document.documentElement.getAttribute(`data-ac-style-${name}`);
+  return set === null ? (STYLES[name]?.defaultOn ?? true) : set === "on";
+}
+
+function initStyle() {
+  const buttons = [...document.querySelectorAll("[data-ac-style]")];
+
+  const apply = (name, on) => {
+    document.documentElement.setAttribute(`data-ac-style-${name}`, on ? "on" : "off");
+
+    /* Smear is the one style with a running cost rather than a CSS rule — the
+       rAF loop has to actually stop. It only exists while the afterglow does. */
+    if (name === "smear" && scrollSmear) {
+      if (on && screenFrame()?.classList.contains("ac-afterglow")) scrollSmear.connect();
+      else scrollSmear.disconnect();
+    }
+
+    for (const btn of document.querySelectorAll(`[data-ac-style="${name}"]`)) {
+      btn.setAttribute("aria-pressed", String(on));
+      btn.classList.toggle("ac-toggle--on", on);
+      const state = btn.querySelector(".ac-toggle__state");
+      if (state) state.textContent = on ? "ON" : "OFF";
+    }
+
+    writeStored(`style.${name}`, on ? "1" : "0");
+  };
+
+  for (const name of Object.keys(STYLES)) {
+    const stored = readStored(`style.${name}`);
+    apply(name, stored === null ? STYLES[name].defaultOn : stored === "1");
+  }
+
+  for (const btn of buttons) {
+    if (wired.has(btn)) continue;
+    const name = btn.dataset.acStyle;
+    if (!(name in STYLES)) continue;
+    wired.add(btn);
+    btn.addEventListener("click", () => {
+      apply(name, btn.getAttribute("aria-pressed") !== "true");
+      markModified();
     });
   }
 }
@@ -513,6 +807,8 @@ let globalsWired = false;
 let ghostObserver = null;
 /** One scroll-smear driver, likewise. */
 let scrollSmear = null;
+/** True once the panel differs from the DISPLAY preset it was set from. */
+let modified = false;
 
 /** Wire every [data-ac] element on the page. Safe to call more than once. */
 export function init(scope = document) {
@@ -523,8 +819,11 @@ export function init(scope = document) {
   }
 
   for (const el of scope.querySelectorAll('[data-ac="toggle"]')) {
-    /* Sim toggles are driven by initSims; wiring both would flip twice. */
-    if (wired.has(el) || el.hasAttribute("data-ac-sim")) continue;
+    /* Sim and style toggles are driven by their own initializers; wiring both
+       would flip twice and land back where it started. */
+    if (wired.has(el) || el.hasAttribute("data-ac-sim") || el.hasAttribute("data-ac-style")) {
+      continue;
+    }
     wired.add(el);
     initToggle(el);
   }
@@ -533,8 +832,13 @@ export function init(scope = document) {
     globalsWired = true;
     initDialogs();
   }
+  /* Order matters exactly once: initSims restores the simulations from their own
+     keys, and initDisplay then reads that settled state to decide whether the
+     panel is on its preset or has been played with. */
   initSims();
-  initGas();
+  initStyle();
+  initDisplay();
+  initGas(); /* deprecated; no-op unless a page still ships the old button */
 }
 
 /**

@@ -20,14 +20,135 @@
   text-shadow: var(--glow-text);
 }
 
-.doc-nav-sims {
+/* ----------------------------------------------------------- setup board -- */
+
+/* The bar's display readout. The board scrolls away and the bar does not, so
+   this is the one that is always visible — and it always names the TECHNOLOGY
+   before the emitter: "CRT · P3", never a bare "P3" that could be mistaken for
+   one more gas. */
+.doc-nav-display {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
+  gap: var(--space-2);
+  white-space: nowrap;
+  color: var(--ink-dim);
 }
-.doc-nav-sims .ac-toggle {
+.doc-nav-display [data-ac-display-out] {
+  color: var(--ink-bright);
+}
+
+.doc-switches {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+/* No cap and no scroller. Every emitter the panel has is on the glass at once —
+   which is affordable only because the catalog is split across two quarters by
+   technology. Four gases and seven phosphors side by side are shorter than
+   eleven rows in one column, and the split is the thing that made a board with
+   no scrolling in it possible at all. */
+.doc-displays {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* The group heading is what makes the list two catalogs instead of one. It is
+   not decoration and it does not collapse into the rows. */
+.doc-displays__head {
+  margin: var(--space-4) 0 0;
+  font-family: var(--font-terminal);
   font-size: var(--type-small);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: var(--ink-bright);
+  text-transform: uppercase;
+  text-shadow: var(--glow-text);
+}
+.doc-displays__head:first-child {
+  margin-top: 0;
+}
+
+.doc-displays__note {
+  margin: var(--space-2) 0 var(--space-3);
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  line-height: 1.6;
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+/* A KEY:VALUE row wearing a radio, so eleven of them still read as one column
+   of the character grid rather than eleven floating labels.
+
+   align-items is baseline and not the center .ac-radio ships, because the leader
+   dots are the reason this is a row at all. An empty flex item's baseline is its
+   bottom margin edge, which is what drops the dotted rule exactly onto the text
+   baseline — but only if the text is in the same baseline group. One item
+   aligned to a baseline nothing else shares has no baseline to find, and the
+   rule floats up between the rows. The lamp is the one thing that does not want
+   a baseline: it is a 20px box, so it centers. */
+.doc-display {
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  min-height: 36px;
+  font-size: var(--type-small);
+}
+
+.doc-display input {
+  align-self: center;
+}
+
+.doc-display__name {
+  flex: none;
+}
+
+.doc-display__fill {
+  flex: 1;
+  min-width: var(--space-6);
+  align-self: baseline;
+  border-bottom: var(--border-w) dotted var(--ink-trace);
+}
+
+.doc-display__note {
+  flex: none;
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+/* 36px is a comfortable row on a mouse and too tight for a thumb. Where the
+   pointer is coarse, take the height back to the 44px floor. */
+@media (pointer: coarse) {
+  .doc-display {
+    min-height: 44px;
+  }
+}
+
+/* The technology note. VT323 at 18px rather than the Silkscreen micro the other
+   notes use: this one is a paragraph to be read, not a label to be glanced at,
+   and Silkscreen at 8px is unreadable past about a dozen words. */
+.doc-info {
+  margin: 0;
+  font-family: var(--font-terminal);
+  font-size: var(--type-small);
+  line-height: 1.35;
+  letter-spacing: var(--tracking-body);
+  color: var(--ink-dim);
+}
+
+.doc-setup-hint {
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  text-transform: uppercase;
 }
 
 /* ------------------------------------------------------- console screen -- */

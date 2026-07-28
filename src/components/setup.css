@@ -1,0 +1,96 @@
+/* ===========================================================================
+   Setup — the permanently-open control board under the menu bar.
+
+   It does not open, close, scroll or stick. That is the whole design: a machine
+   with a settings page does not hide it behind a key, and a board you have to
+   reveal is a board whose state you cannot read at a glance. Every switch the
+   panel has is on the glass, all the time, which is the same argument .ac-nav
+   makes for wrapping its links to a second row rather than folding them behind a
+   menu glyph — a control panel shows you every key it has.
+
+   Nothing here scrolls either, and that is a constraint on the CONTENTS rather
+   than a feature of this file: the regions have to be short enough to fit. It is
+   why the emitter catalog is split by technology across two regions instead of
+   stacked into one tall column — see the demo markup.
+
+     <nav class="ac-nav ac-nav--sticky">…</nav>
+     <div class="ac-setup">
+       <div class="ac-setup__grid">
+         <div class="ac-panel">…</div>   <!-- one region per quarter -->
+         …
+       </div>
+       <div class="ac-setup__foot">…</div>
+     </div>
+
+   NOT STICKY, deliberately. The bar above it can be — it is one row and it
+   carries the page links. This is four regions tall, and a sticky element that
+   size is not chrome any more, it is the page. It scrolls away like content
+   because it is content.
+
+   WHEN NOT TO USE: a control the operator reaches for mid-task. This is setup —
+   things you set once and then work under. Live controls belong on the console.
+   =========================================================================== */
+
+.ac-setup {
+  box-sizing: border-box;
+  border-bottom: var(--border-w) solid var(--stroke);
+  background: var(--screen);
+  padding: var(--space-8) var(--space-6) var(--space-6);
+}
+
+/* Quarters — and THREE COLUMNS IS NOT ONE OF THE STOPS, which is why this is
+   three stated breakpoints rather than the one auto-fit line it wants to be.
+   Four regions across three tracks wraps the fourth under the first and leaves a
+   region-sized hole beside it; the board measured 516px tall at four columns and
+   847px at three, for less content per row. Two-by-two is the honest middle: the
+   two catalogs share a row, the two control stacks share the next.
+
+   minmax(0, 1fr) rather than 1fr because a grid item's automatic minimum size is
+   its content, and an emitter row that cannot shrink pushes the track wider than
+   its share — one long "NOT FITTED" note and the quarters stop being quarters. */
+.ac-setup__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (min-width: 721px) {
+  .ac-setup__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .ac-setup__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* The board's own background is --screen, so the legend chips that mask the
+   panel border behind themselves already match. Stated rather than assumed:
+   drop the board on a raised surface and this is the one line to override. */
+.ac-setup .ac-panel {
+  --ac-panel-title-bg: var(--screen);
+}
+
+.ac-setup__foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: var(--border-w) solid var(--stroke-dim);
+}
+
+@media (max-width: 720px) {
+  .ac-setup {
+    padding: var(--space-8) var(--space-4) var(--space-4);
+  }
+  /* One column here, and the regions are tall. Open the gap up so two stacked
+     panels do not read as one region with a rule through it. */
+  .ac-setup__grid {
+    gap: var(--space-8);
+  }
+}

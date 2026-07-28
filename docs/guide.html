@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SYSTEM GUIDE — Amber Console</title>
-<meta name="description" content="The Amber Console design guide: philosophy, colour, type, effects, geometry and every component with its class string.">
+<meta name="description" content="The Amber Console design guide: philosophy, color, type, effects, geometry and every component with its class string.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -47,21 +47,190 @@
     <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
   </div>
   <span class="ac-nav__meta">
-    <span class="doc-nav-sims">
-      <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
-        <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
-      </button>
-      <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
-        <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
-      </button>
-      <button type="button" class="ac-toggle" data-ac-gas-toggle>
-        <span>Gas</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">NEON</span>
-      </button>
-      <span>REV 1.0</span>
-      <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
-    </span>
+    <!-- The bar is the sticky half of the anti-confusion job: the board below
+         scrolls away, this does not, and it always names the TECHNOLOGY first
+         and the emitter second. -->
+    <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">PLASMA · NEON</span></span>
+    <span>REV 1.0</span>
+    <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
   </span>
 </nav>
+
+<!-- ============================================================ SETUP ==
+     Four quarters. Three axes, and they are never the same axis:
+
+       DISPLAY     what hardware is in the panel. Sets the color.
+                   TWO regions, one per technology, never one list of eleven.
+       SIMULATION  what the glass does about it. Never sets a color.
+       STYLE       preferences that make no claim about the hardware at all.
+
+     Splitting the catalog across two quarters is not only about confusion,
+     though that is the point of it: eleven rows in one column is also taller
+     than a board that never scrolls is allowed to be. Four gases and seven
+     phosphors side by side fit. -->
+<div class="ac-setup">
+  <div class="ac-setup__grid">
+
+    <!-- ------------------------------------------------- 1/4 · plasma -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▮ Plasma Gases</span>
+      <p class="doc-displays__note">Gas emitting directly. No phosphor in the stack.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">Plasma gases</legend>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" checked
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma">
+          <span class="doc-display__name">Neon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">585nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" disabled>
+          <span class="doc-display__name">Helium</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Not fitted</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" disabled>
+          <span class="doc-display__name">Argon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Not fitted</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" disabled>
+          <span class="doc-display__name">Krypton</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Not fitted</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <!-- ---------------------------------------------------- 1/4 · crt -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▯ CRT Phosphors</span>
+      <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">CRT phosphors</legend>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" disabled>
+          <span class="doc-display__name">P1</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Not fitted</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt">
+          <span class="doc-display__name">P3</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Amber 590nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" disabled>
+          <span class="doc-display__name">P4</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Not fitted</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" disabled>
+          <span class="doc-display__name">P7</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Not fitted</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" disabled>
+          <span class="doc-display__name">P11</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Not fitted</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" disabled>
+          <span class="doc-display__name">P31</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Not fitted</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" disabled>
+          <span class="doc-display__name">P39</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Not fitted</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <!-- --------------------------------------- 1/4 · simulation, style -- -->
+    <div class="ac-stack" style="--gap: 24px">
+      <div class="ac-panel">
+        <span class="ac-panel__title">Simulation</span>
+        <p class="doc-displays__note">What the glass does. Never a color.</p>
+        <div class="doc-switches">
+          <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
+            <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+          </button>
+          <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+            <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="ac-panel">
+        <span class="ac-panel__title">Style</span>
+        <p class="doc-displays__note">Preferences. No claim about the hardware.</p>
+        <div class="doc-switches">
+          <button type="button" class="ac-toggle" data-ac-style="blink" aria-pressed="true">
+            <span>Blink</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+          </button>
+          <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="true">
+            <span>Scroll Smear</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ----------------------------------------- 1/4 · state, the note -- -->
+    <div class="ac-stack" style="--gap: 24px">
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">State</span>
+        <dl class="ac-list">
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Technology</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="tech">PLASMA</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emitter</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Mode</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- The prose is markup, one node per key, all but the matching one
+           hidden. A key is a technology, or an exact tech/emitter pair where
+           one phosphor does not behave like the rest of its family. -->
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">Technology</span>
+        <p class="doc-info" data-ac-display-info="plasma">Neon in a sealed gap, struck by a
+          sustain pulse. The gas emits directly — no phosphor in the stack — so the panel lights
+          one hue and varies only how hard it is driven.</p>
+        <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
+          which emits while struck and then persists. The color belongs to the phosphor, not the
+          beam; the P-number names the compound.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ac-setup__foot">
+    <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
+    <span class="ac-spacer"></span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+  </div>
+</div>
 
 <div class="doc-wrap">
 
@@ -83,8 +252,8 @@
       <div class="doc-law"><span class="doc-law-n">1</span><div><h3>ONE GAS, MANY INTENSITIES</h3>
         <p>There is no phosphor in here. A monochrome plasma panel is a grid of gas gaps holding a
           neon–argon mixture, and the amber is neon emitting directly when the gap strikes — around
-          590nm, the colour neon simply is. Phosphors arrive only with colour plasma, where xenon UV
-          excites red, green and blue stripes. So the panel can light one colour and vary how hard.
+          590nm, the color neon simply is. Phosphors arrive only with color plasma, where xenon UV
+          excites red, green and blue stripes. So the panel can light one color and vary how hard.
           Hierarchy comes from brightness, inverse video, and blink — never hue. There is no red, no
           green, no success color.</p></div></div>
       <div class="doc-law"><span class="doc-law-n">2</span><div><h3>INVERSE VIDEO IS IMPORTANCE</h3>
@@ -128,44 +297,49 @@
     <div class="doc-sec-head"><span class="doc-num">02</span><h2>COLOR</h2></div>
     <p class="doc-dim">Five discharge intensities over three warm blacks. Every color decision in the system
       is a choice of intensity, and intensity means energization: bright is live, faint is inert.</p>
-    <p class="doc-dim">There are <strong>two palettes</strong>, and they are not a light/dark pair — they are two
-      different pieces of hardware. Switch with <code>data-ac-gas</code> on the root element, or use the GAS
-      toggle in the menu bar. Both ramps are shown below regardless of which one is active; both are held to
+    <p class="doc-dim">A palette is not a theme and not a light/dark pair — it is a specific piece of
+      hardware, and naming one takes <strong>two</strong> attributes on the root element:
+      <code>data-ac-tech</code> is the technology, what is making light at all;
+      <code>data-ac-emitter</code> is which gas, or which phosphor, inside it. An emitter is only
+      meaningful within its technology — <code>neon</code> is a gas and exists only under plasma,
+      <code>p3</code> is a phosphor and exists only under CRT — so every block is selected by both, and a
+      mismatched pair selects nothing rather than quietly rendering the wrong hardware. Pick one from
+      DISPLAY in the menu bar. Both ramps are shown below regardless of which is active; both are held to
       the same contrast gate.</p>
 
-    <h3 style="margin:28px 0 12px">DATA-AC-GAS="NEON" · 24° · THE DEFAULT</h3>
+    <h3 style="margin:28px 0 12px">PLASMA / NEON · 24° · THE DEFAULT</h3>
     <p class="doc-dim doc-small" style="margin-bottom:14px">A monochrome AC plasma panel. The light is neon
       emitting directly from the gas — no phosphor anywhere in the stack. The hue is derived, not picked:
       weight the Ne I visible lines by the CIE 1931 observer and the discharge sits at x=0.631 y=0.369, just
       outside sRGB. That maps to 19°, which is a DC neon tube; a pulsed sustain enriches the 585.2nm line and
       walks it up. 19–31° is the defensible band and 24° is its middle.</p>
-    <div class="doc-demo" data-ac-gas="neon" style="gap:12px">
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="neon" style="gap:12px">
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-100)"></div><span class="doc-mono">--AMBER-100 · #FFA86D</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-90)"></div><span class="doc-mono">--AMBER-90 · #FF6B08</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-70)"></div><span class="doc-mono">--AMBER-70 · #DD5800</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-50)"></div><span class="doc-mono">--AMBER-50 · #AB4500</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-30)"></div><span class="doc-mono">--AMBER-30 · #5B2500</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
     </div>
-    <div class="doc-demo" data-ac-gas="neon" style="margin-top:16px;gap:12px">
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="neon" style="margin-top:16px;gap:12px">
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #100600</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #1B0C02</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1E0C00</span></div>
     </div>
 
-    <h3 style="margin:32px 0 12px">DATA-AC-GAS="AMBER" · 38° · THE PHOSPHOR</h3>
+    <h3 style="margin:32px 0 12px">CRT / P3 · 38° · THE PHOSPHOR</h3>
     <p class="doc-dim doc-small" style="margin-bottom:14px">The classic amber CRT phosphor (P3): a broad
       ~590nm band with real green content, where neon is a line spectrum with almost none. Historically this is
       a <em>different</em> display technology — but it is what most people mean by "amber terminal", it is the
       ramp the source design system was drawn against, and it pairs naturally with <code>.ac-crt</code>.</p>
-    <div class="doc-demo" data-ac-gas="amber" style="gap:12px">
+    <div class="doc-demo" data-ac-tech="crt" data-ac-emitter="p3" style="gap:12px">
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-100)"></div><span class="doc-mono">--AMBER-100 · #FFD052</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-90)"></div><span class="doc-mono">--AMBER-90 · #FFAE1E</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-70)"></div><span class="doc-mono">--AMBER-70 · #CD8817</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-50)"></div><span class="doc-mono">--AMBER-50 · #8D5B10</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-30)"></div><span class="doc-mono">--AMBER-30 · #4A2F08</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
     </div>
-    <div class="doc-demo" data-ac-gas="amber" style="margin-top:16px;gap:12px">
+    <div class="doc-demo" data-ac-tech="crt" data-ac-emitter="p3" style="margin-top:16px;gap:12px">
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0D0700</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #170E02</span></div>
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
@@ -173,9 +347,13 @@
     </div>
 
     <p class="doc-dim doc-small" style="margin-top:18px">The <code>--amber-*</code> prefix names the
-      <em>ramp</em>, not the hue — it is historical, and under NEON those tokens are not amber. Adding a third
-      gas means adding one block to <code>colors.css</code>: five stops, three surfaces,
-      <code>--on-fill</code>, and the four <code>--gas-N</code> triples the glow is built from.</p>
+      <em>ramp</em>, not the hue — it is historical, and under NEON those tokens are not amber. Adding an
+      emitter, or a whole technology, means adding one block to <code>colors.css</code>: five stops, three
+      surfaces, <code>--on-fill</code>, and the four <code>--gas-N</code> triples the glow is built from.</p>
+    <p class="doc-dim doc-small">The older <code>data-ac-gas="neon"</code> and
+      <code>data-ac-gas="amber"</code> still work and go in 3.0. The name was the bug: AMBER was never a gas,
+      it is the P3 CRT phosphor, and calling it one is exactly the confusion the pair above exists to
+      prevent.</p>
     <h3 style="margin:32px 0 12px">SEMANTIC ALIASES</h3>
     <div class="doc-scroll">
     <table class="doc-table">

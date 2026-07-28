@@ -19,7 +19,7 @@ const SKIP_DIRS = new Set(["node_modules", ".git", "fonts", "dist", "baselines"]
 const CHECKS = [
   {
     id: "second-hue",
-    what: "hex colour outside the colour tokens",
+    what: "hex color outside the color tokens",
     files: /\.css$/,
     /* colors.css defines the palette; effects.css and print.css are documented
        exceptions (glow rgba values, and the black-on-white print palette). */

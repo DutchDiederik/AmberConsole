@@ -1,7 +1,7 @@
 /* ===========================================================================
    Forced colors
 
-   This whole design is a colour trick, so high-contrast mode needs a real
+   This whole design is a color trick, so high-contrast mode needs a real
    fallback rather than a broken one. Per the Forced Colors Mode spec the UA
    forces text-shadow and box-shadow to none, which kills the discharge glow —
    but ONLY while an element keeps forced-color-adjust: auto. What is left to do:
@@ -16,8 +16,8 @@
    POINT 4 IS NOT BOOKKEEPING. `forced-color-adjust: none` opts an element out
    of forced colors WHOLESALE, and that hands it back its box-shadow — so the
    very rules that preserve inverse video also reinstate an amber discharge halo
-   around it, which is an off-palette colour bleeding into the one mode that
-   exists to have no off-palette colours. Every block below that sets
+   around it, which is an off-palette color bleeding into the one mode that
+   exists to have no off-palette colors. Every block below that sets
    forced-color-adjust: none must also restate its shadows.
 
    The inverse-video list is the whole set of components that fill with
