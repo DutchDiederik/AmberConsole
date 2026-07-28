@@ -24,7 +24,16 @@ All notable changes to this project are documented here. Format follows
   deviate afterwards and the readout says `*MOD`, and `[data-ac-display-reset]` puts it back.
   The catalog is **markup, not a table inside the JavaScript**, so a consumer with their own
   palettes writes their own rows and the module needs no edit.
-- **`[data-ac-display-out]`** — readout hooks for `label`, `tech`, `emitter` and `mode`.
+- **`[data-ac-display-out]`** — readout hooks for `label`, `tech`, `emitter`, `peak` and `mode`.
+- **`data-ac-peak`** on a catalog row, surfaced as EMISSION in the demo's STATE region. Carried by
+  all eleven rows including the nine not fitted yet, so enabling a palette stays a markup-only edit.
+  It is deliberately **not the same kind of number on both sides of the catalog**, which is the
+  clearest single argument for why the two catalogs are not one list: a gas emits a line spectrum and
+  the number is its strongest *visible* line, which is not the perceived hue — argon reads violet
+  while its strongest visible line is deep red at 696.5 nm, and most of what argon emits is not
+  visible at all. A phosphor emits a broad band and the number is the band peak, which does
+  correspond to the hue. P4 and P7 carry two numbers each because they are two emitters — a blend and
+  a two-layer stack respectively — not because the figure is being hedged.
 - **`data-ac-style-*`, a third axis** — `blink` and `smear` to start. Deliberately separate from both
   the palette and the simulations, on their own attributes, in their own region of the drawer: a
   style is a preference and makes no claim about what the panel is. "Turn the blink off" is not a

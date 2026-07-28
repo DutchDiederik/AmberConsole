@@ -306,7 +306,16 @@ a space-separated list; simulations this build does not have are ignored rather 
 
 A preset is a starting point, not a lock. Flip a simulation or a style afterwards and the readout
 says `*MOD`; nothing is prevented. `[data-ac-display-reset]` puts the preset's simulations back, and
-`[data-ac-display-out="label|tech|emitter|mode"]` gives you somewhere to show the state.
+`[data-ac-display-out="label|tech|emitter|peak|mode"]` gives you somewhere to show the state.
+
+`peak` comes from `data-ac-peak` on the catalog row, and it is **not the same kind of number on both
+sides of the catalog.** A gas emits a *line spectrum*, so its number is the strongest visible line —
+which is not the perceived hue, that being the CIE integral of every line at once (the argument
+`colors.css` makes for landing neon at 24° rather than at its 585.2 nm line). Argon reads violet on
+the glass while its strongest visible line is deep red at 696.5 nm, and most of what argon emits is
+not visible at all. A phosphor emits a *broad band*, so its number is the band peak, and that one
+does correspond to the hue. Two phosphors carry two numbers because they are two emitters: P4 is a
+blend, P7 is two layers.
 
 `[data-ac-display-info]` shows one node and hides the rest, so the board can carry a note describing
 whatever is currently in the panel. A key is a technology (`crt`) or an exact palette (`crt/p3`);

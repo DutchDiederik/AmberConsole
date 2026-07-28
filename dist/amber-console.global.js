@@ -613,16 +613,36 @@ function initDisplay() {
  * Fill every [data-ac-display-out] with the current state.
  *
  * `label` is the one that matters: it rides in the menu bar, it is always
- * visible, and it always names the TECHNOLOGY first. Somebody three clicks into
- * the drawer should never have to remember whether P39 was a gas.
+ * visible, and it always names the TECHNOLOGY first. Somebody scanning the board
+ * should never have to remember whether P39 was a gas.
+ *
+ * `peak` comes off the catalog row rather than a table in here, for the same
+ * reason the catalog itself does: a page shipping its own palettes states its own
+ * wavelengths. The row is found by matching tech and emitter rather than by
+ * reading `:checked`, so the legacy gas toggle — which sets the attributes
+ * without touching a radio — still gets a number, and so a value that arrived
+ * from localStorage cannot be interpolated into a selector.
  */
 function paintReadout() {
   const root = document.documentElement;
-  const tech = (root.getAttribute("data-ac-tech") ?? "").toUpperCase();
-  const emitter = (root.getAttribute("data-ac-emitter") ?? "").toUpperCase();
+  const tech = root.getAttribute("data-ac-tech") ?? "";
+  const emitter = root.getAttribute("data-ac-emitter") ?? "";
   const mode = modified ? "MOD" : "PRESET";
 
-  const values = { tech, emitter, mode, label: `${tech} · ${emitter}${modified ? " *MOD" : ""}` };
+  const row = [...document.querySelectorAll("[data-ac-display]")].find(
+    (r) => r.dataset.acTech === tech && r.dataset.acEmitter === emitter
+  );
+
+  const values = {
+    tech: tech.toUpperCase(),
+    emitter: emitter.toUpperCase(),
+    mode,
+    /* An em dash, not an empty string: a readout that renders as nothing reads
+       as a broken panel rather than as a palette that never declared a peak. */
+    peak: row?.dataset.acPeak || "—",
+    label: `${tech.toUpperCase()} · ${emitter.toUpperCase()}${modified ? " *MOD" : ""}`,
+  };
+
   for (const el of document.querySelectorAll("[data-ac-display-out]")) {
     const key = el.dataset.acDisplayOut;
     if (key in values) el.textContent = values[key];

@@ -67,7 +67,30 @@
      Splitting the catalog across two quarters is not only about confusion,
      though that is the point of it: eleven rows in one column is also taller
      than a board that never scrolls is allowed to be. Four gases and seven
-     phosphors side by side fit. -->
+     phosphors side by side fit.
+
+     data-ac-peak IS NOT THE SAME KIND OF NUMBER ON BOTH SIDES, which is the
+     clearest single reason these two catalogs are not one list:
+
+       A GAS emits a LINE SPECTRUM. The number is the strongest VISIBLE line,
+       and it is NOT the perceived hue — that is the CIE integral of every line
+       at once, which is the whole argument tokens/colors.css makes for landing
+       neon at 24deg rather than at its 585.2nm line. Argon reads violet on the
+       glass while its strongest visible line is deep red at 696.5nm, and most
+       of what argon emits is not visible at all. No contradiction: they are
+       answers to different questions.
+
+       A PHOSPHOR emits a BROAD BAND. The number is the band peak, and it does
+       correspond to the perceived hue, because there is only one band.
+
+     Two phosphors carry two numbers and both are real hardware, not a hedge.
+     P4 is a BLEND of a blue and a yellow emitter, mixed to white; P7 is two
+     LAYERS, a fast blue flash over a yellow-green glow that outlasts it by
+     seconds. Neither has a single peak to state.
+
+     Every row below carries its peak, including the nine not fitted yet, so
+     enabling one is adding data-ac-display/-tech/-emitter/-sims and nothing
+     else. -->
 <div class="ac-setup">
   <div class="ac-setup__grid">
 
@@ -79,25 +102,25 @@
         <legend class="ac-sr-only">Plasma gases</legend>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display" checked
-                 data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma">
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
           <span class="doc-display__name">Neon</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">585nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled>
+          <input type="radio" name="ac-display" disabled data-ac-peak="587.6 nm">
           <span class="doc-display__name">Helium</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Not fitted</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled>
+          <input type="radio" name="ac-display" disabled data-ac-peak="696.5 nm">
           <span class="doc-display__name">Argon</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Not fitted</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled>
+          <input type="radio" name="ac-display" disabled data-ac-peak="557.0 nm">
           <span class="doc-display__name">Krypton</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Not fitted</span>
@@ -112,44 +135,44 @@
       <fieldset class="doc-displays">
         <legend class="ac-sr-only">CRT phosphors</legend>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled>
+          <input type="radio" name="ac-display" disabled data-ac-peak="525 nm">
           <span class="doc-display__name">P1</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Not fitted</span>
         </label>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display"
-                 data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt">
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
           <span class="doc-display__name">P3</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Amber 590nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled>
+          <input type="radio" name="ac-display" disabled data-ac-peak="450+560 nm">
           <span class="doc-display__name">P4</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Not fitted</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled>
+          <input type="radio" name="ac-display" disabled data-ac-peak="450/558 nm">
           <span class="doc-display__name">P7</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Not fitted</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled>
+          <input type="radio" name="ac-display" disabled data-ac-peak="460 nm">
           <span class="doc-display__name">P11</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Not fitted</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled>
+          <input type="radio" name="ac-display" disabled data-ac-peak="520 nm">
           <span class="doc-display__name">P31</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Not fitted</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled>
+          <input type="radio" name="ac-display" disabled data-ac-peak="525 nm">
           <span class="doc-display__name">P39</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Not fitted</span>
@@ -190,7 +213,7 @@
     <div class="ac-stack" style="--gap: 24px">
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">State</span>
-        <dl class="ac-list">
+        <dl class="ac-list ac-list--dense">
           <div class="ac-list__item">
             <dt class="ac-list__key">Technology</dt>
             <span class="ac-list__fill"></span>
@@ -200,6 +223,11 @@
             <dt class="ac-list__key">Emitter</dt>
             <span class="ac-list__fill"></span>
             <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emission</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="peak">585.2 nm</dd>
           </div>
           <div class="ac-list__item">
             <dt class="ac-list__key">Mode</dt>
