@@ -28,7 +28,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import {
-  linesToXYZ, xyOf, fitToGamut, hexOf, linearOfHex, luminance, contrast,
+  linesToXYZ, xyOf, fitToGamut, hexOf, linearOfHex, luminance, contrast, cmf,
 } from "./lib/cie.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -71,6 +71,40 @@ const GLOWS = [
   ["gas-3", 0.48, 0.00], ["gas-4", 0.74, 0.24],
 ];
 
+/**
+ * HOW MUCH OF THIS GAS'S LIGHT ENDS UP IN THE HALO RATHER THAN THE STROKE.
+ *
+ * Rayleigh scattering goes as lambda^-4, so a violet gas throws far more of
+ * itself sideways into the glass than a red one does. Neon is the reference at
+ * 1.00; argon comes out near 1.5, which is a real difference and a visible one.
+ *
+ * Weighted by I(lambda)*V(lambda) — what the EYE receives — not by raw radiant
+ * intensity, because a halo nobody can see is not a halo. And it is the mean of
+ * lambda^-4 rather than lambda^-4 of the mean wavelength: those are not the same
+ * number for a spread spectrum, and the second one is wrong. Luminance-weighting
+ * a mean wavelength drags every gas toward 555nm by construction and reports a
+ * difference of 1.4x where the honest figure is larger.
+ *
+ * NOT MODELLED, DELIBERATELY: the eye's own longitudinal chromatic aberration,
+ * which really does make violet sources look fuzzier and which ratios out at
+ * 2.67x for argon. The absolute difference behind that ratio is 0.126 diopters —
+ * about half an arcminute at a 4mm pupil, under one pixel at any normal viewing
+ * distance. Scaling a bloom radius by it would inflate a sub-pixel effect into
+ * a hundred and fifty pixels of fog. The ratio is real; using it here would not
+ * be. Radius instead follows sqrt(scatter), because multiple scattering widens
+ * the halo as it brightens it, which keeps both numbers tied to one mechanism.
+ */
+function scatter(lines) {
+  let Y = 0;
+  let s = 0;
+  for (const [nm, i] of lines) {
+    const w = i * cmf(nm)[1];
+    Y += w;
+    s += w * (555 / nm) ** 4;
+  }
+  return Y === 0 ? 1 : s / Y;
+}
+
 /** Solve the luminance that gives `ratio` against a background luminance. */
 const yForRatio = (ratio, bgY) => ratio * (bgY + 0.05) - 0.05;
 
@@ -85,6 +119,7 @@ function derive(name, emitter) {
   const [x, y] = xyOf(linesToXYZ(lines));
 
   const out = { name, x, y, kept: lines.length, total: emitter.lines.length, tokens: {} };
+  out.rawScatter = scatter(lines);
 
   /* Surfaces first — every ratio below is measured against --screen. */
   for (const [token, Y, tint] of SURFACES) {
@@ -158,6 +193,10 @@ function toCSS(d, emitter) {
   --gas-2: ${t["gas-2"]};
   --gas-3: ${t["gas-3"]};
   --gas-4: ${t["gas-4"]};
+
+  /* Rayleigh: this gas throws ${d.scatter >= 1 ? `${((d.scatter - 1) * 100).toFixed(0)}% more` : `${((1 - d.scatter) * 100).toFixed(0)}% less`} light into the halo than neon. */
+  --gas-scatter: ${t["gas-scatter"]};
+  --gas-spread: ${t["gas-spread"]};
 }`;
 }
 
@@ -169,6 +208,23 @@ const only = args.find((a) => !a.startsWith("--"));
 const names = Object.keys(raw.emitters).filter((n) => !only || n === only);
 
 const all = names.map((n) => ({ d: derive(n, raw.emitters[n]), e: raw.emitters[n] }));
+
+/* Scatter is stated RELATIVE TO NEON, because the absolute figure is a ratio
+   against an arbitrary 555nm reference and means nothing on its own — whereas
+   "argon throws half again as much light into the halo as neon does" is a
+   sentence somebody can check. Neon is therefore always derived, even when the
+   command line asked for one other gas. */
+const neonScatter =
+  all.find(({ d }) => d.name === "neon")?.d.rawScatter ??
+  derive("neon", raw.emitters.neon).rawScatter;
+
+for (const { d } of all) {
+  d.scatter = d.rawScatter / neonScatter;
+  d.tokens["gas-scatter"] = d.scatter.toFixed(2);
+  /* Radius, not intensity: multiple scattering broadens the halo as it
+     brightens it, so both come off the same number and cannot disagree. */
+  d.tokens["gas-spread"] = Math.sqrt(d.scatter).toFixed(2);
+}
 
 /* KNOWN-ANSWER GATE, and it runs first.
    Any emitter carrying `validate` is one whose colour was established
@@ -266,5 +322,5 @@ if (args.includes("--check")) {
   console.error(derived.map(({ d }) =>
     `  ${d.name.padEnd(9)} x=${d.x.toFixed(4)} y=${d.y.toFixed(4)}  ` +
     `${d.kept}/${d.total} lines  desat ${(d.desat * 100).toFixed(0)}%  ` +
-    `on-fill ${d.onFillRatio.toFixed(2)}:1`).join("\n"));
+    `on-fill ${d.onFillRatio.toFixed(2)}:1  scatter x${d.scatter.toFixed(2)}`).join("\n"));
 }

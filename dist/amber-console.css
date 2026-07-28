@@ -134,10 +134,11 @@
  *   data-ac-gas="neon"   ->  data-ac-tech="plasma" data-ac-emitter="neon"
  *   data-ac-gas="amber"  ->  data-ac-tech="crt"    data-ac-emitter="p3"
  *
- * Each palette defines the same twelve values and nothing else: the five
- * discharge stops, the three surfaces, --on-fill, and the four glow triples.
- * Every other token in the system is an alias or is built from those, so adding
- * a technology or an emitter means adding one block and nothing else.
+ * Each palette defines the same fifteen values and nothing else: the five
+ * discharge stops, the three surfaces, --on-fill, the four glow triples, and the
+ * two scattering scalars. Every other token in the system is an alias or is
+ * built from those, so adding a technology or an emitter means adding one block
+ * and nothing else.
  *
  * EVERY PALETTE IS GATED. scripts/contrast.mjs runs the full pair table against
  * each block independently — a ratio that passes under one emitter and fails
@@ -235,6 +236,15 @@
      the glass, so a glow left behind at the other hue puts an amber corona
      around neon text. Twelve hardcoded rgba() used to live in effects.css and
      every one of them was a place to forget. */
+  /* THE REFERENCE FOR HOW MUCH LIGHT REACHES THE HALO. Rayleigh scattering goes
+     as lambda^-4, so a violet gas throws far more of itself sideways into the
+     glass than neon's orange-red does. Neon is 1.00 by definition — every other
+     palette's figure is stated against it — and --gas-spread is its square root,
+     because multiple scattering widens the halo as it brightens it. Both are
+     derived by scripts/derive-gas.mjs and consumed in tokens/effects.css. */
+  --gas-scatter: 1;
+  --gas-spread: 1;
+
   --gas-1: 255, 120, 30; /* core halo */
   --gas-2: 255, 109, 12; /* mid */
   --gas-3: 255, 102, 0;  /* deep / outermost */
@@ -262,6 +272,15 @@
   --gas-2: 255, 150, 12;
   --gas-3: 255, 120, 0;
   --gas-4: 255, 186, 64;
+
+  /* Held at neon's 1.00 rather than derived. P3 is a broad ~590nm BAND, not a
+     line spectrum, so the lambda^-4 integral that gives the gases their figure
+     has nothing to run over until derive-gas.mjs grows a band model — which is
+     the CRT pass, where P7's two layers make it unavoidable anyway. A phosphor
+     that close to neon's mean wavelength would land near 1.00 regardless; this
+     is a placeholder that happens to be about right, not a derived result. */
+  --gas-scatter: 1;
+  --gas-spread: 1;
 }
 
 /* --- PLASMA / HELIUM — pale pink / salmon-white.
@@ -291,6 +310,10 @@
   --gas-2: 255, 173, 193;
   --gas-3: 255, 155, 181;
   --gas-4: 255, 213, 222;
+
+  /* Rayleigh: this gas throws 26% more light into the halo than neon. */
+  --gas-scatter: 1.26;
+  --gas-spread: 1.12;
 }
 
 /* --- PLASMA / ARGON — pale violet-lavender.
@@ -321,6 +344,10 @@
   --gas-2: 207, 185, 255;
   --gas-3: 198, 170, 255;
   --gas-4: 229, 218, 255;
+
+  /* Rayleigh: this gas throws 49% more light into the halo than neon. */
+  --gas-scatter: 1.49;
+  --gas-spread: 1.22;
 }
 
 /* --- PLASMA / KRYPTON — pale violet-white.
@@ -350,6 +377,10 @@
   --gas-2: 241, 173, 242;
   --gas-3: 229, 162, 230;
   --gas-4: 254, 209, 255;
+
+  /* Rayleigh: this gas throws 31% more light into the halo than neon. */
+  --gas-scatter: 1.31;
+  --gas-spread: 1.14;
 }
 
 /* Aliases and structural tokens — defined ONCE, for every palette. Anything
@@ -427,11 +458,27 @@
   /* The halo is the same photons the cell emits, scattered in the glass, so it
      tracks the discharge hue exactly. NOTHING in this file names a color: every
      rgba() is built from the --gas-N triples in tokens/colors.css, which is what
-     makes `data-ac-gas` switch the panel and its glow together. Hardcode one and
+     makes the display switch the panel and its glow together. Hardcode one and
      it will keep an amber corona around neon text, which is the one place the
-     mismatch is legible side by side. */
-  --glow-text: 0 0 2px rgba(var(--gas-1), 0.6), 0 0 9px rgba(var(--gas-2), 0.26), 0 0 24px rgba(var(--gas-3), 0.1);
-  --glow-box: 0 0 8px rgba(var(--gas-1), 0.32), inset 0 0 10px rgba(var(--gas-1), 0.07);
+     mismatch is legible side by side.
+
+     THE HALO IS NOT THE SAME SIZE FOR EVERY GAS, and that is physics rather than
+     styling. Rayleigh scattering goes as lambda^-4, so a violet gas throws
+     half again as much of itself sideways into the glass as a red one does.
+     --gas-scatter is that ratio against neon and --gas-spread is its square root
+     — both derived per palette by scripts/derive-gas.mjs, both falling back to 1
+     so a hand-built palette that never declares them looks exactly as it did.
+
+     THE 2px LAYER IS NOT SCALED. It is the glyph's own lit edge, not scattered
+     light; it is where the photons started. Only the wide layers are the halo,
+     so only they answer to how much of the light left the stroke. */
+  --glow-text:
+    0 0 2px rgba(var(--gas-1), 0.6),
+    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1))),
+    0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1)));
+  --glow-box:
+    0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1))),
+    inset 0 0 10px rgba(var(--gas-1), 0.07);
 
   /* Plasma decay. A gas gap that stops being driven does not go dark on the next
      refresh — it relaxes: the discharge leaves excited and metastable neon behind,
@@ -562,8 +609,19 @@
 /* --- PLASMA --- */
 .ac-bloom {
   position: relative;
-  --glow-text: 0 0 2px rgba(var(--gas-4), 0.75), 0 0 9px rgba(var(--gas-2), 0.4), 0 0 26px rgba(var(--gas-3), 0.2), 0 0 56px rgba(var(--gas-3), 0.1);
-  --glow-box: 0 0 11px rgba(var(--gas-1), 0.4), 0 0 34px rgba(var(--gas-2), 0.16), inset 0 0 14px rgba(var(--gas-1), 0.1);
+  /* Same split as the base tokens: the 2px core is the lit cell, everything
+     wider is scattered light and answers to --gas-scatter / --gas-spread. This
+     is where the difference between the gases actually shows, because the bloom
+     is where the halo is big enough to see. */
+  --glow-text:
+    0 0 2px rgba(var(--gas-4), 0.75),
+    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1))),
+    0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1))),
+    0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1)));
+  --glow-box:
+    0 0 calc(11px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.4 * var(--gas-scatter, 1))),
+    0 0 calc(34px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.16 * var(--gas-scatter, 1))),
+    inset 0 0 14px rgba(var(--gas-1), 0.1);
 }
 .ac-bloom::before {
   content: "";

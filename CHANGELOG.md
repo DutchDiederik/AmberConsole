@@ -23,6 +23,27 @@ All notable changes to this project are documented here. Format follows
   true. Finding out the colour maths broke against an answer we know beats staring at three palettes
   whose answers nobody knows.
 
+### Added — per-gas glow
+
+- **`--gas-scatter` and `--gas-spread`.** Until now every palette bloomed with identical geometry and
+  only the colour changed. Rayleigh scattering goes as λ⁻⁴, so a violet gas throws far more of itself
+  sideways into the glass than a red one: helium 1.26, krypton 1.31, argon 1.49 against neon's 1.00.
+  `--gas-spread` is the square root, since multiple scattering widens the halo as it brightens it, so
+  both numbers come off one mechanism and cannot disagree. Derived per palette; both fall back to 1,
+  so neon and P3 render byte-identically and the visual baselines still pass.
+- The **innermost 2px layer is deliberately not scaled** — that is the glyph's own lit edge, where the
+  photons started, not scattered light. Only the wide layers are the halo.
+- Weighted by `I(λ)·V(λ)`, and it is the mean of λ⁻⁴ rather than λ⁻⁴ of the mean wavelength. Those
+  differ for a spread spectrum, and the second is wrong: luminance-weighting a mean wavelength drags
+  every gas toward 555 nm by construction and under-reports the difference.
+- **Not modelled, on purpose:** the eye's longitudinal chromatic aberration. It really does make
+  violet look fuzzier and ratios out at 2.67× for argon, but the absolute difference is 0.126 D —
+  about half an arcminute, under a pixel — so using it would inflate a sub-pixel effect into 150 px
+  of fog. The ratio is real; using it here would not be.
+- P3 holds neon's 1.00 as a placeholder rather than a derived result: it is a broad band, not a line
+  spectrum, so the integral has nothing to run over until `derive-gas.mjs` grows a band model in the
+  CRT pass — where P7's two layers make one unavoidable anyway.
+
 ### Changed — the saturation rule
 
 - **`colors.css` no longer claims saturation is held at 100%.** That was true of the two emitters it
