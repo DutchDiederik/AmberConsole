@@ -55,6 +55,46 @@ const CHECKS = [
     filter: (m) => Number(m[1]) > 8,
   },
   {
+    /* GLOW IS THE SIGNAL OF ENERGIZATION. A disabled control that glows is a lie
+       about the hardware, so --ink-dim and --ink-faint must switch the halo off.
+       Since tokens/effects.css applies the glow at the frame and lets it
+       INHERIT, that is not automatic: a rule that dims the color inherits the
+       halo it was given unless it says otherwise. This is the half of the rule
+       that drifts — .ac-panel--dim did exactly this, overriding the color and
+       keeping a glow it never asked for — so it is the half that is gated.
+
+       The opposite direction is not checkable and does not need to be: lit text
+       glows by inheriting, and there is nothing to forget. */
+    id: "unpaired-glow",
+    what: "an ink level set without the halo that belongs to it",
+    /* HTML too, because the guide builds its specimens out of inline style=""
+       and those are exactly as able to strand an element at the wrong halo as a
+       stylesheet is — seven of them did. */
+    files: /\.(css|html)$/,
+    /* print.css blanks --glow-text wholesale, and a11y.css runs where the UA has
+       already forced shadows off; both set these colors legitimately. */
+    exempt: /src[/\\]base[/\\](print|a11y)\.css$/,
+    /* A declaration block, or an inline style attribute. Both are places an ink
+       level gets set, so both are places the halo can be left behind. */
+    re: /\{[^{}]*\}|style="[^"]*"/g,
+    filter: (m) => {
+      const body = m[0].replace(/\/\*[\s\S]*?\*\//g, "");
+      if (/text-shadow/.test(body)) return false;
+      /* Lit must glow; dim, faint and inverse must not. Both halves are
+         required, and the second half is the one that surprises people:
+         inheritance does NOT cover a rule that brightens its own color inside
+         dim prose — it inherits the dim's suppression and stays flat. That is
+         how eighty-two inline <code> spans sat at --ink-bright with no halo. */
+      /* The leading boundary is load-bearing: without it `border-color` matches
+         `color` and every swatch chip in the guide — which sets a border and no
+         text at all — is reported as stranded. */
+      return (
+        /(^|[;{"\s])color\s*:\s*var\(--ink(-bright)?\)/.test(body) ||
+        /(^|[;{"\s])color\s*:\s*var\(--(ink-dim|ink-faint|on-fill)\)/.test(body)
+      );
+    },
+  },
+  {
     id: "third-font",
     what: "a font family other than VT323 / Silkscreen",
     files: /\.css$/,

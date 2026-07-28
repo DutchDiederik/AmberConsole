@@ -22,6 +22,7 @@
 .ac-readout__label {
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
   padding: 3px 12px;
   font-size: var(--type-small);
   line-height: 1.2;
@@ -32,6 +33,7 @@
 .ac-readout__label--plain {
   background: transparent;
   color: var(--ink-dim);
+  text-shadow: none;
   padding: 0;
 }
 
@@ -47,6 +49,7 @@
 .ac-readout__unit {
   font-size: var(--type-body);
   color: var(--ink);
+  text-shadow: var(--glow-text);
   margin-left: 6px;
 }
 

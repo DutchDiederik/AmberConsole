@@ -32,6 +32,7 @@
   border-radius: var(--radius);
   background: var(--screen);
   color: var(--ink);
+  text-shadow: var(--glow-text);
   font-family: var(--font-terminal);
   box-shadow: var(--glow-box);
   overflow: hidden;
@@ -49,6 +50,7 @@
   text-align: center;
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
   font-family: var(--font-terminal);
   font-size: var(--type-body);
   font-weight: 400;

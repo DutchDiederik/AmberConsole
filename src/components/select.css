@@ -34,6 +34,7 @@
   transform: translateY(-50%);
   pointer-events: none;
   color: var(--ink);
+  text-shadow: var(--glow-text);
   font-size: 14px;
   font-family: var(--font-terminal);
 }
@@ -42,8 +43,10 @@
 .ac-select .ac-input option {
   background: var(--screen);
   color: var(--ink);
+  text-shadow: var(--glow-text);
 }
 
 .ac-select:has(.ac-input:disabled)::after {
   color: var(--ink-faint);
+  text-shadow: none;
 }

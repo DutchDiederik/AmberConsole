@@ -19,15 +19,18 @@
   border: 1px solid var(--stroke);
   border-radius: 2px;
   color: var(--ink);
+  text-shadow: var(--glow-text);
 }
 
 .ac-badge--filled {
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
   border-color: var(--fill);
 }
 
 .ac-badge--dim {
   color: var(--ink-faint);
+  text-shadow: none;
   border-color: var(--stroke-dim);
 }

@@ -27,6 +27,7 @@
 
 .ac-btn:hover {
   color: var(--ink-bright);
+  text-shadow: var(--glow-text);
   border-color: var(--ink-bright);
   box-shadow: var(--glow-box);
 }
@@ -50,6 +51,7 @@
 .ac-btn[aria-pressed="true"]:hover {
   background: var(--fill-bright);
   color: var(--on-fill);
+  text-shadow: none;
 }
 
 /* Dim never glows — glow is the signal of energization. */

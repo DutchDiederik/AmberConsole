@@ -409,7 +409,27 @@ Component-level hooks: `--gap`, `--cols`, `--ac-screen-pad`, `--ac-panel-title-b
 `--ac-meter-value`, `--ac-backdrop`.
 
 **`--ink-faint` and `--ink-dim` never glow.** Glow is the signal of energization; a disabled control
-that glows is a lie about the hardware.
+that glows is a lie about the hardware. Inverse video does not glow either — dark text on a lit block
+is the *unlit* part of that block.
+
+**The halo is inherited, not requested.** `reset.css` and `.ac-screen` apply `text-shadow:
+var(--glow-text)` once and it inherits to everything, because the glow is light scattered in the
+glass and the glass has no idea which component a lit cell belongs to. So **wherever you set an ink
+level, restate the halo that belongs to it**:
+
+```css
+color: var(--ink);        text-shadow: var(--glow-text);   /* lit */
+color: var(--ink-bright); text-shadow: var(--glow-text);
+color: var(--ink-dim);    text-shadow: none;               /* not energized */
+color: var(--ink-faint);  text-shadow: none;
+color: var(--on-fill);    text-shadow: none;               /* unlit, inside a lit block */
+```
+
+Inheritance alone is not enough in either direction, which is why the pairing is the rule rather than
+"just let it inherit": an element that *brightens* its own colour inside dim prose inherits the dim's
+suppression and stays flat, and an element that dims its own colour keeps a halo it never asked for.
+`npm run check` enforces the pairing in both directions, across CSS rules and inline `style`
+attributes.
 
 ## The six laws
 

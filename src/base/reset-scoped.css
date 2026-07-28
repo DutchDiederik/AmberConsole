@@ -20,6 +20,7 @@
 .ac-root {
   background: var(--screen);
   color: var(--ink);
+  text-shadow: var(--glow-text);
   font-family: var(--font-terminal);
   font-size: var(--type-body);
   line-height: var(--leading);
@@ -38,6 +39,7 @@
 
 .ac-root a {
   color: var(--ink-bright);
+  text-shadow: var(--glow-text);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -49,6 +51,7 @@
 .ac-root ::selection {
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
 }
 
 .ac-root button,
@@ -60,6 +63,7 @@
   line-height: inherit;
   letter-spacing: inherit;
   color: inherit;
+  text-shadow: inherit;
 }
 
 .ac-root :focus-visible {

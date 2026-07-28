@@ -18,6 +18,7 @@
   flex-wrap: wrap;
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
   font-family: var(--font-terminal);
   font-size: var(--type-body);
   line-height: 1;
@@ -31,6 +32,7 @@
 .ac-statusbar--line {
   background: transparent;
   color: var(--ink);
+  text-shadow: var(--glow-text);
   box-shadow: none;
   border-top: var(--border-w) solid var(--stroke-dim);
   border-bottom: var(--border-w) solid var(--stroke-dim);

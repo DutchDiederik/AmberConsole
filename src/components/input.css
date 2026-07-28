@@ -30,6 +30,7 @@
   font-size: var(--type-small);
   line-height: 1;
   color: var(--ink-dim);
+  text-shadow: none;
   text-transform: uppercase;
   letter-spacing: var(--tracking-body);
 }
@@ -39,6 +40,7 @@
   font-family: var(--font-terminal);
   font-size: var(--type-body);
   color: var(--ink-bright);
+  text-shadow: var(--glow-text);
   background: var(--screen-well);
   border: var(--border-w) solid var(--stroke-dim);
   border-radius: var(--radius-sm);
@@ -50,6 +52,7 @@
 
 .ac-input::placeholder {
   color: var(--ink-faint);
+  text-shadow: none;
 }
 
 .ac-input:focus {
@@ -60,11 +63,13 @@
 
 .ac-input:disabled {
   color: var(--ink-faint);
+  text-shadow: none;
   border-color: var(--ink-trace);
 }
 
 .ac-input:read-only {
   color: var(--ink-dim);
+  text-shadow: none;
 }
 
 .ac-input--block {
@@ -90,6 +95,7 @@ textarea.ac-input {
 .ac-input[aria-invalid="true"] {
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
   border-color: var(--stroke);
   caret-color: var(--on-fill);
   animation: ac-blink 1.1s steps(1) infinite;
@@ -97,6 +103,7 @@ textarea.ac-input {
 .ac-field--invalid .ac-input::placeholder,
 .ac-input[aria-invalid="true"]::placeholder {
   color: var(--on-fill);
+  text-shadow: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

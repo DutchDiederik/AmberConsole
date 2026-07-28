@@ -54,6 +54,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
+  text-shadow: none;
 }
 
 .ac-meter--lg .ac-meter__track {

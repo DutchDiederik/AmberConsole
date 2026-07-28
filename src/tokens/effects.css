@@ -58,6 +58,48 @@
   --ac-mesh-wire: 0.075;
 }
 
+/* ---------------------------------------------------------------------------
+   THE HALO IS INHERITED, NOT REQUESTED.
+
+   The glow is light scattered in the glass, and the glass has no idea which
+   component a lit cell belongs to. So it is applied ONCE here and inherits to
+   every descendant, rather than being opted into per component.
+
+   That direction matters more than it looks. Glow used to be opt-in, and after
+   twenty-odd components each remembering to ask for it, thirty-four elements
+   were still rendering flat: every table cell, every toggle label, all eighty-
+   eight inline <code> spans in the guide, and an alarm banner that blinked
+   without a halo. None of that was decided; it was just never added. Inheriting
+   inverts the failure: a new component glows because it is lit, instead of not
+   glowing because nobody remembered.
+
+   WHAT MUST THEN SUPPRESS IT, and why it is a short list rather than a long one:
+
+     --ink-dim / --ink-faint   glow is the signal of energization, so a disabled
+                               control that glows is a lie about the hardware.
+     inverse video             dark text on a lit block is the UNLIT part of the
+                               block. Unlit cells do not scatter.
+
+   Both are enumerable, and scripts/check-prohibitions.mjs enforces the first —
+   a rule that sets dim or faint ink without switching the halo off fails the
+   build, because that is the half of this that drifts.
+
+   NOTE ON HOW text-shadow AND CUSTOM PROPERTIES INTERACT: var(--glow-text) is
+   resolved HERE, at the frame, and the resulting shadow list is what inherits.
+   A descendant that sets its own --glow-text does not change what it inherited;
+   only `text-shadow: none` does. That is why suppression is written as
+   `text-shadow: none` everywhere below and never as a token override.
+
+   Print needs no rule of its own: base/print.css sets --glow-text: none at both
+   :root and .ac-bloom, so this resolves to none before it inherits anywhere.
+   Forced colors likewise — the UA forces text-shadow off for anything left at
+   forced-color-adjust: auto, and the inverse-video list that opts out already
+   restates it. --------------------------------------------------------------- */
+.ac-screen,
+.ac-root {
+  text-shadow: var(--glow-text);
+}
+
 /* Hard on/off blink — no fades on a plasma panel */
 @keyframes ac-blink { 0%, 54% { opacity: 1; } 55%, 100% { opacity: 0.1; } }
 .ac-blink { animation: ac-blink 1.1s steps(1) infinite; }

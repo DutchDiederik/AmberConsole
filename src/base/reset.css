@@ -16,6 +16,7 @@ body {
   margin: 0;
   background: var(--screen);
   color: var(--ink);
+  text-shadow: var(--glow-text);
   font-family: var(--font-terminal);
   font-size: var(--type-body);
   line-height: var(--leading);
@@ -38,6 +39,7 @@ h4 {
 /* Undefined links render browser-default blue and instantly break the illusion. */
 a {
   color: var(--ink-bright);
+  text-shadow: var(--glow-text);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -49,9 +51,14 @@ a:hover {
 ::selection {
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
 }
 
-/* Form controls do not inherit type by default. On a character grid they must. */
+/* Form controls do not inherit type by default. On a character grid they must.
+   text-shadow is on that list and is the one nobody expects: the halo is applied
+   at the frame and inherits everywhere, but a <button> or an <option> stops it,
+   so a toggle's own label sat flat on a panel where every word around it glowed.
+   A control is made of lit cells like anything else. */
 button,
 input,
 select,
@@ -61,6 +68,7 @@ textarea {
   line-height: inherit;
   letter-spacing: inherit;
   color: inherit;
+  text-shadow: inherit;
 }
 
 /* The shared focus ring. Every interactive ac-* class repeats this so it still

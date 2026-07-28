@@ -42,6 +42,7 @@
 
 .ac-list__key {
   color: var(--ink-dim);
+  text-shadow: none;
   white-space: nowrap;
 }
 
@@ -57,6 +58,7 @@
 .ac-list__value {
   margin: 0;
   color: var(--ink);
+  text-shadow: var(--glow-text);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -74,7 +76,9 @@
 
 .ac-list--dim .ac-list__key {
   color: var(--ink-faint);
+  text-shadow: none;
 }
 .ac-list--dim .ac-list__value {
   color: var(--ink-dim);
+  text-shadow: none;
 }

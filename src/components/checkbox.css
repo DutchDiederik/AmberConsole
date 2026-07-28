@@ -20,6 +20,7 @@
   font-size: var(--type-body);
   line-height: 1;
   color: var(--ink);
+  text-shadow: var(--glow-text);
   text-transform: uppercase;
   letter-spacing: var(--tracking-body);
   cursor: pointer;
@@ -46,6 +47,7 @@
 .ac-check--disabled,
 .ac-check:has(input:disabled) {
   color: var(--ink-faint);
+  text-shadow: none;
   cursor: default;
 }
 .ac-check--disabled input,

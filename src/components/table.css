@@ -28,6 +28,7 @@
   letter-spacing: var(--tracking-micro);
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
   padding: 6px 12px;
   white-space: nowrap;
 }
@@ -35,6 +36,7 @@
 .ac-table td {
   padding: 6px 12px;
   color: var(--ink);
+  text-shadow: var(--glow-text);
   border-bottom: var(--border-w) solid var(--ink-trace);
   text-transform: uppercase;
 }
@@ -46,6 +48,7 @@
 .ac-table__row--active td {
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
 }
 
 .ac-table--zebra tbody tr:nth-child(even) td {

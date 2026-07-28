@@ -33,6 +33,7 @@
   font-size: var(--type-body);
   line-height: 1;
   color: var(--ink);
+  text-shadow: var(--glow-text);
   text-transform: uppercase;
   letter-spacing: var(--tracking-body);
   background: none;
@@ -71,6 +72,7 @@
   min-width: 2.2em;
   text-align: left;
   color: var(--ink-dim);
+  text-shadow: none;
 }
 
 .ac-toggle--on .ac-toggle__state,
@@ -81,6 +83,7 @@
 
 .ac-toggle:disabled {
   color: var(--ink-faint);
+  text-shadow: none;
   cursor: default;
 }
 .ac-toggle:disabled .ac-toggle__track {

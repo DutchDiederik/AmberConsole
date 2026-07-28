@@ -6,6 +6,36 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Fixed — the bloom now reaches everything that is lit
+
+- **Glow was opt-in, and most of the panel never opted in.** Twenty selectors in the whole framework
+  said `text-shadow: var(--glow-text)`; everything else rendered flat however brightly it was lit,
+  because `.ac-bloom` only overrides the *value* of the token — an element still had to ask. Measured
+  on the demo pages: 34 elements at `--ink` or `--ink-bright` with no halo at all, including every
+  table cell, every toggle label, all 82 inline `<code>` spans in the guide, and a blinking alarm
+  banner. None of that was decided; it was never added.
+- **The halo is now applied once and inherits** — at `body`/`.ac-root` and at `.ac-screen` — so the
+  failure inverts: a new component glows because it is lit, instead of not glowing because nobody
+  remembered.
+- **Pairing is now the rule, in both directions.** Inheritance alone is not sufficient and that was
+  the surprise: an element that brightens its own colour inside dim prose inherits the dim's
+  suppression and stays flat, which is exactly how those 82 `<code>` spans sat at `--ink-bright` with
+  no halo. So every rule that sets an ink level restates the halo that belongs to it — lit glows,
+  dim/faint/inverse do not.
+- **`text-shadow: inherit` added to the form-control reset.** `button`, `input`, `select` and
+  `textarea` inherited font and colour but not the shadow, so a toggle's own label sat flat on a panel
+  where every word around it glowed.
+- **`.ac-panel--dim .ac-panel__title` no longer glows.** It overrode the colour to `--ink-dim` and
+  kept the halo it inherited from the base rule — a glowing title above non-glowing contents.
+- **New `unpaired-glow` gate** in `check-prohibitions.mjs`, covering CSS rules *and* inline `style`
+  attributes, since the guide builds its specimens out of the latter and seven of them were stranded.
+- Cost, accepted: worst-case scroll frame went 82ms to 149ms on the guide, since a 4-layer shadow with
+  a 56px outer blur now paints on every text node. Median is unchanged. If it ever bites, the fix is
+  `em`-relative radii so the halo tracks the size of the lit area — which is also more physically
+  right than a 56px halo on an 8px label.
+- Print and forced-colors captures are **byte-identical** after the change: `print.css` already blanks
+  `--glow-text` at both `:root` and `.ac-bloom`, and forced colors strips shadows at the UA level.
+
 ### Added — three plasma gases
 
 - **`plasma/helium`, `plasma/argon`, `plasma/krypton`**, computed rather than picked. Helium is a

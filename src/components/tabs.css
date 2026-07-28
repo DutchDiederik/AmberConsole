@@ -36,6 +36,7 @@
 
 .ac-tab:hover {
   color: var(--ink-bright);
+  text-shadow: var(--glow-text);
   border-color: var(--ink-bright);
 }
 

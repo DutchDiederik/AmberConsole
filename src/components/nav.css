@@ -73,6 +73,7 @@
 
 .ac-nav__link:hover {
   color: var(--ink-bright);
+  text-shadow: var(--glow-text);
   border-color: var(--stroke);
   box-shadow: var(--glow-box);
 }
@@ -99,6 +100,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
+  text-shadow: none;
 }
 
 @media (max-width: 720px) {

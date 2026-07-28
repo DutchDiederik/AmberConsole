@@ -13,6 +13,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
+  text-shadow: none;
   text-decoration: none;
 }
 .doc-byline:hover {
@@ -32,9 +33,11 @@
   gap: var(--space-2);
   white-space: nowrap;
   color: var(--ink-dim);
+  text-shadow: none;
 }
 .doc-nav-display [data-ac-display-out] {
   color: var(--ink-bright);
+  text-shadow: var(--glow-text);
 }
 
 .doc-switches {
@@ -78,6 +81,7 @@
   line-height: 1.6;
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
+  text-shadow: none;
   text-transform: uppercase;
 }
 
@@ -120,6 +124,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
+  text-shadow: none;
   text-transform: uppercase;
 }
 
@@ -141,6 +146,7 @@
   line-height: 1.35;
   letter-spacing: var(--tracking-body);
   color: var(--ink-dim);
+  text-shadow: none;
 }
 
 .doc-setup-hint {
@@ -148,6 +154,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
+  text-shadow: none;
   text-transform: uppercase;
 }
 
@@ -243,10 +250,12 @@
   font-size: var(--type-title);
   letter-spacing: 0.2em;
   color: var(--ink-dim);
+  text-shadow: none;
 }
 .doc-lede {
   max-width: 62ch;
   color: var(--ink);
+  text-shadow: var(--glow-text);
   font-size: var(--type-body);
   margin: 20px 0 0;
 }
@@ -264,6 +273,7 @@
   font-size: var(--type-body);
   letter-spacing: 0.1em;
   color: var(--ink);
+  text-shadow: var(--glow-text);
 }
 .doc-wrap p {
   max-width: 68ch;
@@ -285,10 +295,11 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
+  text-shadow: none;
 }
 
-.doc-dim { color: var(--ink-dim); }
-.doc-faint { color: var(--ink-faint); }
+.doc-dim { color: var(--ink-dim); text-shadow: none; }
+.doc-faint { color: var(--ink-faint); text-shadow: none; }
 .doc-small { font-size: var(--type-small); }
 
 .doc-grid2 {
@@ -320,6 +331,7 @@
   margin: 0;
   font-size: var(--type-small);
   color: var(--ink-dim);
+  text-shadow: none;
 }
 
 /* A specimen card. Dim frame so it never competes with what it contains. */
@@ -343,6 +355,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
+  text-shadow: none;
   display: block;
   margin: 0 0 10px;
   width: 100%;
@@ -371,6 +384,7 @@
   text-align: left;
   font-weight: 400;
   color: var(--ink-faint);
+  text-shadow: none;
   font-family: var(--font-micro);
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
@@ -380,11 +394,13 @@
 .doc-table td {
   padding: var(--space-2) var(--space-4) var(--space-2) 0;
   color: var(--ink);
+  text-shadow: var(--glow-text);
   border-bottom: 1px solid var(--ink-trace);
   vertical-align: top;
 }
 .doc-table td.doc-tok {
   color: var(--ink-dim);
+  text-shadow: none;
   white-space: nowrap;
 }
 
@@ -401,6 +417,7 @@
 .doc-dd-h {
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
   padding: 3px 10px;
   display: inline-block;
   font-size: var(--type-small);
@@ -409,6 +426,7 @@
 .doc-dd-h--off {
   background: transparent;
   color: var(--ink-faint);
+  text-shadow: none;
   border: var(--border-w) solid var(--stroke-dim);
 }
 
@@ -417,6 +435,7 @@
   padding-left: 1.2em;
   font-size: var(--type-small);
   color: var(--ink-dim);
+  text-shadow: none;
 }
 .doc-wrap li { margin-bottom: 6px; }
 
@@ -424,6 +443,7 @@
   font-family: var(--font-terminal);
   font-size: 20px;
   color: var(--ink-bright);
+  text-shadow: var(--glow-text);
 }
 
 /* The copyable class string under every component specimen. */
@@ -439,6 +459,7 @@
   font-size: var(--type-small);
   line-height: 1.3;
   color: var(--ink-bright);
+  text-shadow: var(--glow-text);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -449,6 +470,7 @@
   margin: var(--space-2) 0 0;
   font-size: var(--type-small);
   color: var(--ink-faint);
+  text-shadow: none;
 }
 .doc-when::before {
   content: "NOT FOR: ";

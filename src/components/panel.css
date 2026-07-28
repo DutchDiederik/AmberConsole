@@ -41,6 +41,7 @@
 
 .ac-panel--dim .ac-panel__title {
   color: var(--ink-dim);
+  text-shadow: none;
 }
 
 .ac-panel--bar {
@@ -54,6 +55,7 @@
   text-align: center;
   background: var(--fill);
   color: var(--on-fill);
+  text-shadow: none;
   font-family: var(--font-terminal);
   font-size: var(--type-body);
   text-transform: uppercase;
