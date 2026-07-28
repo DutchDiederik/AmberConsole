@@ -117,6 +117,28 @@ All notable changes to this project are documented here. Format follows
 - The demo pages' three inline nav toggles moved onto the board. The bar keeps a `DISPLAY:` readout
   that names the technology before the emitter — the board scrolls away and the sticky bar does not,
   so that readout is the one thing always on screen, and nobody has to remember whether P39 was a gas.
+- **PLASMA and CRT are now mutually exclusive.** They are two display technologies, not two layers of
+  glass: a frame carrying both had gas gaps and a scanning beam in the same enclosure, and wore a cell
+  mesh and raster blanking gaps at once — the two textures section 04 of the guide spends a paragraph
+  separating. Switching either one on switches the other off, and both toggles move to prove it.
+  Enforced in `applySim`, so the click path, the DISPLAY presets and the restore-from-storage path all
+  obey it rather than one of the three. Both *off* is still reachable: that is a flat lit surface, no
+  particular hardware, and an honest thing to want to look at.
+- **A `data-ac-style-*` flag is only restored from storage while the page still ships a switch for
+  it.** Take the control out of the markup and the flag falls back to the author's own attribute, or
+  to its default, and nothing is written back — the stored value still belongs to whatever page does
+  have the switch. A preference with no control left on the page is not a preference, it is a setting
+  the visitor can no longer reach, and one earlier click would otherwise have turned blink off on that
+  page permanently.
+- **The demo board no longer offers a BLINK switch.** Blink is law-2 emphasis and half of what the
+  alarm specimens are demonstrating, so the demos keep it on. The flag is unchanged and still in the
+  framework — put `data-ac-style="blink"` on a toggle to expose it, or write
+  `data-ac-style-blink="off"` on the root; `prefers-reduced-motion` stops it either way.
+- **The read-only regions on `.ac-setup` are framed in `--stroke` like every other region.**
+  `.ac-panel--dim` still dims its frame on its own, but four regions sit edge to edge on the board and
+  one frame drawn a step darker than the three beside it does not read as "this recedes", it reads as
+  a panel that failed to light. The recede moves to the title and the contents, which is what an
+  operator is actually reading.
 
 ### Deprecated
 

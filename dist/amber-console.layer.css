@@ -1613,6 +1613,20 @@ textarea {
   --ac-panel-title-bg: var(--screen);
 }
 
+/* Every region on the board is drawn in --stroke, INCLUDING the read-only ones.
+   .ac-panel--dim normally dims its frame as well as its contents, which is right
+   for a panel standing on its own — but here four regions sit edge to edge in
+   one grid, and one frame drawn a step darker than the three beside it does not
+   read as "this one recedes", it reads as a panel that failed to light. The
+   board is a single instrument; its divisions are all the same wall.
+
+   The recede is not lost, it moves to where it belongs: the dim title and the
+   dim contents still say read-only, and those are the parts an operator is
+   actually reading. Only the frame is normalized. */
+.ac-setup .ac-panel--dim {
+  border-color: var(--stroke);
+}
+
 .ac-setup__foot {
   display: flex;
   align-items: center;

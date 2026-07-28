@@ -392,6 +392,27 @@ const SIMS = {
   },
 };
 
+/**
+ * Simulations that make the same kind of claim and therefore cannot both be on.
+ *
+ * PLASMA and CRT are not two layers of glass, they are two display
+ * technologies, and no panel is both: a frame carrying .ac-bloom and .ac-crt at
+ * once has gas gaps and a scanning beam in the same enclosure, wearing a cell
+ * mesh and raster blanking gaps at the same time. Those are the two textures
+ * section 04 of the guide spends a paragraph telling apart — a screen door is
+ * not a scanline, and there is no scan in a plasma panel to blank. Switching
+ * either one ON switches the other OFF, in the same click, and both toggles
+ * move to prove it.
+ *
+ * Both OFF stays allowed. That is a flat lit surface — no particular hardware,
+ * and an honest thing to want to look at. This is exclusion, not a radio group.
+ *
+ * A DISPLAY preset must therefore name at most one of them in `data-ac-sims`;
+ * listing both leaves whichever is applied last, which is not a useful thing to
+ * have asked for.
+ */
+const EXCLUSIVE_SIMS = ["plasma", "crt"];
+
 /** The frame every simulation paints on. Resolved once, on first use. */
 function screenFrame() {
   return (screenFrame.cached ??=
@@ -413,6 +434,17 @@ function applySim(name, on) {
   const sim = SIMS[name];
   const frame = screenFrame();
   if (!sim || !frame) return;
+
+  /* Exclusion runs here rather than in the click handler, because the DISPLAY
+     presets and the restore path both write simulations through this function
+     and a rule enforced in one of the three is not a rule. Only the ON branch
+     recurses, and it recurses with `false`, so this is exactly one level deep
+     and cannot loop. */
+  if (on && EXCLUSIVE_SIMS.includes(name)) {
+    for (const other of EXCLUSIVE_SIMS) {
+      if (other !== name) applySim(other, false);
+    }
+  }
 
   for (const klass of sim.classes) frame.classList.toggle(klass, on);
 
@@ -469,6 +501,10 @@ function applySim(name, on) {
  * and lives on different attributes entirely. A user is free to run the CRT
  * simulation with a plasma gas in it, and the DISPLAY presets will tell them
  * they have (see MOD below), but nothing here stops them.
+ *
+ * The two simulations do exclude EACH OTHER — see EXCLUSIVE_SIMS. That is a
+ * different statement from the one above: a gas behind a tube's glass is a
+ * mismatch a user can want to look at, two enclosures at once is not a panel.
  */
 function initSims() {
   const buttons = [...document.querySelectorAll("[data-ac-sim]")];
@@ -484,7 +520,14 @@ function initSims() {
        display technology, and its scanlines are the one thing a plasma panel
        conspicuously does not have. Shipping both on by default meant the first
        impression of the system was a plasma screen wearing a tube's blanking
-       gaps. It stays one click away. */
+       gaps. It stays one click away.
+
+       A session stored before these two became exclusive can have BOTH keys
+       reading "1". Declaration order settles it without extra bookkeeping:
+       PLASMA is restored first, switches CRT off through applySim and writes
+       that through, so CRT's own key already says "0" by the time it is read.
+       Plasma winning is the right way round — it is the system's own hardware,
+       and the one a returning visitor is least surprised to find still lit. */
     const stored = readStored(name);
     applySim(name, stored === null ? SIMS[name].defaultOn : stored === "1");
 
@@ -772,7 +815,7 @@ function styleOn(name) {
 function initStyle() {
   const buttons = [...document.querySelectorAll("[data-ac-style]")];
 
-  const apply = (name, on) => {
+  const apply = (name, on, persist = true) => {
     document.documentElement.setAttribute(`data-ac-style-${name}`, on ? "on" : "off");
 
     /* Smear is the one style with a running cost rather than a CSS rule — the
@@ -789,12 +832,23 @@ function initStyle() {
       if (state) state.textContent = on ? "ON" : "OFF";
     }
 
-    writeStored(`style.${name}`, on ? "1" : "0");
+    if (persist) writeStored(`style.${name}`, on ? "1" : "0");
   };
 
   for (const name of Object.keys(STYLES)) {
-    const stored = readStored(`style.${name}`);
-    apply(name, stored === null ? STYLES[name].defaultOn : stored === "1");
+    /* A STORED PREFERENCE IS ONLY RESTORED WHILE THE PAGE STILL OFFERS A WAY TO
+       CHANGE IT BACK. Take the switch out of the markup and the flag falls back
+       to the author's own attribute, or to its default — because a preference
+       with no control left on the page is not a preference, it is a setting the
+       visitor can no longer reach, and one earlier click would have turned
+       blink off on this page forever.
+
+       Nothing is written back in that case either: the stored value still
+       belongs to whatever page does ship the switch, and a page that only
+       consumes the flag has no business overwriting it. */
+    const control = buttons.some((b) => b.dataset.acStyle === name);
+    const stored = control ? readStored(`style.${name}`) : null;
+    apply(name, stored === null ? styleOn(name) : stored === "1", control);
   }
 
   for (const btn of buttons) {

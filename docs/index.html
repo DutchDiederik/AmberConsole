@@ -201,9 +201,12 @@
           <span class="ac-panel__title">Style</span>
           <p class="doc-displays__note">Preferences. No claim about the hardware.</p>
           <div class="doc-switches">
-            <button type="button" class="ac-toggle" data-ac-style="blink" aria-pressed="true">
-              <span>Blink</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
-            </button>
+            <!-- No BLINK switch here on purpose. Blink is law-2 emphasis and the
+                 console below is running a live alarm, so this page keeps it on
+                 and does not offer to turn it off. The style flag itself is still
+                 in the framework — write data-ac-style="blink" on a toggle to
+                 expose it, or set data-ac-style-blink="off" on <html>.
+                 prefers-reduced-motion stops it either way. -->
             <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="true">
               <span>Scroll Smear</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
             </button>

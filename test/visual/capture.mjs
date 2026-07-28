@@ -53,14 +53,28 @@ const PAGES = [
   { name: "guide", file: "docs/guide.html", fullPage: false, anchor: "#controls .doc-grid2" },
 ];
 
+/**
+ * `sims` NAMES ONE SIMULATION, or false for none. It cannot seed both any more:
+ * PLASMA and CRT are two display technologies and the module now switches either
+ * one off when the other comes on (see EXCLUSIVE_SIMS in src/amber-console.js),
+ * so a run that wrote both keys would capture whichever survived restore rather
+ * than what it asked for — a baseline nobody could read the intent of.
+ *
+ * PLASMA carries the "sims-on" cases because it is what the demo ships lit and
+ * therefore what a first visitor sees. CRT is not left uncovered: it takes the
+ * reduced-motion case, which is a better home for it than plasma was. Nearly
+ * every moving part in the system belongs to the tube — the retrace sweep, the
+ * line drift, the flicker and the afterglow — so a capture that exists to prove
+ * the motion fallbacks fire is now pointed at the thing that moves most.
+ */
 const CASES = [
-  { id: "1440-sims-on", width: 1440, height: 900, sims: true },
+  { id: "1440-sims-on", width: 1440, height: 900, sims: "plasma" },
   { id: "1440-sims-off", width: 1440, height: 900, sims: false },
-  { id: "390-sims-on", width: 390, height: 844, sims: true },
+  { id: "390-sims-on", width: 390, height: 844, sims: "plasma" },
   { id: "390-sims-off", width: 390, height: 844, sims: false },
-  { id: "1440-reduced-motion", width: 1440, height: 900, sims: true, reducedMotion: "reduce" },
-  { id: "1440-forced-colors", width: 1440, height: 900, sims: true, forcedColors: "active" },
-  { id: "1280-print", width: 1280, height: 800, sims: true, media: "print" },
+  { id: "1440-reduced-motion", width: 1440, height: 900, sims: "crt", reducedMotion: "reduce" },
+  { id: "1440-forced-colors", width: 1440, height: 900, sims: "plasma", forcedColors: "active" },
+  { id: "1280-print", width: 1280, height: 800, sims: "plasma", media: "print" },
 ];
 
 /**
@@ -158,12 +172,14 @@ for (const page of PAGES) {
       deviceScaleFactor: 1,
     });
 
-    /* Seed the simulation state before the page's script reads it. */
-    await context.addInitScript((on) => {
+    /* Seed the simulation state before the page's script reads it. Both keys are
+       always written, and at most one of them says "1" — leaving the other key
+       absent would hand it back to its own default, which for plasma is ON. */
+    await context.addInitScript((want) => {
       try {
-        localStorage.setItem("ac.sim.plasma", on ? "1" : "0");
+        localStorage.setItem("ac.sim.plasma", want === "plasma" ? "1" : "0");
         /* CRT carries the afterglow; there is no separate key any more. */
-        localStorage.setItem("ac.sim.crt", on ? "1" : "0");
+        localStorage.setItem("ac.sim.crt", want === "crt" ? "1" : "0");
       } catch {
         /* ignore */
       }
