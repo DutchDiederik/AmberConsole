@@ -35,7 +35,7 @@
  *   data-ac-gas="neon"   ->  data-ac-tech="plasma" data-ac-emitter="neon"
  *   data-ac-gas="amber"  ->  data-ac-tech="crt"    data-ac-emitter="p3"
  *
- * Each palette defines the same eleven values and nothing else: the five
+ * Each palette defines the same twelve values and nothing else: the five
  * discharge stops, the three surfaces, --on-fill, and the four glow triples.
  * Every other token in the system is an alias or is built from those, so adding
  * a technology or an emitter means adding one block and nothing else.
@@ -43,6 +43,40 @@
  * EVERY PALETTE IS GATED. scripts/contrast.mjs runs the full pair table against
  * each block independently — a ratio that passes under one emitter and fails
  * under another is a failure. Do not add a stop to one block without the others.
+ *
+ *
+ * SATURATION IS AN OUTPUT, NOT A SETTING.
+ *
+ * This file used to say that saturation is held at 100% for every stop, because
+ * a near-monochromatic emitter has no way to be pale. That was true of the only
+ * two emitters it then described, and it is false in general — it was a special
+ * case wearing a rule's clothes. Helium, argon and krypton are multi-line
+ * emitters: their light IS pale, and forcing them to 100% would mean inventing a
+ * saturation the gas does not have, which is the opposite of what this file is
+ * for. The rule it was a special case of:
+ *
+ *     Chromaticity is derived from the emitter's spectrum and never adjusted.
+ *     A near-monochromatic emitter integrates to a saturated color; a multi-line
+ *     emitter integrates to a pale one. Neither is a preference.
+ *
+ * Neon still solves to 100% under that, so nothing about it changes, and the old
+ * --amber-100 special case ("a hotter cell can only get there by whitening")
+ * stops being an exception and becomes an instance: every stop whitens exactly
+ * as much as sRGB forces it to and no more.
+ *
+ * HUE FROM THE SPECTRUM, LUMINANCE FROM THE DRIVE LEVEL. The corollary, and the
+ * one that has to be said out loud before somebody reads these numbers as a
+ * fudge. Argon genuinely emits very little visible light — most of its output is
+ * past 700nm, where the eye scores under 0.01 — but that is a fact about radiant
+ * efficiency, not about what color the cell is. Drive it harder and it is still
+ * argon. So every stop here is the emitter's own chromaticity at whatever
+ * luminance the contrast gate demands, and the two decisions never mix.
+ *
+ * GENERATED PALETTES. The three gases below neon and P3 are computed by
+ * scripts/derive-gas.mjs from cited line tables and must not be hand-edited;
+ * `npm test` re-derives them and fails on drift. Neon and P3 predate the script
+ * and stay hand-built — see the `emit: false` note in scripts/data/emitters.json
+ * for why regenerating neon would repaint the framework to no one's benefit.
  */
 
 :root,
@@ -65,25 +99,34 @@
      ~2x enrichment a pulsed cell plausibly sees, 24deg. The band 19-31deg is the
      defensible range; 24 sits in the middle of it.
 
-     Saturation is held at 100% for every stop the gas emits, because a
-     near-monochromatic emitter has no way to be pale. --amber-100 is the sole
-     exception and the exception is also physics: no fully-saturated color at
-     this hue can exceed L=0.318, so a HOTTER cell can only get there by
-     whitening — which is exactly what an overdriven neon cell does.
+     scripts/derive-gas.mjs now reproduces that integral independently — it lands
+     x=0.6405 y=0.3591 against the x=0.631 y=0.369 above, agreeing to 0.0137 in
+     xy — and neon is kept in its line table for exactly that reason: it is the
+     known answer the pipeline is checked against before the three gases whose
+     answers nobody knows are trusted. That check is a build gate.
+
+     This ramp is nonetheless still HAND-BUILT and stays that way. It was solved
+     hue-first at maximum saturation, which is not what the script does, and
+     neither of the script's gamut strategies reproduces it: holding the
+     chromaticity gives #ff6954 and clipping gives #ff3d00, against the #ff6b08
+     below. Regenerating neon would repaint every screen in the system to settle
+     a question that is already settled.
 
      Luminance is not free-floating either. Each stop is solved to a contrast
      ratio against --screen (10.5 / 7.0 / 5.2 / 3.4), because rotating hue at
-     constant lightness drops --amber-50 to 2.79:1 and silently fails the 3:1
+     constant lightness drops --emit-50 to 2.79:1 and silently fails the 3:1
      non-text gate. Re-solve, never re-tint. scripts/contrast.mjs is the check.
 
-     The --amber-* prefix is historical and now names the ramp, not the hue —
-     under this palette it is not amber. Renaming is a public API break; see the
-     token table in README.md. */
-  --amber-100: #ffa86d; /* hot highlight / focus — 10.57:1 */
-  --amber-90:  #ff6b08; /* primary discharge    —  7.02:1 */
-  --amber-70:  #dd5800; /* secondary            —  5.22:1 */
-  --amber-50:  #ab4500; /* dim / disabled       —  3.42:1 */
-  --amber-30:  #5b2500; /* trace / ghost        —  1.63:1, decorative */
+     These used to be --amber-*, which named a hue rather than a ramp and was
+     already only historically true here — under this palette the color is not
+     amber, it is neon. With a lavender and a pink in the file it stopped being
+     defensible at all. --amber-* survives as an alias at the bottom of this
+     file, deprecated, removed in 3.0. */
+  --emit-100: #ffa86d; /* hot highlight / focus — 10.57:1 */
+  --emit-90:  #ff6b08; /* primary discharge    —  7.02:1 */
+  --emit-70:  #dd5800; /* secondary            —  5.22:1 */
+  --emit-50:  #ab4500; /* dim / disabled       —  3.42:1 */
+  --emit-30:  #5b2500; /* trace / ghost        —  1.63:1, decorative */
   --on-fill:   #1e0c00;
 
   /* THE GLOW SOURCE. Four points on the discharge hue, as bare "r, g, b" triples
@@ -109,11 +152,11 @@
   --screen-raised: #170e02;
   --screen-well: #060200;
 
-  --amber-100: #ffd052; /* hot highlight / focus — 13.74:1 */
-  --amber-90:  #ffae1e; /* primary discharge    — 10.81:1 */
-  --amber-70:  #cd8817; /* secondary            —  6.81:1 */
-  --amber-50:  #8d5b10; /* dim / disabled       —  3.47:1 */
-  --amber-30:  #4a2f08; /* trace / ghost        —  1.62:1, decorative */
+  --emit-100: #ffd052; /* hot highlight / focus — 13.74:1 */
+  --emit-90:  #ffae1e; /* primary discharge    — 10.81:1 */
+  --emit-70:  #cd8817; /* secondary            —  6.81:1 */
+  --emit-50:  #8d5b10; /* dim / disabled       —  3.47:1 */
+  --emit-30:  #4a2f08; /* trace / ghost        —  1.62:1, decorative */
   --on-fill:   #1a0e00;
 
   --gas-1: 255, 174, 30;
@@ -122,22 +165,125 @@
   --gas-4: 255, 186, 64;
 }
 
+/* --- PLASMA / HELIUM — pale pink / salmon-white.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The line table, its source and
+     the reason this gas uses the line selection it does are in
+     scripts/data/emitters.json.
+
+     CIE 1931 2-deg integral over all 15 listed lines: x=0.3944 y=0.2986.
+     Inside sRGB as measured; no gamut mapping needed.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.40:1 on --emit-90. --- */
+[data-ac-tech="plasma"][data-ac-emitter="helium"] {
+  --screen: #0e0809;
+  --screen-raised: #1b1214;
+  --screen-well: #060404;
+
+  --emit-100: #ffa2b9;
+  --emit-90:  #dc7d96;
+  --emit-70:  #bc6a80;
+  --emit-50:  #925163;
+  --emit-30:  #502a34;
+  --on-fill:  #201216;
+
+  --gas-1: 255, 189, 204;
+  --gas-2: 255, 173, 193;
+  --gas-3: 255, 155, 181;
+  --gas-4: 255, 213, 222;
+}
+
+/* --- PLASMA / ARGON — pale violet-lavender.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The line table, its source and
+     the reason this gas uses the line selection it does are in
+     scripts/data/emitters.json.
+
+     CIE 1931 2-deg integral over 43 of 102 listed lines: x=0.2163 y=0.1047.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 35% toward D65 — the gas is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.37:1 on --emit-90. --- */
+[data-ac-tech="plasma"][data-ac-emitter="argon"] {
+  --screen: #0b0812;
+  --screen-raised: #171222;
+  --screen-well: #050309;
+
+  --emit-100: #c9b0ff;
+  --emit-90:  #af81ff;
+  --emit-70:  #9f5dff;
+  --emit-50:  #8925f1;
+  --emit-30:  #4b1088;
+  --on-fill:  #1b112c;
+
+  --gas-1: 215, 198, 255;
+  --gas-2: 207, 185, 255;
+  --gas-3: 198, 170, 255;
+  --gas-4: 229, 218, 255;
+}
+
+/* --- PLASMA / KRYPTON — pale violet-white.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The line table, its source and
+     the reason this gas uses the line selection it does are in
+     scripts/data/emitters.json.
+
+     CIE 1931 2-deg integral over all 95 listed lines: x=0.3153 y=0.2551.
+     Inside sRGB as measured; no gamut mapping needed.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.35:1 on --emit-90. --- */
+[data-ac-tech="plasma"][data-ac-emitter="krypton"] {
+  --screen: #0b080b;
+  --screen-raised: #181318;
+  --screen-well: #050405;
+
+  --emit-100: #eaa5eb;
+  --emit-90:  #bf86c0;
+  --emit-70:  #a372a3;
+  --emit-50:  #7f587f;
+  --emit-30:  #442e45;
+  --on-fill:  #1b141b;
+
+  --gas-1: 251, 185, 252;
+  --gas-2: 241, 173, 242;
+  --gas-3: 229, 162, 230;
+  --gas-4: 254, 209, 255;
+}
+
 /* Aliases and structural tokens — defined ONCE, for every palette. Anything
    that is the same shape regardless of which gas is in the panel belongs here;
    anything that is a color belongs in a palette block above. */
 :root {
-  --ink: var(--amber-90);
-  --ink-bright: var(--amber-100);
-  --ink-dim: var(--amber-70);
-  --ink-faint: var(--amber-50);
-  --ink-trace: var(--amber-30);
+  --ink: var(--emit-90);
+  --ink-bright: var(--emit-100);
+  --ink-dim: var(--emit-70);
+  --ink-faint: var(--emit-50);
+  --ink-trace: var(--emit-30);
 
   /* Inverse video (solid discharge block, dark text) */
-  --fill: var(--amber-90);
-  --fill-bright: var(--amber-100);
+  --fill: var(--emit-90);
+  --fill-bright: var(--emit-100);
 
-  --stroke: var(--amber-90);
-  --stroke-dim: var(--amber-50);
+  --stroke: var(--emit-90);
+  --stroke-dim: var(--emit-50);
 
   /* No red, no green. Alarm/danger = inverse video + blink, never a new hue. */
+
+  /* DEPRECATED, removed in 3.0. --amber-* named a hue, and the hue was already
+     only historically right — under the default palette the color is neon, not
+     amber. With a lavender, a pink and a violet in this file the name is simply
+     false, so the ramp is --emit-* now. These aliases exist so a consumer
+     overriding or reading the old names keeps working while they migrate.
+
+     One line each, and they resolve per palette for free: --emit-90 is redefined
+     in every block above, so --amber-90 follows whichever palette is active
+     without this list needing to know any of them exist. */
+  --amber-100: var(--emit-100);
+  --amber-90: var(--emit-90);
+  --amber-70: var(--emit-70);
+  --amber-50: var(--emit-50);
+  --amber-30: var(--emit-30);
 }

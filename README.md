@@ -255,10 +255,24 @@ and exists only under plasma, `p3` is a phosphor and exists only under CRT. Ever
 selected by *both*, so a mismatched pair selects nothing rather than quietly rendering the wrong
 hardware.
 
-| tech | emitter | hue | what it is |
-| --- | --- | --- | --- |
-| **`plasma`** *(default)* | **`neon`** | 24° | A monochrome AC plasma panel. The light is neon emitting directly from the gas — no phosphor anywhere in the stack. This is what the six laws describe and what `.ac-bloom` simulates. |
-| **`crt`** | **`p3`** | 38° | The classic amber CRT phosphor: a broad ~590 nm band with real green content. A *different* display technology — a beam exciting a phosphor, which emits and then persists — but it is what most people mean by "amber terminal", it is the ramp the source design system was drawn against, and it pairs with `.ac-crt`. |
+| tech | emitter | CIE x,y | reads as | what it is |
+| --- | --- | --- | --- | --- |
+| **`plasma`** *(default)* | **`neon`** | 0.631, 0.369 | orange-red | A monochrome AC plasma panel. Neon emitting directly from the gas — no phosphor anywhere in the stack. This is what the six laws describe and what `.ac-bloom` simulates. |
+| `plasma` | `helium` | 0.394, 0.299 | pale pink | No manifold dominates — helium's visible lines all fall out of n=3 and n=4 decaying to n=2 at comparable energies. The 587.6 nm yellow carries the luminance; 447.1 and 667.8 nm pull it off the blackbody locus toward purple. |
+| `plasma` | `argon` | 0.216, 0.105 | pale violet-lavender | Most of argon's output is past 700 nm where the eye scores under 0.01, so its 696.5 nm peak is the strongest line but not the colour. What you see is the 415–475 nm group. Also why argon is **dim**. |
+| `plasma` | `krypton` | 0.315, 0.255 | pale violet-white | A blue-violet cluster at 427–450 nm against the 557.0 nm green and the 587.1 nm yellow. Spread that wide integrates close to white. |
+| **`crt`** | **`p3`** | — | amber | The classic amber CRT phosphor: a broad ~590 nm band with real green content. A *different* display technology — a beam exciting a phosphor, which emits and then persists — but it is what most people mean by "amber terminal", it is the ramp the source design system was drawn against, and it pairs with `.ac-crt`. |
+
+The three gas palettes are **computed, not picked**. `scripts/derive-gas.mjs` integrates a cited NIST
+line table against the CIE 1931 2° observer, maps the result into sRGB, and solves each of the five
+stops to its contrast target; `npm test` re-derives them and fails on drift. The line tables, their
+source, and the per-gas line-selection rule with its justification are in
+[`scripts/data/emitters.json`](scripts/data/emitters.json).
+
+Neon and P3 stay hand-built. Neon is in the line table anyway as the pipeline's **known-answer
+gate** — it derives to x=0.6405 y=0.3591 against the x=0.631 y=0.369 established independently years
+earlier, agreeing to 0.0137, and if that ever stops being true the build fails there rather than
+silently shipping three wrong palettes.
 
 > **Deprecated:** `data-ac-gas="neon"` and `data-ac-gas="amber"` still work and will be removed in
 > 3.0. The name was the bug — `amber` was never a gas, it is a CRT phosphor, and calling it one is
@@ -271,7 +285,7 @@ observer puts the discharge at x=0.631 y=0.369 — just outside sRGB, gamut-mapp
 against the 640 nm red group and walks the hue up. 19–31° is the defensible band; 24° is its middle.
 
 Every stop is solved to a **contrast ratio**, never re-tinted — rotating hue at constant lightness
-drops `--amber-50` to 2.79:1 and silently fails the 3:1 non-text gate. `npm run contrast` runs the
+drops `--emit-50` to 2.79:1 and silently fails the 3:1 non-text gate. `npm run contrast` runs the
 [full pair table](#accessibility) against **every** palette independently; a ratio that passes under
 one and fails under another is a build failure.
 
@@ -332,17 +346,17 @@ module.
 Override any of these; see [what you may safely change](#theming).
 
 ```
-                       neon (default)        amber
---screen               #100600               #0d0700
---screen-raised        #1b0c02               #170e02
---screen-well          #060200               #060200
+                  plasma/neon  plasma/helium  plasma/argon  plasma/krypton  crt/p3
+--screen          #100600      #0e0809        #0b0812       #0b080b         #0d0700
+--screen-raised   #1b0c02      #1b1214        #171222       #181318         #170e02
+--screen-well     #060200      #060404        #050309       #050405         #060200
 
---amber-100            #ffa86d               #ffd052   hot highlight, focus
---amber-90             #ff6b08               #ffae1e   primary discharge
---amber-70             #dd5800               #cd8817   secondary
---amber-50             #ab4500               #8d5b10   dim, disabled
---amber-30             #5b2500               #4a2f08   trace, ghost
---on-fill              #1e0c00               #1a0e00
+--emit-100        #ffa86d      #ffa2b9        #c9b0ff       #eaa5eb         #ffd052   hot highlight, focus
+--emit-90         #ff6b08      #dc7d96        #af81ff       #bf86c0         #ffae1e   primary discharge
+--emit-70         #dd5800      #bc6a80        #9f5dff       #a372a3         #cd8817   secondary
+--emit-50         #ab4500      #925163        #8925f1       #7f587f         #8d5b10   dim, disabled
+--emit-30         #5b2500      #502a34        #4b1088       #442e45         #4a2f08   trace, ghost
+--on-fill         #1e0c00      #201216        #1b112c       #1b141b         #1a0e00
 
 --gas-1 … --gas-4      bare "r, g, b" triples the glow is built from
 
@@ -369,9 +383,11 @@ exactly the mean loss of the CRT scanlines it sits beside. `scripts/contrast.mjs
 `colors.css` and cannot see an overlay, so nothing will fail if you raise it. Redo the arithmetic
 first.
 
-The `--amber-*` prefix names **the ramp, not the hue** — it is historical, and under
-`data-ac-tech="plasma"` those tokens are not amber. Renaming is a public API break and has not been
-made; treat the numbers as intensity stops.
+The ramp is `--emit-100` through `--emit-30`. It was `--amber-*` until 2.0: that named a hue rather
+than a ramp, and was already only historically true — under the default palette the colour is neon,
+not amber. With a lavender and a pink in the file it stopped being defensible at all.
+**`--amber-*` survives as a deprecated alias and is removed in 3.0.** The aliases resolve per palette
+for free, since they point at `--emit-*`, which every palette block redefines.
 
 Component-level hooks: `--gap`, `--cols`, `--ac-screen-pad`, `--ac-panel-title-bg`,
 `--ac-meter-value`, `--ac-backdrop`.
@@ -381,9 +397,11 @@ that glows is a lie about the hardware.
 
 ## The six laws
 
-1. **One gas, many intensities.** There is no phosphor in a monochrome plasma panel — the amber is
-   neon emitting directly from the gas. Hierarchy is brightness, inverse video and blink — never hue.
-   There is no red, no green, no "success" color.
+1. **One emitter, many intensities.** There is no phosphor in a monochrome plasma panel — the light
+   is the gas emitting directly. Hierarchy is brightness, inverse video and blink — never hue. There
+   is no red, no green, no "success" color. The law is **per palette**, and always was: a screen
+   shows one emitter's ramp and nothing else. Which emitter — neon's orange-red, argon's lavender,
+   P3's amber — is a choice of hardware, not a second hue on the panel.
 2. **Inverse video is importance.** A solid amber block with dark text is the machine speaking.
    Ration it: two or three per screen.
 3. **Everything is a box.** 2px rules draw the regions. No elevation, no shadows-as-depth.
@@ -467,20 +485,56 @@ gate runs against **every palette**, so none of them ships untested.
 | `--stroke` | `--screen` | 10.81:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
 | `--stroke-dim` | `--screen` | 3.47:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
 
-Every required pair passes. **`--ink-faint` is documented as disabled and decorative only — never
-body text.** The palette was not lightened to hide this.
+#### `data-ac-tech="plasma" data-ac-emitter="helium"`
 
-- **Focus:** a `2px dashed var(--ink-dim)` ring on every interactive class, visible on both `--screen`
-  and inverse-video backgrounds.
-- **Motion:** full `prefers-reduced-motion` support, including the blink. An alarm that only blinked
-  would vanish under it — which is why blink is always paired with inverse video and ✳✳ glyphs. The
-  one thing that keeps rendering is the cell mesh: its shimmer stops, but the grid itself is the
-  shape of the hardware rather than an effect playing over it, so hiding it would change what the
-  panel *is* in response to a motion preference.
-- **Forced colors:** `forced-colors: active` drops every effect and restates borders in `CanvasText`
-  and inverse video in `Highlight`/`HighlightText`, so "the machine is speaking" still reads.
-- **Print:** black on white, 2px rules kept, all effects off. A console screenshot prints legibly.
-- **Reflow:** survives 200% zoom and a 360px viewport with no horizontal scroll.
+| Foreground | Background | Ratio | Needs | Verdict | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--ink` | `--screen` | 7.01:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ink-bright` | `--screen` | 10.52:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ink-dim` | `--screen` | 5.21:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ink-faint` | `--screen` | 3.39:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ink-trace` | `--screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--on-fill` | `--fill` | 6.40:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--on-fill` | `--fill-bright` | 9.59:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ink-bright` | `--screen-well` | 10.83:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ink-faint` | `--screen-well` | 3.49:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ink` | `--screen-raised` | 6.49:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--stroke` | `--screen` | 7.01:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--stroke-dim` | `--screen` | 3.39:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+
+#### `data-ac-tech="plasma" data-ac-emitter="argon"`
+
+| Foreground | Background | Ratio | Needs | Verdict | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--ink` | `--screen` | 7.00:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ink-bright` | `--screen` | 10.53:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ink-dim` | `--screen` | 5.18:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ink-faint` | `--screen` | 3.40:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ink-trace` | `--screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--on-fill` | `--fill` | 6.37:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--on-fill` | `--fill-bright` | 9.58:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ink-bright` | `--screen-well` | 10.88:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ink-faint` | `--screen-well` | 3.52:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ink` | `--screen-raised` | 6.46:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--stroke` | `--screen` | 7.00:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--stroke-dim` | `--screen` | 3.40:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+
+#### `data-ac-tech="plasma" data-ac-emitter="krypton"`
+
+| Foreground | Background | Ratio | Needs | Verdict | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--ink` | `--screen` | 7.01:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ink-bright` | `--screen` | 10.51:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ink-dim` | `--screen` | 5.21:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ink-faint` | `--screen` | 3.42:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ink-trace` | `--screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--on-fill` | `--fill` | 6.35:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--on-fill` | `--fill-bright` | 9.53:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ink-bright` | `--screen-well` | 10.80:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ink-faint` | `--screen-well` | 3.51:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ink` | `--screen-raised` | 6.45:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--stroke` | `--screen` | 7.01:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--stroke-dim` | `--screen` | 3.42:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
 
 ### Known constraints
 

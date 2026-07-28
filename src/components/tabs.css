@@ -36,7 +36,7 @@
 
 .ac-tab:hover {
   color: var(--ink-bright);
-  border-color: var(--amber-100);
+  border-color: var(--ink-bright);
 }
 
 .ac-tab--active,

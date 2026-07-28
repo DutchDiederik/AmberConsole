@@ -108,22 +108,25 @@
           <span class="doc-display__note">585nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled data-ac-peak="587.6 nm">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="helium" data-ac-sims="plasma" data-ac-peak="587.6 nm">
           <span class="doc-display__name">Helium</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Not fitted</span>
+          <span class="doc-display__note">Pale pink 588nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled data-ac-peak="696.5 nm">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="argon" data-ac-sims="plasma" data-ac-peak="696.5 nm">
           <span class="doc-display__name">Argon</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Not fitted</span>
+          <span class="doc-display__note">Lavender 696nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled data-ac-peak="557.0 nm">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="krypton" data-ac-sims="plasma" data-ac-peak="587.1 nm">
           <span class="doc-display__name">Krypton</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Not fitted</span>
+          <span class="doc-display__note">Violet 587nm</span>
         </label>
       </fieldset>
     </div>
@@ -242,9 +245,20 @@
            one phosphor does not behave like the rest of its family. -->
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">Technology</span>
-        <p class="doc-info" data-ac-display-info="plasma">Neon in a sealed gap, struck by a
-          sustain pulse. The gas emits directly — no phosphor in the stack — so the panel lights
-          one hue and varies only how hard it is driven.</p>
+        <p class="doc-info" data-ac-display-info="plasma">A gas in a sealed gap, struck by a
+          sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
+          hue and varies only how hard it is driven.</p>
+        <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
+             deep red, while the panel is plainly lavender — that looks like a bug
+             until you know the eye is doing the arithmetic. -->
+        <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
+          output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
+          strongest line, not the color. What you see is the faint 415–475nm group, a hundred
+          times weaker and a hundred times better placed. It is also why argon is dim.</p>
+        <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
+          visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
+          yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
+          panel reads violet rather than any one of those colors.</p>
         <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
           which emits while struck and then persists. The color belongs to the phosphor, not the
           beam; the P-number names the compound.</p>
@@ -342,11 +356,11 @@
       outside sRGB. That maps to 19°, which is a DC neon tube; a pulsed sustain enriches the 585.2nm line and
       walks it up. 19–31° is the defensible band and 24° is its middle.</p>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="neon" style="gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-100)"></div><span class="doc-mono">--AMBER-100 · #FFA86D</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-90)"></div><span class="doc-mono">--AMBER-90 · #FF6B08</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-70)"></div><span class="doc-mono">--AMBER-70 · #DD5800</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-50)"></div><span class="doc-mono">--AMBER-50 · #AB4500</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-30)"></div><span class="doc-mono">--AMBER-30 · #5B2500</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFA86D</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #FF6B08</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #DD5800</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #AB4500</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #5B2500</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
     </div>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="neon" style="margin-top:16px;gap:12px">
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #100600</span></div>
@@ -361,11 +375,11 @@
       a <em>different</em> display technology — but it is what most people mean by "amber terminal", it is the
       ramp the source design system was drawn against, and it pairs naturally with <code>.ac-crt</code>.</p>
     <div class="doc-demo" data-ac-tech="crt" data-ac-emitter="p3" style="gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-100)"></div><span class="doc-mono">--AMBER-100 · #FFD052</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-90)"></div><span class="doc-mono">--AMBER-90 · #FFAE1E</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-70)"></div><span class="doc-mono">--AMBER-70 · #CD8817</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-50)"></div><span class="doc-mono">--AMBER-50 · #8D5B10</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--amber-30)"></div><span class="doc-mono">--AMBER-30 · #4A2F08</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFD052</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #FFAE1E</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #CD8817</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #8D5B10</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #4A2F08</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
     </div>
     <div class="doc-demo" data-ac-tech="crt" data-ac-emitter="p3" style="margin-top:16px;gap:12px">
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0D0700</span></div>
@@ -374,10 +388,70 @@
       <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1A0E00</span></div>
     </div>
 
-    <p class="doc-dim doc-small" style="margin-top:18px">The <code>--amber-*</code> prefix names the
-      <em>ramp</em>, not the hue — it is historical, and under NEON those tokens are not amber. Adding an
-      emitter, or a whole technology, means adding one block to <code>colors.css</code>: five stops, three
-      surfaces, <code>--on-fill</code>, and the four <code>--gas-N</code> triples the glow is built from.</p>
+
+    <h3 style="margin:32px 0 12px">PLASMA / HELIUM · PALE PINK</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">Helium has no low manifold to dominate the way the heavier gases do — its visible lines all fall out of
+      n=3 and n=4 decaying to n=2, at comparable energies, so nothing outranks the rest. The strong yellow at
+      587.6nm carries the luminance while 447.1nm and 667.8nm pull the result off the blackbody locus toward
+      purple. Integrates to x=0.3944 y=0.2986: a near-white with a pink cast, which is what a helium tube is.</p>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="helium" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFA2B9</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #DC7D96</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #BC6A80</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #925163</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #502A34</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="helium" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen)";border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0E0809</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised)";border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #1B1214</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well)";border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060404</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill)";border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #201216</span></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">PLASMA / ARGON · PALE VIOLET-LAVENDER</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">Argon puts most of its power into the 696–772nm array, where the CIE observer scores under 0.01 — which is
+      why argon is <em>dim</em>, and why its 696.5nm peak is the strongest line but not the colour. What you see
+      is the 415–475nm group, a hundred times weaker on the meter and a hundred times better placed for the eye.
+      x=0.2163 y=0.1047, desaturated 35% toward D65 to fit sRGB: paler here than in the tube.</p>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="argon" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #C9B0FF</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #AF81FF</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #9F5DFF</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #8925F1</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #4B1088</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="argon" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen)";border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0B0812</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised)";border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #171222</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well)";border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #050309</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill)";border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1B112C</span></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">PLASMA / KRYPTON · PALE VIOLET-WHITE</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">A blue-violet cluster at 427–450nm against the 557.0nm green and the 587.1nm yellow. Spread that wide
+      integrates close to white — x=0.3153 y=0.2551 — which is why the panel reads violet rather than any one of
+      those lines. The strongest visible krypton line is 587.1nm, not the 557.0nm that is often quoted.</p>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="krypton" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #EAA5EB</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #BF86C0</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #A372A3</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #7F587F</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #442E45</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="krypton" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen)";border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0B080B</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised)";border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #181318</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well)";border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #050405</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill)";border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1B141B</span></div>
+    </div>
+
+    <p class="doc-dim doc-small" style="margin-top:18px">The ramp is <code>--emit-100</code> through
+      <code>--emit-30</code>. It used to be <code>--amber-*</code>, which named a hue rather than a ramp and was
+      already only historically true — under NEON the colour is not amber. With a lavender and a pink in the
+      file it stopped being defensible at all. <code>--amber-*</code> survives as a deprecated alias and goes in
+      3.0. Adding an emitter, or a whole technology, means adding one block to <code>colors.css</code>: five
+      stops, three surfaces, <code>--on-fill</code>, and the four <code>--gas-N</code> triples the glow is built
+      from — and for the gases that block is generated by <code>scripts/derive-gas.mjs</code>, not typed.</p>
     <p class="doc-dim doc-small">The older <code>data-ac-gas="neon"</code> and
       <code>data-ac-gas="amber"</code> still work and go in 3.0. The name was the bug: AMBER was never a gas,
       it is the P3 CRT phosphor, and calling it one is exactly the confusion the pair above exists to
@@ -387,10 +461,10 @@
     <table class="doc-table">
       <thead><tr><th>TOKEN</th><th>MAPS TO</th><th>USE</th></tr></thead>
       <tbody>
-        <tr><td class="doc-tok">--ink / --ink-bright</td><td class="doc-tok">amber-90 / 100</td><td>Body text; bright for live values and hover.</td></tr>
-        <tr><td class="doc-tok">--ink-dim / --ink-faint</td><td class="doc-tok">amber-70 / 50</td><td>Labels and legends; faint for disabled — and faint never glows.</td></tr>
-        <tr><td class="doc-tok">--fill / --on-fill</td><td class="doc-tok">amber-90 / per palette</td><td>Inverse-video surfaces and the dark text on them.</td></tr>
-        <tr><td class="doc-tok">--stroke / --stroke-dim</td><td class="doc-tok">amber-90 / 50</td><td>All borders, always 2px. Dim for secondary frames.</td></tr>
+        <tr><td class="doc-tok">--ink / --ink-bright</td><td class="doc-tok">emit-90 / 100</td><td>Body text; bright for live values and hover.</td></tr>
+        <tr><td class="doc-tok">--ink-dim / --ink-faint</td><td class="doc-tok">emit-70 / 50</td><td>Labels and legends; faint for disabled — and faint never glows.</td></tr>
+        <tr><td class="doc-tok">--fill / --on-fill</td><td class="doc-tok">emit-90 / per palette</td><td>Inverse-video surfaces and the dark text on them.</td></tr>
+        <tr><td class="doc-tok">--stroke / --stroke-dim</td><td class="doc-tok">emit-90 / 50</td><td>All borders, always 2px. Dim for secondary frames.</td></tr>
       </tbody>
     </table>
     </div>
@@ -594,11 +668,11 @@
     <div class="doc-grid3" style="margin-top:4px">
       <div class="doc-demo doc-demo--col"><span class="doc-cap">SPACING · 4 8 12 16 24 32 48</span>
         <div style="display:flex;flex-direction:column;gap:8px;width:100%">
-          <div style="height:12px;width:4px;background:var(--amber-50)"></div>
-          <div style="height:12px;width:8px;background:var(--amber-50)"></div>
-          <div style="height:12px;width:16px;background:var(--amber-50)"></div>
-          <div style="height:12px;width:32px;background:var(--amber-50)"></div>
-          <div style="height:12px;width:48px;background:var(--amber-50)"></div>
+          <div style="height:12px;width:4px;background:var(--emit-50)"></div>
+          <div style="height:12px;width:8px;background:var(--emit-50)"></div>
+          <div style="height:12px;width:16px;background:var(--emit-50)"></div>
+          <div style="height:12px;width:32px;background:var(--emit-50)"></div>
+          <div style="height:12px;width:48px;background:var(--emit-50)"></div>
         </div>
         <span class="doc-faint doc-small">4px half-cells of the character grid.</span></div>
       <div class="doc-demo doc-demo--col"><span class="doc-cap">STROKE · 2PX ONLY</span>

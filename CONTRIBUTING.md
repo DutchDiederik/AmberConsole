@@ -30,7 +30,14 @@ npm run test:visual  # 14 Playwright captures           (needs npm install)
 ```
 
 `npm test` runs the prohibitions gate (no second hue, no svg, no emoji, no transitions in
-components), recomputes the contrast table against both palettes, and rebuilds `dist/`.
+components), re-derives the generated gas palettes and fails on drift, recomputes the contrast table
+against every palette, and rebuilds `dist/`.
+
+**The gas palettes are generated.** `plasma/helium`, `plasma/argon` and `plasma/krypton` are computed
+by `scripts/derive-gas.mjs` from the line tables in `scripts/data/emitters.json` — do not hand-edit
+those blocks in `colors.css`, change the line table or the selection rule and re-run `npm run gas`.
+Neon and `crt/p3` are hand-built and stay that way; neon is in the line table only as the
+known-answer gate the pipeline is checked against.
 
 `dist/` is committed on purpose: the demo pages link it directly and GitHub Pages serves them
 without a build step. Rebuild before you commit or the demos will be stale.

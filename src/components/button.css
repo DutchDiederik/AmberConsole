@@ -27,7 +27,7 @@
 
 .ac-btn:hover {
   color: var(--ink-bright);
-  border-color: var(--amber-100);
+  border-color: var(--ink-bright);
   box-shadow: var(--glow-box);
 }
 

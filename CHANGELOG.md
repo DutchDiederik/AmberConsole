@@ -6,6 +6,49 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Added — three plasma gases
+
+- **`plasma/helium`, `plasma/argon`, `plasma/krypton`**, computed rather than picked. Helium is a
+  pale pink (x=0.394 y=0.299), argon a pale violet-lavender (x=0.216 y=0.105), krypton a pale
+  violet-white (x=0.315 y=0.255). All three clear every required contrast pair, because the stops are
+  *solved to* their ratios rather than chosen and checked.
+- **`scripts/derive-gas.mjs` + `scripts/data/emitters.json`** — NIST line table → CIE 1931 2°
+  integral → sRGB gamut map → five stops solved against that palette's own panel black. Zero
+  dependencies. `npm test` re-derives and fails on drift, including the hex printed as text under
+  every swatch in the guide, which is documentation that could otherwise disagree with the token it
+  documents and look fine doing it.
+- **A known-answer gate.** Neon is in the line table but is *not* generated (`emit: false`). It is
+  there to prove the pipeline: it derives to x=0.6405 y=0.3591 against the x=0.631 y=0.369 this
+  project established independently, agreeing to 0.0137, and the build fails if that ever stops being
+  true. Finding out the colour maths broke against an answer we know beats staring at three palettes
+  whose answers nobody knows.
+
+### Changed — the saturation rule
+
+- **`colors.css` no longer claims saturation is held at 100%.** That was true of the two emitters it
+  described and false in general — a special case wearing a rule's clothes. Helium, argon and krypton
+  are multi-line emitters whose light genuinely *is* pale, and forcing them to 100% would mean
+  inventing a saturation the gas does not have. Replaced by the rule it was a special case of:
+  **chromaticity is derived from the emitter's spectrum and never adjusted; saturation is an output,
+  not a setting.** Neon still solves to 100% under it, and the old `--amber-100` exception ("a hotter
+  cell can only get there by whitening") stops being an exception and becomes an instance.
+- Stated explicitly alongside it: **hue comes from the spectrum, luminance from the drive level.**
+  Argon really does emit very little visible light — that is a fact about radiant efficiency, not
+  about what colour the cell is. Drive it harder and it is still argon.
+- **Law 1 is now written as per-palette**, which it always was — `crt/p3` established that at 38°.
+  Its prose narrated neon specifically and would have read as false beside a lavender panel.
+
+### Changed — token names
+
+- **The ramp is `--emit-100` … `--emit-30`.** `--amber-*` named a hue rather than a ramp and was
+  already only historically true; with a lavender and a pink in the file it stopped being defensible.
+  `--amber-*` survives as a deprecated alias, removed in 3.0, and resolves per palette for free since
+  it points at `--emit-*`.
+- `button.css` and `tabs.css` read `var(--amber-100)` where they meant `--ink-bright`; repointed. No
+  component reaches past the semantic aliases now.
+- **Krypton's emission peak corrected to 587.1 nm.** NIST gives 587.09 at intensity 3000 as the
+  strongest visible Kr I line, against 557.03 at 2000.
+
 ### Added
 
 - **`.ac-setup`** — the permanently-open control board under the menu bar. It does not open, close,
