@@ -44,6 +44,7 @@
   <span class="ac-nav__mark">Amber Console</span>
   <div class="ac-nav__links">
     <a class="ac-nav__link" href="index.html">Console</a>
+    <a class="ac-nav__link" href="server.html">Server</a>
     <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
   </div>
   <span class="ac-nav__meta">
@@ -138,10 +139,11 @@
       <fieldset class="doc-displays">
         <legend class="ac-sr-only">CRT phosphors</legend>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled data-ac-peak="525 nm">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
           <span class="doc-display__name">P1</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Not fitted</span>
+          <span class="doc-display__note">Green 525nm</span>
         </label>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display"
@@ -151,34 +153,39 @@
           <span class="doc-display__note">Amber 590nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled data-ac-peak="450+560 nm">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
           <span class="doc-display__name">P4</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Not fitted</span>
+          <span class="doc-display__note">White 450+560nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled data-ac-peak="450/558 nm">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
           <span class="doc-display__name">P7</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Not fitted</span>
+          <span class="doc-display__note">Blue+green 450/558nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled data-ac-peak="460 nm">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
           <span class="doc-display__name">P11</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Not fitted</span>
+          <span class="doc-display__note">Blue 460nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled data-ac-peak="520 nm">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
           <span class="doc-display__name">P31</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Not fitted</span>
+          <span class="doc-display__note">Green 520nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" disabled data-ac-peak="525 nm">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
           <span class="doc-display__name">P39</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Not fitted</span>
+          <span class="doc-display__note">Long green 525nm</span>
         </label>
       </fieldset>
     </div>
@@ -265,6 +272,25 @@
         <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
           which emits while struck and then persists. The color belongs to the phosphor, not the
           beam; the P-number names the compound.</p>
+        <p class="doc-info" data-ac-display-info="crt/p7" hidden>Two coatings, not one. The beam writes into a blue ZnS:Ag layer that decays in
+          microseconds, and that layer's own photons pump a yellow-green one behind it which holds
+          for seconds. So the ink is blue and the halo is green: text you are reading is being
+          re-struck sixty times a second, and text that stops being written leaves only the glow.
+          This is the radar phosphor — the flash gives position, the trail gives history.</p>
+        <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
+          and leaves the colour alone — this palette and P1 are the same green, and differ only in
+          how long it lasts. At hundreds of milliseconds the screen is still near full brightness
+          when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
+          paid for in smear.</p>
+        <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
+          P11 was fitted to screens meant to be photographed rather than watched — and watched, it
+          is the worst screen here. It decays in tens of microseconds, three orders below a
+          refresh interval, so the screen is genuinely dark between frames. Short persistence and
+          heavy flicker are the same fact.</p>
+        <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
+          mixed into one coating, emitting together, which the eye integrates to white. That is
+          what separates it from P7 — two powders mixed have one colour, two powders layered emit
+          in sequence and the colour changes as you watch.</p>
       </div>
     </div>
 
@@ -558,43 +584,89 @@
         <span class="doc-faint doc-small">steps(1) hard on/off, 1.1s. Never a fade — until <code>.ac-afterglow</code> is on, which softens the OFF edge only. The ON edge stays instant either way.</span></div>
     </div>
 
-    <h3 style="margin:32px 0 12px">PLASMA AFTERGLOW</h3>
-    <p class="doc-dim">A gas gap that stops being driven does not go dark on the next refresh. The
-      discharge leaves excited and metastable neon behind it, and that population keeps emitting
-      while it relaxes and recombines — the afterglow, which is a property of the gas and not of any
-      coating. Most of the light is gone in the first fifth of a second, then a short dim tail.
+    <h3 style="margin:32px 0 12px">AFTERGLOW AND PERSISTENCE</h3>
+    <p class="doc-dim">Nothing on either technology goes dark on the next refresh, and they do not
+      go dark for the same reason. A gas gap that stops being driven leaves excited and metastable
+      atoms behind, and that population keeps emitting while it relaxes and recombines — an
+      afterglow that is a property of the gas and of no coating at all. A phosphor is the opposite
+      case: the persistence <em>is</em> the coating, it is what the compound was chosen for, and it
+      ranges over four orders of magnitude between the parts on the board above. Most of the light
+      is gone early either way, then a tail whose length is the whole difference between them.
       <code>.ac-afterglow</code> is that relaxation, and it is several separate things because
-      persistence is six separate phenomena — and only four are reachable from CSS alone.</p>
+      persistence is seven separate phenomena. <strong>Four of them are pure CSS, and three are
+      not</strong> — and the three are not withheld, they are genuinely not expressible. Nothing in
+      the cascade remembers the string a readout held one frame ago; scroll <em>velocity</em> cannot
+      be derived from a scroll timeline, which exposes position only; and
+      <code>startViewTransition</code> is the one API that hands you a picture of the screen you just
+      replaced. Those three live in <code>amber-console.effects.js</code>, which is optional and
+      separate from <code>amber-console.js</code> — the stylesheet alone still decays, de-energizes,
+      throbs and sweeps.</p>
+    <p class="doc-dim"><strong>How long it lasts belongs to the emitter, not to this file.</strong>
+      A palette that knows its own decay declares it, and every timing below is derived from that one
+      number — so the panel does not have a persistence setting, it has whatever persistence the
+      hardware in it had. Which is also why <em>persistence and flicker are the same number read in
+      two directions</em>: a screen redraws every frame, and what is still lit when the next frame
+      arrives is the smear while what is missing is the flicker. A screen cannot be steady and
+      smear-free at once. P11 is fully dark between frames — no persistence, maximum flicker, which
+      is why it was fitted to tubes meant to be <em>photographed</em> rather than watched. P39 is
+      still at 91% — no flicker at any refresh rate, paid for in smear, which is why it went on
+      radar. Both come off one decay constant and cannot disagree.</p>
+    <p class="doc-dim">Two consequences worth knowing before the switches surprise you. The long
+      phosphors are <strong>capped where you wait on them and uncapped where you do not</strong>:
+      P7's tail is three seconds, which is correct and would be an unusable dialog close, so anything
+      that has to actually leave is clamped to 250ms and the ghosts run the full three. And a
+      long-persistence phosphor does not decay exponentially — it follows a power law, a fast knee
+      over a very long tail, which no single easing curve expresses. Those palettes ship a
+      <code>linear()</code> sampled from the decay model itself.</p>
+    <p class="doc-dim"><strong>P7 is the one that is worth turning on.</strong> It is two coatings
+      rather than one: the beam writes into a blue layer that decays in microseconds, and that
+      layer's own photons pump a yellow-green layer behind it that holds for seconds. So the ink is
+      blue and the halo is green — text you are reading is being re-struck sixty times a second, and
+      text that stops being written leaves only the glow behind. It is the only palette here whose
+      halo is a different spectrum from its ink, which inverts a rule the rest of the system relies
+      on, and it is the reason a radar sweep is still legible when the beam comes round again.</p>
     <div class="doc-grid3" style="margin-top:20px">
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">1 · DECAY-OUT</span>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">1 · DECAY-OUT — CSS</span>
         <span class="doc-faint doc-small">Anything that disappears drains instead of switching off —
           a tab panel, a closing dialog, an acknowledged alarm. Pure CSS, and the one part that
           carries the effect on its own. The transition is declared on the hidden state only, so
           hiding decays and showing snaps back instantly. Nothing here ever fades <em>in</em>.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">2 · GHOSTING</span>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">2 · GHOSTING — effects.js</span>
         <span class="doc-faint doc-small">Text rewritten in place leaves the previous value behind
           for a beat. Watch the clock and the frame counter on the console page. This is the one part
           CSS cannot do — nothing in the cascade remembers the old string — so a MutationObserver in
           <code>amber-console.js</code> parks a copy at the rect it occupied.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">3 · RESIDUAL PATCHES</span>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">3 · RESIDUAL PATCHES — CSS</span>
         <span class="doc-faint doc-small">The glass never sits perfectly uniform; charge relaxes
           unevenly. Four overlapping pools at 3% over the amber, drifting on a 47s cycle. You do not
           notice it directly — you notice when it stops.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">4 · THE BLINK OFF-EDGE</span>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">4 · THE BLINK OFF-EDGE — CSS</span>
         <span class="doc-faint doc-small">A blinking alarm is the thing on the panel that stops being
           driven most often — once a second, forever — so it is the last place the decay should be
           missing. <code>.ac-blink</code> stays <code>steps(1)</code> by default; with persistence on,
           only the <em>ON</em> edge stays hard. Instant up, curve down.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">5 · DE-ENERGIZING</span>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">5 · DE-ENERGIZING — CSS</span>
         <span class="doc-faint doc-small">The commonest light-off event on a control panel is not a
           node disappearing, it is a lamp going out: a pressed button releasing, a tab deselecting,
-          an interlock unchecking, the pointer leaving a control. Those never hide, so decay-out
-          never saw them and they snapped off in one frame while everything around them relaxed.
-          Press RUN then STOP on the console and watch the pad drain.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">6 · SCROLL SMEAR</span>
+          an interlock unchecking. <strong>Split by what each property describes:</strong> the
+          structure — background, border, colour — releases fast so the control reads as off
+          immediately, while the <em>halo</em> decays on the full uncapped tail, because the halo is
+          the scattered light that persists. Under P39 a released button glows for a second and a
+          half. Hover is excluded on purpose — a wake behind the cursor reads as lag.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">6 · SCROLL SMEAR — effects.js</span>
         <span class="doc-faint doc-small">Scrolling hands every cell on the panel a new value at
           once, which is the largest light-off event there is, and the image trails. Scaled by real
-          scroll speed and drained when you stop. Scroll this page briskly.</span></div>
+          scroll <em>velocity</em>, which is why it cannot be CSS: a scroll timeline exposes
+          position, and velocity is not derivable from it. Scroll this page briskly.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">7 · PAGE PERSISTENCE — CSS</span>
+        <span class="doc-faint doc-small">The only place a <em>real framebuffer snapshot</em> is
+          available with no script at all. Everything above decays an element — something the cascade
+          can name. A phosphor decays whatever was drawn, including the parts of the screen no
+          element owns. Navigate to the console and back under P39 and the old page drains behind the
+          new one, per pixel. Needs one line —
+          <code>@view-transition { navigation: auto }</code> — in your own stylesheet, because it is
+          a document-level switch and linking a stylesheet must not rewrite how your site
+          navigates.</span></div>
     </div>
     <div class="doc-grid2" style="margin-top:16px">
       <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
@@ -611,6 +683,36 @@
           on is instant.</span></div>
     </div>
     <code class="doc-code">&lt;div class="ac-screen ac-afterglow"&gt;&lt;span class="ac-persist"&gt;&lt;/span&gt; … &lt;/div&gt;</code>
+
+    <h3 style="margin:32px 0 12px">THE PPI SWEEP</h3>
+    <p class="doc-dim">The one widget where persistence <em>is</em> the whole thing, and the one
+      place a decaying trail is achievable in pure CSS. The obvious way to draw a radar wake is to
+      stamp a mark every frame and fade each one, which is a per-pixel framebuffer problem and needs
+      a canvas. But a PPI trail is not a history of marks — it is one continuous falloff behind a
+      rotating line, and a <code>conic-gradient</code> already is that falloff. Rotate it and the
+      decay comes for free, on the GPU, in one element, with no script at all.</p>
+    <p class="doc-dim">The angular stops are the phosphor's decay curve read in degrees rather than
+      milliseconds, which is a substitution rather than a pun: the beam turns at a constant rate, so
+      angle behind the beam <em>is</em> time since that bearing was painted. Same curve, same
+      fast-knee-long-tail shape, different axis. The rotation period comes off
+      <code>--ac-persist-tail</code>, so the sweep returns about as the trail finishes draining —
+      which is precisely the trade P7 and P39 were bought to make.</p>
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">PPI — NO SCRIPT</span>
+        <div class="ac-sweep" role="img" aria-label="Search radar sweep, no contacts"><span class="ac-sweep__beam"></span></div>
+        <span class="doc-faint doc-small">Switch the display to P7 and the leading edge turns blue
+          against a yellow-green wake — that is <code>--gas-flash</code> against
+          <code>--gas-1</code>, the two coatings doing exactly what they did on the real tube. Every
+          other emitter has one coating, so its leading edge is simply the brighter end of its own
+          trail.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">WHY IT SLOWS DOWN</span>
+        <span class="doc-faint doc-small">Under P39 the sweep takes 3s and under P7 4.5s, because
+          both are scaled from the tail. Neon would scale to 0.16s, which is not a radar but a
+          strobe, so the period has a floor. A face whose trail has not drained by the time the beam
+          returns never reads as dark, and stops looking like a radar at all — it looks like a
+          spinning pie chart.</span></div>
+    </div>
+    <code class="doc-code">&lt;div class="ac-sweep" role="img" aria-label="Search radar"&gt;&lt;span class="ac-sweep__beam"&gt;&lt;/span&gt;&lt;/div&gt;</code>
     <p class="doc-when">Assuming a removed node ghosts itself. The observer only sees text change;
       a node that stops existing has no rect left to pin a ghost to, so ghost it
       <em>before</em> you remove it — <code>AmberConsole.afterglow(row)</code>, then
@@ -1023,5 +1125,6 @@
 </dialog>
 
 <script src="../dist/amber-console.global.js"></script>
+<script src="../dist/amber-console.effects.global.js"></script>
 </body>
 </html>

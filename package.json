@@ -22,7 +22,10 @@
     "*.css",
     "./dist/amber-console.js",
     "./dist/amber-console.global.js",
-    "./src/amber-console.js"
+    "./dist/amber-console.effects.js",
+    "./dist/amber-console.effects.global.js",
+    "./src/amber-console.js",
+    "./src/amber-console.effects.js"
   ],
   "exports": {
     ".": "./dist/amber-console.css",
@@ -31,6 +34,8 @@
     "./min": "./dist/amber-console.min.css",
     "./js": "./dist/amber-console.js",
     "./js/global": "./dist/amber-console.global.js",
+    "./effects": "./dist/amber-console.effects.js",
+    "./effects/global": "./dist/amber-console.effects.global.js",
     "./src/*": "./src/*",
     "./fonts/*": "./fonts/*",
     "./package.json": "./package.json"

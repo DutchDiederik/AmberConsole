@@ -31,8 +31,66 @@
     "A measured SPD of an actual low-pressure tube would supersede all of it."
   ],
 
+  "$phosphors": [
+    "THE CRT PHOSPHORS ARE A DIFFERENT KIND OF ENTRY, AND A WEAKER ONE. Read this",
+    "before trusting a number below the gases.",
+    "",
+    "A gas emits LINES and this file lists them from NIST ASD, an external measured",
+    "source. A phosphor emits a BAND, and no equivalent public table of band shapes",
+    "exists — what is published for the P-numbers is the resulting CHROMATICITY",
+    "(EIA/JEDEC Publication No. 16, 'Optical Characteristics of Cathode Ray Tube",
+    "Screens', and the manufacturer data sheets behind it).",
+    "",
+    "So the direction of derivation is REVERSED for these entries, and that has to",
+    "be said out loud: the gases go spectrum -> colour, and the phosphors go",
+    "published colour -> band. Each `bands` block below is the single energy-",
+    "Gaussian that best reproduces that phosphor's published x,y under",
+    "scripts/lib/cie.mjs. It is a BACK-SOLVED band, not a measured one.",
+    "",
+    "WHICH MAKES `validate` A CONSISTENCY CHECK HERE, NOT A KNOWN-ANSWER GATE.",
+    "For neon, `validate` compares the pipeline against a colour established",
+    "independently of it, and that is real evidence. For a phosphor the band was",
+    "fitted to the very coordinate it is checked against, so passing proves only",
+    "that nobody has since broken the CMF table or the integration. That is worth",
+    "having and it is not the same claim. Neon remains the pipeline's only true",
+    "known-answer gate.",
+    "",
+    "WHAT IS NEVERTHELESS NON-CIRCULAR, because it was not put in by hand:",
+    "",
+    "  1. P1 and P39 were fitted INDEPENDENTLY, from different published",
+    "     coordinates, and converged on the same band — 529nm/48nm and 529nm/52nm.",
+    "     They should: P39 is P1's chemistry, Zn2SiO4:Mn with arsenic added to",
+    "     lengthen the decay, not to change the colour. The fit reproduced a fact",
+    "     about the compounds that was never given to it.",
+    "  2. P11's fitted ZnS:Ag band is reused UNCHANGED as P4's blue component and",
+    "     as P7's flash layer, because all three are the same compound. P4's white",
+    "     point then falls out at a residual of 0.0001. A wrong blue band would not",
+    "     compose correctly into a different phosphor's white.",
+    "  3. P3's fit lands at 594nm/110nm against the 'broad ~590nm band with real",
+    "     green content' that src/tokens/colors.css described years earlier and in",
+    "     prose. Neither number came from the other.",
+    "  4. Every fitted width is physically ordinary for its compound class: the",
+    "     silicates narrow (~50nm), the sulfides broad (76-130nm).",
+    "",
+    "A measured SPD of a real screen would supersede all of it and should.",
+    "",
+    "PERSISTENCE. `decay.to10` is the time to fall to 10% of peak emission, in",
+    "MILLISECONDS for every entry — so a microsecond-class sulfide reads 0.035 and",
+    "a long-persistence silicate reads 400. Those two live on one scale on purpose:",
+    "the four orders of magnitude between them ARE the design, and hiding them",
+    "behind per-entry units would hide the only thing distinguishing these",
+    "phosphors from each other once the colour is settled.",
+    "",
+    "THE PERSISTENCE CLASS IS SOLID; THE EXACT FIGURE IS NOT. That a sulfide decays",
+    "in microseconds and willemite:As in hundreds of milliseconds is the documented",
+    "reason each was fitted to the equipment it was fitted to, and nothing in this",
+    "system depends on more precision than that. The specific `to10` values are",
+    "PROVISIONAL pending a data-sheet citation per phosphor, and are marked so."
+  ],
+
   "emitters": {
     "neon": {
+      "tech": "plasma",
       "label": "Neon",
       "peak": "585.2 nm",
       "appearance": "orange-red",
@@ -78,6 +136,7 @@
     },
 
     "helium": {
+      "tech": "plasma",
       "label": "Helium",
       "peak": "587.6 nm",
       "appearance": "pale pink / salmon-white",
@@ -99,6 +158,7 @@
     },
 
     "argon": {
+      "tech": "plasma",
       "label": "Argon",
       "peak": "696.5 nm",
       "appearance": "pale violet-lavender",
@@ -154,6 +214,7 @@
     },
 
     "krypton": {
+      "tech": "plasma",
       "label": "Krypton",
       "peak": "587.1 nm",
       "appearance": "pale violet-white",
@@ -185,6 +246,210 @@
         [686.96, 20], [690.47, 100], [705.73, 10], [722.41, 100], [728.73, 80],
         [742.55, 60], [748.69, 100], [749.36, 20], [749.42, 30], [758.74, 1000],
         [760.15, 2000], [768.52, 400], [769.45, 500], [774.68, 50], [777.63, 40]
+      ]
+    },
+
+    "p1": {
+      "tech": "crt",
+      "label": "P1",
+      "peak": "525 nm",
+      "appearance": "willemite green",
+      "bands": [{ "nm": 529, "fwhm": 48 }],
+      "decay": { "to10": 24, "class": "medium", "provisional": true },
+      "validate": { "x": 0.218, "y": 0.712, "tol": 0.02 },
+      "why": [
+        "Zn2SiO4:Mn — willemite, the oldest CRT phosphor and the one the early",
+        "oscilloscopes and radar indicators were built around. A silicate host, so a",
+        "narrow band: 48nm against the sulfides' 76-130nm.",
+        "",
+        "Fitted independently of P39 and landed on the same band, which is the check",
+        "that matters here — see note 1 in $phosphors."
+      ]
+    },
+
+    "p3": {
+      "tech": "crt",
+      "label": "P3",
+      "peak": "590 nm",
+      "appearance": "amber",
+      "bands": [{ "nm": 594, "fwhm": 110 }],
+      "decay": { "to10": 25, "class": "medium", "provisional": true },
+      "emit": false,
+      "validate": { "x": 0.523, "y": 0.469, "tol": 0.02 },
+      "why": [
+        "REFERENCE ONLY - THIS PALETTE IS NOT GENERATED, on exactly the same footing",
+        "as neon and for the same reason. P3's ramp is the one the source design",
+        "system was drawn against; regenerating it would repaint every amber screen",
+        "in the framework to settle a question that is already settled.",
+        "",
+        "What it IS here for is --gas-scatter. That token has been carrying neon's",
+        "1.00 as an admitted placeholder since the gas pass, because a band has",
+        "nothing for a line integral to run over. It does now, and the number is",
+        "derived rather than borrowed.",
+        "",
+        "The fit landing at 594nm/110nm against the 'broad ~590nm band with real",
+        "green content' that colors.css has described in prose since long before",
+        "this file existed is note 3 in $phosphors."
+      ]
+    },
+
+    "p4": {
+      "tech": "crt",
+      "label": "P4",
+      "peak": "450+560 nm",
+      "appearance": "white",
+      "bands": [
+        { "nm": 466, "fwhm": 76, "weight": 1 },
+        { "nm": 572, "fwhm": 130, "weight": 0.5 }
+      ],
+      "decay": { "to10": 0.06, "class": "medium-short", "provisional": true },
+      "validate": { "x": 0.27, "y": 0.3, "tol": 0.02 },
+      "why": [
+        "The television phosphor, and the reason monochrome sets looked white rather",
+        "than any one colour: a BLEND of ZnS:Ag blue and (Zn,Cd)S:Ag yellow, mixed to",
+        "sit near the white point. Two bands, one screen, one decay — which is what",
+        "separates it from P7 and is worth being precise about, because 'two",
+        "emitters' describes both and means something different in each.",
+        "",
+        "P4 is two powders MIXED, emitting together, and the eye integrates them into",
+        "white. P7 is two powders LAYERED, emitting in sequence, and the eye sees the",
+        "colour change with time. A blend has one colour; a cascade has two.",
+        "",
+        "The blue component is P11's fitted band, reused unchanged because it is the",
+        "same compound. Only the yellow band and the mix ratio were fitted, and the",
+        "white point then falls out at a residual of 0.0001 — note 2 in $phosphors.",
+        "",
+        "Later tubes replaced the cadmium sulfide with ZnS:Cu,Al on health grounds,",
+        "which moves the yellow band slightly. This entry is the original."
+      ]
+    },
+
+    "p7": {
+      "tech": "crt",
+      "label": "P7",
+      "peak": "450/558 nm",
+      "appearance": "blue flash over a yellow-green afterglow",
+      "cascade": true,
+
+      "bands": [{ "nm": 466, "fwhm": 76 }],
+      "decay": { "to10": 0.04, "class": "short", "provisional": true },
+      "validate": { "x": 0.139, "y": 0.148, "tol": 0.02 },
+
+      "afterglow": {
+        "bands": [{ "nm": 541, "fwhm": 108 }],
+        "decay": { "to10": 400, "tail": 3000, "class": "long", "model": "becquerel", "n": 1.4, "provisional": true },
+        "validate": { "x": 0.357, "y": 0.537, "tol": 0.02 }
+      },
+
+      "why": [
+        "THE RADAR PHOSPHOR, and the only entry in this file whose colour is not one",
+        "colour. Two coatings, not a mixture:",
+        "",
+        "  ZnS:Ag        the FLASH. A blue layer facing the beam, decaying in tens of",
+        "                microseconds. This is what the beam writes.",
+        "  (Zn,Cd)S:Cu   the AFTERGLOW. A yellow-green layer behind it, decaying over",
+        "                hundreds of milliseconds with a visible tail running to",
+        "                seconds. This is what the screen holds.",
+        "",
+        "`cascade: true` records the mechanism, and it is the reason the two are not",
+        "independently driven: the beam excites the blue layer, and the BLUE LAYER'S",
+        "OWN PHOTONS pump the yellow-green one behind it. The afterglow is downstream",
+        "of the flash, so it can never appear without it and always outlives it.",
+        "",
+        "WHY THIS WAS WORTH BUILDING. A radar PPI sweeps once every few seconds. A",
+        "single-layer phosphor either decays before the sweep comes round — leaving",
+        "nothing to look at — or persists so long the display smears into an unusable",
+        "blur. P7 does both jobs with two materials: a sharp bright blue mark at the",
+        "instant of the sweep, and a slowly-fading yellow-green trail behind it that",
+        "is still legible when the beam returns. The operator reads position from the",
+        "flash and history from the glow, in one glance.",
+        "",
+        "WHAT IT MEANS FOR THIS SYSTEM. `bands` is the flash and drives the --emit-*",
+        "ramp, because the flash is what a beam WRITES and therefore what text is.",
+        "`afterglow.bands` drives --gas-* and the ghost hue, because the glow is what",
+        "the screen HOLDS. That split is not an interpretation of the hardware, it is",
+        "the hardware, and it inverts the rule at the top of src/tokens/effects.css",
+        "that the halo tracks the emitter — which is true of every other entry here",
+        "and false of this one by construction.",
+        "",
+        "It also predicts the look correctly, which is the part worth checking. On a",
+        "real P7 tube static text is rewritten sixty times a second, so it is",
+        "CONTINUOUSLY flashed blue and CONTINUOUSLY pumping the layer beneath: static",
+        "text reads as blue-white ink inside a yellow-green halo. Text that stops",
+        "being rewritten loses the blue on the very next frame and leaves the",
+        "yellow-green behind for seconds. Both fall straight out of the ink/halo",
+        "split above without anything being special-cased."
+      ]
+    },
+
+    "p11": {
+      "tech": "crt",
+      "label": "P11",
+      "peak": "460 nm",
+      "appearance": "blue",
+      "bands": [{ "nm": 466, "fwhm": 76 }],
+      "decay": { "to10": 0.035, "class": "medium-short", "provisional": true },
+      "validate": { "x": 0.139, "y": 0.148, "tol": 0.02 },
+      "why": [
+        "ZnS:Ag. A photographic-recording phosphor: blue is where film emulsion is",
+        "most sensitive, so P11 was fitted to tubes whose screens were meant to be",
+        "photographed rather than watched.",
+        "",
+        "Watched, it is the worst screen in this file, and for a reason the system",
+        "should render rather than hide. It decays in tens of microseconds — three",
+        "orders below a refresh interval — so the screen is genuinely dark between",
+        "frames and the flicker is at maximum. Short persistence and heavy flicker",
+        "are the same fact; see the modulation-depth note in scripts/derive-gas.mjs.",
+        "",
+        "Its fitted band is the ZnS:Ag reference for this file, reused unchanged in",
+        "P4 and in P7's flash layer."
+      ]
+    },
+
+    "p31": {
+      "tech": "crt",
+      "label": "P31",
+      "peak": "520 nm",
+      "appearance": "green",
+      "bands": [{ "nm": 513, "fwhm": 78 }],
+      "decay": { "to10": 0.038, "class": "medium-short", "provisional": true },
+      "validate": { "x": 0.21, "y": 0.53, "tol": 0.02 },
+      "why": [
+        "ZnS:Cu — the green everybody actually pictures when they picture a terminal",
+        "or a laboratory oscilloscope. The highest luminous efficiency of any",
+        "phosphor here, sitting near the peak of the photopic curve, which is why it",
+        "displaced the willemites for anything meant to be looked at directly.",
+        "",
+        "A sulfide, so a broad band (78nm) against P1's silicate 48nm, and that width",
+        "is what pulls it off the spectral locus to a green a screen can actually be",
+        "rather than a laser line."
+      ]
+    },
+
+    "p39": {
+      "tech": "crt",
+      "label": "P39",
+      "peak": "525 nm",
+      "appearance": "yellow-green, long persistence",
+      "bands": [{ "nm": 529, "fwhm": 52 }],
+      "decay": { "to10": 400, "tail": 2000, "class": "long", "model": "becquerel", "n": 1.6, "provisional": true },
+      "validate": { "x": 0.223, "y": 0.698, "tol": 0.02 },
+      "why": [
+        "Zn2SiO4:Mn,As — P1's willemite with arsenic added. The arsenic lengthens the",
+        "decay by orders of magnitude and leaves the colour where it was, which is",
+        "why this entry and P1 fit to the same band from different published",
+        "coordinates (note 1 in $phosphors).",
+        "",
+        "Fitted to slow-refresh terminals and radar indicators for one reason: at a",
+        "decay of hundreds of milliseconds the screen is still near full brightness",
+        "when the next refresh arrives, so there is no flicker to see at any refresh",
+        "rate. It buys that with smear — anything that moves drags a tail. That trade",
+        "is the whole character of the phosphor and both halves come off one number.",
+        "",
+        "`model: becquerel` marks the decay as a power law, I = I0/(1+t/t0)^n, rather",
+        "than an exponential. Long-persistence phosphors have a fast knee and a very",
+        "long tail, which no single cubic-bezier can express — the reason the CSS",
+        "emits a sampled linear() easing instead."
       ]
     }
   }

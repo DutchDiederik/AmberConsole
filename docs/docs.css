@@ -6,6 +6,21 @@
    this file is required to use the framework.
    =========================================================================== */
 
+/* CROSS-DOCUMENT PERSISTENCE, OPTED IN HERE RATHER THAN IN THE FRAMEWORK.
+   `@view-transition` is a document-level switch and cannot be scoped to a
+   selector, so shipping it inside amber-console.css would change how navigation
+   behaves for everyone who links the stylesheet — including people who never
+   asked for a screen simulation. Linking a stylesheet must not rewrite how a
+   site navigates, so the framework styles the transition and leaves this one
+   line to the page. It is the whole opt-in.
+
+   With it, moving between the three demo pages under a long phosphor leaves the
+   previous screen genuinely draining behind the new one, per pixel, with no
+   JavaScript involved at all. tokens/effects.css does the rest. */
+@view-transition {
+  navigation: auto;
+}
+
 /* --------------------------------------------------------------- shared -- */
 
 .doc-byline {
@@ -505,6 +520,104 @@
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+/* ---------------------------------------------------------- server page -- */
+
+/* Four instrument values across, dropping to two and then one as the frame
+   narrows. minmax rather than a fixed count because --type-display is 44px:
+   below about 140px a track the value cannot fit in gets clipped by the frame's
+   overflow:clip instead of wrapping, which is the failure mode the visual
+   suite's overflow probe exists to catch. */
+.doc-vitals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.doc-net {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* A sparkline made of boxes.
+
+   Law 6 bans the SVG element and `npm run check` greps for it, so there is no
+   path to draw and no chart library to reach for. That is not a limitation
+   being worked around: a panel of this era drew a history as a row of lit
+   cells because a character grid is what it had, and one lit cell per day is
+   exactly as much resolution as an availability strip deserves.
+
+   Height rides on an inline `--h` (a number, so it is invisible to the glow
+   gate, which only inspects color declarations). A day that lost time drops to
+   --ink-faint with the halo off, because glow is the signal of energization and
+   an outage is the one thing on the strip that was not lit. */
+.doc-spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 44px;
+  margin-top: var(--space-4);
+  border-bottom: var(--border-w) solid var(--stroke-dim);
+}
+
+.doc-spark__bar {
+  flex: 1 1 0;
+  min-width: 2px;
+  height: calc(var(--h, 100) * 1%);
+  background: var(--fill);
+  box-shadow: var(--glow-box);
+}
+
+.doc-spark__bar--down {
+  background: var(--ink-faint);
+  box-shadow: none;
+}
+
+.doc-spark__scale {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  text-shadow: none;
+  text-transform: uppercase;
+}
+
+/* The service table. Only the switch column is pinned narrow; everything else
+   keeps its natural width and the whole table scrolls inside .ac-table-scroll
+   on a phone rather than each cell squeezing to unreadable. */
+.doc-services td:nth-child(1),
+.doc-services td:nth-child(2),
+.doc-services td:nth-child(3),
+.doc-services td:nth-child(6) {
+  white-space: nowrap;
+}
+.doc-services td:last-child,
+.doc-services th:last-child {
+  width: 1%;
+}
+
+.doc-svc-toggle {
+  gap: var(--space-2);
+}
+
+/* A stopped container is still listed — an operator needs to see the thing that
+   is not running — but it is no longer reporting, so it recedes to the faintest
+   ink with the halo off. This is the whole colour argument in one rule: with a
+   single hue available, "off" is said with brightness rather than with red. */
+.doc-services tr[data-stopped] td {
+  color: var(--ink-faint);
+  text-shadow: none;
+}
+
+.doc-datasets td:nth-child(1) {
+  white-space: nowrap;
 }
 
 @media (max-width: 860px) {

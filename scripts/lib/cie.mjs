@@ -67,6 +67,69 @@ export function cmf(nm) {
   return CMF[i].map((v, k) => v + f * (CMF[i + 1][k] - v));
 }
 
+/**
+ * Sample a band list into the SAME [[nm, intensity], ...] shape a line table has.
+ *
+ * A GAS EMITS LINES; A PHOSPHOR EMITS A BAND. That is the one spectral difference
+ * between the two technologies, and it is the reason this function exists — but
+ * it is deliberately the ONLY place the difference is expressed. Everything
+ * downstream (linesToXYZ, the lambda^-4 scatter integral, the gamut fit, the
+ * contrast-solved stops) reads a list of wavelengths with intensities and does
+ * not care whether a discharge or a powder produced them. Sampling here rather
+ * than branching there is what keeps the phosphor pass from forking the
+ * pipeline the gases are already validated against.
+ *
+ * Each band is { nm, fwhm, weight }: a Gaussian in PHOTON ENERGY, centred on the
+ * quoted peak, whose width is the quoted FWHM converted to eV at that peak.
+ *
+ * THE GAUSSIAN IS IN ENERGY, NOT IN WAVELENGTH, AND THAT IS NOT A DETAIL.
+ * A luminescence band is a vibronic envelope over a transition between two
+ * electronic levels, and that envelope is symmetric in the quantity being
+ * emitted — energy. Rendering it in wavelength therefore produces an ASYMMETRIC
+ * band with a longer red tail, which is what real phosphor spectra actually
+ * look like and what a symmetric-in-lambda Gaussian gets wrong.
+ *
+ * That is a claim with a number attached. Fitting the published chromaticity of
+ * five phosphors with a symmetric-in-lambda Gaussian leaves every one of them
+ * MORE saturated than the real screen, by 0.04-0.10 in xy. In energy the same
+ * five land within 0.003. The asymmetry is the missing physics, and it costs no
+ * new parameter — the shape falls out of the variable the band is symmetric in.
+ *
+ * The lambda<->energy Jacobian (I_lambda = I_E * |dE/dlambda|) is deliberately
+ * NOT applied. It belongs when converting a measured spectral DENSITY between
+ * axes; here the band is a model of the envelope itself, and applying it made
+ * every fit worse — which is the empirical half of the same argument.
+ *
+ * 1nm steps against the CMF's own 5nm grid. Oversampling an interpolated table
+ * buys no accuracy in the table, but it does stop a narrow band (willemite's
+ * ~48nm is ten CMF rows) from landing between samples and losing its peak.
+ */
+export function sampleBands(bands, step = 1) {
+  /* CODATA 2018 hc, in eV*nm. E(nm) = HC_EV_NM / nm. */
+  const HC_EV_NM = 1239.84193;
+  const FWHM_TO_SIGMA = 1 / (2 * Math.sqrt(2 * Math.LN2));
+  const out = [];
+
+  for (let nm = CMF_START; nm <= CMF_START + CMF_STEP * (CMF.length - 1); nm += step) {
+    const E = HC_EV_NM / nm;
+    let intensity = 0;
+
+    for (const { nm: center, fwhm, weight = 1 } of bands) {
+      const centerE = HC_EV_NM / center;
+      /* dE/dlambda = -hc/lambda^2, so a width in nm at the peak is that width
+         in eV. Data sheets quote nm; the model wants eV; this is the bridge. */
+      const sigmaE = ((HC_EV_NM * fwhm) / (center * center)) * FWHM_TO_SIGMA;
+      intensity += weight * Math.exp(-((E - centerE) ** 2) / (2 * sigmaE * sigmaE));
+    }
+
+    /* Below this a sample contributes less than a rounding error to any integral
+       downstream and only costs time. The tail is 4+ sigma out by then. */
+    if (intensity > 1e-6) out.push([nm, intensity]);
+  }
+
+  return out;
+}
+
 /** Sum a line list, [[nm, intensity], ...], into CIE XYZ. */
 export function linesToXYZ(lines) {
   let X = 0, Y = 0, Z = 0;

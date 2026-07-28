@@ -32,7 +32,13 @@
   .ac-scanlines::after,
   .ac-retrace,
   .ac-persist,
-  .ac-mesh {
+  .ac-mesh,
+  /* The radar wake is a gradient in --gas-N, which forced colors has no way to
+     map and no reason to keep. It is also the last blended element left in this
+     mode, and one `mix-blend-mode` anywhere promotes the stacking context and
+     costs subpixel text antialiasing page-wide — see the matching note in
+     print.css. The face and its rings stay; they are drawn with borders. */
+  .ac-sweep__beam {
     display: none;
   }
 
@@ -42,6 +48,27 @@
   .ac-afterglow dialog:not([open]) {
     transition: none;
     filter: none;
+  }
+
+  /* Same argument for the de-energizing afterimage. The UA forces shadows off
+     for anything still at forced-color-adjust: auto, but this halo is built from
+     --gas-N rather than from a forced system colour, and the elements it sits on
+     are exactly the ones a11y.css opts OUT of forced colors further down — which
+     hands them their box-shadow back. Stated at matching weight so it cannot
+     survive on the controls that opt out. */
+  .ac-afterglow .ac-btn::after,
+  .ac-afterglow .ac-tab::after,
+  .ac-afterglow .ac-nav__link::after,
+  .ac-afterglow .ac-badge::after,
+  .ac-afterglow .ac-table__row--active td::after {
+    display: none;
+  }
+
+  /* A page dissolving into the next one is a low-contrast duplicate of the whole
+     screen, for the same reason the ghosts are. */
+  html:has(.ac-afterglow)::view-transition-old(root),
+  html:has(.ac-afterglow)::view-transition-new(root) {
+    animation: none;
   }
 
   /* Blanket, for the same reason as the reduced-motion block in

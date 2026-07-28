@@ -203,20 +203,35 @@ function wrapLayer(css) {
  * double-clicking it" is a hard requirement, the pages load this build instead.
  * The module build stays the canonical one for bundlers and npm consumers.
  */
-function toGlobal(source) {
+/**
+ * The optional modules, as [source file, global name, exported functions].
+ *
+ * amber-console.js is BEHAVIOUR — tablist, dialogs, toggles, DISPLAY presets.
+ * amber-console.effects.js is PERSISTENCE — ghosting, scroll smear, framebuffer
+ * decay. Separately optional on purpose: accessible tabs without the eye-candy,
+ * or the full phosphor simulation over somebody else's tab implementation.
+ */
+const MODULES = [
+  ["amber-console.js", "AmberConsole", ["init", "afterglow"]],
+  ["amber-console.effects.js", "AmberConsoleEffects", ["init", "afterglow", "transition"]],
+];
+
+function toGlobal(source, file, globalName, exports) {
   const body = source
     .replace(/^export default [\s\S]*?;\s*$/m, "")
     .replace(/^export /gm, "")
     .trim();
 
+  const surface = exports.map((n) => `${n}: ${n}`).join(", ");
+
   return (
     `/*! Amber Console ${VERSION} | MIT | classic-script build\n` +
-    ` *  Generated from src/amber-console.js by scripts/build.mjs.\n` +
+    ` *  Generated from src/${file} by scripts/build.mjs.\n` +
     ` *  Use this with a plain <script src> — including from file:// URLs, where\n` +
-    ` *  type="module" is blocked. Exposes window.AmberConsole.\n` +
+    ` *  type="module" is blocked. Exposes window.${globalName}.\n` +
     ` */\n` +
     `(function () {\n"use strict";\n\n${body}\n\n` +
-    `window.AmberConsole = { init: init, afterglow: afterglow };\n})();\n`
+    `window.${globalName} = { ${surface} };\n})();\n`
   );
 }
 
@@ -258,8 +273,18 @@ async function build() {
   const layerMin = wrapLayer(min);
   await writeFile(path.join(DIST, "amber-console.layer.min.css"), layerMin);
 
-  await copyFile(path.join(SRC, "amber-console.js"), path.join(DIST, "amber-console.js"));
-  await writeFile(path.join(DIST, "amber-console.global.js"), toGlobal(await readFile(path.join(SRC, "amber-console.js"), "utf8")));
+  /* Two independently optional modules, each shipped in both flavours. They are
+     built the same way and must never import each other — the classic-script
+     builds have no module system to do it with, and the split only means
+     anything if either can be loaded alone. */
+  for (const [file, globalName, exports] of MODULES) {
+    const source = await readFile(path.join(SRC, file), "utf8");
+    await copyFile(path.join(SRC, file), path.join(DIST, file));
+    await writeFile(
+      path.join(DIST, file.replace(/\.js$/, ".global.js")),
+      toGlobal(source, file, globalName, exports)
+    );
+  }
 
   const kb = (n) => `${(n / 1024).toFixed(1)}kb`;
   console.log(

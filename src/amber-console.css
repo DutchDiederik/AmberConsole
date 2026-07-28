@@ -50,6 +50,7 @@
 @import "components/meter.css";
 @import "components/keypad.css";
 @import "components/spinner.css";
+@import "components/sweep.css";
 
 /* --- Environment overrides. Last, so they win. --- */
 @import "base/a11y.css";

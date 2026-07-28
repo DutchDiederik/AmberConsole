@@ -11,7 +11,7 @@ A monochrome amber-terminal CSS framework — the look of a late-1980s industria
 kind of amber plasma display that drove heavy machinery. One stylesheet, no dependencies, no build
 step, no JavaScript required for any component's appearance.
 
-**[Live demo — ORION-70 console](https://dutchdiederik.github.io/amber-console/) · [System guide](https://dutchdiederik.github.io/amber-console/docs/guide.html)**
+**[Live demo — ORION-70 console](https://dutchdiederik.github.io/amber-console/) · [D-STAR server dashboard](https://dutchdiederik.github.io/amber-console/docs/server.html) · [System guide](https://dutchdiederik.github.io/amber-console/docs/guide.html)**
 
 ![The ORION-70 console demo](docs/screenshot.png)
 
@@ -51,8 +51,50 @@ import "amber-console/layer";    // wrapped in @layer amber-console
 | `dist/amber-console.min.css` | Production. 35kb, 6.6kb gzipped, same behavior. |
 | `dist/amber-console.layer.css` | Dropping into an existing app — `@layer` makes the framework lose specificity fights against your own rules. Use *instead of*, never alongside. |
 | `dist/amber-console.layer.min.css` | The same, minified. Production embedding. |
-| `dist/amber-console.js` | Optional behavior, ES module. For bundlers. |
-| `dist/amber-console.global.js` | Optional behavior, classic script. Needed for `file://` pages, where `type="module"` is blocked. |
+| `dist/amber-console.js` | Optional **behaviour**, ES module. For bundlers. |
+| `dist/amber-console.global.js` | Optional behaviour, classic script. Needed for `file://` pages, where `type="module"` is blocked. |
+| `dist/amber-console.effects.js` | Optional **persistence**, ES module. Ghosting, scroll smear, framebuffer decay. |
+| `dist/amber-console.effects.global.js` | The same, classic script. |
+
+### The two tiers
+
+**The CSS is the framework. Both JS modules are optional, and they are optional
+*separately*.** Neither imports the other; either works alone; the stylesheet works with neither.
+
+| | CSS only | `+ effects.js` |
+| --- | --- | --- |
+| Every component, all 11 palettes | █ | █ |
+| Decay-out — things that disappear drain instead of switching off | █ | █ |
+| **De-energizing afterimage** — a lamp goes out, its glow lingers for the phosphor's full tail | █ | █ |
+| Blink off-edge, scaled per emitter (long phosphors throb rather than chop) | █ | █ |
+| Residual patches — the glass never sits perfectly uniform | █ | █ |
+| **Page-to-page persistence** — the old screen decays behind the new one, per pixel | █ *(one-line opt-in)* | █ |
+| PPI radar sweep with a decaying wake | █ | █ |
+| **Ghosting** — rewritten text leaves its previous value behind | ▯ | █ |
+| **Scroll smear** — scaled by real scroll velocity | ▯ | █ |
+| **Framebuffer decay on state change** — tab switch, dialog | ▯ | █ |
+
+The three in the bottom group are not withheld — they are genuinely not expressible in CSS. Nothing
+in the cascade remembers the old string; scroll **velocity** is not derivable from a scroll timeline,
+which only exposes position; and `document.startViewTransition` is the only API that hands you a
+snapshot of the screen you just replaced.
+
+```html
+<!-- CSS only. Complete. -->
+<link rel="stylesheet" href="dist/amber-console.css">
+
+<!-- add behaviour (tabs, dialogs, presets) and/or persistence, in either order -->
+<script src="dist/amber-console.global.js"></script>
+<script src="dist/amber-console.effects.global.js"></script>
+```
+
+Page-to-page persistence needs one line in *your* stylesheet, because `@view-transition` is a
+document-level switch that cannot be scoped to a selector — linking a stylesheet must not silently
+rewrite how your site navigates:
+
+```css
+@view-transition { navigation: auto; }
+```
 
 Custom properties survive into `dist/` unresolved — they are the public API, so you can override any
 of them at runtime without rebuilding.
@@ -134,7 +176,8 @@ That renders a framed, glowing, scanlined control panel. No build step, no serve
 | `.ac-cursor` | Trailing block cursor |
 | `.ac-bloom` | PLASMA: amplified glow tokens, a soft bleed layer breathing on a 9s mains cycle, and the cell mesh — a crossed wire grid on a 3px pitch, so a lit pixel is a neon dot at a wire intersection rather than part of a solid stroke. Buzzes sub-pixel on two detuned cycles. Needs an `.ac-mesh` child. |
 | `.ac-crt` | CRT: scanlines, vignette, one-cell drift per 11s, ±2% flicker. Needs a `.ac-retrace` child. |
-| `.ac-afterglow` | PLASMA PERSISTENCE: things that disappear decay instead of switching off, rewritten text ghosts its old value, and the glass holds faint uneven patches. Needs an `.ac-persist` child. |
+| `.ac-afterglow` | PERSISTENCE: things that disappear decay instead of switching off, a de-energized control's glow lingers for the emitter's full tail, and the glass holds faint uneven patches. With `effects.js` it also ghosts rewritten text and smears while scrolling. Needs an `.ac-persist` child. |
+| `.ac-sweep` | PPI radar face — a rotating `conic-gradient` whose angular falloff *is* the decaying wake. Pure CSS, no script. Period scales off `--ac-persist-tail`. Needs an `.ac-sweep__beam` child. |
 | `.ac-scanlines` | Static, motion-free line texture, for print and thumbnails |
 
 Put any of `.ac-bloom`, `.ac-crt` and `.ac-afterglow` on the outermost frame, once per screen, never
@@ -166,36 +209,90 @@ a flat strip floating over it. `.ac-screen` clips with `overflow: clip` rather t
 specifically so that works: `hidden` makes the frame a scroll container, and `position: sticky`
 inside a scroll container that never scrolls does not stick.
 
-### Plasma afterglow
+### Persistence
 
-A cell that stops being driven relaxes rather than switching off. Three parts, tunable:
+A cell or a phosphor that stops being driven relaxes rather than switching off.
+
+**Persistence and flicker are one number read in two directions.** A phosphor has a decay constant;
+a screen redraws every frame. What is *left* of the previous frame when the next one arrives is the
+persistence — the smear. What is *missing* is the modulation depth — the flicker. So a screen cannot
+be steady and smear-free at once, and every historical fitting decision falls out of that trade: P11
+is fully dark between frames (no persistence, maximum flicker, which is why it was a phosphor for
+screens meant to be *photographed*), and P39 is still at 91% (no flicker at any refresh rate, paid
+for in smear, which is why it went on radar). The derivation computes both from one decay constant
+for exactly that reason — the same way `--gas-spread` is the square root of `--gas-scatter` and
+cannot disagree with it.
+
+Palettes that know their own decay declare it, and the timing tokens are **derived from that**:
 
 | Token | Default | What it times |
 | --- | --- | --- |
-| `--ac-decay` | `105ms` | Elements that disappear, and explicit ghosts |
-| `--ac-decay-fast` | `60ms` | Rewritten text, and de-energizing controls — where a full tail would smear |
+| `--ac-persist` | `105ms` | The emitter's own visible decay. Set per palette; everything below comes off it |
+| `--ac-flicker` | `1` | How much of the image is gone by the next refresh, 0–1. Scales flicker amplitude only |
+| `--ac-decay` | `min(--ac-persist, 250ms)` | Elements that disappear, and explicit ghosts |
+| `--ac-decay-fast` | `min(--ac-persist, 60ms)` | Rewritten text, and de-energizing controls — where a full tail would smear |
+| `--ac-persist-tail` | `--ac-persist` | Ghosts and residual patches. **Uncapped** — where the long phosphors are allowed to be long |
 | `--ac-decay-ease` | `cubic-bezier(0.1, 0.72, 0.22, 1)` | The relaxation curve: fast knee, long tail |
+
+**The caps are a usability decision made against the physics on purpose.** P7's tail is 3000 ms and
+P39's is 2000 ms; those are correct, and a dialog that stays painted for two seconds after it closes
+is a bug that can cite a source. So anything a user waits on is clamped, and the decorative layers —
+ghosts, residual patches — run at full length, which is where the effect actually lives. `min()` also
+gets the short phosphors right in the other direction for free: P11 declares `0.035ms`, so its UI
+snaps rather than decaying.
+
+Long-persistence phosphors do not decay exponentially — they follow a Becquerel power law, a fast
+knee over a very long tail, which no single `cubic-bezier` expresses. Those palettes ship a
+`linear()` easing **sampled from the decay model itself**, on a log-spaced grid so the resolution
+sits where the curvature is. Older engines fall back to the bezier.
+
+The four gas palettes deliberately declare none of this. No decay figure for these panels is cited
+yet, and inventing one to fill the column is exactly the kind of number this system refuses — so they
+fall back to the defaults above and render identically to before.
 
 It also covers the two light-off events you actually hit most:
 
 - **De-energizing** — a lamp going out. A pressed button releasing, a tab deselecting, an interlock
-  unchecking, the pointer leaving a control. These never hide, so decay-out never sees them.
+  unchecking. These never hide, so decay-out never sees them. The control's *structure* — background,
+  border, text colour — releases on `--ac-decay-fast` so it reads as off immediately, while its
+  **halo** decays on the uncapped `--ac-persist-tail`, because the halo is precisely the scattered
+  light that persists. Under P39 a released button glows for a second and a half.
 - **The blink OFF edge** — `.ac-blink`, `.ac-cursor`, an invalid `.ac-input`, an over-range
-  `.ac-meter--alarm` bar. One rule swaps `animation-name`, so each keeps its own cycle length.
+  `.ac-meter--alarm` bar. One rule swaps `animation-name`, so each keeps its own cycle length. Long
+  phosphors get a second keyframe entirely: the next ON edge lands before the previous one has
+  drained, so the alarm *throbs* rather than chops, and never reaches the dark half at all.
 - **Scroll smear** — scrolling hands every cell a new value at once, so the image trails. Scaled by
   real scroll speed, drained when you stop, and skipped entirely under `prefers-reduced-motion`.
 
 In every case the ON edge stays instant: a cell lights on the next refresh, and it is only the
 switching off that hardware cannot do sharply. Nothing here fades *in*.
 
-Everything except ghosting is pure CSS. Ghosting needs the value a readout held one frame
-ago, which only JS has, so `amber-console.js` watches the frame for text changes and parks a copy at
-the rect it occupied. A node that is *removed* has no rect left to pin a ghost to, so ghost it first:
+**Hover is deliberately excluded from the afterimage.** A pointer crossing a dense panel
+de-energizes every control it touches, and at a two-second tail that leaves a wake of glowing boxes
+behind the cursor — which reads as lag, not as phosphor. Hover keeps its instant change; the
+afterimage answers only to real state.
+
+Ghosting, the scroll smear and the framebuffer decay need
+[`amber-console.effects.js`](#the-two-tiers) — nothing in the cascade remembers the old string.
+A node that is *removed* has no rect left to pin a ghost to, so ghost it first:
 
 ```js
-AmberConsole.afterglow(row);   // no-op when the simulation is off
+AmberConsoleEffects.afterglow(row);   // no-op when the simulation is off
 row.remove();
 ```
+
+To decay the whole screen across a change of your own, wrap it:
+
+```js
+AmberConsoleEffects.transition(() => {           // falls back to a plain call
+  panel.replaceChildren(nextView);               // when the module or API is absent
+});
+```
+
+Use it for **discrete** changes only — a tab switch, a dialog, a panel swap. A view transition
+cancels whichever one is already running, so wrapping every text tick would mean a 3000 ms P7
+snapshot being thrown away sixty times a second and never completing once. Frequent updates keep the
+ghost mechanism, which composes instead of cancelling.
 
 This is the one place the framework uses a `transition`. It is hardware, not UI: nothing fades *in*,
 and components stay instant redraws — `scripts/check-prohibitions.mjs` still enforces that.
@@ -217,26 +314,44 @@ plain `.html` file all drive this identically.
 
 ## The optional JavaScript
 
-`amber-console.js` has no dependencies and is **strictly optional** — every component looks and
-reads correctly without it. It covers only what CSS genuinely cannot do:
+Two modules, both dependency-free, both **strictly optional**, and optional *separately* — neither
+imports the other, and every component looks and reads correctly with both absent. See
+[the two tiers](#the-two-tiers) for what each buys you.
+
+### `amber-console.js` — behaviour
 
 1. the `role="tablist"` keyboard model (←/→/Home/End, roving tabindex)
 2. flipping an `aria-pressed` toggle — the `.ac-toggle--input` variant needs no JS at all
-3. the PLASMA and CRT simulations, persisted to `localStorage` — CRT carries the afterglow — and
-   the afterglow ghosts
+3. the PLASMA and CRT simulation switches, persisted to `localStorage` — CRT carries the afterglow
 4. opening and closing a `<dialog>`
 5. the [display presets](#three-axes-and-they-are-not-the-same-axis), likewise persisted — the
    palettes themselves are pure CSS and switch on `data-ac-tech` + `data-ac-emitter`, which you can
    write into your own markup
 6. the style flags, same deal on `data-ac-style-*`
 
+### `amber-console.effects.js` — persistence
+
+1. **ghosting** — rewritten text leaves its previous value behind
+2. **scroll smear** — scaled by real scroll velocity
+3. **framebuffer decay** — `transition(fn)`, a real snapshot of the screen you just replaced
+
+It needs no handshake with the behaviour module and no registration call: it watches the DOM for
+`.ac-afterglow` on the frame and `data-ac-style-smear` on the root, because both facts are already
+*in* the DOM. A contract between the two modules would be a thing to keep in sync; an observer is not.
+
 ```html
-<script src="dist/amber-console.global.js"></script>   <!-- classic; works from file:// -->
-<script type="module">import "./dist/amber-console.js";</script>   <!-- ES module -->
+<script src="dist/amber-console.global.js"></script>          <!-- classic; works from file:// -->
+<script src="dist/amber-console.effects.global.js"></script>
+
+<script type="module">
+  import "./dist/amber-console.js";                            /* ES module, either order */
+  import "./dist/amber-console.effects.js";
+</script>
 ```
 
-Auto-initializes from `[data-ac]`. Call `AmberConsole.init(scope)` again after rendering new markup,
-and `AmberConsole.afterglow(el)` to ghost an element you are about to remove.
+Both auto-initialize. Call `AmberConsole.init(scope)` again after rendering new markup, and
+`AmberConsoleEffects.afterglow(el)` to ghost an element you are about to remove —
+`AmberConsole.afterglow(el)` still works and forwards to it.
 
 ## Display: technology, then emitter
 
@@ -261,18 +376,40 @@ hardware.
 | `plasma` | `helium` | 0.394, 0.299 | pale pink | No manifold dominates — helium's visible lines all fall out of n=3 and n=4 decaying to n=2 at comparable energies. The 587.6 nm yellow carries the luminance; 447.1 and 667.8 nm pull it off the blackbody locus toward purple. |
 | `plasma` | `argon` | 0.216, 0.105 | pale violet-lavender | Most of argon's output is past 700 nm where the eye scores under 0.01, so its 696.5 nm peak is the strongest line but not the colour. What you see is the 415–475 nm group. Also why argon is **dim**. |
 | `plasma` | `krypton` | 0.315, 0.255 | pale violet-white | A blue-violet cluster at 427–450 nm against the 557.0 nm green and the 587.1 nm yellow. Spread that wide integrates close to white. |
-| **`crt`** | **`p3`** | — | amber | The classic amber CRT phosphor: a broad ~590 nm band with real green content. A *different* display technology — a beam exciting a phosphor, which emits and then persists — but it is what most people mean by "amber terminal", it is the ramp the source design system was drawn against, and it pairs with `.ac-crt`. |
+| **`crt`** | **`p3`** | 0.523, 0.469 | amber | The classic amber CRT phosphor: a broad ~590 nm band with real green content. A *different* display technology — a beam exciting a phosphor, which emits and then persists — but it is what most people mean by "amber terminal", it is the ramp the source design system was drawn against, and it pairs with `.ac-crt`. |
+| `crt` | `p1` | 0.215, 0.711 | willemite green | Zn₂SiO₄:Mn, the oldest CRT phosphor and the one the early scopes and radar indicators were built around. A silicate, so a narrow 48 nm band against the sulfides' 76–130. Medium persistence. |
+| `crt` | `p4` | 0.270, 0.300 | white | The television phosphor, and a **blend**: ZnS:Ag blue mixed with a yellow emitter in one coating, integrating to white. Two powders mixed have one colour — which is what separates it from P7. |
+| `crt` | `p7` | 0.138, 0.150 **/** 0.355, 0.537 | blue flash over yellow-green | **Two coatings, in sequence.** The beam writes in blue ZnS:Ag; that layer's own photons pump a long yellow-green (Zn,Cd)S:Cu layer behind it. Ink is blue, halo is green, and the trail outlives the flash by seconds. The radar phosphor — see law 1. |
+| `crt` | `p11` | 0.138, 0.150 | blue | A photographic-recording phosphor: blue is where film is most sensitive, so P11 was fitted to screens meant to be photographed rather than watched. Decays in tens of microseconds, so it flickers hardest of anything here. |
+| `crt` | `p31` | 0.208, 0.530 | green | ZnS:Cu — the green everybody pictures when they picture a terminal or a lab oscilloscope. The highest luminous efficiency here, sitting near the peak of the photopic curve. |
+| `crt` | `p39` | 0.225, 0.696 | yellow-green, long | P1's willemite with arsenic added, which lengthens the decay by orders of magnitude and leaves the colour alone. No visible flicker at any refresh rate, paid for in smear. |
 
-The three gas palettes are **computed, not picked**. `scripts/derive-gas.mjs` integrates a cited NIST
-line table against the CIE 1931 2° observer, maps the result into sRGB, and solves each of the five
-stops to its contrast target; `npm test` re-derives them and fails on drift. The line tables, their
-source, and the per-gas line-selection rule with its justification are in
+Nine of the eleven palettes are **computed, not picked**. `scripts/derive-gas.mjs` integrates a cited
+spectrum against the CIE 1931 2° observer, maps the result into sRGB, and solves each of the five
+stops to its contrast target; `npm test` re-derives them and fails on drift. The data, its source and
+the per-emitter selection rule are in
 [`scripts/data/emitters.json`](scripts/data/emitters.json).
 
 Neon and P3 stay hand-built. Neon is in the line table anyway as the pipeline's **known-answer
 gate** — it derives to x=0.6405 y=0.3591 against the x=0.631 y=0.369 established independently years
 earlier, agreeing to 0.0137, and if that ever stops being true the build fails there rather than
-silently shipping three wrong palettes.
+silently shipping wrong palettes.
+
+**Two palettes share a ramp with another and that is not a bug.** P1 and P39 are both Zn₂SiO₄:Mn and
+differ only in decay; P7's flash and P11 are both ZnS:Ag and differ only in what sits behind them.
+Where the compound is the same the colour is the same, and the palettes are told apart by their
+persistence rather than their hue. The derivation found this on its own — P1 and P39 were fitted from
+different published coordinates and converged on the same band.
+
+> **The phosphors carry a weaker claim than the gases, and it is not hedging to say so.** A gas emits
+> lines and NIST publishes them, so those palettes run *spectrum → colour* from measured data. No
+> comparable public table of phosphor band **shapes** exists; what is published is the resulting
+> chromaticity. The phosphor blocks therefore run backwards — *published colour → band* — and their
+> bands are back-solved rather than measured, which makes their `validate` gate a consistency check
+> rather than the independent known-answer gate neon provides. The `$phosphors` block in
+> `emitters.json` states this plainly, along with the four things that are nonetheless non-circular
+> about the result. Persistence figures are **provisional** pending a per-phosphor data-sheet
+> citation; the persistence *class* is solid and is all the design depends on.
 
 > **Deprecated:** `data-ac-gas="neon"` and `data-ac-gas="amber"` still work and will be removed in
 > 3.0. The name was the bug — `amber` was never a gas, it is a CRT phosphor, and calling it one is
@@ -438,6 +575,16 @@ attributes.
    is no red, no green, no "success" color. The law is **per palette**, and always was: a screen
    shows one emitter's ramp and nothing else. Which emitter — neon's orange-red, argon's lavender,
    P3's amber — is a choice of hardware, not a second hue on the panel.
+
+   **Unless the hardware is literally two emitters, and then the second appears only in the decay.**
+   P7 is a blue ZnS:Ag coating over a yellow-green (Zn,Cd)S:Cu one: the beam writes in blue, the blue
+   layer's own photons pump the layer beneath it, and what the screen *holds* is yellow-green. Blue
+   ink inside a green halo is not a second hue smuggled in as decoration — it is the only thing that
+   tube can honestly look like. The limits are what keep this from swallowing the law: the second
+   emitter is **never** semantic (it cannot mean success, danger or state), no component may select
+   on it, and only the *first* emitter is ever `--ink` — so the ramp under the contrast gate is still
+   one emitter's, solved to the same ratios as every other palette. If a palette wants a second hue
+   and cannot name the coating that produces it, it does not get one.
 2. **Inverse video is importance.** A solid amber block with dark text is the machine speaking.
    Ration it: two or three per screen.
 3. **Everything is a box.** 2px rules draw the regions. No elevation, no shadows-as-depth.
@@ -646,12 +793,17 @@ and component classes for the industrial-control-panel genre. ORION-70 — the f
 console in `docs/index.html` — exists to exercise every class in one screen, and nothing in the
 framework depends on it.
 
+D-STAR, the self-hosted server dashboard in `docs/server.html`, is the second demo and argues the
+other half: that these tokens dress an ordinary modern application — tab views, a table of services
+you can start and stop, a destructive action that confirms — rather than only reproducing period
+hardware. It is invented on exactly the same terms as ORION-70.
+
 The genre was studied from period projection-booth hardware, and the debt is
-[acknowledged below](#acknowledgements). ORION-70 itself is invented: its name, its wordmark and its
-copy are ours, and no manufacturer's branding, wordmark or logo appears anywhere in this repository
-or in the published package. Where the demo echoes the layout conventions of real equipment, that is
-the genre being reproduced rather than any one product — the same way a terminal emulator is not the
-VT320.
+[acknowledged below](#acknowledgements). Both demos are invented: their names, their wordmarks and
+their copy are ours, and no manufacturer's branding, wordmark or logo appears anywhere in this
+repository or in the published package. Where a demo echoes the layout conventions of real equipment,
+that is the genre being reproduced rather than any one product — the same way a terminal emulator is
+not the VT320.
 
 The values in `src/tokens/` came from an internal design bundle that is not published with this
 repository. The deviations from it, and the discrepancies resolved along the way, are recorded in

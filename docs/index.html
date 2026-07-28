@@ -43,6 +43,7 @@
     <span class="ac-nav__mark">Amber Console</span>
     <div class="ac-nav__links">
       <a class="ac-nav__link" href="index.html" aria-current="page">Console</a>
+      <a class="ac-nav__link" href="server.html">Server</a>
       <a class="ac-nav__link" href="guide.html">System Guide</a>
     </div>
     <span class="ac-nav__meta">
@@ -137,10 +138,11 @@
         <fieldset class="doc-displays">
           <legend class="ac-sr-only">CRT phosphors</legend>
           <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display" disabled data-ac-peak="525 nm">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
             <span class="doc-display__name">P1</span>
             <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Not fitted</span>
+            <span class="doc-display__note">Green 525nm</span>
           </label>
           <label class="ac-radio doc-display">
             <input type="radio" name="ac-display"
@@ -150,34 +152,39 @@
             <span class="doc-display__note">Amber 590nm</span>
           </label>
           <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display" disabled data-ac-peak="450+560 nm">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
             <span class="doc-display__name">P4</span>
             <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Not fitted</span>
+            <span class="doc-display__note">White 450+560nm</span>
           </label>
           <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display" disabled data-ac-peak="450/558 nm">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
             <span class="doc-display__name">P7</span>
             <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Not fitted</span>
+            <span class="doc-display__note">Blue+green 450/558nm</span>
           </label>
           <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display" disabled data-ac-peak="460 nm">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
             <span class="doc-display__name">P11</span>
             <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Not fitted</span>
+            <span class="doc-display__note">Blue 460nm</span>
           </label>
           <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display" disabled data-ac-peak="520 nm">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
             <span class="doc-display__name">P31</span>
             <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Not fitted</span>
+            <span class="doc-display__note">Green 520nm</span>
           </label>
           <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display" disabled data-ac-peak="525 nm">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
             <span class="doc-display__name">P39</span>
             <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Not fitted</span>
+            <span class="doc-display__note">Long green 525nm</span>
           </label>
         </fieldset>
       </div>
@@ -264,6 +271,25 @@
           <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
             which emits while struck and then persists. The color belongs to the phosphor, not the
             beam; the P-number names the compound.</p>
+          <p class="doc-info" data-ac-display-info="crt/p7" hidden>Two coatings, not one. The beam writes into a blue ZnS:Ag layer that decays in
+            microseconds, and that layer's own photons pump a yellow-green one behind it which holds
+            for seconds. So the ink is blue and the halo is green: text you are reading is being
+            re-struck sixty times a second, and text that stops being written leaves only the glow.
+            This is the radar phosphor — the flash gives position, the trail gives history.</p>
+          <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
+            and leaves the colour alone — this palette and P1 are the same green, and differ only in
+            how long it lasts. At hundreds of milliseconds the screen is still near full brightness
+            when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
+            paid for in smear.</p>
+          <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
+            P11 was fitted to screens meant to be photographed rather than watched — and watched, it
+            is the worst screen here. It decays in tens of microseconds, three orders below a
+            refresh interval, so the screen is genuinely dark between frames. Short persistence and
+            heavy flicker are the same fact.</p>
+          <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
+            mixed into one coating, emitting together, which the eye integrates to white. That is
+            what separates it from P7 — two powders mixed have one colour, two powders layered emit
+            in sequence and the colour changes as you watch.</p>
         </div>
       </div>
 
@@ -421,6 +447,7 @@
 <!-- The classic build, not the ES module: type="module" is blocked over file://
      and this page must open by double-clicking it. -->
 <script src="../dist/amber-console.global.js"></script>
+<script src="../dist/amber-console.effects.global.js"></script>
 <script src="console.js"></script>
 </body>
 </html>

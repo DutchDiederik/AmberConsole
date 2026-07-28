@@ -1,0 +1,111 @@
+/* PPI SWEEP — the radar face, and the one place persistence is the whole widget.
+   ============================================================================
+
+   Markup:
+     <div class="ac-sweep" role="img" aria-label="Search radar, no contacts">
+       <span class="ac-sweep__beam"></span>
+     </div>
+
+   THE TRAIL IS A GRADIENT, NOT AN ANIMATION, and that is the entire trick. The
+   obvious way to draw a decaying radar trail is to stamp a mark every frame and
+   fade each one — which is a per-pixel framebuffer problem, needs a canvas, and
+   is exactly what CSS cannot do. But a PPI trail is not really a history of
+   marks: it is one continuous falloff behind a rotating line, and a
+   conic-gradient IS that falloff. Rotate it and the decay comes for free,
+   composited on the GPU, in one element, with no script.
+
+   So the angular stops below are the phosphor's decay curve read in degrees
+   instead of milliseconds. That is legitimate rather than a pun: the beam sweeps
+   at a constant rate, so angle behind the beam IS time since that bearing was
+   painted. Same curve, same shape, different axis.
+
+   THE LEADING EDGE IS --gas-flash WHERE THERE IS ONE. On P7 the beam writes in
+   blue and the screen holds in yellow-green, so the first few degrees are the
+   flash and everything behind is the afterglow — the cascade rendered exactly as
+   the hardware does it, and the reason P7 was fitted to radar in the first
+   place. Every other emitter falls back to --gas-1 and the leading edge is
+   simply a brighter version of the trail, which is also correct for them.
+
+   No `transition` anywhere in this file: scripts/check-prohibitions.mjs forbids
+   it in src/components/, and nothing here needs one. */
+
+.ac-sweep {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: var(--ac-sweep-size, 260px);
+  border: 2px solid var(--stroke-dim);
+  border-radius: 50%;
+  overflow: hidden;
+  background:
+    /* Range rings. Drawn as hard-stopped radial gradients rather than as nested
+       elements, so the whole graticule costs no extra nodes. */
+    radial-gradient(circle at 50% 50%,
+      transparent 0 24%, rgba(var(--gas-3), 0.16) 24% 24.6%, transparent 24.6%),
+    radial-gradient(circle at 50% 50%,
+      transparent 0 49%, rgba(var(--gas-3), 0.16) 49% 49.6%, transparent 49.6%),
+    radial-gradient(circle at 50% 50%,
+      transparent 0 74%, rgba(var(--gas-3), 0.13) 74% 74.6%, transparent 74.6%),
+    /* The unlit screen behind them. */
+    radial-gradient(circle at 50% 50%, var(--screen-raised), var(--screen-well));
+}
+
+/* The crosshair, on the face rather than on the beam so it does not rotate. */
+.ac-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, transparent calc(50% - 1px), rgba(var(--gas-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(to bottom, transparent calc(50% - 1px), rgba(var(--gas-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+/* THE BEAM AND ITS WAKE.
+
+   Stops read outward from the leading edge: the flash, then the knee, then the
+   long shallow tail — the same fast-knee-long-tail shape the sampled linear()
+   easings carry, because it is the same decay.
+
+   200deg is where the tail reaches zero, so a little over half the face is lit
+   at any moment. Past that the previous revolution's light would still be
+   arriving and the face never reads as dark, which is the failure mode that
+   makes a sweep look like a spinning pie chart rather than a radar. */
+.ac-sweep__beam {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(var(--gas-flash, var(--gas-1)), 0.9) 0deg,
+    rgba(var(--gas-1), 0.5) 4deg,
+    rgba(var(--gas-2), 0.26) 18deg,
+    rgba(var(--gas-2), 0.13) 45deg,
+    rgba(var(--gas-3), 0.06) 95deg,
+    rgba(var(--gas-3), 0.02) 150deg,
+    transparent 200deg
+  );
+  /* THE PERIOD IS THE PHOSPHOR'S, WITH A FLOOR, and the floor is the point.
+     A sweep wants to come round about as the trail finishes draining — that is
+     the trade P7 and P39 were bought to make. Scaling straight off the tail does
+     that for the long phosphors (P39 -> 3s, P7 -> 4.5s), and gives neon 0.16s,
+     which is not a radar, it is a strobe. So the floor holds the slow ones
+     honest and keeps everything else watchable. */
+  animation: ac-sweep-rotate
+    var(--ac-sweep-period, max(2.5s, calc(var(--ac-persist-tail, 2s) * 1.5)))
+    linear infinite;
+}
+
+@keyframes ac-sweep-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* A rotating light is unambiguously motion, and unlike the mesh it is not the
+   shape of the hardware — it is the hardware doing something. It stops, and what
+   is left is a static lit sector, which still reads as a radar face. */
+@media (prefers-reduced-motion: reduce) {
+  .ac-sweep__beam { animation: none; }
+}

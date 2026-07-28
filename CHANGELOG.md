@@ -6,6 +6,180 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Fixed — the long phosphors now actually persist
+
+The CRT pass derived persistence correctly and then almost nothing consumed it. P7 and P39 — the two
+emitters whose entire reason for existing is a multi-second tail — held light for a fraction of a
+second, because three separate things capped it away before the CSS ever saw it.
+
+- **The tail was capped at its most common source, and this was the worst of the three.** The
+  mutation observer spawned every ghost with the FAST duration unconditionally, which
+  `tokens/effects.css` clamps to 400 ms, so P7's 3000 ms and P39's 2000 ms never appeared on a text
+  rewrite — the path that fires most. The reasoning behind the cap was sound for a 105 ms gas panel
+  ("a continuously-updating field would smear into its own next value") and exactly backwards for a
+  long phosphor, where smearing into the next value **is the effect**. Replaced with the physical
+  rule: a cell rewritten far faster than it can relax genuinely cannot accumulate its own history, so
+  the fast path now applies only above four overlapping generations. A clock ticking once a second
+  under P39 shows two generations, which is the thing radar operators were looking at.
+- **De-energizing ignored persistence entirely** — every lit control released on `--ac-decay-fast`,
+  so a P39 lamp went out in 60 ms. Now split by what each property describes, which is also the
+  physical split: **structure** (background, border, colour) still releases on the fast token so the
+  control reads as off immediately, and the **halo** decays on the uncapped `--ac-persist-tail`,
+  because the halo is precisely the scattered light that persists.
+- Driven by a registered `@property --ac-lit`, not by transitioning `box-shadow` directly — a number
+  interpolates reliably and lets each component keep its own shadows and focus ring instead of having
+  them overwritten here. It is registered `inherits: true` **because a pseudo-element does not read
+  its originating element's non-inherited properties**; at the tidier `inherits: false` the halo
+  resolved to alpha 0 at every drive level, which looks exactly like the effect being off.
+- **Hover is deliberately excluded** from the afterimage. A pointer crossing a dense panel
+  de-energizes every control it touches, and at a two-second tail that is a wake of glowing boxes
+  behind the cursor — which reads as lag, not as phosphor.
+- **A long phosphor no longer blinks, it throbs.** The blink off-edge was a fixed 54%→62% window
+  tuned for ~105 ms. Long-class emitters now select a second keyframe in which the next ON edge lands
+  before the previous has drained, so the alarm never reaches the dark half — floor lifted from 0.1
+  to 0.34. Selected by the palette through `--ac-blink-anim`, the same indirection `--ac-ghost-anim`
+  already used, so `effects.css` still names no palette.
+- **Scroll smear release scales with the emitter.** The drain factor is now the fixed 0.55 raised to
+  the ratio of the reference decay to this palette's, so neon releases in ~130 ms as before and P39
+  keeps trailing after the scroll stops.
+- **A `mix-blend-mode` costs subpixel text antialiasing for the whole page, and both new layers were
+  spending it.** One blended element promotes its containing stacking context, and the browser drops
+  LCD text rendering inside it — so the afterimage moved ~1.1% of pixels on a capture where the
+  effect was switched *off*, and the radar beam turned every glyph on the printed guide greyscale
+  because it was the one blended element still rendering in print and forced colors. The afterimage
+  no longer blends at all (over a near-black panel `screen` and ordinary alpha compositing of a
+  bright halo are indistinguishable — the same argument the cell mesh already makes for drawing its
+  ribs in pure black), and the beam is hidden in print and forced colors alongside every other
+  overlay. The ghosts keep their blend, because they land on lit text where it genuinely differs.
+
+### Added — persistence that CSS could not reach, and a second optional module
+
+- **`@view-transition` page persistence, in pure CSS.** The only place a real framebuffer snapshot is
+  available without JavaScript: navigating between pages leaves the old screen genuinely draining
+  behind the new one, per pixel, on the emitter's own sampled curve. The direction rule survives —
+  the OLD snapshot decays and the NEW page gets `animation: none`, so it is simply there on the first
+  frame. A default view transition cross-fades both halves, which is a slideshow.
+  **The at-rule is not shipped**: it is a document-level switch that cannot be scoped to a selector,
+  and linking a stylesheet must not rewrite how a site navigates. One line opts in; `docs/docs.css`
+  has it. Duration is capped separately from `--ac-persist-tail`, because the overlay sits above the
+  document and three seconds of unclickable page is not a simulation.
+- **`AmberConsoleEffects.transition(fn)`** for same-document changes — a true per-pixel decay of the
+  whole screen. Wired to tab switches and dialogs. **Discrete changes only**, for a mechanical reason
+  rather than a taste one: a view transition cancels whichever is already running, so wrapping every
+  text tick would mean a long snapshot discarded sixty times a second and never completing once.
+- **`.ac-sweep` — a PPI radar face, pure CSS.** The obvious way to draw a decaying wake is to stamp a
+  mark per frame and fade each one, which is a framebuffer problem needing a canvas. But a PPI trail
+  is not a history of marks — it is one continuous falloff behind a rotating line, and a
+  `conic-gradient` already is that falloff. The angular stops are the decay curve read in degrees
+  instead of milliseconds, which is a substitution rather than a pun: the beam turns at a constant
+  rate, so angle behind it *is* time since that bearing was painted. Under P7 the leading edge is
+  `--gas-flash` and the wake is `--gas-1` — the two coatings doing exactly what they did on the tube,
+  and the clearest demonstration of P7 in the system. Period scales off the tail, with a floor,
+  because neon would scale to 0.16 s and that is a strobe rather than a radar.
+- **`src/amber-console.effects.js`**, and the framework is now explicitly two tiers. The CSS is
+  complete alone; `amber-console.js` is behaviour (tabs, dialogs, presets); the new module is
+  persistence. **Neither imports the other and either works alone** — the effects module watches the
+  DOM for `.ac-afterglow` and `data-ac-style-smear` rather than being told, because both facts are
+  already in the DOM and a contract between two independently optional modules is a thing to keep in
+  sync. README carries a capability matrix stating exactly what each tier does, so "CSS only" is not
+  true by omission.
+- `AmberConsole.afterglow()` still works and forwards to the effects module. Deprecated, removed in
+  3.0.
+
+### Added — six CRT phosphors, and persistence as a property of the emitter
+
+The catalog has carried disabled rows for P1, P4, P7, P11, P31 and P39 since the display/emitter
+split landed. They are fitted now, and the interesting part is not that there are six more colours —
+it is that a phosphor has a *decay*, and the system had nowhere to put one.
+
+- **A band model, which closes a debt this file opened.** A gas emits lines and NIST publishes them;
+  a phosphor emits a broad band. `scripts/lib/cie.mjs` gained `sampleBands()`, and it samples the
+  band as a **Gaussian in photon energy, not in wavelength** — a luminescence band is symmetric in
+  the quantity being emitted, which renders as an asymmetric band with a longer red tail in
+  wavelength, which is what real phosphor spectra look like. That is not a stylistic claim: fitting
+  five published phosphor chromaticities with a symmetric-in-λ Gaussian leaves every one of them
+  0.04–0.10 too saturated in xy, and in energy the same five land within 0.003. The asymmetry is the
+  missing physics and it costs no new parameter.
+- **Bands and lines converge on one shape**, `[[nm, intensity], …]`, so the chromaticity integral,
+  the λ⁻⁴ scatter, the gamut fit and every contrast-solved stop are literally the same code for a
+  phosphor as for a gas. The technology changes what the spectrum *is* and nothing about what is done
+  with it.
+- **P3's `--gas-scatter` is derived at last, and the placeholder was wrong by 23%.** It had been
+  carrying neon's 1.00 with a note predicting a phosphor that close to neon's mean wavelength "would
+  land near 1.00 regardless". The integral now runs and it lands at **1.23**. The prediction was the
+  reasonable guess and it was still a guess. P3's *ramp* is unchanged and stays hand-built.
+- **`--ac-persist` and `--ac-flicker` are one number read in two directions.** A screen redraws every
+  frame; what is still lit when the next one arrives is the persistence, and what is missing is the
+  flicker. So a phosphor cannot be steady and smear-free at once, and both tokens come off one decay
+  constant in `derive-gas.mjs` — the same way `--gas-spread` is the square root of `--gas-scatter`
+  and cannot disagree with it. P11 lands at 1.000 (fully dark between frames, maximum flicker, and
+  the honest reason it was a phosphor for screens meant to be *photographed*); P39 and P7 at 0.091
+  (no flicker at any refresh rate, paid for in smear, which is why they went on radar).
+- **The caps are a usability decision made against the physics, and are documented as one.**
+  `--ac-decay` is `min(--ac-persist, 250ms)` and `--ac-decay-fast` is `min(--ac-persist, 60ms)`,
+  while `--ac-persist-tail` — ghosts and residual patches, where nothing waits on the result — runs
+  uncapped. P7's real 3000 ms tail is correct and would be an unusable dialog close. `min()` also
+  gets the short phosphors right in the other direction for free: P11 declares `0.035ms` and its UI
+  snaps.
+- **Decay curves are sampled, not approximated.** Long-persistence phosphors follow a Becquerel power
+  law — a fast knee over a very long tail — which no single `cubic-bezier` expresses, and
+  approximating one is why long-persistence CSS imitations read as fades rather than as phosphor.
+  Those palettes ship a `linear()` generated from the decay model on a **log-spaced** grid, so the
+  resolution sits where the curvature is rather than nine samples describing the crawl. Older engines
+  fall back to the existing bezier.
+- **P7 is two emitters and law 1 now says so.** The beam writes in blue ZnS:Ag; that layer's own
+  photons pump a yellow-green (Zn,Cd)S:Cu layer behind it. `--emit-*` is the flash and `--gas-*` is
+  the afterglow, so the halo does **not** track the ink — which inverts the rule stated at the top of
+  `tokens/effects.css` and is the reason P7 exists as a part number. It also predicts the look
+  correctly: static text is re-struck sixty times a second, so it reads as blue ink in a green halo,
+  and text that stops being written leaves only the glow. Law 1 is restated rather than excepted —
+  *one emitter per palette, and where the hardware is literally two, the second appears only in the
+  decay, is never semantic, and is never `--ink`.*
+- **`effects.css` still names no palette.** P7 declares `--ac-ghost-anim` and `--gas-flash`, and the
+  effects layer falls back to the single-hue keyframe for everything else, so a consumer's own
+  two-layer phosphor works with no edit to the framework.
+- **The four gases declare none of this and render byte-identically.** No decay figure for these
+  panels is cited yet, and inventing one to fill the column is exactly the kind of number this system
+  refuses. They fall back to the same 105 ms and 60 ms they always had.
+- **Honest about the evidence, which is weaker here than for the gases.** The phosphor blocks run
+  *published colour → band* rather than *spectrum → colour*, so their bands are back-solved and their
+  `validate` gate is a consistency check rather than the independent known-answer gate neon provides.
+  Four things about the result are nonetheless non-circular, and the `$phosphors` block in
+  `emitters.json` lists them — the best being that **P1 and P39 were fitted from different published
+  coordinates and converged on the same band**, because P39 *is* P1's chemistry with arsenic added to
+  lengthen the decay and not to change the colour. The fit reproduced a fact about the compounds that
+  was never given to it. Persistence figures are marked **provisional** pending per-phosphor
+  data-sheet citations; the persistence *class* is solid and is all the design depends on.
+- **Not attempted, deliberately:** the actual 60 Hz flicker of a tube. That is being watched on a
+  60 Hz display, and sampling a signal at its own frequency is Nyquist rather than a browser
+  limitation. What is rendered is the perceptual signature — fixed slow frequency, amplitude scaled
+  by `--ac-flicker` — under a hard WCAG 2.3.1 budget stated at the keyframe that spends it.
+
+### Added — a second demo, and it is not a period piece
+
+`docs/server.html` — **D-STAR**, a self-hosted server dashboard, joined by `docs/server.js` and a
+`doc-` block in `docs/docs.css`. ORION-70 argues that the system reproduces 1988 hardware; this one
+argues the half that was never tested, which is whether the same tokens dress an application people
+would actually ship.
+
+- **Built out of the parts an app needs and a projector does not**: three tab panels rather than two,
+  a table of containers with a working switch in every row (stopped → `.ac-spinner` while starting →
+  active), a scrub that runs a live `.ac-meter` to completion, a destructive host restart behind
+  `.ac-dialog`, and an event log every action on every view writes into.
+- **Status without a second hue.** A dashboard normally says healthy in green and down in red. Law 1
+  allows neither, so state is carried by inverse video, ink level and blink — the three signals the
+  genre already had, and the ones that survive a colorblind operator and a black-and-white printout.
+- **A sparkline made of boxes.** Law 6 bans the SVG element, so the 30-day availability strip is a
+  flex row of lit cells with an inline `--h` — which is what a character grid would have drawn anyway.
+- **The demo's simulation is deterministic.** Values drift from a seeded Lehmer generator rather than
+  `Math.random()`, the markup is frame zero, and the first tick is held to 2.5s so it lands well
+  clear of the visual suite's shutter. Host CPU is the sum of what the containers use; package
+  temperature and wall draw are functions of it, so stopping a service visibly cools the machine.
+- **`test/visual/capture.mjs` gained `click`.** A `display: none` tab panel reports a `scrollWidth` of
+  zero, so the overflow probe could not see the widest markup on the page — a seven-column table that
+  overflowed a 390px frame by 214px the first time it was written. The page is now probed as it loads,
+  the tab is opened, probed again, and the worse of the two is reported.
+
 ### Fixed — the bloom now reaches everything that is lit
 
 - **Glow was opt-in, and most of the panel never opted in.** Twenty selectors in the whole framework
@@ -70,9 +244,11 @@ All notable changes to this project are documented here. Format follows
   violet look fuzzier and ratios out at 2.67× for argon, but the absolute difference is 0.126 D —
   about half an arcminute, under a pixel — so using it would inflate a sub-pixel effect into 150 px
   of fog. The ratio is real; using it here would not be.
-- P3 holds neon's 1.00 as a placeholder rather than a derived result: it is a broad band, not a line
-  spectrum, so the integral has nothing to run over until `derive-gas.mjs` grows a band model in the
-  CRT pass — where P7's two layers make one unavoidable anyway.
+- P3 held neon's 1.00 as a placeholder rather than a derived result, because it is a broad band and
+  not a line spectrum, so the integral had nothing to run over. **Superseded later in this same
+  release** — the CRT pass grew the band model (P7's two layers made one unavoidable anyway), the
+  integral ran, and P3 lands at 1.23 rather than the 1.00 the placeholder note predicted it would be
+  near. See *Added — six CRT phosphors* above.
 
 ### Changed — the saturation rule
 

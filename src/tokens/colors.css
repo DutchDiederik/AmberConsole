@@ -20,13 +20,32 @@
  *
  * Currently installed:
  *
- *   plasma / neon   24deg. The default. Law 1's panel: neon emitting directly,
- *                   the color neon simply is. This is what .ac-bloom simulates.
+ *   plasma / neon      24deg. The default. Law 1's panel: neon emitting directly,
+ *                      the color neon simply is. What .ac-bloom simulates.
+ *   plasma / helium    pale pink. Multi-line, so genuinely pale.
+ *   plasma / argon     pale violet-lavender. Dim, and the file says why.
+ *   plasma / krypton   pale violet-white.
  *
- *   crt / p3        38deg. The classic amber phosphor, a broad ~590nm band with
- *                   real green content. This is the look most people mean by
- *                   "amber terminal", it is the ramp the source design system was
- *                   drawn against, and it pairs with the .ac-crt simulation.
+ *   crt / p3           38deg. The classic amber phosphor, a broad ~590nm band
+ *                      with real green content. The look most people mean by
+ *                      "amber terminal", the ramp the source design system was
+ *                      drawn against, and the pair for the .ac-crt simulation.
+ *   crt / p1           willemite green. Medium persistence.
+ *   crt / p4           the television white. A BLEND of two emitters.
+ *   crt / p7           blue flash over a yellow-green afterglow. The radar
+ *                      phosphor, and the only palette here whose halo is a
+ *                      different spectrum from its ink — see its block.
+ *   crt / p11          blue. Photographic-recording phosphor; flickers hardest.
+ *   crt / p31          green. The scope and terminal phosphor.
+ *   crt / p39          yellow-green. Long persistence; P1's chemistry with
+ *                      arsenic, so the same color and a decay 16x longer.
+ *
+ * TWO PHOSPHORS SHARE A RAMP WITH ANOTHER PALETTE AND THAT IS NOT A MISTAKE.
+ * P1 and P39 are both Zn2SiO4:Mn and differ only in decay; P7's flash and P11
+ * are both ZnS:Ag and differ only in what is behind them. Where the compound is
+ * the same the color is the same, and the palettes are told apart by their
+ * persistence rather than their hue. Deduplicating them would be deduplicating
+ * two pieces of hardware that really did look alike.
  *
  * DEPRECATED: `data-ac-gas="neon"` and `data-ac-gas="amber"` are kept as aliases
  * for the two blocks above and will be removed in 3.0. The name was the bug —
@@ -35,11 +54,39 @@
  *   data-ac-gas="neon"   ->  data-ac-tech="plasma" data-ac-emitter="neon"
  *   data-ac-gas="amber"  ->  data-ac-tech="crt"    data-ac-emitter="p3"
  *
- * Each palette defines the same fifteen values and nothing else: the five
- * discharge stops, the three surfaces, --on-fill, the four glow triples, and the
- * two scattering scalars. Every other token in the system is an alias or is
+ * Every palette defines the same fifteen SPECTRAL values: the five discharge
+ * stops, the three surfaces, --on-fill, the four glow triples, and the two
+ * scattering scalars. Every other color token in the system is an alias or is
  * built from those, so adding a technology or an emitter means adding one block
  * and nothing else.
+ *
+ * A PALETTE MAY ALSO CARRY TIME, and that is new with the CRT pass. Where an
+ * emitter has a documented decay, its block additionally declares:
+ *
+ *   --ac-persist       how long its light is visible after the drive stops
+ *   --ac-flicker       how much of it is GONE by the next refresh, 0..1
+ *   --ac-decay-ease    that decay's actual curve, as a sampled linear()
+ *   --ac-persist-fast  the fast layer, on a two-layer phosphor only
+ *
+ * Those are not four independent settings. --ac-persist and --ac-flicker are one
+ * physical quantity read in two directions — what is left of a frame when the
+ * next one arrives IS the persistence, and what is missing IS the flicker — so a
+ * phosphor cannot have much of one without little of the other. The derivation
+ * in scripts/derive-gas.mjs computes both from one decay constant for exactly
+ * that reason, the same way --gas-spread is the square root of --gas-scatter and
+ * cannot disagree with it.
+ *
+ * THE FOUR GASES DELIBERATELY DECLARE NONE OF THEM. Gas afterglow is real, but
+ * no decay figure for these panels is cited here yet, and inventing one to fill
+ * the column would be exactly the kind of number this file exists to refuse.
+ * tokens/effects.css keeps its own :root defaults, every gas falls back to them,
+ * and the plasma palettes render byte-identically to what they did before the
+ * phosphors arrived. Adding a cited `decay` to a gas is what would opt it in.
+ *
+ * THESE ARE CONSUMED WITH A CAP, NOT RAW. A 3000ms P7 tail is correct physics
+ * and an unusable dialog close, so tokens/effects.css clamps what drives UI
+ * state and leaves the decorative layers — ghosts, residual patches — at full
+ * length. The split is documented there, at the tokens that do it.
  *
  * EVERY PALETTE IS GATED. scripts/contrast.mjs runs the full pair table against
  * each block independently — a ratio that passes under one emitter and fails
@@ -73,11 +120,24 @@
  * argon. So every stop here is the emitter's own chromaticity at whatever
  * luminance the contrast gate demands, and the two decisions never mix.
  *
- * GENERATED PALETTES. The three gases below neon and P3 are computed by
- * scripts/derive-gas.mjs from cited line tables and must not be hand-edited;
- * `npm test` re-derives them and fails on drift. Neon and P3 predate the script
- * and stay hand-built — see the `emit: false` note in scripts/data/emitters.json
- * for why regenerating neon would repaint the framework to no one's benefit.
+ * GENERATED PALETTES. Nine of the eleven blocks below are computed by
+ * scripts/derive-gas.mjs and must not be hand-edited; `npm test` re-derives them
+ * and fails on drift. Neon and P3 predate the script and stay hand-built — see
+ * the `emit: false` notes in scripts/data/emitters.json for why regenerating
+ * either would repaint the framework to no one's benefit. P3's --gas-scatter is
+ * the one exception in the other direction: it was an admitted placeholder and
+ * is now derived, because the band model finally gave the integral something to
+ * run over. Its ramp did not change; only its halo width did.
+ *
+ * THE PHOSPHORS CARRY A WEAKER CLAIM THAN THE GASES, and it is not hedging to
+ * say so. A gas emits lines and NIST publishes them, so those palettes run
+ * spectrum -> color from measured data. No comparable public table of phosphor
+ * band SHAPES exists; what is published is the resulting chromaticity. So the
+ * phosphor blocks run backwards — published color -> band — and their bands are
+ * back-solved rather than measured. The $phosphors block in
+ * scripts/data/emitters.json states that plainly, along with the four things
+ * that are nonetheless non-circular about the result, and it is worth reading
+ * before quoting a number from here as though it came off an instrument.
  */
 
 :root,
@@ -174,14 +234,30 @@
   --gas-3: 255, 120, 0;
   --gas-4: 255, 186, 64;
 
-  /* Held at neon's 1.00 rather than derived. P3 is a broad ~590nm BAND, not a
-     line spectrum, so the lambda^-4 integral that gives the gases their figure
-     has nothing to run over until derive-gas.mjs grows a band model — which is
-     the CRT pass, where P7's two layers make it unavoidable anyway. A phosphor
-     that close to neon's mean wavelength would land near 1.00 regardless; this
-     is a placeholder that happens to be about right, not a derived result. */
-  --gas-scatter: 1;
-  --gas-spread: 1;
+  /* DERIVED NOW, and the placeholder it replaces was wrong by 23%.
+     This used to be held at neon's 1.00 because P3 is a broad ~590nm band and
+     the lambda^-4 integral had no lines to run over — with a note predicting
+     that a phosphor this close to neon's mean wavelength "would land near 1.00
+     regardless". scripts/lib/cie.mjs grew the band model in the CRT pass, the
+     integral ran, and it lands at 1.23. The prediction was the reasonable guess
+     and it was still a guess; this is the measurement of the model.
+     The RAMP above stays hand-built — see the emit: false note in
+     scripts/data/emitters.json, same standing as neon. Only the halo width was
+     ever a placeholder, and only the halo width changed. */
+  --gas-scatter: 1.23;
+  --gas-spread: 1.11;
+
+  /* Persistence: 25ms to 10% (medium).
+     22% still lit when the next frame arrives.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 25ms;
+  --ac-flicker: 0.785;
+
+  /* The decay curve itself, sampled from the exponential.
+     A shape no single cubic-bezier expresses, which is why it is a linear(). */
+  --ac-decay-ease: linear(0, 0.013 0.5%, 0.023 0.9%, 0.041 1.6%, 0.072 2.9%, 0.127 5.3%, 0.218 9.5%, 0.362 17%, 0.564 31%, 0.802 56%, 1.000 100%);
 }
 
 /* --- PLASMA / HELIUM — pale pink / salmon-white.
@@ -282,6 +358,292 @@
   /* Rayleigh: this gas throws 31% more light into the halo than neon. */
   --gas-scatter: 1.31;
   --gas-spread: 1.14;
+}
+
+/* --- CRT / P1 — willemite green.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 529nm FWHM 48nm: x=0.2154 y=0.7110.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 57% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.39:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p1"] {
+  --screen: #000c03;
+  --screen-raised: #001908;
+  --screen-well: #000601;
+
+  --emit-100: #00d871;
+  --emit-90:  #00b05b;
+  --emit-70:  #00964d;
+  --emit-50:  #00753a;
+  --emit-30:  #003f1c;
+  --on-fill:  #001a08;
+
+  --gas-1: 0, 237, 125;
+  --gas-2: 0, 225, 118;
+  --gas-3: 0, 212, 111;
+  --gas-4: 46, 255, 140;
+
+  /* Rayleigh: this phosphor throws 63% more light into the halo than neon. */
+  --gas-scatter: 1.63;
+  --gas-spread: 1.28;
+
+  /* Persistence: 24ms to 10% (medium).
+     20% still lit when the next frame arrives.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 24ms;
+  --ac-flicker: 0.798;
+
+  /* The decay curve itself, sampled from the exponential.
+     A shape no single cubic-bezier expresses, which is why it is a linear(). */
+  --ac-decay-ease: linear(0, 0.013 0.5%, 0.023 0.9%, 0.041 1.6%, 0.072 2.9%, 0.127 5.3%, 0.218 9.5%, 0.362 17%, 0.564 31%, 0.802 56%, 1.000 100%);
+}
+
+/* --- CRT / P4 — white.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     2 bands 466nm FWHM 76nm + 572nm FWHM 130nm x0.5: x=0.2701 y=0.3000.
+     Inside sRGB as measured; no gamut mapping needed.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.37:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p4"] {
+  --screen: #08090b;
+  --screen-raised: #121516;
+  --screen-well: #040405;
+
+  --emit-100: #9dc1d8;
+  --emit-90:  #7f9db0;
+  --emit-70:  #6c8696;
+  --emit-50:  #536874;
+  --emit-30:  #2b373e;
+  --on-fill:  #121618;
+
+  --gas-1: 176, 211, 234;
+  --gas-2: 165, 201, 223;
+  --gas-3: 153, 189, 211;
+  --gas-4: 197, 228, 248;
+
+  /* Rayleigh: this phosphor throws 55% more light into the halo than neon. */
+  --gas-scatter: 1.55;
+  --gas-spread: 1.24;
+
+  /* Persistence: 0.06ms to 10% (medium-short).
+     Fully dark between frames — flicker at maximum, no persistence to see.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 0.06ms;
+  --ac-flicker: 1.000;
+}
+
+/* --- CRT / P7 — blue flash over a yellow-green afterglow.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 466nm FWHM 76nm: x=0.1384 y=0.1502.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 29% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.35:1 on --emit-90.
+
+     TWO EMITTERS, IN SEQUENCE. --emit-* is the ZnS:Ag FLASH (x=0.1384 y=0.1502),
+     which is what the beam writes. --gas-* is the (Zn,Cd)S:Cu AFTERGLOW
+     (x=0.3553 y=0.5373), which is what the screen holds after it. The halo
+     therefore does NOT track the ink here, which inverts the rule stated at the
+     top of tokens/effects.css and is the reason P7 exists as a part number. --- */
+[data-ac-tech="crt"][data-ac-emitter="p7"] {
+  --screen: #040a11;
+  --screen-raised: #0b1520;
+  --screen-well: #020409;
+
+  --emit-100: #8bc0ff;
+  --emit-90:  #00a0fb;
+  --emit-70:  #0088d7;
+  --emit-50:  #0069a8;
+  --emit-30:  #00385d;
+  --on-fill:  #03182a;
+
+  --gas-1: 156, 226, 72;
+  --gas-2: 145, 215, 54;
+  --gas-3: 135, 203, 40;
+  --gas-4: 176, 242, 107;
+
+  /* Rayleigh: this phosphor throws 47% more light into the halo than neon. */
+  --gas-scatter: 1.47;
+  --gas-spread: 1.21;
+
+  /* THE FLASH, as a halo triple. --gas-* above is the AFTERGLOW, which is what
+     this screen holds; this is the layer the beam actually writes, and the ghost
+     keyframe starts here before crossing to the afterglow within one frame.
+     --ac-ghost-anim is how this palette tells tokens/effects.css it decays
+     through two hues rather than one, without effects.css naming it. */
+  --gas-flash: 175, 209, 255;
+  --ac-ghost-anim: ac-ghost-cascade;
+
+  /* Persistence: 400ms to 10%, visible tail to 3000ms (long).
+     91% still lit when the next frame arrives.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 3000ms;
+  --ac-flicker: 0.091;
+  --ac-persist-fast: 0.04ms;
+
+  /* Long enough that the next ON edge lands before this one has
+     drained: the alarm throbs rather than chops. */
+  --ac-blink-anim: ac-blink-decay-long;
+
+  /* The decay curve itself, sampled from the Becquerel power law I0/(1+t/t0)^1.4.
+     A shape no single cubic-bezier expresses, which is why it is a linear(). */
+  --ac-decay-ease: linear(0, 0.186 0.5%, 0.296 0.9%, 0.441 1.6%, 0.602 2.9%, 0.750 5.3%, 0.862 9.5%, 0.932 17%, 0.971 31%, 0.991 56%, 1.000 100%);
+}
+
+/* --- CRT / P11 — blue.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 466nm FWHM 76nm: x=0.1384 y=0.1502.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 29% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.35:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p11"] {
+  --screen: #040a11;
+  --screen-raised: #0b1520;
+  --screen-well: #020409;
+
+  --emit-100: #8bc0ff;
+  --emit-90:  #00a0fb;
+  --emit-70:  #0088d7;
+  --emit-50:  #0069a8;
+  --emit-30:  #00385d;
+  --on-fill:  #03182a;
+
+  --gas-1: 175, 209, 255;
+  --gas-2: 155, 199, 255;
+  --gas-3: 130, 188, 255;
+  --gas-4: 205, 225, 255;
+
+  /* Rayleigh: this phosphor throws 104% more light into the halo than neon. */
+  --gas-scatter: 2.04;
+  --gas-spread: 1.43;
+
+  /* Persistence: 0.035ms to 10% (medium-short).
+     Fully dark between frames — flicker at maximum, no persistence to see.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 0.035ms;
+  --ac-flicker: 1.000;
+}
+
+/* --- CRT / P31 — green.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 513nm FWHM 78nm: x=0.2079 y=0.5295.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 45% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.36:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p31"] {
+  --screen: #010c06;
+  --screen-raised: #03180e;
+  --screen-well: #010503;
+
+  --emit-100: #00d791;
+  --emit-90:  #00af76;
+  --emit-70:  #009564;
+  --emit-50:  #00744c;
+  --emit-30:  #003e27;
+  --on-fill:  #001b0e;
+
+  --gas-1: 0, 235, 160;
+  --gas-2: 0, 223, 151;
+  --gas-3: 0, 210, 142;
+  --gas-4: 0, 254, 173;
+
+  /* Rayleigh: this phosphor throws 67% more light into the halo than neon. */
+  --gas-scatter: 1.67;
+  --gas-spread: 1.29;
+
+  /* Persistence: 0.038ms to 10% (medium-short).
+     Fully dark between frames — flicker at maximum, no persistence to see.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 0.038ms;
+  --ac-flicker: 1.000;
+}
+
+/* --- CRT / P39 — yellow-green, long persistence.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 529nm FWHM 52nm: x=0.2248 y=0.6962.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 54% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.39:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p39"] {
+  --screen: #000c03;
+  --screen-raised: #001908;
+  --screen-well: #000601;
+
+  --emit-100: #00d86e;
+  --emit-90:  #00b059;
+  --emit-70:  #00964b;
+  --emit-50:  #007538;
+  --emit-30:  #003f1b;
+  --on-fill:  #001a07;
+
+  --gas-1: 0, 237, 121;
+  --gas-2: 0, 225, 115;
+  --gas-3: 0, 212, 108;
+  --gas-4: 49, 255, 137;
+
+  /* Rayleigh: this phosphor throws 62% more light into the halo than neon. */
+  --gas-scatter: 1.62;
+  --gas-spread: 1.27;
+
+  /* Persistence: 400ms to 10%, visible tail to 2000ms (long).
+     91% still lit when the next frame arrives.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 2000ms;
+  --ac-flicker: 0.091;
+
+  /* Long enough that the next ON edge lands before this one has
+     drained: the alarm throbs rather than chops. */
+  --ac-blink-anim: ac-blink-decay-long;
+
+  /* The decay curve itself, sampled from the Becquerel power law I0/(1+t/t0)^1.6.
+     A shape no single cubic-bezier expresses, which is why it is a linear(). */
+  --ac-decay-ease: linear(0, 0.118 0.5%, 0.197 0.9%, 0.313 1.6%, 0.465 2.9%, 0.632 5.3%, 0.781 9.5%, 0.889 17%, 0.953 31%, 0.985 56%, 1.000 100%);
 }
 
 /* Aliases and structural tokens — defined ONCE, for every palette. Anything

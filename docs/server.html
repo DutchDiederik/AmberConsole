@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D-STAR SERVER — Amber Console</title>
+<meta name="description" content="Live demo of Amber Console applied to a modern web application: a self-hosted home-server dashboard built entirely from ac-* classes.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#100600">
+
+<!-- Social cards. og:image MUST be absolute — a relative path is ignored by
+     every scraper — so these are the only URLs in the project hardcoded to the
+     Pages host. They are inert over file://, which costs nothing. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Amber Console">
+<meta property="og:title" content="D-STAR Server — Amber Console">
+<meta property="og:description" content="A modern self-hosted server dashboard rendered in Amber Console. Zero dependencies, one stylesheet.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/server.html">
+<meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="An amber plasma control panel of framed regions, inverse-video status strips and instrument readouts.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@DutchDiederik">
+
+<link rel="stylesheet" href="../dist/amber-console.css">
+<link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<!-- D-STAR is invented for this design system, the same way ORION-70 is: its
+     name, wordmark and copy are ours, and no manufacturer's branding, wordmark
+     or logo appears in it. See Provenance in README.md.
+
+     WHAT THIS PAGE IS FOR, and why it is not a third period piece. ORION-70
+     argues that the system reproduces 1988 hardware. This one argues the harder
+     half: that the same tokens dress an ordinary application people ship today —
+     a self-hosted server dashboard, of the Portainer/Unraid genre — without the
+     result being a costume. So it is built out of the parts a real app needs and
+     a projector does not: three tab views, a table of things you can start and
+     stop, a destructive action that confirms, a log that grows while you watch.
+
+     THE INTERESTING CONSTRAINT IS COLOR, and it is worth naming up front because
+     it is the first question anyone asks. A status dashboard normally says
+     "healthy" in green and "down" in red. Law 1 allows exactly one hue, so there
+     is no red and no green to say it with. Every state on this page is therefore
+     carried by three things the genre already had: INVERSE VIDEO (--fill against
+     --on-fill) for the live and the asserted, INK LEVEL (--ink-bright down to
+     --ink-faint) for how much attention a row deserves, and BLINK for the one
+     unacknowledged thing. That is not a workaround. Monochrome panels ran power
+     stations for thirty years on those three signals, and they are legible to a
+     colorblind operator and to a black-and-white printout in a way a red pill on
+     a green pill never was. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+  <span class="ac-mesh"></span>
+
+  <nav class="ac-nav ac-nav--sticky">
+    <span class="ac-nav__mark">Amber Console</span>
+    <div class="ac-nav__links">
+      <a class="ac-nav__link" href="index.html">Console</a>
+      <a class="ac-nav__link" href="server.html" aria-current="page">Server</a>
+      <a class="ac-nav__link" href="guide.html">System Guide</a>
+    </div>
+    <span class="ac-nav__meta">
+      <!-- The bar is the sticky half of the anti-confusion job: the board below
+           scrolls away, this does not, and it always names the TECHNOLOGY first
+           and the emitter second. -->
+      <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">PLASMA · NEON</span></span>
+      <span>REV 1.0</span>
+      <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
+    </span>
+  </nav>
+
+  <!-- ============================================================ SETUP ==
+       Four quarters. Three axes, and they are never the same axis:
+
+         DISPLAY     what hardware is in the panel. Sets the color.
+                     TWO regions, one per technology, never one list of eleven.
+         SIMULATION  what the glass does about it. Never sets a color.
+         STYLE       preferences that make no claim about the hardware at all.
+
+       This board is duplicated verbatim on every demo page rather than shared,
+       because these pages are static HTML with no build step and a visitor who
+       lands here must be able to try every emitter without going back. Keep the
+       copies byte-identical so a diff between two pages shows only the demo.
+
+       Splitting the catalog across two quarters is not only about confusion,
+       though that is the point of it: eleven rows in one column is also taller
+       than a board that never scrolls is allowed to be. Four gases and seven
+       phosphors side by side fit.
+
+       data-ac-peak IS NOT THE SAME KIND OF NUMBER ON BOTH SIDES, which is the
+       clearest single reason these two catalogs are not one list:
+
+         A GAS emits a LINE SPECTRUM. The number is the strongest VISIBLE line,
+         and it is NOT the perceived hue — that is the CIE integral of every line
+         at once, which is the whole argument tokens/colors.css makes for landing
+         neon at 24deg rather than at its 585.2nm line. Argon reads violet on the
+         glass while its strongest visible line is deep red at 696.5nm, and most
+         of what argon emits is not visible at all. No contradiction: they are
+         answers to different questions.
+
+         A PHOSPHOR emits a BROAD BAND. The number is the band peak, and it does
+         correspond to the perceived hue, because there is only one band. -->
+  <div class="ac-setup">
+    <div class="ac-setup__grid">
+
+      <!-- ------------------------------------------------- 1/4 · plasma -- -->
+      <div class="ac-panel">
+        <span class="ac-panel__title">▮ Plasma Gases</span>
+        <p class="doc-displays__note">Gas emitting directly. No phosphor in the stack.</p>
+        <fieldset class="doc-displays">
+          <legend class="ac-sr-only">Plasma gases</legend>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display" checked
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
+            <span class="doc-display__name">Neon</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">585nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="helium" data-ac-sims="plasma" data-ac-peak="587.6 nm">
+            <span class="doc-display__name">Helium</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Pale pink 588nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="argon" data-ac-sims="plasma" data-ac-peak="696.5 nm">
+            <span class="doc-display__name">Argon</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Lavender 696nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="krypton" data-ac-sims="plasma" data-ac-peak="587.1 nm">
+            <span class="doc-display__name">Krypton</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Violet 587nm</span>
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- ---------------------------------------------------- 1/4 · crt -- -->
+      <div class="ac-panel">
+        <span class="ac-panel__title">▯ CRT Phosphors</span>
+        <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
+        <fieldset class="doc-displays">
+          <legend class="ac-sr-only">CRT phosphors</legend>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
+            <span class="doc-display__name">P1</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Green 525nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
+            <span class="doc-display__name">P3</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Amber 590nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
+            <span class="doc-display__name">P4</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">White 450+560nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
+            <span class="doc-display__name">P7</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Blue+green 450/558nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
+            <span class="doc-display__name">P11</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Blue 460nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
+            <span class="doc-display__name">P31</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Green 520nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
+            <span class="doc-display__name">P39</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Long green 525nm</span>
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- --------------------------------------- 1/4 · simulation, style -- -->
+      <div class="ac-stack" style="--gap: 24px">
+        <div class="ac-panel">
+          <span class="ac-panel__title">Simulation</span>
+          <p class="doc-displays__note">What the glass does. Never a color.</p>
+          <div class="doc-switches">
+            <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
+              <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+            </button>
+            <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+              <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ac-panel">
+          <span class="ac-panel__title">Style</span>
+          <p class="doc-displays__note">Preferences. No claim about the hardware.</p>
+          <div class="doc-switches">
+            <!-- No BLINK switch here on purpose. Blink is law-2 emphasis and the
+                 dashboard below raises a real alarm when a service is stopped,
+                 so this page keeps it on and does not offer to turn it off. The
+                 style flag itself is still in the framework — write
+                 data-ac-style="blink" on a toggle to expose it, or set
+                 data-ac-style-blink="off" on <html>. prefers-reduced-motion
+                 stops it either way. -->
+            <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="true">
+              <span>Scroll Smear</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ----------------------------------------- 1/4 · state, the note -- -->
+      <div class="ac-stack" style="--gap: 24px">
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">State</span>
+          <dl class="ac-list ac-list--dense">
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Technology</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="tech">PLASMA</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Emitter</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Emission</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="peak">585.2 nm</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Mode</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- The prose is markup, one node per key, all but the matching one
+             hidden. A key is a technology, or an exact tech/emitter pair where
+             one phosphor does not behave like the rest of its family. -->
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">Technology</span>
+          <p class="doc-info" data-ac-display-info="plasma">A gas in a sealed gap, struck by a
+            sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
+            hue and varies only how hard it is driven.</p>
+          <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
+               deep red, while the panel is plainly lavender — that looks like a bug
+               until you know the eye is doing the arithmetic. -->
+          <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
+            output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
+            strongest line, not the color. What you see is the faint 415–475nm group, a hundred
+            times weaker and a hundred times better placed. It is also why argon is dim.</p>
+          <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
+            visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
+            yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
+            panel reads violet rather than any one of those colors.</p>
+          <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
+            which emits while struck and then persists. The color belongs to the phosphor, not the
+            beam; the P-number names the compound.</p>
+          <p class="doc-info" data-ac-display-info="crt/p7" hidden>Two coatings, not one. The beam writes into a blue ZnS:Ag layer that decays in
+            microseconds, and that layer's own photons pump a yellow-green one behind it which holds
+            for seconds. So the ink is blue and the halo is green: text you are reading is being
+            re-struck sixty times a second, and text that stops being written leaves only the glow.
+            This is the radar phosphor — the flash gives position, the trail gives history.</p>
+          <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
+            and leaves the colour alone — this palette and P1 are the same green, and differ only in
+            how long it lasts. At hundreds of milliseconds the screen is still near full brightness
+            when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
+            paid for in smear.</p>
+          <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
+            P11 was fitted to screens meant to be photographed rather than watched — and watched, it
+            is the worst screen here. It decays in tens of microseconds, three orders below a
+            refresh interval, so the screen is genuinely dark between frames. Short persistence and
+            heavy flicker are the same fact.</p>
+          <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
+            mixed into one coating, emitting together, which the eye integrates to white. That is
+            what separates it from P7 — two powders mixed have one colour, two powders layered emit
+            in sequence and the colour changes as you watch.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ac-setup__foot">
+      <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
+      <span class="ac-spacer"></span>
+      <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    </div>
+  </div>
+
+  <div class="ac-screen__body">
+    <div class="doc-console-head">
+      <div>
+        <div class="doc-wordmark">D-STAR</div>
+        <h1 id="headline">NODE 01 · 8 OF 8 SERVICES UP</h1>
+      </div>
+      <!-- Three panels rather than ORION-70's two, which is the point of having
+           them here: three is where the roving-tabindex model in
+           amber-console.js earns its keep, because Home and End stop being
+           synonyms for the two arrow keys. -->
+      <div class="ac-tabs" role="tablist" data-ac="tabs">
+        <button type="button" class="ac-tab" role="tab" aria-selected="true" aria-controls="view-overview" id="tab-overview">Overview</button>
+        <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="view-services" id="tab-services">Services</button>
+        <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="view-storage" id="tab-storage">Storage</button>
+      </div>
+    </div>
+
+    <!-- The vitals strip sits OUTSIDE the tab panels, because it is the machine
+         reporting on itself rather than one of the three views of it. Four
+         numbers, no units longer than two characters: at --type-display a
+         four-up row has about 85px per value on a phone, and anything wider
+         would be clipped by the frame instead of wrapping. -->
+    <div class="ac-panel ac-panel--bar">
+      <div class="ac-panel__barTitle">Node Vitals</div>
+      <div class="doc-vitals">
+        <div class="ac-readout">
+          <div class="ac-readout__label ac-readout__label--plain">Uptime</div>
+          <div class="ac-readout__value" id="v-uptime">42<span class="ac-readout__unit">d</span></div>
+        </div>
+        <div class="ac-readout">
+          <div class="ac-readout__label ac-readout__label--plain">Load</div>
+          <div class="ac-readout__value" id="v-load">0.42</div>
+        </div>
+        <div class="ac-readout">
+          <div class="ac-readout__label ac-readout__label--plain">Package</div>
+          <div class="ac-readout__value" id="v-temp">61<span class="ac-readout__unit">°C</span></div>
+        </div>
+        <div class="ac-readout">
+          <div class="ac-readout__label ac-readout__label--plain">Draw</div>
+          <div class="ac-readout__value" id="v-watts">74<span class="ac-readout__unit">W</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================= OVERVIEW == -->
+    <div class="ac-grid ac-grid--console" id="view-overview" role="tabpanel" aria-labelledby="tab-overview">
+
+      <!-- Operating column. Reading order is what an operator checks first. -->
+      <div class="ac-stack" style="--gap: 18px">
+        <div class="ac-panel">
+          <span class="ac-panel__title">Host Load</span>
+          <div class="ac-stack" style="--gap: 14px">
+            <!-- A meter is the right instrument here and a readout is not: these
+                 four are quantities an operator judges ("is it near the top?"),
+                 not values anyone writes down. The exact percentage rides along
+                 in the scale row so the estimate can be checked. -->
+            <div class="ac-meter" id="m-cpu">
+              <div class="ac-meter__track" style="--ac-meter-value: 34" role="progressbar" aria-valuenow="34" aria-valuemin="0" aria-valuemax="100" aria-label="CPU">
+                <div class="ac-meter__bar"></div>
+              </div>
+              <div class="ac-meter__scale"><span>CPU</span><span data-pct>34%</span></div>
+            </div>
+            <div class="ac-meter" id="m-mem">
+              <div class="ac-meter__track" style="--ac-meter-value: 61" role="progressbar" aria-valuenow="61" aria-valuemin="0" aria-valuemax="100" aria-label="Memory">
+                <div class="ac-meter__bar"></div>
+              </div>
+              <div class="ac-meter__scale"><span data-gb>Memory · 19.5 / 32 GB</span><span data-pct>61%</span></div>
+            </div>
+            <div class="ac-meter ac-meter--dim" id="m-swap">
+              <div class="ac-meter__track" style="--ac-meter-value: 3" role="progressbar" aria-valuenow="3" aria-valuemin="0" aria-valuemax="100" aria-label="Swap">
+                <div class="ac-meter__bar"></div>
+              </div>
+              <div class="ac-meter__scale"><span>Swap</span><span data-pct>3%</span></div>
+            </div>
+            <div class="ac-meter" id="m-io">
+              <div class="ac-meter__track" style="--ac-meter-value: 18" role="progressbar" aria-valuenow="18" aria-valuemin="0" aria-valuemax="100" aria-label="Disk I O">
+                <div class="ac-meter__bar"></div>
+              </div>
+              <div class="ac-meter__scale"><span>Disk I/O</span><span data-pct>18%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ac-panel">
+          <span class="ac-panel__title">Network</span>
+          <div class="doc-net">
+            <div class="ac-readout ac-readout--inline">
+              <div class="ac-readout__label ac-readout__label--plain">▼ Down</div>
+              <div class="ac-readout__value" id="n-down">118<span class="ac-readout__unit">Mb/s</span></div>
+            </div>
+            <div class="ac-readout ac-readout--inline">
+              <div class="ac-readout__label ac-readout__label--plain">▲ Up</div>
+              <div class="ac-readout__value" id="n-up">27<span class="ac-readout__unit">Mb/s</span></div>
+            </div>
+          </div>
+
+          <!-- THE SPARKLINE, AND WHY IT IS A ROW OF BOXES. Law 6 bans the SVG
+               element and npm run check greps for it, so the usual chart
+               library is not available and neither is a hand-written path. That
+               turns out to be the period-correct answer rather than a
+               compromise: a panel of this era drew histories as a row of lit
+               cells, because that is what a character grid can draw. Height is
+               an inline --h, which is a number and not a color, so it costs
+               nothing at the glow gate. -->
+          <div class="doc-spark" role="img" aria-label="Availability, last 30 days: 100 percent every day except two, at 97 and 62 percent">
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar doc-spark__bar--down" style="--h: 62"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar doc-spark__bar--down" style="--h: 97"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+            <span class="doc-spark__bar" style="--h: 100"></span>
+          </div>
+          <div class="doc-spark__scale"><span>30 Days Ago</span><span>99.7% Available</span><span>Today</span></div>
+        </div>
+
+        <div class="ac-statusbar" role="status">
+          <span id="status">STATUS:NOMINAL</span>
+          <span id="running">8 OF 8 RUNNING</span>
+        </div>
+
+        <!-- The alarm. It is absent until something is actually down rather than
+             present-and-dimmed, because law 2 rations emphasis: a banner that is
+             always on the screen has stopped being a banner. server.js inserts
+             and removes it. -->
+        <div id="alarm-slot" hidden></div>
+      </div>
+
+      <!-- Instrument column. Dim frames so read-only data recedes. -->
+      <div class="ac-stack" style="--gap: 18px">
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">Disks</span>
+          <dl class="ac-list ac-list--dense">
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Disk 1 · 8TB</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">OK 39°C</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Disk 2 · 8TB</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">OK 41°C</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Disk 3 · 8TB</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">OK 44°C</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Cache · 1TB</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">OK 36°C</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="ac-panel ac-panel--bar">
+          <div class="ac-panel__barTitle">Last Backup</div>
+          <div class="ac-readout">
+            <div class="ac-readout__value" id="b-size">41.2<span class="ac-readout__unit">GB</span></div>
+            <div class="ac-readout__label ac-readout__label--plain" id="b-when">Completed 04:00</div>
+          </div>
+        </div>
+
+        <button type="button" class="ac-btn" id="backup">Run Backup Now</button>
+
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">Daemons</span>
+          <fieldset class="doc-bits">
+            <!-- The panel title is the visible label; this names the group for
+                 assistive tech without drawing a second heading. -->
+            <legend class="ac-sr-only">Daemons</legend>
+            <label class="ac-check"><input type="checkbox" checked><span>Auto-Update</span></label>
+            <label class="ac-check"><input type="checkbox" checked><span>Nightly Snapshot</span></label>
+            <label class="ac-check"><input type="checkbox"><span>Remote Access</span></label>
+            <label class="ac-check"><input type="checkbox" checked><span>Metrics Agent</span></label>
+          </fieldset>
+        </div>
+
+        <div class="ac-row ac-row--end ac-push">
+          <button type="button" class="ac-btn ac-btn--lg" data-ac-dialog-open="restart-dialog">Restart Host</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================= SERVICES ==
+         The centrepiece, and the reason this demo is a server dashboard rather
+         than a status page: a table you can operate. Every row carries a real
+         switch, and throwing one runs the whole state machine — STOPPED, then
+         STARTING with a spinner while the machine admits it cannot say how long,
+         then ACTIVE. The spinner is correct here for exactly that reason; the
+         scrub on the storage tab knows its progress and gets a meter instead. -->
+    <div class="ac-stack" style="--gap: 18px" id="view-services" role="tabpanel" aria-labelledby="tab-services" hidden>
+      <div class="ac-panel">
+        <span class="ac-panel__title">Containers</span>
+        <div class="ac-table-scroll">
+          <table class="ac-table ac-table--zebra doc-services">
+            <thead>
+              <tr>
+                <th>Service</th><th>Image</th><th>Uptime</th><th class="ac-table__num">CPU</th>
+                <!-- A visible "Power" and not an .ac-sr-only label, which is a
+                     layout fix as much as a wording one: .ac-sr-only is
+                     position:absolute, so its containing block is the nearest
+                     positioned ancestor — .ac-panel, OUTSIDE this table's
+                     .ac-table-scroll. An absolute box whose containing block is
+                     outside a scroll container is not clipped by it, so the
+                     hidden label sat at the far edge of the 668px table and
+                     dragged the panel's scrollWidth out with it. The overflow
+                     probe in test/visual/capture.mjs caught it at 390px. -->
+                <th class="ac-table__num">Mem</th><th>State</th><th>Power</th>
+              </tr>
+            </thead>
+            <tbody id="services">
+              <tr data-svc="caddy">
+                <td>Caddy</td><td>caddy:2.8</td><td data-up>41d 06:11</td>
+                <td class="ac-table__num" data-cpu>0.4%</td><td class="ac-table__num" data-mem>62 MB</td>
+                <td data-state>Active</td>
+                <td><button type="button" class="ac-toggle doc-svc-toggle" data-svc-toggle aria-pressed="true" aria-label="Caddy power"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button></td>
+              </tr>
+              <tr data-svc="postgres">
+                <td>Postgres</td><td>postgres:16.4</td><td data-up>41d 06:11</td>
+                <td class="ac-table__num" data-cpu>2.1%</td><td class="ac-table__num" data-mem>884 MB</td>
+                <td data-state>Active</td>
+                <td><button type="button" class="ac-toggle doc-svc-toggle" data-svc-toggle aria-pressed="true" aria-label="Postgres power"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button></td>
+              </tr>
+              <tr data-svc="immich">
+                <td>Immich</td><td>immich:1.118</td><td data-up>12d 22:40</td>
+                <td class="ac-table__num" data-cpu>7.8%</td><td class="ac-table__num" data-mem>2.4 GB</td>
+                <td data-state>Active</td>
+                <td><button type="button" class="ac-toggle doc-svc-toggle" data-svc-toggle aria-pressed="true" aria-label="Immich power"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button></td>
+              </tr>
+              <tr data-svc="jellyfin">
+                <td>Jellyfin</td><td>jellyfin:10.9</td><td data-up>12d 22:40</td>
+                <td class="ac-table__num" data-cpu>19.4%</td><td class="ac-table__num" data-mem>1.1 GB</td>
+                <td data-state>Active</td>
+                <td><button type="button" class="ac-toggle doc-svc-toggle" data-svc-toggle aria-pressed="true" aria-label="Jellyfin power"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button></td>
+              </tr>
+              <tr data-svc="paperless">
+                <td>Paperless</td><td>paperless:2.11</td><td data-up>12d 22:40</td>
+                <td class="ac-table__num" data-cpu>0.9%</td><td class="ac-table__num" data-mem>410 MB</td>
+                <td data-state>Active</td>
+                <td><button type="button" class="ac-toggle doc-svc-toggle" data-svc-toggle aria-pressed="true" aria-label="Paperless power"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button></td>
+              </tr>
+              <tr data-svc="grafana">
+                <td>Grafana</td><td>grafana:11.2</td><td data-up>08d 03:55</td>
+                <td class="ac-table__num" data-cpu>1.6%</td><td class="ac-table__num" data-mem>236 MB</td>
+                <td data-state>Active</td>
+                <td><button type="button" class="ac-toggle doc-svc-toggle" data-svc-toggle aria-pressed="true" aria-label="Grafana power"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button></td>
+              </tr>
+              <tr data-svc="wireguard">
+                <td>Wireguard</td><td>wg-easy:14</td><td data-up>41d 06:11</td>
+                <td class="ac-table__num" data-cpu>0.2%</td><td class="ac-table__num" data-mem>28 MB</td>
+                <td data-state>Active</td>
+                <td><button type="button" class="ac-toggle doc-svc-toggle" data-svc-toggle aria-pressed="true" aria-label="Wireguard power"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button></td>
+              </tr>
+              <tr data-svc="syncthing">
+                <td>Syncthing</td><td>syncthing:1.27</td><td data-up>08d 03:55</td>
+                <td class="ac-table__num" data-cpu>3.3%</td><td class="ac-table__num" data-mem>174 MB</td>
+                <td data-state>Active</td>
+                <td><button type="button" class="ac-toggle doc-svc-toggle" data-svc-toggle aria-pressed="true" aria-label="Syncthing power"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="ac-row ac-row--wrap" style="--gap: 20px">
+        <button type="button" class="ac-btn" id="svc-all-on">Start All</button>
+        <span class="ac-spacer"></span>
+        <button type="button" class="ac-btn ac-btn--dim">Prune Unused Images</button>
+      </div>
+    </div>
+
+    <!-- ========================================================== STORAGE == -->
+    <div class="ac-grid ac-grid--console" id="view-storage" role="tabpanel" aria-labelledby="tab-storage" hidden>
+      <div class="ac-stack" style="--gap: 18px">
+        <div class="ac-panel">
+          <span class="ac-panel__title">Pools</span>
+          <div class="ac-stack" style="--gap: 18px">
+            <div class="ac-meter ac-meter--lg">
+              <div class="ac-meter__track" style="--ac-meter-value: 68" role="progressbar" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" aria-label="Tank pool">
+                <div class="ac-meter__bar"></div>
+              </div>
+              <div class="ac-meter__scale"><span>Tank · Raidz1 · 10.9 / 16 TB</span><span>68%</span></div>
+            </div>
+            <!-- --alarm is the over-range treatment and it is earned here: 94%
+                 on a copy-on-write pool is the point where writes start to
+                 fragment. Inverse-video track plus blink, because there is no
+                 red to reach for. -->
+            <div class="ac-meter ac-meter--lg ac-meter--alarm">
+              <div class="ac-meter__track" style="--ac-meter-value: 94" role="progressbar" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100" aria-label="Cache pool">
+                <div class="ac-meter__bar"></div>
+              </div>
+              <div class="ac-meter__scale"><span>Cache · Mirror · 0.94 / 1 TB</span><span>94%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">Datasets</span>
+          <div class="ac-table-scroll">
+            <table class="ac-table ac-table--dense doc-datasets">
+              <thead>
+                <tr><th>Dataset</th><th class="ac-table__num">Used</th><th class="ac-table__num">Quota</th><th class="ac-table__num">Snaps</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>tank/media</td><td class="ac-table__num">8.10 TB</td><td class="ac-table__num">12.0 TB</td><td class="ac-table__num">14</td></tr>
+                <tr><td>tank/photos</td><td class="ac-table__num">1.62 TB</td><td class="ac-table__num">2.00 TB</td><td class="ac-table__num">96</td></tr>
+                <tr><td>tank/docs</td><td class="ac-table__num">0.21 TB</td><td class="ac-table__num">0.50 TB</td><td class="ac-table__num">96</td></tr>
+                <tr><td>tank/backup</td><td class="ac-table__num">0.97 TB</td><td class="ac-table__num">1.50 TB</td><td class="ac-table__num">30</td></tr>
+                <tr><td>cache/appdata</td><td class="ac-table__num">0.94 TB</td><td class="ac-table__num">1.00 TB</td><td class="ac-table__num">7</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="ac-stack" style="--gap: 18px">
+        <div class="ac-panel ac-panel--bar">
+          <div class="ac-panel__barTitle">Scrub</div>
+          <div class="ac-stack" style="--gap: 14px">
+            <div class="ac-readout">
+              <div class="ac-readout__value" id="s-pct">0<span class="ac-readout__unit">%</span></div>
+              <div class="ac-readout__label ac-readout__label--plain" id="s-state">Last Run 19 Jul · 0 Errors</div>
+            </div>
+            <div class="ac-meter" id="s-meter">
+              <div class="ac-meter__track" style="--ac-meter-value: 0" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Scrub progress">
+                <div class="ac-meter__bar"></div>
+              </div>
+              <div class="ac-meter__scale"><span>0</span><span>50</span><span>100</span></div>
+            </div>
+            <button type="button" class="ac-btn ac-btn--block" id="scrub">Start Scrub</button>
+          </div>
+        </div>
+
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">Snapshots</span>
+          <dl class="ac-list ac-list--dense">
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Hourly</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">24 KEPT</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Daily</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">30 KEPT</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Monthly</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">12 KEPT</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Offsite</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">04:00 DAILY</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- The log is outside the tabs on purpose: every action on every view
+         writes to it, and an operator who switched tabs to do something should
+         not have to switch back to see that it happened. Capped at twelve rows
+         so the page cannot grow under its own output. -->
+    <div class="ac-panel ac-panel--dim">
+      <span class="ac-panel__title">Event Log</span>
+      <dl class="ac-list ac-list--dense" id="log">
+        <div class="ac-list__item">
+          <dt class="ac-list__key">04:12:08</dt>
+          <span class="ac-list__fill"></span>
+          <dd class="ac-list__value">BACKUP OK 41.2 GB</dd>
+        </div>
+        <div class="ac-list__item">
+          <dt class="ac-list__key">04:00:00</dt>
+          <span class="ac-list__fill"></span>
+          <dd class="ac-list__value">SNAPSHOT TANK</dd>
+        </div>
+        <div class="ac-list__item">
+          <dt class="ac-list__key">02:31:44</dt>
+          <span class="ac-list__fill"></span>
+          <dd class="ac-list__value">CERT RENEWED</dd>
+        </div>
+        <div class="ac-list__item">
+          <dt class="ac-list__key">00:04:19</dt>
+          <span class="ac-list__fill"></span>
+          <dd class="ac-list__value">DISK 3 TEMP 44°C</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="ac-statusbar ac-statusbar--line ac-push">
+      <span>HOST D-STAR-01</span>
+      <span>KERNEL 6.11.4</span>
+      <span id="uptime">UP 42D 06:11:07</span>
+      <span class="ac-spacer"></span>
+      <span id="clock">TIME 00:00:00</span>
+    </div>
+  </div>
+</div>
+
+<!-- Restarting drops every service at once and sits far from the switches that
+     drop one, so it confirms. -->
+<dialog class="ac-dialog" id="restart-dialog">
+  <form method="dialog">
+    <h2 class="ac-dialog__title">Confirm Restart</h2>
+    <div class="ac-dialog__body">
+      RESTART WILL STOP ALL 8 SERVICES AND REBOOT THE HOST.
+      IN-FLIGHT TRANSFERS WILL BE LOST. POOLS ARE EXPORTED CLEANLY.
+    </div>
+    <div class="ac-dialog__actions">
+      <button type="submit" class="ac-btn" value="cancel">Cancel</button>
+      <button type="submit" class="ac-btn ac-btn--filled" value="restart">Restart Host</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- The classic build, not the ES module: type="module" is blocked over file://
+     and this page must open by double-clicking it. -->
+<script src="../dist/amber-console.global.js"></script>
+<script src="../dist/amber-console.effects.global.js"></script>
+<script src="server.js"></script>
+</body>
+</html>

@@ -47,9 +47,20 @@ const update = process.argv.includes("--update");
  * WHAT IT DOES NOT GIVE UP: the overflow probe below walks the entire DOM
  * regardless of what is screenshotted, so the responsive-collapse regression
  * this suite was built for is still gated across the whole guide at every width.
+ *
+ * `click` exists for the server page and states the one thing the probe cannot
+ * reach on its own. A hidden tab panel is display:none, which reports a
+ * scrollWidth of zero — so a panel nobody opens is not measured, it is merely
+ * absent. The server demo hides its widest markup by far behind a tab (a
+ * seven-column table with a switch in every row, which overflowed a 390px frame
+ * by 214px the first time it was written), and that is exactly the regression
+ * this suite exists to catch. So the page is probed as it loads, the tab is
+ * opened, and it is probed again; the worse of the two is what gets reported,
+ * and the screenshot is taken of the opened state.
  */
 const PAGES = [
   { name: "console", file: "docs/index.html", fullPage: true },
+  { name: "server", file: "docs/server.html", fullPage: true, click: "#tab-services" },
   { name: "guide", file: "docs/guide.html", fullPage: false, anchor: "#controls .doc-grid2" },
 ];
 
@@ -240,7 +251,7 @@ for (const page of PAGES) {
        so the simulation overlays can be positioned against it, which silently
        CLIPS a too-wide row instead of scrolling it. So also look for any
        element whose content is wider than its box. */
-    const overflow = await tab.evaluate(() => {
+    const probe = () => tab.evaluate(() => {
       const d = document.documentElement;
       let worst = d.scrollWidth - d.clientWidth;
       for (const el of document.body.querySelectorAll("*")) {
@@ -262,6 +273,17 @@ for (const page of PAGES) {
       }
       return worst;
     });
+
+    let overflow = await probe();
+
+    /* Open the tab the page ships closed, then probe what it revealed. See the
+       note on `click` above: a display:none panel measures zero, so this is the
+       only way its markup is gated at all. */
+    if (page.click) {
+      await tab.click(page.click);
+      await tab.waitForTimeout(120);
+      overflow = Math.max(overflow, await probe());
+    }
 
     /* Scroll AFTER the overflow probe, so the probe always measures the page in
        its loaded state. `instant` and a settle frame because a smooth scroll is

@@ -38,14 +38,23 @@
 const STORE_PREFIX = "ac.sim.";
 
 /**
- * Live, so a preference changed mid-session is honored without a reload — and
- * guarded, so importing this module in a Node/SSR pass does not throw before it
- * reaches the DOM check at the bottom of the file.
+ * Wrap a DOM change so the screen it replaces decays per pixel.
+ *
+ * The one place this file reaches for amber-console.effects.js, and it reaches
+ * by runtime lookup rather than by import — deliberately, because the two
+ * modules are independently optional and an import would make one require the
+ * other. Without the effects module this is a plain call, and every tab and
+ * dialog behaves exactly as it did before persistence existed.
+ *
+ * Only DISCRETE changes are wrapped. A view transition cancels any transition
+ * already running, so wrapping frequent updates would mean a long P7 snapshot
+ * being discarded before it ever finished. See the note in the effects module.
  */
-const REDUCED_MOTION =
-  typeof matchMedia === "function"
-    ? matchMedia("(prefers-reduced-motion: reduce)")
-    : { matches: false };
+const withDecay = (fn) => {
+  const vt = globalThis.AmberConsoleEffects?.transition;
+  if (typeof vt === "function") vt(fn);
+  else fn();
+};
 
 /** localStorage can throw in private mode and in sandboxed file:// frames. */
 function readStored(key) {
@@ -91,7 +100,7 @@ function initTabs(root) {
 
   root.addEventListener("click", (e) => {
     const tab = e.target.closest('[role="tab"]');
-    if (tab && tabs.includes(tab)) select(tab);
+    if (tab && tabs.includes(tab)) withDecay(() => select(tab));
   });
 
   root.addEventListener("keydown", (e) => {
@@ -109,7 +118,7 @@ function initTabs(root) {
     e.preventDefault();
     const next = tabs[(moves[e.key] + tabs.length) % tabs.length];
     next.focus();
-    select(next);
+    withDecay(() => select(next));
   });
 
   select(tabs.find((t) => t.getAttribute("aria-selected") === "true") ?? tabs[0]);
@@ -133,234 +142,6 @@ function initToggle(btn) {
   btn.addEventListener("click", () => {
     paint(btn.getAttribute("aria-pressed") !== "true");
   });
-}
-
-/* ---------------------------------------------------- plasma afterglow -- */
-
-/**
- * A cell that stops being driven relaxes rather than switching off, so the
- * value a readout held one frame ago is still faintly on the glass. CSS handles
- * that for anything that merely *hides* — see the decay-out block in
- * tokens/effects.css — but it cannot reach the case that sells the effect: text
- * being rewritten in place. Nothing in the cascade remembers the old string.
- *
- * So: watch the frame, and when text changes, park a copy of the OLD text at
- * the rect it occupied and let tokens/effects.css drain it.
- */
-
-/** Enough of the source's paint to make a detached clone look identical. */
-const GHOST_STYLES = [
-  "font", "letterSpacing", "lineHeight", "textAlign", "textTransform",
-  "whiteSpace", "color", "textShadow", "padding", "borderRadius",
-];
-
-/**
- * More than this many draining ghosts means something is rewriting text far
- * faster than the decay, and every extra one is invisible under the pile.
- */
-const GHOST_LIMIT = 24;
-
-/**
- * Ghosts are decoration made of duplicated content — hide them completely, and
- * cut every wire the original had.
- *
- * `id` is the obvious one. The `data-ac-*` hooks are the subtle one and they
- * matter more: every initializer here finds its elements with a document-wide
- * querySelectorAll, so a clone that kept its hooks is still a match. A ghosted
- * readout gets rewritten by the next paint — with the LIVE value, which is the
- * one thing a ghost must never show, since the whole point of it is the value
- * the panel held a moment ago. A ghosted toggle gets its thumb moved by the next
- * applySim. The ghost is a photograph; nothing may keep writing on it.
- *
- * .ac-persist is PREPENDED to the frame, so ghosts also come first in document
- * order — a stale ghost does not merely paint wrong, it is what a plain
- * querySelector finds instead of the real element.
- */
-function sanitize(node) {
-  const cut = (el) => {
-    el.removeAttribute?.("id");
-    for (const attr of [...(el.attributes ?? [])]) {
-      if (attr.name.startsWith("data-ac-")) el.removeAttribute(attr.name);
-    }
-  };
-
-  cut(node);
-  for (const el of node.querySelectorAll?.("*") ?? []) cut(el);
-
-  node.setAttribute("aria-hidden", "true");
-  node.inert = true;
-  node.tabIndex = -1;
-}
-
-/**
- * Park a decaying copy of `source` on the persistence layer.
- *
- * @param {Element} source  the element to ghost — must still be in the document,
- *                          because its rect is what the ghost is pinned to
- * @param {string} [text]   value to show instead of the source's current one;
- *                          this is how a rewritten readout ghosts its old value
- * @param {boolean} [fast]  use --ac-decay-fast, for continuously updating text
- */
-function spawnGhost(source, text, fast) {
-  /* A background tab does not advance the animation clock, so a ghost spawned
-     into one never reaches animationend and never cleans itself up. Nothing is
-     being looked at either way — decline, rather than bank stale nodes for
-     whenever the tab comes back.
-
-     Same failure, different cause, under prefers-reduced-motion: the CSS hides
-     .ac-ghost outright, and a display:none element never runs its animation, so
-     animationend never fires and the self-removal below never happens. GHOST_LIMIT
-     caps the pile at 24 rather than letting it grow without bound, but the right
-     answer is not to clone, measure and park a node nobody will ever see — for
-     exactly the users who asked for less of this. */
-  if (document.hidden || REDUCED_MOTION.matches) return;
-
-  const frame = source.closest(".ac-afterglow");
-  const layer = frame?.querySelector(":scope > .ac-persist");
-  if (!layer) return;
-
-  const rect = source.getBoundingClientRect();
-  if (!rect.width || !rect.height) return;
-
-  const box = frame.getBoundingClientRect();
-  const ghost = source.cloneNode(true);
-  sanitize(ghost);
-  if (text !== undefined) ghost.textContent = text;
-
-  /* The clone leaves its ancestors behind, so every inherited and
-     descendant-selected style leaves with them. Copy the paint back on. */
-  const from = getComputedStyle(source);
-  for (const prop of GHOST_STYLES) ghost.style[prop] = from[prop];
-
-  ghost.classList.add("ac-ghost");
-  if (fast) ghost.classList.add("ac-ghost--fast");
-  ghost.style.left = `${rect.left - box.left}px`;
-  ghost.style.top = `${rect.top - box.top}px`;
-  ghost.style.width = `${rect.width}px`;
-  ghost.style.height = `${rect.height}px`;
-
-  layer.append(ghost);
-  while (layer.querySelectorAll(".ac-ghost").length > GHOST_LIMIT) {
-    layer.querySelector(".ac-ghost").remove();
-  }
-  ghost.addEventListener("animationend", () => ghost.remove(), { once: true });
-}
-
-/**
- * Ghost every text rewrite inside the frame.
- *
- * Both mutation kinds matter and they carry the old string differently:
- * `el.textContent = x` REPLACES the text node, which is a childList record with
- * the old node in removedNodes; editing a text node in place is a characterData
- * record with oldValue. Miss either one and half the updates on a page ghost.
- */
-function makeGhostObserver(frame) {
-  return new MutationObserver((records) => {
-    /* One ghost per element per batch — a single textContent assignment can
-       produce a remove and an insert, and two stacked copies read as a smear. */
-    const seen = new Map();
-
-    for (const m of records) {
-      let host = m.type === "characterData" ? m.target.parentElement : m.target;
-      if (!(host instanceof Element)) continue;
-      /* Our own ghosts are DOM changes too. Watching them would feed itself. */
-      if (host.closest(".ac-persist")) continue;
-
-      let old;
-      if (m.type === "characterData") {
-        old = m.oldValue;
-      } else {
-        for (const node of m.removedNodes) {
-          if (node.nodeType === Node.TEXT_NODE) old = node.nodeValue;
-        }
-      }
-
-      /* A rewrite to the same string is not a change the panel ever saw —
-         the console demo reassigns its date field every second unchanged. */
-      if (!old?.trim() || old === host.textContent) continue;
-      if (!seen.has(host)) seen.set(host, old);
-    }
-
-    for (const [host, old] of seen) spawnGhost(host, old, true);
-  });
-}
-
-/* ---------------------------------------------------- scroll smear -- */
-
-/** Per-frame scroll distance, in px, that saturates the smear. */
-const SMEAR_FULL = 55;
-/**
- * Geometric drain per frame once the scroll stops. At 60fps the loop stops
- * itself ~130ms in, when it crosses the floor. The tail wants to be short: a
- * smear that outlives the scroll by much stops reading as persistence and starts
- * reading as lag. While you are actually scrolling the smear is held up by
- * velocity, so this governs the release and nothing else.
- */
-const SMEAR_DRAIN = 0.55;
-
-/**
- * Drive `--ac-smear` on the frame from actual scroll speed.
- *
- * Scrolling hands every cell on the panel a new value at once, which is the
- * largest light-off event there is, so it is also where the gas visibly fails
- * to keep up. The CSS in tokens/effects.css turns this number into a blurred
- * additive copy of the backdrop.
- *
- * Speed comes from the delta between animation frames rather than from the
- * scroll events themselves: scroll fires at wildly different rates depending on
- * input device, and a wheel notch and a trackpad flick that move the same
- * distance in the same time should smear identically.
- */
-function makeScrollSmear(frame) {
-  let last = 0;
-  let smear = 0;
-  let raf = 0;
-
-  const clear = () => {
-    smear = 0;
-    frame.removeAttribute("data-ac-scrolling");
-    frame.style.removeProperty("--ac-smear");
-  };
-
-  const step = () => {
-    raf = 0;
-    const y = window.scrollY;
-    const target = Math.min(Math.abs(y - last) / SMEAR_FULL, 1);
-    last = y;
-
-    /* Rise immediately, drain gradually — the same asymmetry as everything else
-       here. The panel keeps up with getting brighter; it lags going dark. */
-    smear = target > smear ? target : smear * SMEAR_DRAIN;
-
-    if (smear < 0.01) {
-      clear();
-      return;
-    }
-    frame.setAttribute("data-ac-scrolling", "");
-    frame.style.setProperty("--ac-smear", smear.toFixed(3));
-    raf = requestAnimationFrame(step);
-  };
-
-  const onScroll = () => {
-    if (!raf) raf = requestAnimationFrame(step);
-  };
-
-  return {
-    connect() {
-      /* Smearing the viewport in response to scrolling is the most motion-sick-
-         making thing in the simulation; the CSS hides it too, but there is no
-         reason to run the loop at all. */
-      if (REDUCED_MOTION.matches) return;
-      last = window.scrollY;
-      window.addEventListener("scroll", onScroll, { passive: true });
-    },
-    disconnect() {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
-      clear();
-    },
-  };
 }
 
 /* ------------------------------------------------------- screen sims -- */
@@ -457,22 +238,13 @@ function applySim(name, on) {
     }
   }
 
-  if (sim.classes.includes("ac-afterglow")) {
-    ghostObserver ??= makeGhostObserver(frame);
-    scrollSmear ??= makeScrollSmear(frame);
-    if (on) {
-      ghostObserver.observe(frame, {
-        subtree: true,
-        childList: true,
-        characterData: true,
-        characterDataOldValue: true,
-      });
-      if (styleOn("smear")) scrollSmear.connect();
-    } else {
-      ghostObserver.disconnect();
-      scrollSmear.disconnect();
-    }
-  }
+  /* NOTHING HERE STARTS THE PERSISTENCE EFFECTS, and that is the split.
+     Ghosting, the scroll smear and the framebuffer decay live in
+     amber-console.effects.js, which may not be loaded — and when it is, it
+     watches the frame's class list for `.ac-afterglow` itself rather than being
+     told. Toggling the simulation is a DOM change; a module that can see the DOM
+     needs no handshake, and a handshake would be one more thing to keep in sync
+     across two files that are meant to be independently optional. */
 
   for (const btn of document.querySelectorAll(`[data-ac-sim="${name}"]`)) {
     btn.setAttribute("aria-pressed", String(on));
@@ -810,12 +582,10 @@ function initStyle() {
   const apply = (name, on, persist = true) => {
     document.documentElement.setAttribute(`data-ac-style-${name}`, on ? "on" : "off");
 
-    /* Smear is the one style with a running cost rather than a CSS rule — the
-       rAF loop has to actually stop. It only exists while the afterglow does. */
-    if (name === "smear" && scrollSmear) {
-      if (on && screenFrame()?.classList.contains("ac-afterglow")) scrollSmear.connect();
-      else scrollSmear.disconnect();
-    }
+    /* Smear is the one style with a running cost rather than a CSS rule, and
+       stopping that loop is amber-console.effects.js's job — it watches
+       data-ac-style-smear on the root, which the line above just wrote. Writing
+       the attribute IS the notification. */
 
     for (const btn of document.querySelectorAll(`[data-ac-style="${name}"]`)) {
       btn.setAttribute("aria-pressed", String(on));
@@ -863,12 +633,13 @@ function initDialogs() {
     const opener = e.target.closest("[data-ac-dialog-open]");
     if (opener) {
       const dialog = document.getElementById(opener.dataset.acDialogOpen);
-      if (dialog?.showModal) dialog.showModal();
+      if (dialog?.showModal) withDecay(() => dialog.showModal());
       return;
     }
 
     const closer = e.target.closest("[data-ac-dialog-close]");
-    if (closer) closer.closest("dialog")?.close();
+    const dialog = closer?.closest("dialog");
+    if (dialog) withDecay(() => dialog.close());
   });
 }
 
@@ -877,10 +648,6 @@ function initDialogs() {
 /** Elements already wired, so a second init() cannot double-bind a listener. */
 const wired = new WeakSet();
 let globalsWired = false;
-/** One observer for the page, connected and disconnected by the toggle. */
-let ghostObserver = null;
-/** One scroll-smear driver, likewise. */
-let scrollSmear = null;
 /** True once the panel differs from the DISPLAY preset it was set from. */
 let modified = false;
 
@@ -916,19 +683,20 @@ export function init(scope = document) {
 }
 
 /**
- * Leave a decaying copy of `el` behind. Call it BEFORE you remove or empty the
- * element — a detached node has no rect, so there is nowhere to pin the ghost.
+ * MOVED — this is a forwarding shim, kept so existing calls keep working.
  *
- * Text rewrites inside the frame already ghost themselves; this is for the case
- * the observer cannot serve, which is a node that is about to stop existing.
+ * Ghosting now lives in amber-console.effects.js, because it is an effect and
+ * this file is behaviour. Call `AmberConsoleEffects.afterglow(row)` directly;
+ * this delegates when that module is present and does nothing when it is not,
+ * which is the same no-op it always was with the simulation switched off.
  *
- *   AmberConsole.afterglow(row);
+ *   AmberConsole.afterglow(row);   // still works
  *   row.remove();
  *
- * A no-op when the afterglow simulation is off, so it is always safe to call.
+ * Removed in 3.0, with the rest of the deprecations.
  */
 export function afterglow(el) {
-  if (el instanceof Element) spawnGhost(el);
+  globalThis.AmberConsoleEffects?.afterglow?.(el);
 }
 
 if (typeof document !== "undefined") {

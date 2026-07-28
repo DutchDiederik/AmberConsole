@@ -55,7 +55,26 @@
   .ac-scanlines::after,
   .ac-retrace,
   .ac-persist,
-  .ac-mesh {
+  .ac-mesh,
+  /* The radar wake is a rotating light, and paper does not rotate — frozen, it
+     prints as an unexplained bright wedge across the face. Hiding it also keeps
+     the LAST blended element off the printed page, which matters more than it
+     looks: a single `mix-blend-mode` anywhere in the document promotes the
+     containing stacking context and costs SUBPIXEL TEXT ANTIALIASING for the
+     whole page. Every other overlay here was already hidden in print, so this
+     one arriving quietly turned every printed glyph greyscale. */
+  .ac-sweep__beam {
+    display: none;
+  }
+
+  /* The de-energizing afterimage is a halo around a control that is no longer
+     lit — an argument about elapsed time, which paper does not have. It prints
+     as an unexplained smudge, so it does not print. */
+  .ac-afterglow .ac-btn::after,
+  .ac-afterglow .ac-tab::after,
+  .ac-afterglow .ac-nav__link::after,
+  .ac-afterglow .ac-badge::after,
+  .ac-afterglow .ac-table__row--active td::after {
     display: none;
   }
 

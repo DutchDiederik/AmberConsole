@@ -6,6 +6,20 @@
      it will keep an amber corona around neon text, which is the one place the
      mismatch is legible side by side.
 
+     EXCEPT ON A TWO-COATING PHOSPHOR, WHERE IT IS THE OTHER LIGHT ENTIRELY, and
+     that is worth knowing before the P7 palette looks like a bug. P7 is a blue
+     ZnS:Ag layer facing the beam over a yellow-green (Zn,Cd)S:Cu layer behind
+     it: the beam writes in blue, the blue layer's own photons pump the layer
+     underneath, and what the SCREEN HOLDS is yellow-green. So --emit-* is blue
+     and --gas-* is yellow-green, and blue text inside a green halo is not a
+     mismatch — it is the only thing that palette can honestly look like.
+
+     Nothing in this file changes to accommodate that, which is the point. The
+     rule here is still "build every halo from --gas-N and never name a colour";
+     P7 simply declares a --gas-N that is not its own ink. The one place the
+     difference surfaces is the ghost keyframe, and even there the palette names
+     the animation rather than this file naming the palette.
+
      THE HALO IS NOT THE SAME SIZE FOR EVERY GAS, and that is physics rather than
      styling. Rayleigh scattering goes as lambda^-4, so a violet gas throws
      half again as much of itself sideways into the glass as a red one does.
@@ -28,17 +42,53 @@
      refresh — it relaxes: the discharge leaves excited and metastable neon behind,
      and that keeps emitting while it recombines. No phosphor is involved; see
      law 1 in the system guide. The curve is the shape of that relaxation: most of the
-     light is gone in the first third, then a long dim tail. Override to retune
-     the panel; --ac-decay-fast is for text that is rewritten continuously (a
-     clock, a frame counter) where the full tail would smear into the next value.
+     light is gone in the first third, then a long dim tail. --ac-decay-fast is
+     for text that is rewritten continuously (a clock, a frame counter) where the
+     full tail would smear into the next value.
 
-     These are deliberately near the floor of what registers as a decay at all:
-     much under ~80ms and the eye stops reading a relaxation and starts reading a
-     switch. That is the intended side of the line to be on — the effect should
-     be felt rather than seen. */
-  --ac-decay: 105ms;
-  --ac-decay-fast: 60ms;
+     These defaults are deliberately near the floor of what registers as a decay
+     at all: much under ~80ms and the eye stops reading a relaxation and starts
+     reading a switch. That is the intended side of the line to be on — the
+     effect should be felt rather than seen. A phosphor is emphatically NOT
+     required to sit there, and the long ones do not.
+
+     PERSISTENCE IS A PROPERTY OF THE EMITTER NOW, not of this file. A palette
+     that knows its own decay declares --ac-persist (and --ac-flicker, and its
+     own sampled --ac-decay-ease) in tokens/colors.css, and the three tokens
+     below are DERIVED FROM IT rather than set here. This block is the fallback
+     for every palette that declares nothing — which is all four gases, so they
+     resolve to the same 105ms and 60ms they always had and render unchanged.
+
+     THE CAP IS THE WHOLE POINT OF min(), AND IT IS A USABILITY DECISION MADE
+     AGAINST THE PHYSICS ON PURPOSE. P7's tail is 3000ms and P39's is 2000ms.
+     Those are correct, and a dialog that stays painted for two seconds after it
+     closes is not a simulation, it is a bug that can cite a source. So:
+
+       --ac-decay       things that must actually LEAVE — [hidden], a closing
+                        dialog. Capped at 250ms however long the phosphor runs.
+       --ac-decay-fast  de-energizing controls and hover release. Capped at 60ms,
+                        because this fires on every control the pointer crosses.
+       --ac-persist-tail  ghosts and residual patches. NOT capped. These are pure
+                        decoration, nothing waits on them, and they are where the
+                        long phosphors are actually allowed to be long — which is
+                        also where the effect lives.
+
+     min() also gets the short phosphors right in the other direction and for
+     free: P11 declares 0.035ms, so its UI snaps rather than decaying, which is
+     exactly what a photographic-recording phosphor did and exactly why nobody
+     enjoyed looking at one. */
+  --ac-persist: 105ms;
+  --ac-decay: min(var(--ac-persist), 250ms);
+  --ac-decay-fast: min(var(--ac-persist), 60ms);
+  --ac-persist-tail: var(--ac-persist);
   --ac-decay-ease: cubic-bezier(0.1, 0.72, 0.22, 1);
+
+  /* HOW MUCH OF THE IMAGE IS GONE BY THE NEXT REFRESH, 0..1 — the other half of
+     --ac-persist and not an independent knob. A palette that declares one
+     declares both, from one decay constant, in scripts/derive-gas.mjs.
+     1 is the default and means "no palette said", which resolves the flicker
+     amplitude below to exactly the value it had before persistence existed. */
+  --ac-flicker: 1;
 
   /* The cell matrix. A plasma panel is not a lit surface, it is a grid of gas
      gaps at wire intersections, and the barrier ribs between them do not emit.
@@ -331,12 +381,49 @@
   from { background-position: 0 0, 0 0; }
   to   { background-position: 0 0, 0 -3px; }
 }
-/* Mains flicker: ±2% brightness, plus one shallow single-frame dip per cycle */
+/* MAINS FLICKER, SCALED BY THE PHOSPHOR — and the first thing to say is what
+   this is NOT, because the obvious reading of it is wrong.
+
+   THE ACTUAL FLICKER OF A CRT CANNOT BE RENDERED HERE, EVER. A tube refreshing
+   at 60Hz is being watched on a display refreshing at 60Hz; there is no headroom
+   to show a 60Hz modulation, and asking for one is asking to sample a signal at
+   its own frequency. That is Nyquist, not a browser limitation, and no amount of
+   cleverness gets around it. The same refusal is documented in
+   scripts/derive-gas.mjs for the eye's chromatic aberration: the effect is real,
+   and using it here would not be.
+
+   What IS renderable is the perceptual signature — the slow beat and the sense
+   of an image being re-struck rather than held. So the FREQUENCY here is fixed
+   and slow, and only the AMPLITUDE answers to the hardware, via --ac-flicker:
+   the fraction of the image that is gone by the time the next frame arrives.
+   That number is derived from the same decay constant as --ac-persist, so a
+   phosphor cannot be steady and smear-free at once:
+
+     P11, P31, P4   1.000  fully dark between frames. Maximum unsteadiness, and
+                           the honest reason nobody read text off a P11 tube.
+     P1, P3         ~0.79  medium persistence, visibly less settled.
+     P7, P39        0.091  the long phosphors, which is what they were bought
+                           for — rock steady at any refresh rate, paid for in
+                           smear. Both halves of that trade, from one number.
+
+   THE 0.035 IS THE BUDGET AND IT IS NOT A TASTE SETTING. WCAG 2.3.1 prohibits
+   more than 3 flashes/sec above 10% relative luminance over more than 25% of the
+   field, and the 3-8Hz band is the most seizure-provocative there is. This
+   animation runs at 0.18Hz — a 5.5s cycle, more than an order of magnitude below
+   the threshold frequency — and its deepest dip is 3.5% of the opacity of an
+   overlay whose own mean darkening is about 15%, so worst-case panel luminance
+   moves by well under 1%. Both margins are large on purpose. Raising this
+   constant spends both of them at once; redo the arithmetic first, exactly as
+   the --ac-mesh-wire note above demands.
+
+   At --ac-flicker: 1 the two stops resolve to 0.965 and 0.985, which is what
+   this keyframe was before it took a variable — so a gas palette, which declares
+   no flicker, renders identically. */
 @keyframes ac-crt-hum {
   0%, 100% { opacity: 1; }
-  31%      { opacity: 0.965; }
+  31%      { opacity: calc(1 - 0.035 * var(--ac-flicker, 1)); }
   32%      { opacity: 1.0; }
-  68%      { opacity: 0.985; }
+  68%      { opacity: calc(1 - 0.015 * var(--ac-flicker, 1)); }
 }
 /* Vertical retrace band — a slow, almost invisible lightening sweep */
 .ac-crt > .ac-retrace {
@@ -452,7 +539,7 @@
 .ac-afterglow .ac-field--invalid .ac-input,
 .ac-afterglow .ac-input[aria-invalid="true"],
 .ac-afterglow .ac-meter--alarm .ac-meter__bar {
-  animation-name: ac-blink-decay;
+  animation-name: var(--ac-blink-anim, ac-blink-decay);
   animation-timing-function: linear;
 }
 /* The stops are spread wider than a literal decay curve would be. A true
@@ -471,6 +558,31 @@
   60%       { opacity: 0.30; filter: blur(0.22px); }
   61%       { opacity: 0.17; filter: blur(0.27px); }
   62%, 100% { opacity: 0.1; filter: blur(0.3px); }
+}
+
+/* THE SAME EDGE ON A LONG PHOSPHOR, which is a different edge entirely.
+   The window above is ~88ms of a 1.1s cycle — right for a gas gap and for the
+   medium phosphors, and wrong by more than an order of magnitude for P7 and P39,
+   whose light is still visible seconds after the drive stops. An alarm on a P39
+   screen does not blink so much as pulse: it never reaches the dark half at all,
+   because the next ON edge arrives while the previous one is still draining.
+
+   Selected by the PALETTE, not by this file, on the same indirection
+   --ac-ghost-anim already uses: keyframe offsets cannot read a custom property,
+   so the shape has to be a second keyframe rather than a retuned one, and
+   scripts/derive-gas.mjs points the long-class emitters at it. Everything else
+   falls through the var() fallback above and is untouched.
+
+   Note where it bottoms out: 0.34, not 0.1. That IS the effect — the floor of a
+   long phosphor's blink is lifted because the cell never fully relaxes between
+   strikes, and the alarm reads as a throb rather than a chop. */
+@keyframes ac-blink-decay-long {
+  0%, 54%   { opacity: 1; filter: blur(0); }
+  60%       { opacity: 0.88; filter: blur(0.10px); }
+  68%       { opacity: 0.72; filter: blur(0.18px); }
+  78%       { opacity: 0.57; filter: blur(0.26px); }
+  88%       { opacity: 0.44; filter: blur(0.34px); }
+  100%      { opacity: 0.34; filter: blur(0.4px); }
 }
 
 /* (5) DE-ENERGIZING — a lit cell that goes unlit.
@@ -508,7 +620,118 @@
     border-color var(--ac-decay-fast) var(--ac-decay-ease),
     color var(--ac-decay-fast) var(--ac-decay-ease),
     box-shadow var(--ac-decay-fast) var(--ac-decay-ease),
-    text-shadow var(--ac-decay-fast) var(--ac-decay-ease);
+    text-shadow var(--ac-decay-fast) var(--ac-decay-ease),
+    --ac-lit var(--ac-persist-tail) var(--ac-decay-ease);
+}
+
+/* (5b) THE AFTERIMAGE — the part a long phosphor actually shows you.
+   ------------------------------------------------------------------
+   Everything above releases on --ac-decay-fast, which is right for the STRUCTURE
+   of a control: a button must read as released the instant you let go, or the
+   panel feels broken rather than persistent. But on P39 or P7 the structure is
+   not what lingers. The LIGHT lingers — for one to three seconds — and until now
+   nothing in this file expressed that, so the two phosphors whose entire reason
+   for existing is a long tail looked exactly like the ones without one.
+
+   So the two halves are split by what they describe, which is also the physical
+   split: the control's geometry snaps, and the light it was emitting decays on
+   --ac-persist-tail, uncapped.
+
+   WHY A REGISTERED NUMBER AND NOT A box-shadow TRANSITION. Two reasons, and the
+   second is the load-bearing one. Interpolating box-shadow directly works — a
+   `none` is padded with transparent shadows, so it does animate — but the halo
+   would have to be declared HERE, on every one of these selectors, which means
+   overwriting whatever box-shadow the component itself uses for its border glow
+   and its focus ring. --ac-lit is a number; the components keep their own
+   shadows, and this file adds a layer that reads it. One variable drives the
+   afterimage's alpha and its halo radius together, so the two cannot disagree
+   about how lit the thing is.
+
+   HOVER IS DELIBERATELY NOT IN THE LIT LIST BELOW, and that is a judgement call
+   worth stating. A pointer crossing a dense panel de-energizes every control it
+   touches, and at a 2s tail that leaves a wake of glowing boxes behind the
+   cursor — which reads as lag, not as phosphor. The comment above already warned
+   about this for the fast decay. Hover keeps its instant background change; the
+   afterimage answers only to real STATE — filled, pressed, selected, current,
+   checked — which is what a cell being driven actually corresponds to. */
+/* INHERITS, AND IT HAS TO. The afterimage below is a ::after, and a pseudo-
+   element does not read its originating element's non-inherited properties — it
+   gets the initial value. Registered with `inherits: false` the halo therefore
+   resolved to alpha 0 at every drive level, which looks exactly like the effect
+   being off and is why this is stated rather than left at the tidier default. */
+@property --ac-lit {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* The lit states. Instant on: no transition is declared here, so --ac-lit jumps
+   to 1 and only the release is timed by the rule above. */
+.ac-afterglow .ac-btn--filled,
+.ac-afterglow .ac-btn[aria-pressed="true"],
+.ac-afterglow .ac-tab--active,
+.ac-afterglow .ac-tab[aria-selected="true"],
+.ac-afterglow .ac-nav__link[aria-current="page"],
+.ac-afterglow .ac-badge--filled,
+.ac-afterglow .ac-banner--filled,
+.ac-afterglow .ac-check input:checked,
+.ac-afterglow .ac-radio input:checked,
+.ac-afterglow .ac-toggle--on .ac-toggle__thumb,
+.ac-afterglow .ac-toggle[aria-pressed="true"] .ac-toggle__thumb,
+.ac-afterglow .ac-table__row--active td {
+  --ac-lit: 1;
+}
+
+/* THE AFTERIMAGE LAYER ITSELF, and it is a short list for a mechanical reason.
+   An element has exactly one ::after, and four components have already spent
+   theirs: .ac-toggle (thumb), .ac-banner (the ✳✳ ornaments, both pseudos),
+   .ac-select (the ▼) and .ac-spinner. Declaring one here would silently replace
+   those — the same trap .ac-crt::after and .ac-bloom::after already document.
+   .ac-check and .ac-radio light the <input> itself, and a replaced element
+   renders no pseudo-element at all.
+
+   Those all still de-energize; they just do it through --ac-lit driving nothing
+   but their own halo above, rather than through a shape-accurate afterimage.
+   The five below are the ones where the lit area is a solid block big enough for
+   the difference to matter, and where ::after was free. */
+.ac-afterglow .ac-btn::after,
+.ac-afterglow .ac-tab::after,
+.ac-afterglow .ac-nav__link::after,
+.ac-afterglow .ac-badge::after,
+.ac-afterglow .ac-table__row--active td::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* NO mix-blend-mode HERE, THOUGH THE GHOSTS AND THE PATCHES BOTH USE IT.
+     `screen` is the physically right blend for emitted light and it was the
+     first thing tried, but a blended element forces its own compositing group,
+     and that regressed TEXT ANTIALIASING on every button and tab on the page —
+     ~1.1% of pixels moved on a capture where the effect was switched off
+     entirely, concentrated exactly on the rows carrying soft keys. Pure cost,
+     no effect, and it would have shipped invisible.
+     It is also unnecessary here in a way it is not for a ghost. The panel behind
+     these controls is --screen, a near-black, and over a near-black backdrop
+     `screen` and ordinary alpha compositing of a bright halo differ by almost
+     nothing — the same argument tokens/effects.css already makes for drawing the
+     cell mesh in pure black rather than a tint. The ghosts keep their blend
+     because they land on top of LIT text, where the difference is real. */
+  /* NO BACKGROUND, AND THAT IS NOT AN OMISSION. A filled control is inverse
+     video — dark text on a lit block — and --ac-lit sits at 1 for as long as it
+     is lit, so any fill declared here would paint over that text permanently,
+     not just during the decay. `screen` would then lighten the dark glyphs and
+     quietly spend the --on-fill contrast ratio that scripts/contrast.mjs gates.
+     A transparent box with an outer box-shadow paints only OUTSIDE the border
+     box, so the halo decays across the panel and the text underneath is never
+     touched. The lit block itself is already the component's own background. */
+  box-shadow: 0 0 calc(18px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.26 * var(--ac-lit)));
+}
+.ac-afterglow .ac-btn,
+.ac-afterglow .ac-tab,
+.ac-afterglow .ac-nav__link,
+.ac-afterglow .ac-badge,
+.ac-afterglow .ac-table__row--active td {
+  position: relative;
 }
 
 /* Lighting up is instant — a cell energizes on the next refresh. Declared on the
@@ -587,12 +810,106 @@
      that never ran the keyframes — the right thing to show is nothing at all,
      not an opaque duplicate of live text sitting on top of it. */
   opacity: 0;
-  animation: ac-ghost-decay var(--ac-decay) var(--ac-decay-ease) forwards;
+  /* ON --ac-persist-tail, WHICH IS THE UNCAPPED ONE. A ghost is pure decoration
+     — nothing waits on it, nothing is unreachable behind it — so this is the one
+     place the long phosphors get to run at their real length. P39 holds a ghost
+     for two seconds and P7 for three, which is the entire reason anybody fitted
+     those phosphors to a radar set.
+
+     animation-NAME comes from the palette, defaulting to the single-hue curve.
+     A two-layer phosphor declares --ac-ghost-anim in its own block and gets the
+     cascade below instead; this file never names a palette to do it. */
+  animation: var(--ac-ghost-anim, ac-ghost-decay) var(--ac-persist-tail) var(--ac-decay-ease) forwards;
 }
-.ac-afterglow .ac-ghost--fast { animation-duration: var(--ac-decay-fast); }
+/* Continuously-rewritten text — a clock, a frame counter. Capped at 400ms even
+   under a long phosphor, and the cap is arithmetic rather than taste: a field
+   rewriting once a second under P7's 3000ms tail would stack three generations
+   of ghost on top of each other, and the third one is not persistence, it is a
+   pile. 400ms keeps at most one generation legible at a time. */
+.ac-afterglow .ac-ghost--fast {
+  animation-duration: min(var(--ac-persist-tail), 400ms);
+}
 @keyframes ac-ghost-decay {
   from { opacity: 0.38; filter: blur(0); }
   to   { opacity: 0; filter: blur(0.8px); }
+}
+
+/* THE CASCADE — P7, and anything else with two coatings.
+
+   The beam writes in ZnS:Ag blue and the layer behind it holds in (Zn,Cd)S:Cu
+   yellow-green, so what a ghost shows is not one colour fading but TWO in
+   sequence: the flash, gone within a frame, and then the afterglow for as long
+   as it lasts. That is what the eye actually reads off a radar screen, and it is
+   why P7 exists rather than a single phosphor with a long decay.
+
+   4% is the crossover, and it is hardcoded for the same reason the blink window
+   below is: keyframe offsets cannot read a custom property. At P7's 3000ms tail
+   that is 120ms — a shade longer than the real flash, which is nearer one frame,
+   because a literal single-frame step reads as a glitch rather than as a flash.
+   --ac-persist-fast carries the true figure for anyone who needs it.
+
+   The colour is animated rather than set, so it beats the inline `color` that
+   amber-console.js copies onto the clone — an animation outranks an inline style
+   in the cascade. Palettes with one coating never reach this keyframe at all, so
+   their ghosts keep the source's own colour exactly as before. */
+@keyframes ac-ghost-cascade {
+  0%   { opacity: 0.46; color: rgb(var(--gas-flash)); filter: blur(0); }
+  4%   { opacity: 0.38; color: rgb(var(--gas-1)); filter: blur(0.1px); }
+  100% { opacity: 0; color: rgb(var(--gas-1)); filter: blur(0.8px); }
+}
+
+/* (7) THE PAGE ITSELF DECAYS — cross-document persistence, and the only place in
+   this system where a REAL framebuffer snapshot is available without JavaScript.
+
+   Everything else in this file decays an ELEMENT: something the cascade can name
+   and time. A phosphor does not work that way — it decays whatever was drawn,
+   including the middle of a glyph and the part of the screen nothing owns. The
+   View Transition API is the one browser primitive that hands us that: the old
+   page as an image, which is exactly what a coating full of excited electrons
+   is. So navigating from one page to the next under P39 leaves the previous
+   screen genuinely draining behind the new one, per pixel, in pure CSS.
+
+   The direction rule survives intact and is the whole reason this reads as
+   phosphor rather than as a crossfade: the OLD snapshot decays on the emitter's
+   own sampled curve, and the NEW page gets `animation: none` so it is simply
+   THERE on the first frame. Instant up, curve down — the same asymmetry as every
+   other decay here. A default view transition cross-fades both halves, which is
+   a slideshow effect and reads as nothing in particular.
+
+   THE AT-RULE IS NOT SHIPPED, DELIBERATELY, AND THIS IS THE ONE OPT-IN IN THE
+   FRAMEWORK. `@view-transition { navigation: auto; }` cannot be scoped to a
+   selector — it is a document-level switch — so putting it here would change how
+   navigation behaves for every consumer who links this stylesheet, including
+   ones who never asked for a screen simulation. Linking a stylesheet must not
+   rewrite how a site navigates. Add the one line yourself:
+
+       @view-transition { navigation: auto; }
+
+   and the rules below take it from there. docs/docs.css does exactly that.
+
+   CAPPED SEPARATELY FROM --ac-persist-tail, and for a harder reason than taste:
+   the transition overlay sits above the document while it runs, so a 3000ms P7
+   tail would mean three seconds of a page that cannot be clicked. `pointer-events`
+   is cut below as a belt-and-braces measure, but the duration cap is the real
+   fix. 900ms is long enough to read as persistence and short enough that nobody
+   waits on it. */
+html:has(.ac-afterglow)::view-transition-old(root) {
+  animation: ac-page-decay min(var(--ac-persist-tail), 900ms) var(--ac-decay-ease) forwards;
+  mix-blend-mode: screen;
+}
+html:has(.ac-afterglow)::view-transition-new(root) {
+  animation: none;
+  opacity: 1;
+}
+html:has(.ac-afterglow)::view-transition-group(root) {
+  animation-duration: min(var(--ac-persist-tail), 900ms);
+}
+::view-transition {
+  pointer-events: none;
+}
+@keyframes ac-page-decay {
+  from { opacity: 0.85; filter: blur(0); }
+  to   { opacity: 0; filter: blur(1.1px); }
 }
 
 .ac-bloom > *, .ac-crt > *, .ac-afterglow > * { position: relative; z-index: 1; }
@@ -680,6 +997,22 @@
      motion-sick-making thing in here. */
   .ac-afterglow > .ac-persist::after { display: none; }
   .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh) { filter: none; }
+
+  /* The afterimage has no animation of its own — it reads --ac-lit, and the
+     blanket above already stops that from moving. What is left is a STATIC extra
+     halo around every lit control, which is not motion but is also not something
+     anybody opted into, so it goes too. */
+  .ac-afterglow .ac-btn::after,
+  .ac-afterglow .ac-tab::after,
+  .ac-afterglow .ac-nav__link::after,
+  .ac-afterglow .ac-badge::after,
+  .ac-afterglow .ac-table__row--active td::after { display: none; }
+
+  /* A whole page dissolving into the next one is the largest moving image in the
+     system. Both halves are cut, not just the old one — leaving the NEW page's
+     animation suppressed while the OLD one still ran would be worse than either. */
+  html:has(.ac-afterglow)::view-transition-old(root),
+  html:has(.ac-afterglow)::view-transition-new(root) { animation: none; }
 
   /* Persistence is motion by definition: a decaying ghost is a moving image.
      There is nothing to soften here, so the whole thing goes. */

@@ -119,13 +119,32 @@
  *
  * Currently installed:
  *
- *   plasma / neon   24deg. The default. Law 1's panel: neon emitting directly,
- *                   the color neon simply is. This is what .ac-bloom simulates.
+ *   plasma / neon      24deg. The default. Law 1's panel: neon emitting directly,
+ *                      the color neon simply is. What .ac-bloom simulates.
+ *   plasma / helium    pale pink. Multi-line, so genuinely pale.
+ *   plasma / argon     pale violet-lavender. Dim, and the file says why.
+ *   plasma / krypton   pale violet-white.
  *
- *   crt / p3        38deg. The classic amber phosphor, a broad ~590nm band with
- *                   real green content. This is the look most people mean by
- *                   "amber terminal", it is the ramp the source design system was
- *                   drawn against, and it pairs with the .ac-crt simulation.
+ *   crt / p3           38deg. The classic amber phosphor, a broad ~590nm band
+ *                      with real green content. The look most people mean by
+ *                      "amber terminal", the ramp the source design system was
+ *                      drawn against, and the pair for the .ac-crt simulation.
+ *   crt / p1           willemite green. Medium persistence.
+ *   crt / p4           the television white. A BLEND of two emitters.
+ *   crt / p7           blue flash over a yellow-green afterglow. The radar
+ *                      phosphor, and the only palette here whose halo is a
+ *                      different spectrum from its ink — see its block.
+ *   crt / p11          blue. Photographic-recording phosphor; flickers hardest.
+ *   crt / p31          green. The scope and terminal phosphor.
+ *   crt / p39          yellow-green. Long persistence; P1's chemistry with
+ *                      arsenic, so the same color and a decay 16x longer.
+ *
+ * TWO PHOSPHORS SHARE A RAMP WITH ANOTHER PALETTE AND THAT IS NOT A MISTAKE.
+ * P1 and P39 are both Zn2SiO4:Mn and differ only in decay; P7's flash and P11
+ * are both ZnS:Ag and differ only in what is behind them. Where the compound is
+ * the same the color is the same, and the palettes are told apart by their
+ * persistence rather than their hue. Deduplicating them would be deduplicating
+ * two pieces of hardware that really did look alike.
  *
  * DEPRECATED: `data-ac-gas="neon"` and `data-ac-gas="amber"` are kept as aliases
  * for the two blocks above and will be removed in 3.0. The name was the bug —
@@ -134,11 +153,39 @@
  *   data-ac-gas="neon"   ->  data-ac-tech="plasma" data-ac-emitter="neon"
  *   data-ac-gas="amber"  ->  data-ac-tech="crt"    data-ac-emitter="p3"
  *
- * Each palette defines the same fifteen values and nothing else: the five
- * discharge stops, the three surfaces, --on-fill, the four glow triples, and the
- * two scattering scalars. Every other token in the system is an alias or is
+ * Every palette defines the same fifteen SPECTRAL values: the five discharge
+ * stops, the three surfaces, --on-fill, the four glow triples, and the two
+ * scattering scalars. Every other color token in the system is an alias or is
  * built from those, so adding a technology or an emitter means adding one block
  * and nothing else.
+ *
+ * A PALETTE MAY ALSO CARRY TIME, and that is new with the CRT pass. Where an
+ * emitter has a documented decay, its block additionally declares:
+ *
+ *   --ac-persist       how long its light is visible after the drive stops
+ *   --ac-flicker       how much of it is GONE by the next refresh, 0..1
+ *   --ac-decay-ease    that decay's actual curve, as a sampled linear()
+ *   --ac-persist-fast  the fast layer, on a two-layer phosphor only
+ *
+ * Those are not four independent settings. --ac-persist and --ac-flicker are one
+ * physical quantity read in two directions — what is left of a frame when the
+ * next one arrives IS the persistence, and what is missing IS the flicker — so a
+ * phosphor cannot have much of one without little of the other. The derivation
+ * in scripts/derive-gas.mjs computes both from one decay constant for exactly
+ * that reason, the same way --gas-spread is the square root of --gas-scatter and
+ * cannot disagree with it.
+ *
+ * THE FOUR GASES DELIBERATELY DECLARE NONE OF THEM. Gas afterglow is real, but
+ * no decay figure for these panels is cited here yet, and inventing one to fill
+ * the column would be exactly the kind of number this file exists to refuse.
+ * tokens/effects.css keeps its own :root defaults, every gas falls back to them,
+ * and the plasma palettes render byte-identically to what they did before the
+ * phosphors arrived. Adding a cited `decay` to a gas is what would opt it in.
+ *
+ * THESE ARE CONSUMED WITH A CAP, NOT RAW. A 3000ms P7 tail is correct physics
+ * and an unusable dialog close, so tokens/effects.css clamps what drives UI
+ * state and leaves the decorative layers — ghosts, residual patches — at full
+ * length. The split is documented there, at the tokens that do it.
  *
  * EVERY PALETTE IS GATED. scripts/contrast.mjs runs the full pair table against
  * each block independently — a ratio that passes under one emitter and fails
@@ -172,11 +219,24 @@
  * argon. So every stop here is the emitter's own chromaticity at whatever
  * luminance the contrast gate demands, and the two decisions never mix.
  *
- * GENERATED PALETTES. The three gases below neon and P3 are computed by
- * scripts/derive-gas.mjs from cited line tables and must not be hand-edited;
- * `npm test` re-derives them and fails on drift. Neon and P3 predate the script
- * and stay hand-built — see the `emit: false` note in scripts/data/emitters.json
- * for why regenerating neon would repaint the framework to no one's benefit.
+ * GENERATED PALETTES. Nine of the eleven blocks below are computed by
+ * scripts/derive-gas.mjs and must not be hand-edited; `npm test` re-derives them
+ * and fails on drift. Neon and P3 predate the script and stay hand-built — see
+ * the `emit: false` notes in scripts/data/emitters.json for why regenerating
+ * either would repaint the framework to no one's benefit. P3's --gas-scatter is
+ * the one exception in the other direction: it was an admitted placeholder and
+ * is now derived, because the band model finally gave the integral something to
+ * run over. Its ramp did not change; only its halo width did.
+ *
+ * THE PHOSPHORS CARRY A WEAKER CLAIM THAN THE GASES, and it is not hedging to
+ * say so. A gas emits lines and NIST publishes them, so those palettes run
+ * spectrum -> color from measured data. No comparable public table of phosphor
+ * band SHAPES exists; what is published is the resulting chromaticity. So the
+ * phosphor blocks run backwards — published color -> band — and their bands are
+ * back-solved rather than measured. The $phosphors block in
+ * scripts/data/emitters.json states that plainly, along with the four things
+ * that are nonetheless non-circular about the result, and it is worth reading
+ * before quoting a number from here as though it came off an instrument.
  */
 
 :root,
@@ -273,14 +333,30 @@
   --gas-3: 255, 120, 0;
   --gas-4: 255, 186, 64;
 
-  /* Held at neon's 1.00 rather than derived. P3 is a broad ~590nm BAND, not a
-     line spectrum, so the lambda^-4 integral that gives the gases their figure
-     has nothing to run over until derive-gas.mjs grows a band model — which is
-     the CRT pass, where P7's two layers make it unavoidable anyway. A phosphor
-     that close to neon's mean wavelength would land near 1.00 regardless; this
-     is a placeholder that happens to be about right, not a derived result. */
-  --gas-scatter: 1;
-  --gas-spread: 1;
+  /* DERIVED NOW, and the placeholder it replaces was wrong by 23%.
+     This used to be held at neon's 1.00 because P3 is a broad ~590nm band and
+     the lambda^-4 integral had no lines to run over — with a note predicting
+     that a phosphor this close to neon's mean wavelength "would land near 1.00
+     regardless". scripts/lib/cie.mjs grew the band model in the CRT pass, the
+     integral ran, and it lands at 1.23. The prediction was the reasonable guess
+     and it was still a guess; this is the measurement of the model.
+     The RAMP above stays hand-built — see the emit: false note in
+     scripts/data/emitters.json, same standing as neon. Only the halo width was
+     ever a placeholder, and only the halo width changed. */
+  --gas-scatter: 1.23;
+  --gas-spread: 1.11;
+
+  /* Persistence: 25ms to 10% (medium).
+     22% still lit when the next frame arrives.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 25ms;
+  --ac-flicker: 0.785;
+
+  /* The decay curve itself, sampled from the exponential.
+     A shape no single cubic-bezier expresses, which is why it is a linear(). */
+  --ac-decay-ease: linear(0, 0.013 0.5%, 0.023 0.9%, 0.041 1.6%, 0.072 2.9%, 0.127 5.3%, 0.218 9.5%, 0.362 17%, 0.564 31%, 0.802 56%, 1.000 100%);
 }
 
 /* --- PLASMA / HELIUM — pale pink / salmon-white.
@@ -383,6 +459,292 @@
   --gas-spread: 1.14;
 }
 
+/* --- CRT / P1 — willemite green.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 529nm FWHM 48nm: x=0.2154 y=0.7110.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 57% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.39:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p1"] {
+  --screen: #000c03;
+  --screen-raised: #001908;
+  --screen-well: #000601;
+
+  --emit-100: #00d871;
+  --emit-90:  #00b05b;
+  --emit-70:  #00964d;
+  --emit-50:  #00753a;
+  --emit-30:  #003f1c;
+  --on-fill:  #001a08;
+
+  --gas-1: 0, 237, 125;
+  --gas-2: 0, 225, 118;
+  --gas-3: 0, 212, 111;
+  --gas-4: 46, 255, 140;
+
+  /* Rayleigh: this phosphor throws 63% more light into the halo than neon. */
+  --gas-scatter: 1.63;
+  --gas-spread: 1.28;
+
+  /* Persistence: 24ms to 10% (medium).
+     20% still lit when the next frame arrives.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 24ms;
+  --ac-flicker: 0.798;
+
+  /* The decay curve itself, sampled from the exponential.
+     A shape no single cubic-bezier expresses, which is why it is a linear(). */
+  --ac-decay-ease: linear(0, 0.013 0.5%, 0.023 0.9%, 0.041 1.6%, 0.072 2.9%, 0.127 5.3%, 0.218 9.5%, 0.362 17%, 0.564 31%, 0.802 56%, 1.000 100%);
+}
+
+/* --- CRT / P4 — white.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     2 bands 466nm FWHM 76nm + 572nm FWHM 130nm x0.5: x=0.2701 y=0.3000.
+     Inside sRGB as measured; no gamut mapping needed.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.37:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p4"] {
+  --screen: #08090b;
+  --screen-raised: #121516;
+  --screen-well: #040405;
+
+  --emit-100: #9dc1d8;
+  --emit-90:  #7f9db0;
+  --emit-70:  #6c8696;
+  --emit-50:  #536874;
+  --emit-30:  #2b373e;
+  --on-fill:  #121618;
+
+  --gas-1: 176, 211, 234;
+  --gas-2: 165, 201, 223;
+  --gas-3: 153, 189, 211;
+  --gas-4: 197, 228, 248;
+
+  /* Rayleigh: this phosphor throws 55% more light into the halo than neon. */
+  --gas-scatter: 1.55;
+  --gas-spread: 1.24;
+
+  /* Persistence: 0.06ms to 10% (medium-short).
+     Fully dark between frames — flicker at maximum, no persistence to see.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 0.06ms;
+  --ac-flicker: 1.000;
+}
+
+/* --- CRT / P7 — blue flash over a yellow-green afterglow.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 466nm FWHM 76nm: x=0.1384 y=0.1502.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 29% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.35:1 on --emit-90.
+
+     TWO EMITTERS, IN SEQUENCE. --emit-* is the ZnS:Ag FLASH (x=0.1384 y=0.1502),
+     which is what the beam writes. --gas-* is the (Zn,Cd)S:Cu AFTERGLOW
+     (x=0.3553 y=0.5373), which is what the screen holds after it. The halo
+     therefore does NOT track the ink here, which inverts the rule stated at the
+     top of tokens/effects.css and is the reason P7 exists as a part number. --- */
+[data-ac-tech="crt"][data-ac-emitter="p7"] {
+  --screen: #040a11;
+  --screen-raised: #0b1520;
+  --screen-well: #020409;
+
+  --emit-100: #8bc0ff;
+  --emit-90:  #00a0fb;
+  --emit-70:  #0088d7;
+  --emit-50:  #0069a8;
+  --emit-30:  #00385d;
+  --on-fill:  #03182a;
+
+  --gas-1: 156, 226, 72;
+  --gas-2: 145, 215, 54;
+  --gas-3: 135, 203, 40;
+  --gas-4: 176, 242, 107;
+
+  /* Rayleigh: this phosphor throws 47% more light into the halo than neon. */
+  --gas-scatter: 1.47;
+  --gas-spread: 1.21;
+
+  /* THE FLASH, as a halo triple. --gas-* above is the AFTERGLOW, which is what
+     this screen holds; this is the layer the beam actually writes, and the ghost
+     keyframe starts here before crossing to the afterglow within one frame.
+     --ac-ghost-anim is how this palette tells tokens/effects.css it decays
+     through two hues rather than one, without effects.css naming it. */
+  --gas-flash: 175, 209, 255;
+  --ac-ghost-anim: ac-ghost-cascade;
+
+  /* Persistence: 400ms to 10%, visible tail to 3000ms (long).
+     91% still lit when the next frame arrives.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 3000ms;
+  --ac-flicker: 0.091;
+  --ac-persist-fast: 0.04ms;
+
+  /* Long enough that the next ON edge lands before this one has
+     drained: the alarm throbs rather than chops. */
+  --ac-blink-anim: ac-blink-decay-long;
+
+  /* The decay curve itself, sampled from the Becquerel power law I0/(1+t/t0)^1.4.
+     A shape no single cubic-bezier expresses, which is why it is a linear(). */
+  --ac-decay-ease: linear(0, 0.186 0.5%, 0.296 0.9%, 0.441 1.6%, 0.602 2.9%, 0.750 5.3%, 0.862 9.5%, 0.932 17%, 0.971 31%, 0.991 56%, 1.000 100%);
+}
+
+/* --- CRT / P11 — blue.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 466nm FWHM 76nm: x=0.1384 y=0.1502.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 29% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.35:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p11"] {
+  --screen: #040a11;
+  --screen-raised: #0b1520;
+  --screen-well: #020409;
+
+  --emit-100: #8bc0ff;
+  --emit-90:  #00a0fb;
+  --emit-70:  #0088d7;
+  --emit-50:  #0069a8;
+  --emit-30:  #00385d;
+  --on-fill:  #03182a;
+
+  --gas-1: 175, 209, 255;
+  --gas-2: 155, 199, 255;
+  --gas-3: 130, 188, 255;
+  --gas-4: 205, 225, 255;
+
+  /* Rayleigh: this phosphor throws 104% more light into the halo than neon. */
+  --gas-scatter: 2.04;
+  --gas-spread: 1.43;
+
+  /* Persistence: 0.035ms to 10% (medium-short).
+     Fully dark between frames — flicker at maximum, no persistence to see.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 0.035ms;
+  --ac-flicker: 1.000;
+}
+
+/* --- CRT / P31 — green.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 513nm FWHM 78nm: x=0.2079 y=0.5295.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 45% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.36:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p31"] {
+  --screen: #010c06;
+  --screen-raised: #03180e;
+  --screen-well: #010503;
+
+  --emit-100: #00d791;
+  --emit-90:  #00af76;
+  --emit-70:  #009564;
+  --emit-50:  #00744c;
+  --emit-30:  #003e27;
+  --on-fill:  #001b0e;
+
+  --gas-1: 0, 235, 160;
+  --gas-2: 0, 223, 151;
+  --gas-3: 0, 210, 142;
+  --gas-4: 0, 254, 173;
+
+  /* Rayleigh: this phosphor throws 67% more light into the halo than neon. */
+  --gas-scatter: 1.67;
+  --gas-spread: 1.29;
+
+  /* Persistence: 0.038ms to 10% (medium-short).
+     Fully dark between frames — flicker at maximum, no persistence to see.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 0.038ms;
+  --ac-flicker: 1.000;
+}
+
+/* --- CRT / P39 — yellow-green, long persistence.
+
+     GENERATED by scripts/derive-gas.mjs. Do not edit these values by hand;
+     `npm test` re-derives and fails on drift. The band data, its source
+     and the reason this phosphor uses the band shape it does are in
+     scripts/data/emitters.json.
+
+     Band 529nm FWHM 52nm: x=0.2248 y=0.6962.
+     Outside sRGB at the luminance --emit-90 needs, so it is
+     desaturated 54% toward D65 — the phosphor is paler here than it is in the tube.
+     Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
+     own --screen; --on-fill lands at 6.39:1 on --emit-90. --- */
+[data-ac-tech="crt"][data-ac-emitter="p39"] {
+  --screen: #000c03;
+  --screen-raised: #001908;
+  --screen-well: #000601;
+
+  --emit-100: #00d86e;
+  --emit-90:  #00b059;
+  --emit-70:  #00964b;
+  --emit-50:  #007538;
+  --emit-30:  #003f1b;
+  --on-fill:  #001a07;
+
+  --gas-1: 0, 237, 121;
+  --gas-2: 0, 225, 115;
+  --gas-3: 0, 212, 108;
+  --gas-4: 49, 255, 137;
+
+  /* Rayleigh: this phosphor throws 62% more light into the halo than neon. */
+  --gas-scatter: 1.62;
+  --gas-spread: 1.27;
+
+  /* Persistence: 400ms to 10%, visible tail to 2000ms (long).
+     91% still lit when the next frame arrives.
+     --ac-flicker is the inter-frame modulation depth these two share; the
+     amplitude budget that keeps it under the WCAG flash threshold is in
+     tokens/effects.css, in one place, on purpose. */
+  --ac-persist: 2000ms;
+  --ac-flicker: 0.091;
+
+  /* Long enough that the next ON edge lands before this one has
+     drained: the alarm throbs rather than chops. */
+  --ac-blink-anim: ac-blink-decay-long;
+
+  /* The decay curve itself, sampled from the Becquerel power law I0/(1+t/t0)^1.6.
+     A shape no single cubic-bezier expresses, which is why it is a linear(). */
+  --ac-decay-ease: linear(0, 0.118 0.5%, 0.197 0.9%, 0.313 1.6%, 0.465 2.9%, 0.632 5.3%, 0.781 9.5%, 0.889 17%, 0.953 31%, 0.985 56%, 1.000 100%);
+}
+
 /* Aliases and structural tokens — defined ONCE, for every palette. Anything
    that is the same shape regardless of which gas is in the panel belongs here;
    anything that is a color belongs in a palette block above. */
@@ -462,6 +824,20 @@
      it will keep an amber corona around neon text, which is the one place the
      mismatch is legible side by side.
 
+     EXCEPT ON A TWO-COATING PHOSPHOR, WHERE IT IS THE OTHER LIGHT ENTIRELY, and
+     that is worth knowing before the P7 palette looks like a bug. P7 is a blue
+     ZnS:Ag layer facing the beam over a yellow-green (Zn,Cd)S:Cu layer behind
+     it: the beam writes in blue, the blue layer's own photons pump the layer
+     underneath, and what the SCREEN HOLDS is yellow-green. So --emit-* is blue
+     and --gas-* is yellow-green, and blue text inside a green halo is not a
+     mismatch — it is the only thing that palette can honestly look like.
+
+     Nothing in this file changes to accommodate that, which is the point. The
+     rule here is still "build every halo from --gas-N and never name a colour";
+     P7 simply declares a --gas-N that is not its own ink. The one place the
+     difference surfaces is the ghost keyframe, and even there the palette names
+     the animation rather than this file naming the palette.
+
      THE HALO IS NOT THE SAME SIZE FOR EVERY GAS, and that is physics rather than
      styling. Rayleigh scattering goes as lambda^-4, so a violet gas throws
      half again as much of itself sideways into the glass as a red one does.
@@ -484,17 +860,53 @@
      refresh — it relaxes: the discharge leaves excited and metastable neon behind,
      and that keeps emitting while it recombines. No phosphor is involved; see
      law 1 in the system guide. The curve is the shape of that relaxation: most of the
-     light is gone in the first third, then a long dim tail. Override to retune
-     the panel; --ac-decay-fast is for text that is rewritten continuously (a
-     clock, a frame counter) where the full tail would smear into the next value.
+     light is gone in the first third, then a long dim tail. --ac-decay-fast is
+     for text that is rewritten continuously (a clock, a frame counter) where the
+     full tail would smear into the next value.
 
-     These are deliberately near the floor of what registers as a decay at all:
-     much under ~80ms and the eye stops reading a relaxation and starts reading a
-     switch. That is the intended side of the line to be on — the effect should
-     be felt rather than seen. */
-  --ac-decay: 105ms;
-  --ac-decay-fast: 60ms;
+     These defaults are deliberately near the floor of what registers as a decay
+     at all: much under ~80ms and the eye stops reading a relaxation and starts
+     reading a switch. That is the intended side of the line to be on — the
+     effect should be felt rather than seen. A phosphor is emphatically NOT
+     required to sit there, and the long ones do not.
+
+     PERSISTENCE IS A PROPERTY OF THE EMITTER NOW, not of this file. A palette
+     that knows its own decay declares --ac-persist (and --ac-flicker, and its
+     own sampled --ac-decay-ease) in tokens/colors.css, and the three tokens
+     below are DERIVED FROM IT rather than set here. This block is the fallback
+     for every palette that declares nothing — which is all four gases, so they
+     resolve to the same 105ms and 60ms they always had and render unchanged.
+
+     THE CAP IS THE WHOLE POINT OF min(), AND IT IS A USABILITY DECISION MADE
+     AGAINST THE PHYSICS ON PURPOSE. P7's tail is 3000ms and P39's is 2000ms.
+     Those are correct, and a dialog that stays painted for two seconds after it
+     closes is not a simulation, it is a bug that can cite a source. So:
+
+       --ac-decay       things that must actually LEAVE — [hidden], a closing
+                        dialog. Capped at 250ms however long the phosphor runs.
+       --ac-decay-fast  de-energizing controls and hover release. Capped at 60ms,
+                        because this fires on every control the pointer crosses.
+       --ac-persist-tail  ghosts and residual patches. NOT capped. These are pure
+                        decoration, nothing waits on them, and they are where the
+                        long phosphors are actually allowed to be long — which is
+                        also where the effect lives.
+
+     min() also gets the short phosphors right in the other direction and for
+     free: P11 declares 0.035ms, so its UI snaps rather than decaying, which is
+     exactly what a photographic-recording phosphor did and exactly why nobody
+     enjoyed looking at one. */
+  --ac-persist: 105ms;
+  --ac-decay: min(var(--ac-persist), 250ms);
+  --ac-decay-fast: min(var(--ac-persist), 60ms);
+  --ac-persist-tail: var(--ac-persist);
   --ac-decay-ease: cubic-bezier(0.1, 0.72, 0.22, 1);
+
+  /* HOW MUCH OF THE IMAGE IS GONE BY THE NEXT REFRESH, 0..1 — the other half of
+     --ac-persist and not an independent knob. A palette that declares one
+     declares both, from one decay constant, in scripts/derive-gas.mjs.
+     1 is the default and means "no palette said", which resolves the flicker
+     amplitude below to exactly the value it had before persistence existed. */
+  --ac-flicker: 1;
 
   /* The cell matrix. A plasma panel is not a lit surface, it is a grid of gas
      gaps at wire intersections, and the barrier ribs between them do not emit.
@@ -787,12 +1199,49 @@
   from { background-position: 0 0, 0 0; }
   to   { background-position: 0 0, 0 -3px; }
 }
-/* Mains flicker: ±2% brightness, plus one shallow single-frame dip per cycle */
+/* MAINS FLICKER, SCALED BY THE PHOSPHOR — and the first thing to say is what
+   this is NOT, because the obvious reading of it is wrong.
+
+   THE ACTUAL FLICKER OF A CRT CANNOT BE RENDERED HERE, EVER. A tube refreshing
+   at 60Hz is being watched on a display refreshing at 60Hz; there is no headroom
+   to show a 60Hz modulation, and asking for one is asking to sample a signal at
+   its own frequency. That is Nyquist, not a browser limitation, and no amount of
+   cleverness gets around it. The same refusal is documented in
+   scripts/derive-gas.mjs for the eye's chromatic aberration: the effect is real,
+   and using it here would not be.
+
+   What IS renderable is the perceptual signature — the slow beat and the sense
+   of an image being re-struck rather than held. So the FREQUENCY here is fixed
+   and slow, and only the AMPLITUDE answers to the hardware, via --ac-flicker:
+   the fraction of the image that is gone by the time the next frame arrives.
+   That number is derived from the same decay constant as --ac-persist, so a
+   phosphor cannot be steady and smear-free at once:
+
+     P11, P31, P4   1.000  fully dark between frames. Maximum unsteadiness, and
+                           the honest reason nobody read text off a P11 tube.
+     P1, P3         ~0.79  medium persistence, visibly less settled.
+     P7, P39        0.091  the long phosphors, which is what they were bought
+                           for — rock steady at any refresh rate, paid for in
+                           smear. Both halves of that trade, from one number.
+
+   THE 0.035 IS THE BUDGET AND IT IS NOT A TASTE SETTING. WCAG 2.3.1 prohibits
+   more than 3 flashes/sec above 10% relative luminance over more than 25% of the
+   field, and the 3-8Hz band is the most seizure-provocative there is. This
+   animation runs at 0.18Hz — a 5.5s cycle, more than an order of magnitude below
+   the threshold frequency — and its deepest dip is 3.5% of the opacity of an
+   overlay whose own mean darkening is about 15%, so worst-case panel luminance
+   moves by well under 1%. Both margins are large on purpose. Raising this
+   constant spends both of them at once; redo the arithmetic first, exactly as
+   the --ac-mesh-wire note above demands.
+
+   At --ac-flicker: 1 the two stops resolve to 0.965 and 0.985, which is what
+   this keyframe was before it took a variable — so a gas palette, which declares
+   no flicker, renders identically. */
 @keyframes ac-crt-hum {
   0%, 100% { opacity: 1; }
-  31%      { opacity: 0.965; }
+  31%      { opacity: calc(1 - 0.035 * var(--ac-flicker, 1)); }
   32%      { opacity: 1.0; }
-  68%      { opacity: 0.985; }
+  68%      { opacity: calc(1 - 0.015 * var(--ac-flicker, 1)); }
 }
 /* Vertical retrace band — a slow, almost invisible lightening sweep */
 .ac-crt > .ac-retrace {
@@ -908,7 +1357,7 @@
 .ac-afterglow .ac-field--invalid .ac-input,
 .ac-afterglow .ac-input[aria-invalid="true"],
 .ac-afterglow .ac-meter--alarm .ac-meter__bar {
-  animation-name: ac-blink-decay;
+  animation-name: var(--ac-blink-anim, ac-blink-decay);
   animation-timing-function: linear;
 }
 /* The stops are spread wider than a literal decay curve would be. A true
@@ -927,6 +1376,31 @@
   60%       { opacity: 0.30; filter: blur(0.22px); }
   61%       { opacity: 0.17; filter: blur(0.27px); }
   62%, 100% { opacity: 0.1; filter: blur(0.3px); }
+}
+
+/* THE SAME EDGE ON A LONG PHOSPHOR, which is a different edge entirely.
+   The window above is ~88ms of a 1.1s cycle — right for a gas gap and for the
+   medium phosphors, and wrong by more than an order of magnitude for P7 and P39,
+   whose light is still visible seconds after the drive stops. An alarm on a P39
+   screen does not blink so much as pulse: it never reaches the dark half at all,
+   because the next ON edge arrives while the previous one is still draining.
+
+   Selected by the PALETTE, not by this file, on the same indirection
+   --ac-ghost-anim already uses: keyframe offsets cannot read a custom property,
+   so the shape has to be a second keyframe rather than a retuned one, and
+   scripts/derive-gas.mjs points the long-class emitters at it. Everything else
+   falls through the var() fallback above and is untouched.
+
+   Note where it bottoms out: 0.34, not 0.1. That IS the effect — the floor of a
+   long phosphor's blink is lifted because the cell never fully relaxes between
+   strikes, and the alarm reads as a throb rather than a chop. */
+@keyframes ac-blink-decay-long {
+  0%, 54%   { opacity: 1; filter: blur(0); }
+  60%       { opacity: 0.88; filter: blur(0.10px); }
+  68%       { opacity: 0.72; filter: blur(0.18px); }
+  78%       { opacity: 0.57; filter: blur(0.26px); }
+  88%       { opacity: 0.44; filter: blur(0.34px); }
+  100%      { opacity: 0.34; filter: blur(0.4px); }
 }
 
 /* (5) DE-ENERGIZING — a lit cell that goes unlit.
@@ -964,7 +1438,118 @@
     border-color var(--ac-decay-fast) var(--ac-decay-ease),
     color var(--ac-decay-fast) var(--ac-decay-ease),
     box-shadow var(--ac-decay-fast) var(--ac-decay-ease),
-    text-shadow var(--ac-decay-fast) var(--ac-decay-ease);
+    text-shadow var(--ac-decay-fast) var(--ac-decay-ease),
+    --ac-lit var(--ac-persist-tail) var(--ac-decay-ease);
+}
+
+/* (5b) THE AFTERIMAGE — the part a long phosphor actually shows you.
+   ------------------------------------------------------------------
+   Everything above releases on --ac-decay-fast, which is right for the STRUCTURE
+   of a control: a button must read as released the instant you let go, or the
+   panel feels broken rather than persistent. But on P39 or P7 the structure is
+   not what lingers. The LIGHT lingers — for one to three seconds — and until now
+   nothing in this file expressed that, so the two phosphors whose entire reason
+   for existing is a long tail looked exactly like the ones without one.
+
+   So the two halves are split by what they describe, which is also the physical
+   split: the control's geometry snaps, and the light it was emitting decays on
+   --ac-persist-tail, uncapped.
+
+   WHY A REGISTERED NUMBER AND NOT A box-shadow TRANSITION. Two reasons, and the
+   second is the load-bearing one. Interpolating box-shadow directly works — a
+   `none` is padded with transparent shadows, so it does animate — but the halo
+   would have to be declared HERE, on every one of these selectors, which means
+   overwriting whatever box-shadow the component itself uses for its border glow
+   and its focus ring. --ac-lit is a number; the components keep their own
+   shadows, and this file adds a layer that reads it. One variable drives the
+   afterimage's alpha and its halo radius together, so the two cannot disagree
+   about how lit the thing is.
+
+   HOVER IS DELIBERATELY NOT IN THE LIT LIST BELOW, and that is a judgement call
+   worth stating. A pointer crossing a dense panel de-energizes every control it
+   touches, and at a 2s tail that leaves a wake of glowing boxes behind the
+   cursor — which reads as lag, not as phosphor. The comment above already warned
+   about this for the fast decay. Hover keeps its instant background change; the
+   afterimage answers only to real STATE — filled, pressed, selected, current,
+   checked — which is what a cell being driven actually corresponds to. */
+/* INHERITS, AND IT HAS TO. The afterimage below is a ::after, and a pseudo-
+   element does not read its originating element's non-inherited properties — it
+   gets the initial value. Registered with `inherits: false` the halo therefore
+   resolved to alpha 0 at every drive level, which looks exactly like the effect
+   being off and is why this is stated rather than left at the tidier default. */
+@property --ac-lit {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* The lit states. Instant on: no transition is declared here, so --ac-lit jumps
+   to 1 and only the release is timed by the rule above. */
+.ac-afterglow .ac-btn--filled,
+.ac-afterglow .ac-btn[aria-pressed="true"],
+.ac-afterglow .ac-tab--active,
+.ac-afterglow .ac-tab[aria-selected="true"],
+.ac-afterglow .ac-nav__link[aria-current="page"],
+.ac-afterglow .ac-badge--filled,
+.ac-afterglow .ac-banner--filled,
+.ac-afterglow .ac-check input:checked,
+.ac-afterglow .ac-radio input:checked,
+.ac-afterglow .ac-toggle--on .ac-toggle__thumb,
+.ac-afterglow .ac-toggle[aria-pressed="true"] .ac-toggle__thumb,
+.ac-afterglow .ac-table__row--active td {
+  --ac-lit: 1;
+}
+
+/* THE AFTERIMAGE LAYER ITSELF, and it is a short list for a mechanical reason.
+   An element has exactly one ::after, and four components have already spent
+   theirs: .ac-toggle (thumb), .ac-banner (the ✳✳ ornaments, both pseudos),
+   .ac-select (the ▼) and .ac-spinner. Declaring one here would silently replace
+   those — the same trap .ac-crt::after and .ac-bloom::after already document.
+   .ac-check and .ac-radio light the <input> itself, and a replaced element
+   renders no pseudo-element at all.
+
+   Those all still de-energize; they just do it through --ac-lit driving nothing
+   but their own halo above, rather than through a shape-accurate afterimage.
+   The five below are the ones where the lit area is a solid block big enough for
+   the difference to matter, and where ::after was free. */
+.ac-afterglow .ac-btn::after,
+.ac-afterglow .ac-tab::after,
+.ac-afterglow .ac-nav__link::after,
+.ac-afterglow .ac-badge::after,
+.ac-afterglow .ac-table__row--active td::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* NO mix-blend-mode HERE, THOUGH THE GHOSTS AND THE PATCHES BOTH USE IT.
+     `screen` is the physically right blend for emitted light and it was the
+     first thing tried, but a blended element forces its own compositing group,
+     and that regressed TEXT ANTIALIASING on every button and tab on the page —
+     ~1.1% of pixels moved on a capture where the effect was switched off
+     entirely, concentrated exactly on the rows carrying soft keys. Pure cost,
+     no effect, and it would have shipped invisible.
+     It is also unnecessary here in a way it is not for a ghost. The panel behind
+     these controls is --screen, a near-black, and over a near-black backdrop
+     `screen` and ordinary alpha compositing of a bright halo differ by almost
+     nothing — the same argument tokens/effects.css already makes for drawing the
+     cell mesh in pure black rather than a tint. The ghosts keep their blend
+     because they land on top of LIT text, where the difference is real. */
+  /* NO BACKGROUND, AND THAT IS NOT AN OMISSION. A filled control is inverse
+     video — dark text on a lit block — and --ac-lit sits at 1 for as long as it
+     is lit, so any fill declared here would paint over that text permanently,
+     not just during the decay. `screen` would then lighten the dark glyphs and
+     quietly spend the --on-fill contrast ratio that scripts/contrast.mjs gates.
+     A transparent box with an outer box-shadow paints only OUTSIDE the border
+     box, so the halo decays across the panel and the text underneath is never
+     touched. The lit block itself is already the component's own background. */
+  box-shadow: 0 0 calc(18px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.26 * var(--ac-lit)));
+}
+.ac-afterglow .ac-btn,
+.ac-afterglow .ac-tab,
+.ac-afterglow .ac-nav__link,
+.ac-afterglow .ac-badge,
+.ac-afterglow .ac-table__row--active td {
+  position: relative;
 }
 
 /* Lighting up is instant — a cell energizes on the next refresh. Declared on the
@@ -1043,12 +1628,106 @@
      that never ran the keyframes — the right thing to show is nothing at all,
      not an opaque duplicate of live text sitting on top of it. */
   opacity: 0;
-  animation: ac-ghost-decay var(--ac-decay) var(--ac-decay-ease) forwards;
+  /* ON --ac-persist-tail, WHICH IS THE UNCAPPED ONE. A ghost is pure decoration
+     — nothing waits on it, nothing is unreachable behind it — so this is the one
+     place the long phosphors get to run at their real length. P39 holds a ghost
+     for two seconds and P7 for three, which is the entire reason anybody fitted
+     those phosphors to a radar set.
+
+     animation-NAME comes from the palette, defaulting to the single-hue curve.
+     A two-layer phosphor declares --ac-ghost-anim in its own block and gets the
+     cascade below instead; this file never names a palette to do it. */
+  animation: var(--ac-ghost-anim, ac-ghost-decay) var(--ac-persist-tail) var(--ac-decay-ease) forwards;
 }
-.ac-afterglow .ac-ghost--fast { animation-duration: var(--ac-decay-fast); }
+/* Continuously-rewritten text — a clock, a frame counter. Capped at 400ms even
+   under a long phosphor, and the cap is arithmetic rather than taste: a field
+   rewriting once a second under P7's 3000ms tail would stack three generations
+   of ghost on top of each other, and the third one is not persistence, it is a
+   pile. 400ms keeps at most one generation legible at a time. */
+.ac-afterglow .ac-ghost--fast {
+  animation-duration: min(var(--ac-persist-tail), 400ms);
+}
 @keyframes ac-ghost-decay {
   from { opacity: 0.38; filter: blur(0); }
   to   { opacity: 0; filter: blur(0.8px); }
+}
+
+/* THE CASCADE — P7, and anything else with two coatings.
+
+   The beam writes in ZnS:Ag blue and the layer behind it holds in (Zn,Cd)S:Cu
+   yellow-green, so what a ghost shows is not one colour fading but TWO in
+   sequence: the flash, gone within a frame, and then the afterglow for as long
+   as it lasts. That is what the eye actually reads off a radar screen, and it is
+   why P7 exists rather than a single phosphor with a long decay.
+
+   4% is the crossover, and it is hardcoded for the same reason the blink window
+   below is: keyframe offsets cannot read a custom property. At P7's 3000ms tail
+   that is 120ms — a shade longer than the real flash, which is nearer one frame,
+   because a literal single-frame step reads as a glitch rather than as a flash.
+   --ac-persist-fast carries the true figure for anyone who needs it.
+
+   The colour is animated rather than set, so it beats the inline `color` that
+   amber-console.js copies onto the clone — an animation outranks an inline style
+   in the cascade. Palettes with one coating never reach this keyframe at all, so
+   their ghosts keep the source's own colour exactly as before. */
+@keyframes ac-ghost-cascade {
+  0%   { opacity: 0.46; color: rgb(var(--gas-flash)); filter: blur(0); }
+  4%   { opacity: 0.38; color: rgb(var(--gas-1)); filter: blur(0.1px); }
+  100% { opacity: 0; color: rgb(var(--gas-1)); filter: blur(0.8px); }
+}
+
+/* (7) THE PAGE ITSELF DECAYS — cross-document persistence, and the only place in
+   this system where a REAL framebuffer snapshot is available without JavaScript.
+
+   Everything else in this file decays an ELEMENT: something the cascade can name
+   and time. A phosphor does not work that way — it decays whatever was drawn,
+   including the middle of a glyph and the part of the screen nothing owns. The
+   View Transition API is the one browser primitive that hands us that: the old
+   page as an image, which is exactly what a coating full of excited electrons
+   is. So navigating from one page to the next under P39 leaves the previous
+   screen genuinely draining behind the new one, per pixel, in pure CSS.
+
+   The direction rule survives intact and is the whole reason this reads as
+   phosphor rather than as a crossfade: the OLD snapshot decays on the emitter's
+   own sampled curve, and the NEW page gets `animation: none` so it is simply
+   THERE on the first frame. Instant up, curve down — the same asymmetry as every
+   other decay here. A default view transition cross-fades both halves, which is
+   a slideshow effect and reads as nothing in particular.
+
+   THE AT-RULE IS NOT SHIPPED, DELIBERATELY, AND THIS IS THE ONE OPT-IN IN THE
+   FRAMEWORK. `@view-transition { navigation: auto; }` cannot be scoped to a
+   selector — it is a document-level switch — so putting it here would change how
+   navigation behaves for every consumer who links this stylesheet, including
+   ones who never asked for a screen simulation. Linking a stylesheet must not
+   rewrite how a site navigates. Add the one line yourself:
+
+       @view-transition { navigation: auto; }
+
+   and the rules below take it from there. docs/docs.css does exactly that.
+
+   CAPPED SEPARATELY FROM --ac-persist-tail, and for a harder reason than taste:
+   the transition overlay sits above the document while it runs, so a 3000ms P7
+   tail would mean three seconds of a page that cannot be clicked. `pointer-events`
+   is cut below as a belt-and-braces measure, but the duration cap is the real
+   fix. 900ms is long enough to read as persistence and short enough that nobody
+   waits on it. */
+html:has(.ac-afterglow)::view-transition-old(root) {
+  animation: ac-page-decay min(var(--ac-persist-tail), 900ms) var(--ac-decay-ease) forwards;
+  mix-blend-mode: screen;
+}
+html:has(.ac-afterglow)::view-transition-new(root) {
+  animation: none;
+  opacity: 1;
+}
+html:has(.ac-afterglow)::view-transition-group(root) {
+  animation-duration: min(var(--ac-persist-tail), 900ms);
+}
+::view-transition {
+  pointer-events: none;
+}
+@keyframes ac-page-decay {
+  from { opacity: 0.85; filter: blur(0); }
+  to   { opacity: 0; filter: blur(1.1px); }
 }
 
 .ac-bloom > *, .ac-crt > *, .ac-afterglow > * { position: relative; z-index: 1; }
@@ -1136,6 +1815,22 @@
      motion-sick-making thing in here. */
   .ac-afterglow > .ac-persist::after { display: none; }
   .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh) { filter: none; }
+
+  /* The afterimage has no animation of its own — it reads --ac-lit, and the
+     blanket above already stops that from moving. What is left is a STATIC extra
+     halo around every lit control, which is not motion but is also not something
+     anybody opted into, so it goes too. */
+  .ac-afterglow .ac-btn::after,
+  .ac-afterglow .ac-tab::after,
+  .ac-afterglow .ac-nav__link::after,
+  .ac-afterglow .ac-badge::after,
+  .ac-afterglow .ac-table__row--active td::after { display: none; }
+
+  /* A whole page dissolving into the next one is the largest moving image in the
+     system. Both halves are cut, not just the old one — leaving the NEW page's
+     animation suppressed while the OLD one still ran would be worse than either. */
+  html:has(.ac-afterglow)::view-transition-old(root),
+  html:has(.ac-afterglow)::view-transition-new(root) { animation: none; }
 
   /* Persistence is motion by definition: a decaying ghost is a moving image.
      There is nothing to soften here, so the whole thing goes. */
@@ -2951,6 +3646,119 @@ textarea.ac-input {
   }
 }
 
+/* >>> src/amber-console.css -> components/sweep.css */
+/* PPI SWEEP — the radar face, and the one place persistence is the whole widget.
+   ============================================================================
+
+   Markup:
+     <div class="ac-sweep" role="img" aria-label="Search radar, no contacts">
+       <span class="ac-sweep__beam"></span>
+     </div>
+
+   THE TRAIL IS A GRADIENT, NOT AN ANIMATION, and that is the entire trick. The
+   obvious way to draw a decaying radar trail is to stamp a mark every frame and
+   fade each one — which is a per-pixel framebuffer problem, needs a canvas, and
+   is exactly what CSS cannot do. But a PPI trail is not really a history of
+   marks: it is one continuous falloff behind a rotating line, and a
+   conic-gradient IS that falloff. Rotate it and the decay comes for free,
+   composited on the GPU, in one element, with no script.
+
+   So the angular stops below are the phosphor's decay curve read in degrees
+   instead of milliseconds. That is legitimate rather than a pun: the beam sweeps
+   at a constant rate, so angle behind the beam IS time since that bearing was
+   painted. Same curve, same shape, different axis.
+
+   THE LEADING EDGE IS --gas-flash WHERE THERE IS ONE. On P7 the beam writes in
+   blue and the screen holds in yellow-green, so the first few degrees are the
+   flash and everything behind is the afterglow — the cascade rendered exactly as
+   the hardware does it, and the reason P7 was fitted to radar in the first
+   place. Every other emitter falls back to --gas-1 and the leading edge is
+   simply a brighter version of the trail, which is also correct for them.
+
+   No `transition` anywhere in this file: scripts/check-prohibitions.mjs forbids
+   it in src/components/, and nothing here needs one. */
+
+.ac-sweep {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: var(--ac-sweep-size, 260px);
+  border: 2px solid var(--stroke-dim);
+  border-radius: 50%;
+  overflow: hidden;
+  background:
+    /* Range rings. Drawn as hard-stopped radial gradients rather than as nested
+       elements, so the whole graticule costs no extra nodes. */
+    radial-gradient(circle at 50% 50%,
+      transparent 0 24%, rgba(var(--gas-3), 0.16) 24% 24.6%, transparent 24.6%),
+    radial-gradient(circle at 50% 50%,
+      transparent 0 49%, rgba(var(--gas-3), 0.16) 49% 49.6%, transparent 49.6%),
+    radial-gradient(circle at 50% 50%,
+      transparent 0 74%, rgba(var(--gas-3), 0.13) 74% 74.6%, transparent 74.6%),
+    /* The unlit screen behind them. */
+    radial-gradient(circle at 50% 50%, var(--screen-raised), var(--screen-well));
+}
+
+/* The crosshair, on the face rather than on the beam so it does not rotate. */
+.ac-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, transparent calc(50% - 1px), rgba(var(--gas-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(to bottom, transparent calc(50% - 1px), rgba(var(--gas-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+/* THE BEAM AND ITS WAKE.
+
+   Stops read outward from the leading edge: the flash, then the knee, then the
+   long shallow tail — the same fast-knee-long-tail shape the sampled linear()
+   easings carry, because it is the same decay.
+
+   200deg is where the tail reaches zero, so a little over half the face is lit
+   at any moment. Past that the previous revolution's light would still be
+   arriving and the face never reads as dark, which is the failure mode that
+   makes a sweep look like a spinning pie chart rather than a radar. */
+.ac-sweep__beam {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(var(--gas-flash, var(--gas-1)), 0.9) 0deg,
+    rgba(var(--gas-1), 0.5) 4deg,
+    rgba(var(--gas-2), 0.26) 18deg,
+    rgba(var(--gas-2), 0.13) 45deg,
+    rgba(var(--gas-3), 0.06) 95deg,
+    rgba(var(--gas-3), 0.02) 150deg,
+    transparent 200deg
+  );
+  /* THE PERIOD IS THE PHOSPHOR'S, WITH A FLOOR, and the floor is the point.
+     A sweep wants to come round about as the trail finishes draining — that is
+     the trade P7 and P39 were bought to make. Scaling straight off the tail does
+     that for the long phosphors (P39 -> 3s, P7 -> 4.5s), and gives neon 0.16s,
+     which is not a radar, it is a strobe. So the floor holds the slow ones
+     honest and keeps everything else watchable. */
+  animation: ac-sweep-rotate
+    var(--ac-sweep-period, max(2.5s, calc(var(--ac-persist-tail, 2s) * 1.5)))
+    linear infinite;
+}
+
+@keyframes ac-sweep-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* A rotating light is unambiguously motion, and unlike the mesh it is not the
+   shape of the hardware — it is the hardware doing something. It stops, and what
+   is left is a static lit sector, which still reads as a radar face. */
+@media (prefers-reduced-motion: reduce) {
+  .ac-sweep__beam { animation: none; }
+}
+
 
 /* --- Environment overrides. Last, so they win. --- */
 /* >>> src/amber-console.css -> base/a11y.css */
@@ -2988,7 +3796,13 @@ textarea.ac-input {
   .ac-scanlines::after,
   .ac-retrace,
   .ac-persist,
-  .ac-mesh {
+  .ac-mesh,
+  /* The radar wake is a gradient in --gas-N, which forced colors has no way to
+     map and no reason to keep. It is also the last blended element left in this
+     mode, and one `mix-blend-mode` anywhere promotes the stacking context and
+     costs subpixel text antialiasing page-wide — see the matching note in
+     print.css. The face and its rings stay; they are drawn with borders. */
+  .ac-sweep__beam {
     display: none;
   }
 
@@ -2998,6 +3812,27 @@ textarea.ac-input {
   .ac-afterglow dialog:not([open]) {
     transition: none;
     filter: none;
+  }
+
+  /* Same argument for the de-energizing afterimage. The UA forces shadows off
+     for anything still at forced-color-adjust: auto, but this halo is built from
+     --gas-N rather than from a forced system colour, and the elements it sits on
+     are exactly the ones a11y.css opts OUT of forced colors further down — which
+     hands them their box-shadow back. Stated at matching weight so it cannot
+     survive on the controls that opt out. */
+  .ac-afterglow .ac-btn::after,
+  .ac-afterglow .ac-tab::after,
+  .ac-afterglow .ac-nav__link::after,
+  .ac-afterglow .ac-badge::after,
+  .ac-afterglow .ac-table__row--active td::after {
+    display: none;
+  }
+
+  /* A page dissolving into the next one is a low-contrast duplicate of the whole
+     screen, for the same reason the ghosts are. */
+  html:has(.ac-afterglow)::view-transition-old(root),
+  html:has(.ac-afterglow)::view-transition-new(root) {
+    animation: none;
   }
 
   /* Blanket, for the same reason as the reduced-motion block in
@@ -3199,7 +4034,26 @@ textarea.ac-input {
   .ac-scanlines::after,
   .ac-retrace,
   .ac-persist,
-  .ac-mesh {
+  .ac-mesh,
+  /* The radar wake is a rotating light, and paper does not rotate — frozen, it
+     prints as an unexplained bright wedge across the face. Hiding it also keeps
+     the LAST blended element off the printed page, which matters more than it
+     looks: a single `mix-blend-mode` anywhere in the document promotes the
+     containing stacking context and costs SUBPIXEL TEXT ANTIALIASING for the
+     whole page. Every other overlay here was already hidden in print, so this
+     one arriving quietly turned every printed glyph greyscale. */
+  .ac-sweep__beam {
+    display: none;
+  }
+
+  /* The de-energizing afterimage is a halo around a control that is no longer
+     lit — an argument about elapsed time, which paper does not have. It prints
+     as an unexplained smudge, so it does not print. */
+  .ac-afterglow .ac-btn::after,
+  .ac-afterglow .ac-tab::after,
+  .ac-afterglow .ac-nav__link::after,
+  .ac-afterglow .ac-badge::after,
+  .ac-afterglow .ac-table__row--active td::after {
     display: none;
   }
 
