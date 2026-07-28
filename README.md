@@ -11,7 +11,7 @@ A monochrome amber-terminal CSS framework — the look of a late-1980s industria
 kind of amber plasma display that drove heavy machinery. One stylesheet, no dependencies, no build
 step, no JavaScript required for any component's appearance.
 
-**[Live demo — ORION-70 console](https://dutchdiederik.github.io/amber-console/) · [System guide](https://dutchdiederik.github.io/amber-console/docs/guide.html)**
+**[Live demo — ORION-70 console](https://dutchdiederik.github.io/AmberConsole/docs/index.html) · [System guide](https://dutchdiederik.github.io/AmberConsole/docs/guide.html)**
 
 ![The ORION-70 console demo](docs/screenshot.png)
 
