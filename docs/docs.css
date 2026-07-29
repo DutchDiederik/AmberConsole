@@ -28,7 +28,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
   text-decoration: none;
 }
 .doc-byline:hover {
@@ -48,7 +48,7 @@
   gap: var(--space-2);
   white-space: nowrap;
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
 }
 .doc-nav-display [data-ac-display-out] {
   color: var(--ink-bright);
@@ -96,7 +96,7 @@
   line-height: 1.6;
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
   text-transform: uppercase;
 }
 
@@ -139,7 +139,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
   text-transform: uppercase;
 }
 
@@ -161,7 +161,7 @@
   line-height: 1.35;
   letter-spacing: var(--tracking-body);
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
 }
 
 .doc-setup-hint {
@@ -169,7 +169,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
   text-transform: uppercase;
 }
 
@@ -265,7 +265,7 @@
   font-size: var(--type-title);
   letter-spacing: 0.2em;
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
 }
 .doc-lede {
   max-width: 62ch;
@@ -310,11 +310,11 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
 }
 
-.doc-dim { color: var(--ink-dim); text-shadow: none; }
-.doc-faint { color: var(--ink-faint); text-shadow: none; }
+.doc-dim { color: var(--ink-dim); text-shadow: var(--glow-text-dim); }
+.doc-faint { color: var(--ink-faint); box-shadow: var(--glow-box-dim); text-shadow: var(--glow-text); }
 .doc-small { font-size: var(--type-small); }
 
 .doc-grid2 {
@@ -346,7 +346,7 @@
   margin: 0;
   font-size: var(--type-small);
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
 }
 
 /* A specimen card. Dim frame so it never competes with what it contains. */
@@ -370,7 +370,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
   display: block;
   margin: 0 0 10px;
   width: 100%;
@@ -399,7 +399,7 @@
   text-align: left;
   font-weight: 400;
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
   font-family: var(--font-micro);
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
@@ -415,7 +415,7 @@
 }
 .doc-table td.doc-tok {
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
   white-space: nowrap;
 }
 
@@ -450,7 +450,7 @@
   padding-left: 1.2em;
   font-size: var(--type-small);
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
 }
 .doc-wrap li { margin-bottom: 6px; }
 
@@ -485,7 +485,7 @@
   margin: var(--space-2) 0 0;
   font-size: var(--type-small);
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
 }
 .doc-when::before {
   content: "NOT FOR: ";
@@ -576,18 +576,8 @@
   box-shadow: none;
 }
 
-.doc-spark__scale {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-2);
-  margin-top: var(--space-1);
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: none;
-  text-transform: uppercase;
-}
+/* The caption row under a strip chart. Shared with the radar page's A-scope —
+   see .doc-ascope__scale in the radar block below. */
 
 /* The service table. Only the switch column is pinned narrow; everything else
    keeps its natural width and the whole table scrolls inside .ac-table-scroll
@@ -617,6 +607,369 @@
 }
 
 .doc-datasets td:nth-child(1) {
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------- radar page -- */
+
+/* THE DIAL, AND WHY EVERYTHING ON IT IS AN ARM.
+   .ac-sweep draws the face, the rings and the wake; everything a particular
+   radar has on its screen is page furniture and belongs here. All of it is
+   polar — a bearing and a range — and none of it may be an SVG, which law 6
+   bans and `npm run check` greps for.
+
+   So each mark is a zero-width span pinned with its BOTTOM at the centre of the
+   dial, given a height in percent and rotated by its bearing. The far end then
+   lands exactly where polar coordinates say it does, at any dial size, with no
+   arithmetic in JavaScript and nothing to recompute on resize. The mark itself
+   is the arm's ::after, so one element carries both the position and the light.
+
+   --ac-sweep-period is re-declared here with the SAME expression the component
+   uses as its fallback, which changes nothing about the sweep and gives the
+   contacts a value they can do arithmetic on: each one delays its strike by its
+   own bearing's share of a revolution. The beam and the light it leaves are then
+   the same event by construction rather than by two numbers being kept in step. */
+.doc-scope {
+  --ac-sweep-period: max(2.5s, calc(var(--ac-persist-tail, 2s) * 1.5));
+  /* How much light a contact still has when the beam comes round again — the
+     TRAILS control, set by radar.js. Not the phosphor: see the note on the
+     soft key in radar.html. */
+  --doc-trail-floor: 0.2;
+}
+
+.doc-ppi {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 620px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+
+/* The bezel gap the bearing scale lives in. */
+.doc-ppi .ac-sweep {
+  --ac-sweep-size: calc(100% - 76px);
+}
+
+.doc-brg,
+.doc-brgn,
+.doc-shm,
+.doc-ebl,
+.doc-echo {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 0;
+  height: 50%;
+  transform-origin: bottom center;
+  pointer-events: none;
+}
+
+.doc-brg,
+.doc-brgn {
+  transform: rotate(calc(var(--b, 0) * 1deg));
+}
+
+.doc-brg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -1px;
+  width: 2px;
+  height: 11px;
+  background: var(--ink-trace);
+}
+.doc-brg--maj::before {
+  height: 19px;
+  background: var(--ink-faint);
+}
+
+/* Counter-rotated so the numerals stay upright, which is what a printed bezel
+   ring did — the card turned, the numbers did not. */
+.doc-brgn > span {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translate(-50%, 0) rotate(calc(var(--b, 0) * -1deg));
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  text-shadow: var(--glow-text-faint);
+}
+
+/* Ship's heading marker: where the bow is pointing, full radius. */
+.doc-shm {
+  width: 2px;
+  margin-left: -1px;
+  transform: rotate(calc(var(--brg, 0) * 1deg));
+  background: rgba(var(--gas-1), 0.45);
+}
+
+/* Electronic bearing line — dashed, because it is drawn by the set rather than
+   returned by anything. */
+.doc-ebl {
+  width: 2px;
+  margin-left: -1px;
+  transform: rotate(calc(var(--brg, 0) * 1deg));
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(var(--gas-2), 0.5) 0 9px,
+    transparent 9px 16px
+  );
+}
+
+/* Variable range marker. --rng is a fraction of the RADIUS everywhere on this
+   page, and 100% of the square face is the diameter, so the multiplication is
+   already right. */
+.doc-vrm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--rng, 0.5) * 100%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: var(--border-w) dashed rgba(var(--gas-2), 0.45);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Guard zone: a sector with the middle punched out. closest-side pins the mask's
+   100% to the radius rather than to the corner, so the inner edge is a range and
+   not an approximation of one. */
+.doc-guard {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(from 40deg, rgba(var(--gas-4), 0.12) 0 40deg, transparent 40deg);
+  -webkit-mask: radial-gradient(circle closest-side at 50% 50%, transparent 0 55%, black 55%);
+  mask: radial-gradient(circle closest-side at 50% 50%, transparent 0 55%, black 55%);
+}
+
+/* A CONTACT, WHICH IS THE POINT OF THE WHOLE PAGE.
+   The beam crosses this bearing once per revolution and re-strikes it. On P7
+   that strike lands in the blue layer and the yellow-green one behind it takes
+   over within a frame — so the keyframes below cross from --gas-flash to the
+   afterglow ramp, exactly as ac-ghost-cascade does in tokens/effects.css, and
+   for the same reason. The drain runs on --ac-decay-ease, which is the palette's
+   own sampled Becquerel curve rather than anything chosen here. */
+.doc-echo {
+  height: calc(var(--rng, 0.5) * 50%);
+  transform: rotate(calc(var(--brg, 0) * 1deg));
+}
+
+.doc-echo::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: calc(var(--sz, 8) * 1px);
+  height: calc(var(--sz, 8) * 0.6px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background-color: rgb(var(--gas-flash, var(--gas-1)));
+  animation: doc-echo-strike var(--ac-sweep-period) var(--ac-decay-ease) infinite;
+  /* Negative by one full period so the face is already in steady state on the
+     first frame instead of lighting up bearing by bearing on load. */
+  animation-delay: calc(var(--brg, 0) / 360 * var(--ac-sweep-period) - var(--ac-sweep-period));
+}
+
+@keyframes doc-echo-strike {
+  0% {
+    opacity: 1;
+    background-color: rgb(var(--gas-flash, var(--gas-1)));
+  }
+  4% {
+    opacity: 0.92;
+    background-color: rgb(var(--gas-1));
+  }
+  100% {
+    opacity: var(--doc-trail-floor, 0);
+    background-color: rgb(var(--gas-3));
+  }
+}
+
+/* Land does not move and returns hard, so it is drawn as a flatter, wider arc
+   than a hull is. */
+.doc-echo--land::after {
+  height: calc(var(--sz, 8) * 0.3px);
+}
+
+/* The selected track, ringed. With one hue available, "this one" is a marker
+   and a brightness, never a colour. */
+.doc-echo--sel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: calc(var(--sz, 8) * 1px + 16px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: var(--border-w) solid rgba(var(--gas-4), 0.6);
+  border-radius: 50%;
+}
+
+/* THE A-SCOPE. Amplitude against range on the bearing the beam is on — what a
+   radar was before the PPI existed, and here it is the control experiment: same
+   light, same decay, on a straight line instead of a circle. Every bar shares
+   one animation rather than carrying its own delay, because they are all the
+   same bearing and are therefore all struck at the same instant. */
+.doc-ascope {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 56px;
+  margin-top: var(--space-4);
+  padding: 0 2px;
+  background: var(--screen-well);
+  border: var(--border-w) solid var(--stroke-dim);
+  border-radius: var(--radius-sm);
+}
+
+.doc-ascope__bar {
+  flex: 1 1 0;
+  min-width: 2px;
+  height: calc(var(--h, 4) * 1%);
+  background-color: rgb(var(--gas-1));
+  animation: doc-ascope-drain var(--ac-sweep-period) var(--ac-decay-ease) infinite;
+}
+
+@keyframes doc-ascope-drain {
+  0% {
+    opacity: 1;
+    background-color: rgb(var(--gas-flash, var(--gas-1)));
+  }
+  4% {
+    opacity: 0.92;
+    background-color: rgb(var(--gas-1));
+  }
+  100% {
+    opacity: var(--doc-trail-floor, 0);
+    background-color: rgb(var(--gas-3));
+  }
+}
+
+.doc-ascope__scale,
+.doc-spark__scale {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  text-shadow: var(--glow-text-faint);
+  text-transform: uppercase;
+}
+
+/* Forced colors maps every author background away, and on this page that empties
+   the radar face: the wake is already dropped by base/a11y.css for reasons of its
+   own, and the contacts, the bearing ticks and the A-scope are all filled boxes.
+   A blank circle is worse than a plain one, so everything that carries
+   INFORMATION is redrawn in the user's own palette — system colour keywords are
+   the one set of values this mode does not override. The decorative marks (the
+   guard sector, the range marker) are left to disappear. */
+@media (forced-colors: active) {
+  .doc-brg::before,
+  .doc-ascope__bar {
+    background: CanvasText;
+  }
+  .doc-echo::after {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* Standby stops the antenna and stops writing. Nothing here fades anything out:
+   the picture is simply no longer being drawn, and on a long phosphor what you
+   watch is the last of it draining — which radar.js gets by wrapping the switch
+   in the effects module's framebuffer decay, the same call the range change
+   uses. */
+.doc-scope[data-standby] .ac-sweep__beam,
+.doc-scope[data-standby] .doc-echo,
+.doc-scope[data-standby] .doc-ascope__bar {
+  display: none;
+}
+
+/* A rotating light is unambiguously motion, and so is a re-struck contact. When
+   motion is reduced the beam stops (sweep.css does that) and these must stop
+   with it — a face full of pulsing marks under a stationary beam is worse than
+   either. What is left is a lit sector and a static plot, which is still a
+   radar picture. */
+@media (prefers-reduced-motion: reduce) {
+  .doc-echo::after,
+  .doc-ascope__bar {
+    animation: none;
+  }
+}
+
+/* The receiver controls. On the real set these were knobs; this system has no
+   rotary input and will not grow one, so each is the instrument it always was
+   with a pair of soft keys to move it — which is how the digital sets at the
+   end of this era replaced the knobs anyway. */
+.doc-knobs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-6) var(--space-8);
+}
+
+.doc-knob {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.doc-knob .ac-meter {
+  flex: 1;
+}
+.doc-knob .ac-btn {
+  flex: none;
+  padding: 10px 14px;
+}
+
+.doc-softkeys {
+  margin-top: var(--space-6);
+}
+
+.doc-softkeys__key,
+.doc-marker__key {
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  text-shadow: var(--glow-text-faint);
+  text-transform: uppercase;
+}
+
+.doc-marker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.doc-marker__key {
+  min-width: 3em;
+}
+.doc-marker__value {
+  margin-right: auto;
+  font-family: var(--font-terminal);
+  font-size: var(--type-body);
+  line-height: 1;
+  color: var(--ink-bright);
+  text-shadow: var(--glow-text);
+  font-variant-numeric: tabular-nums;
+}
+.doc-marker .ac-btn {
+  padding: 8px 14px;
+}
+
+.doc-fix {
+  margin-top: var(--space-3);
+}
+
+.doc-targets td:nth-child(2) {
   white-space: nowrap;
 }
 

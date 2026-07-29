@@ -42,7 +42,7 @@
 
 .ac-list__key {
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
   white-space: nowrap;
 }
 
@@ -76,9 +76,9 @@
 
 .ac-list--dim .ac-list__key {
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
 }
 .ac-list--dim .ac-list__value {
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
 }

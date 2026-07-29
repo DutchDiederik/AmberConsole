@@ -29,14 +29,81 @@
 
      THE 2px LAYER IS NOT SCALED. It is the glyph's own lit edge, not scattered
      light; it is where the photons started. Only the wide layers are the halo,
-     so only they answer to how much of the light left the stroke. */
+     so only they answer to how much of the light left the stroke.
+
+     HOW HARD THE CELL IS DRIVEN, 0..1, and it is the reason there is only ONE
+     shadow list in this file instead of three.
+
+     Scattered light is proportional to emitted light, so a cell at 70% drive
+     throws 70% of the halo. That is a multiplier, not a different effect — so
+     --ac-drive multiplies every alpha below, and a dim element re-states
+     `text-shadow: var(--glow-text)` with its own drive rather than pointing at a
+     parallel token that would have to be kept in sync with this one.
+
+     THE TIERS ARE ARITHMETIC, NOT TASTE. Each stop's luminance is already fixed
+     by the contrast ratio it was solved to — Y = ratio * (Y_screen + 0.05) -
+     0.05, with the panel at Y=0.00278 — so the ratios between them fall out:
+
+       --ink, --stroke        emit-90   7.00:1   Y 0.3195   drive 1.00
+       --ink-dim              emit-70   5.20:1   Y 0.2245   drive 0.70
+       --ink-faint, -dim      emit-50   3.40:1   Y 0.1295   drive 0.41
+       --ink-trace            emit-30   1.63:1   Y 0.0360   drive 0.11 -> none
+
+     --emit-30 landing at eleven percent is why the decorative rules stay flat:
+     that is not a halo, it is a rounding error.
+
+     RADIUS DOES NOT SCALE — ONLY ALPHA. How far light spreads through the glass
+     is a property of the glass and the wavelength (--gas-spread), not of how
+     hard the cell behind it is driven. Scaling radius too would say that a dim
+     cell's light travels less far, which is not a thing that happens.
+
+     NOTE THAT THE TOKEN FAMILIES DO NOT LINE UP, and the names actively mislead:
+     --ink-dim is emit-70 but --stroke-dim is emit-50. The tier is chosen by
+     DRIVE LEVEL, never by whether the token has "dim" in it.
+
+     WHY THIS IS THREE TOKENS AND NOT ONE MULTIPLIER. The tidy version of this is
+     a single --ac-drive that every alpha below multiplies by, so a dim element
+     sets the number and re-states `text-shadow: var(--glow-text)`. It does not
+     work, and it fails SILENTLY, which is worth recording so nobody rebuilds it.
+
+     A custom property's var() references are substituted when that property's
+     own value is computed — at :root, where these are declared. So --ac-drive is
+     resolved to 1 there and BAKED IN, and what descendants inherit is a finished
+     shadow list with no variable left in it. Setting --ac-drive further down
+     changes nothing at all: every tier renders at full strength and looks like
+     the feature is working. It is the same trap this file already documents two
+     paragraphs up for --glow-text itself.
+
+     So each tier is its own fully-resolved token. The multiplier stays visible
+     in the calc() rather than being folded into a literal, which keeps the
+     derivation checkable without making the value depend on where it is read.
+
+     THE STROKE IS NOT ALWAYS DRIVEN AS HARD AS THE INK, hence a separate box
+     tier. An .ac-input carries --ink-bright text inside a --stroke-dim box, and
+     .ac-statusbar--line is full-drive text between two dim rules — one element,
+     two drive levels, which a single scale could not have expressed either. */
+  --drive-dim: 0.7;
+  --drive-faint: 0.41;
+
   --glow-text:
     0 0 2px rgba(var(--gas-1), 0.6),
     0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1))),
     0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1)));
+  --glow-text-dim:
+    0 0 2px rgba(var(--gas-1), calc(0.6 * var(--drive-dim))),
+    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1) * var(--drive-dim))),
+    0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-dim)));
+  --glow-text-faint:
+    0 0 2px rgba(var(--gas-1), calc(0.6 * var(--drive-faint))),
+    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1) * var(--drive-faint))),
+    0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-faint)));
+
   --glow-box:
     0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1))),
     inset 0 0 10px rgba(var(--gas-1), 0.07);
+  --glow-box-dim:
+    0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1) * var(--drive-faint))),
+    inset 0 0 10px rgba(var(--gas-1), calc(0.07 * var(--drive-faint)));
 
   /* Plasma decay. A gas gap that stops being driven does not go dark on the next
      refresh — it relaxes: the discharge leaves excited and metastable neon behind,
@@ -249,15 +316,36 @@
      wider is scattered light and answers to --gas-scatter / --gas-spread. This
      is where the difference between the gases actually shows, because the bloom
      is where the halo is big enough to see. */
+  /* EVERY TIER IS RESTATED HERE, not just the full one. The bloom redefines the
+     glow tokens on the frame, which is a closer ancestor than :root and so wins
+     for every descendant — so a tier left undeclared here would keep its :root
+     value and a dim label would end up glowing HARDER on a plasma panel than the
+     bright text beside it. The bloom changes how much light the glass throws,
+     not how hard the cell behind it is driven. */
   --glow-text:
     0 0 2px rgba(var(--gas-4), 0.75),
     0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1))),
     0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1))),
     0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1)));
+  --glow-text-dim:
+    0 0 2px rgba(var(--gas-4), calc(0.75 * var(--drive-dim))),
+    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1) * var(--drive-dim))),
+    0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1) * var(--drive-dim))),
+    0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-dim)));
+  --glow-text-faint:
+    0 0 2px rgba(var(--gas-4), calc(0.75 * var(--drive-faint))),
+    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1) * var(--drive-faint))),
+    0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1) * var(--drive-faint))),
+    0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-faint)));
+
   --glow-box:
     0 0 calc(11px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.4 * var(--gas-scatter, 1))),
     0 0 calc(34px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.16 * var(--gas-scatter, 1))),
     inset 0 0 14px rgba(var(--gas-1), 0.1);
+  --glow-box-dim:
+    0 0 calc(11px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.4 * var(--gas-scatter, 1) * var(--drive-faint))),
+    0 0 calc(34px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.16 * var(--gas-scatter, 1) * var(--drive-faint))),
+    inset 0 0 14px rgba(var(--gas-1), calc(0.1 * var(--drive-faint)));
 }
 .ac-bloom::before {
   content: "";
@@ -775,9 +863,23 @@
 
    Only the frame's real children are filtered, never the overlay nodes. The
    scanline mask, the vignette and the cell mesh are the glass, not the image —
-   the glass does not go out of focus when the picture moves. */
-.ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh) {
-  filter: blur(calc(var(--ac-smear, 0) * 0.9px));
+   the glass does not go out of focus when the picture moves.
+
+   .ac-nav--sticky is excluded for the same reason arrived at from the other
+   direction: it is pinned to the top of the viewport, so while the page scrolls
+   it is the one element on screen whose pixels are NOT being handed a new value.
+   Nothing about it moved, so nothing about it smears. Blurring it read as the
+   header losing focus, which is the opposite of what a stationary object does.
+
+   The blur is isotropic, and a real smear is not — it runs along the axis of
+   travel. `filter: blur()` has no directional form; the honest one is an inline
+   SVG feGaussianBlur with stdDeviation="0 N" referenced through filter: url(),
+   and that costs every page an SVG node in its markup. Every other effect here
+   is one class and at most one span, and that contract is worth more than the
+   axis. Recalibrated instead: 1.8px, reached by an ordinary wheel rather than
+   only by a flick — see SMEAR_FULL in amber-console.effects.js. */
+.ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh, .ac-nav--sticky) {
+  filter: blur(calc(var(--ac-smear, 0) * 1.8px));
 }
 
 /* …and the panel blooms while it cannot keep up: a blurred, additive copy of
@@ -787,7 +889,7 @@
   content: "";
   position: fixed; inset: 0;
   pointer-events: none;
-  opacity: calc(var(--ac-smear, 0) * 0.32);
+  opacity: calc(var(--ac-smear, 0) * 0.45);
   mix-blend-mode: screen;
   backdrop-filter: blur(calc(var(--ac-smear, 0) * 4px)) brightness(1.12);
   -webkit-backdrop-filter: blur(calc(var(--ac-smear, 0) * 4px)) brightness(1.12);
@@ -996,7 +1098,7 @@ html:has(.ac-afterglow)::view-transition-group(root) {
   /* Smearing the whole viewport in response to scrolling is the single most
      motion-sick-making thing in here. */
   .ac-afterglow > .ac-persist::after { display: none; }
-  .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh) { filter: none; }
+  .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh, .ac-nav--sticky) { filter: none; }
 
   /* The afterimage has no animation of its own — it reads --ac-lit, and the
      blanket above already stops that from moving. What is left is a STATIC extra

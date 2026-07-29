@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SEASCAN RM-12 RADAR — Amber Console</title>
+<meta name="description" content="Live demo of Amber Console driving a 1980s marine radar: a P7 phosphor PPI with a decaying wake, built entirely from ac-* classes.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#040a11">
+
+<!-- Social cards. og:image MUST be absolute — a relative path is ignored by
+     every scraper — so these are the only URLs in the project hardcoded to the
+     Pages host. They are inert over file://, which costs nothing. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Amber Console">
+<meta property="og:title" content="SEASCAN RM-12 Radar — Amber Console">
+<meta property="og:description" content="A P7 radar phosphor, simulated: blue flash, three-second yellow-green wake. Zero dependencies, one stylesheet.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/radar.html">
+<meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A marine radar plan position indicator with a rotating sweep, bearing scale and tracked contacts.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@DutchDiederik">
+
+<link rel="stylesheet" href="../dist/amber-console.css">
+<link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<!-- SEASCAN RM-12 is invented for this design system, the same way ORION-70 and
+     D-STAR are: its name, wordmark and copy are ours, and no manufacturer's
+     branding, wordmark or logo appears in it. See Provenance in README.md.
+
+     WHAT THIS PAGE IS FOR. ORION-70 argues the system reproduces 1988 hardware
+     and D-STAR argues it dresses a 2026 application. This one exists for a
+     single emitter. P7 is two coatings — the beam writes into a blue ZnS:Ag
+     layer that decays in microseconds, and that layer's own photons pump a
+     yellow-green one behind it which holds for three seconds. There is exactly
+     one instrument that was built around that behaviour, and this is it: on a
+     radar the flash gives position and the trail gives history. Every other
+     page in this repo can show you the colour of a phosphor. This one shows you
+     what the colour is FOR.
+
+     THE PERIOD IS THE EARLY 1980s AND THE DETAILS ARE LOAD-BEARING. The set is
+     an ARPA-capable marine radar of the Decca / Racal / Kelvin Hughes genre.
+     The position fix comes from a DECCA NAVIGATOR chain rather than from GPS,
+     which is not an affectation: GPS was not usable by civilian shipping until
+     the 1990s, and a bridge of this vintage read red and green lane numbers off
+     a Decca receiver and laid them on a lattice chart. Getting that wrong would
+     date the panel by a decade. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+  <span class="ac-mesh"></span>
+
+  <nav class="ac-nav ac-nav--sticky">
+    <span class="ac-nav__mark">Amber Console</span>
+    <div class="ac-nav__links">
+      <a class="ac-nav__link" href="index.html">Console</a>
+      <a class="ac-nav__link" href="server.html">Server</a>
+      <a class="ac-nav__link" href="radar.html" aria-current="page">Radar</a>
+      <a class="ac-nav__link" href="guide.html">System Guide</a>
+    </div>
+    <span class="ac-nav__meta">
+      <!-- The bar is the sticky half of the anti-confusion job: the board below
+           scrolls away, this does not, and it always names the TECHNOLOGY first
+           and the emitter second. -->
+      <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">CRT · P7</span></span>
+      <span>REV 1.0</span>
+      <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
+    </span>
+  </nav>
+
+  <!-- THE ONE DELIBERATE DIFFERENCE FROM THE OTHER PAGES' BOARDS: P7 carries the
+       `checked` attribute below rather than neon, because a radar in neon is a
+       red strobe with no flash layer and this page has no reason to open that
+       way. radar.js does the other half — see the note at the top of it — by
+       seeding the stored display on a first visit, since that store is shared
+       with the console and the server demo and would otherwise arrive here
+       holding whatever was chosen there. Everything else in this board is a
+       byte-identical copy; keep it that way so a diff between two demo pages
+       shows only the demo. -->
+  <!-- ============================================================ SETUP ==
+       Four quarters. Three axes, and they are never the same axis:
+
+         DISPLAY     what hardware is in the panel. Sets the color.
+                     TWO regions, one per technology, never one list of eleven.
+         SIMULATION  what the glass does about it. Never sets a color.
+         STYLE       preferences that make no claim about the hardware at all.
+
+       This board is duplicated verbatim on every demo page rather than shared,
+       because these pages are static HTML with no build step and a visitor who
+       lands here must be able to try every emitter without going back. Keep the
+       copies byte-identical so a diff between two pages shows only the demo.
+
+       Splitting the catalog across two quarters is not only about confusion,
+       though that is the point of it: eleven rows in one column is also taller
+       than a board that never scrolls is allowed to be. Four gases and seven
+       phosphors side by side fit.
+
+       data-ac-peak IS NOT THE SAME KIND OF NUMBER ON BOTH SIDES, which is the
+       clearest single reason these two catalogs are not one list:
+
+         A GAS emits a LINE SPECTRUM. The number is the strongest VISIBLE line,
+         and it is NOT the perceived hue — that is the CIE integral of every line
+         at once, which is the whole argument tokens/colors.css makes for landing
+         neon at 24deg rather than at its 585.2nm line. Argon reads violet on the
+         glass while its strongest visible line is deep red at 696.5nm, and most
+         of what argon emits is not visible at all. No contradiction: they are
+         answers to different questions.
+
+         A PHOSPHOR emits a BROAD BAND. The number is the band peak, and it does
+         correspond to the perceived hue, because there is only one band. -->
+  <div class="ac-setup">
+    <div class="ac-setup__grid">
+
+      <!-- ------------------------------------------------- 1/4 · plasma -- -->
+      <div class="ac-panel">
+        <span class="ac-panel__title">▮ Plasma Gases</span>
+        <p class="doc-displays__note">Gas emitting directly. No phosphor in the stack.</p>
+        <fieldset class="doc-displays">
+          <legend class="ac-sr-only">Plasma gases</legend>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
+            <span class="doc-display__name">Neon</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">585nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="helium" data-ac-sims="plasma" data-ac-peak="587.6 nm">
+            <span class="doc-display__name">Helium</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Pale pink 588nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="argon" data-ac-sims="plasma" data-ac-peak="696.5 nm">
+            <span class="doc-display__name">Argon</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Lavender 696nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="krypton" data-ac-sims="plasma" data-ac-peak="587.1 nm">
+            <span class="doc-display__name">Krypton</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Violet 587nm</span>
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- ---------------------------------------------------- 1/4 · crt -- -->
+      <div class="ac-panel">
+        <span class="ac-panel__title">▯ CRT Phosphors</span>
+        <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
+        <fieldset class="doc-displays">
+          <legend class="ac-sr-only">CRT phosphors</legend>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
+            <span class="doc-display__name">P1</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Green 525nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
+            <span class="doc-display__name">P3</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Amber 590nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
+            <span class="doc-display__name">P4</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">White 450+560nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display" checked
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
+            <span class="doc-display__name">P7</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Blue+green 450/558nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
+            <span class="doc-display__name">P11</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Blue 460nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
+            <span class="doc-display__name">P31</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Green 520nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
+            <span class="doc-display__name">P39</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Long green 525nm</span>
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- --------------------------------------- 1/4 · simulation, style -- -->
+      <div class="ac-stack" style="--gap: 24px">
+        <div class="ac-panel">
+          <span class="ac-panel__title">Simulation</span>
+          <p class="doc-displays__note">What the glass does. Never a color.</p>
+          <div class="doc-switches">
+            <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
+              <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+            </button>
+            <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+              <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ac-panel">
+          <span class="ac-panel__title">Style</span>
+          <p class="doc-displays__note">Preferences. No claim about the hardware.</p>
+          <div class="doc-switches">
+            <!-- No BLINK switch here on purpose. Blink is law-2 emphasis and the
+                 dashboard below raises a real alarm when a service is stopped,
+                 so this page keeps it on and does not offer to turn it off. The
+                 style flag itself is still in the framework — write
+                 data-ac-style="blink" on a toggle to expose it, or set
+                 data-ac-style-blink="off" on <html>. prefers-reduced-motion
+                 stops it either way. -->
+            <!-- Ships OFF and disabled, because the frame above ships .ac-bloom.
+                 The smear lives on .ac-afterglow, which arrives with CRT — so
+                 this is the position initStyle settles on anyway, and matching it
+                 in markup is what keeps the switch from painting one frame in the
+                 wrong place. Pick any CRT preset and it turns itself on. -->
+            <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="false" disabled>
+              <span>Scroll Smear <span class="ac-badge ac-badge--dim">JS</span></span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+            </button>
+          </div>
+          <p class="doc-displays__note" data-ac-style-note="smear">CRT only. The smear is a property of
+            the afterglow layer, and a plasma cell is driven continuously — there is nothing to trail.</p>
+        </div>
+
+        <div class="ac-panel">
+          <span class="ac-panel__title">Engine</span>
+          <p class="doc-displays__note">How much of the library is running.</p>
+          <div class="doc-switches">
+            <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
+              <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+            </button>
+          </div>
+          <p class="doc-displays__note">Switch it off and the three effects that need
+            amber-console.effects.js go dark — ghosting, scroll smear, framebuffer decay. Everything
+            else you can see is CSS and keeps running: the bloom, the cell mesh, the scanlines and
+            vignette, the blink decay, the lingering halo, the residual patches.</p>
+        </div>
+      </div>
+
+      <!-- ----------------------------------------- 1/4 · state, the note -- -->
+      <div class="ac-stack" style="--gap: 24px">
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">State</span>
+          <dl class="ac-list ac-list--dense">
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Technology</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="tech">PLASMA</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Emitter</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Emission</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="peak">585.2 nm</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Mode</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Engine</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="engine">CSS + JS</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- The prose is markup, one node per key, all but the matching one
+             hidden. A key is a technology, or an exact tech/emitter pair where
+             one phosphor does not behave like the rest of its family. -->
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">Technology</span>
+          <p class="doc-info" data-ac-display-info="plasma">A gas in a sealed gap, struck by a
+            sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
+            hue and varies only how hard it is driven.</p>
+          <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
+               deep red, while the panel is plainly lavender — that looks like a bug
+               until you know the eye is doing the arithmetic. -->
+          <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
+            output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
+            strongest line, not the color. What you see is the faint 415–475nm group, a hundred
+            times weaker and a hundred times better placed. It is also why argon is dim.</p>
+          <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
+            visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
+            yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
+            panel reads violet rather than any one of those colors.</p>
+          <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
+            which emits while struck and then persists. The color belongs to the phosphor, not the
+            beam; the P-number names the compound.</p>
+          <p class="doc-info" data-ac-display-info="crt/p7" hidden>Two coatings, not one. The beam writes into a blue ZnS:Ag layer that decays in
+            microseconds, and that layer's own photons pump a yellow-green one behind it which holds
+            for seconds. So the ink is blue and the halo is green: text you are reading is being
+            re-struck sixty times a second, and text that stops being written leaves only the glow.
+            This is the radar phosphor — the flash gives position, the trail gives history.</p>
+          <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
+            and leaves the colour alone — this palette and P1 are the same green, and differ only in
+            how long it lasts. At hundreds of milliseconds the screen is still near full brightness
+            when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
+            paid for in smear.</p>
+          <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
+            P11 was fitted to screens meant to be photographed rather than watched — and watched, it
+            is the worst screen here. It decays in tens of microseconds, three orders below a
+            refresh interval, so the screen is genuinely dark between frames. Short persistence and
+            heavy flicker are the same fact.</p>
+          <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
+            mixed into one coating, emitting together, which the eye integrates to white. That is
+            what separates it from P7 — two powders mixed have one colour, two powders layered emit
+            in sequence and the colour changes as you watch.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ac-setup__foot">
+      <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
+      <span class="ac-spacer"></span>
+      <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    </div>
+  </div>
+
+  <div class="ac-screen__body">
+    <div class="doc-console-head">
+      <div>
+        <div class="doc-wordmark">SEASCAN</div>
+        <h1 id="headline">RM-12 · 3 NM · HEAD-UP</h1>
+      </div>
+      <!-- Presentation is three exclusive states and it is a soft key rather
+           than a tablist, because nothing below it is a panel being swapped —
+           the same face is being drawn against a different reference. -->
+      <div class="ac-row ac-row--wrap" style="--gap: 8px">
+        <button type="button" class="ac-btn" data-pres="HEAD-UP" aria-pressed="true">Head-Up</button>
+        <button type="button" class="ac-btn" data-pres="NORTH-UP" aria-pressed="false">North-Up</button>
+        <button type="button" class="ac-btn" data-pres="COURSE-UP" aria-pressed="false">Course-Up</button>
+      </div>
+    </div>
+
+    <div class="ac-grid ac-grid--console">
+
+      <!-- ============================================================ SCOPE ==
+           .ac-sweep draws the face, the rings and the wake and nothing else, on
+           purpose — it is a framework component and a framework does not know
+           what is on your screen. Everything inside it here is page furniture:
+           the heading marker, the bearing line, the range marker, the guard zone
+           and the contacts. All of it is boxes and transforms, because law 6
+           bans the SVG element and `npm run check` greps for it.
+
+           EVERY CONTACT IS AN ARM, not a positioned dot. A span pinned at the
+           centre with `height: calc(var(--rng) * 50%)` and rotated by --brg puts
+           its far end exactly where polar coordinates say it goes, at any dial
+           size, with no arithmetic in JavaScript and nothing to recompute when
+           the panel is resized. The blip itself is the arm's ::after, so one
+           element carries both the position and the light. -->
+      <div class="ac-stack" style="--gap: 18px">
+        <div class="ac-panel ac-panel--bar doc-scope" id="scope-panel">
+          <div class="ac-panel__barTitle">Plan Position Indicator</div>
+
+          <div class="doc-ppi" id="ppi">
+            <!-- The bearing scale: 36 ticks at 10°, longer every 30°. It sits on
+                 the bezel OUTSIDE the face, which is why it is a sibling of the
+                 sweep rather than a child — the sweep clips to its own circle. -->
+            <span class="doc-brg doc-brg--maj" style="--b:0"></span><span class="doc-brg" style="--b:10"></span><span class="doc-brg" style="--b:20"></span><span class="doc-brg doc-brg--maj" style="--b:30"></span><span class="doc-brg" style="--b:40"></span><span class="doc-brg" style="--b:50"></span>
+            <span class="doc-brg doc-brg--maj" style="--b:60"></span><span class="doc-brg" style="--b:70"></span><span class="doc-brg" style="--b:80"></span><span class="doc-brg doc-brg--maj" style="--b:90"></span><span class="doc-brg" style="--b:100"></span><span class="doc-brg" style="--b:110"></span>
+            <span class="doc-brg doc-brg--maj" style="--b:120"></span><span class="doc-brg" style="--b:130"></span><span class="doc-brg" style="--b:140"></span><span class="doc-brg doc-brg--maj" style="--b:150"></span><span class="doc-brg" style="--b:160"></span><span class="doc-brg" style="--b:170"></span>
+            <span class="doc-brg doc-brg--maj" style="--b:180"></span><span class="doc-brg" style="--b:190"></span><span class="doc-brg" style="--b:200"></span><span class="doc-brg doc-brg--maj" style="--b:210"></span><span class="doc-brg" style="--b:220"></span><span class="doc-brg" style="--b:230"></span>
+            <span class="doc-brg doc-brg--maj" style="--b:240"></span><span class="doc-brg" style="--b:250"></span><span class="doc-brg" style="--b:260"></span><span class="doc-brg doc-brg--maj" style="--b:270"></span><span class="doc-brg" style="--b:280"></span><span class="doc-brg" style="--b:290"></span>
+            <span class="doc-brg doc-brg--maj" style="--b:300"></span><span class="doc-brg" style="--b:310"></span><span class="doc-brg" style="--b:320"></span><span class="doc-brg doc-brg--maj" style="--b:330"></span><span class="doc-brg" style="--b:340"></span><span class="doc-brg" style="--b:350"></span>
+
+            <span class="doc-brgn" style="--b:0"><span>000</span></span><span class="doc-brgn" style="--b:30"><span>030</span></span><span class="doc-brgn" style="--b:60"><span>060</span></span>
+            <span class="doc-brgn" style="--b:90"><span>090</span></span><span class="doc-brgn" style="--b:120"><span>120</span></span><span class="doc-brgn" style="--b:150"><span>150</span></span>
+            <span class="doc-brgn" style="--b:180"><span>180</span></span><span class="doc-brgn" style="--b:210"><span>210</span></span><span class="doc-brgn" style="--b:240"><span>240</span></span>
+            <span class="doc-brgn" style="--b:270"><span>270</span></span><span class="doc-brgn" style="--b:300"><span>300</span></span><span class="doc-brgn" style="--b:330"><span>330</span></span>
+
+            <div class="ac-sweep" id="scope" role="img" aria-label="Plan position indicator, 3 nautical mile range, four tracked contacts. The tracked contacts are listed in the target table below.">
+              <span class="ac-sweep__beam" id="beam"></span>
+
+              <!-- Guard zone: 040 to 080, outside 55% of range. -->
+              <span class="doc-guard" id="guard"></span>
+
+              <!-- Ship's heading marker. Re-struck once per revolution like
+                   everything else on the face, which is the whole point. -->
+              <span class="doc-shm" style="--brg:0"></span>
+
+              <span class="doc-vrm" id="vrm" style="--rng:0.54"></span>
+              <span class="doc-ebl" id="ebl" style="--brg:73.5"></span>
+
+              <!-- Tracked contacts. These four are the ARPA plot below. -->
+              <span class="doc-echo doc-echo--tracked doc-echo--sel" id="echo-1" style="--brg:41;--rng:0.62;--sz:13"></span>
+              <span class="doc-echo doc-echo--tracked" id="echo-2" style="--brg:105;--rng:0.44;--sz:18"></span>
+              <span class="doc-echo doc-echo--tracked" id="echo-3" style="--brg:168;--rng:0.75;--sz:14"></span>
+              <span class="doc-echo doc-echo--tracked" id="echo-4" style="--brg:214;--rng:0.30;--sz:9"></span>
+
+              <!-- Untracked returns: a buoy, some traffic, and the coastline. -->
+              <span class="doc-echo" style="--brg:288;--rng:0.18;--sz:6"></span>
+              <span class="doc-echo" style="--brg:62;--rng:0.88;--sz:9"></span>
+              <span class="doc-echo" style="--brg:133;--rng:0.68;--sz:7"></span>
+              <span class="doc-echo" style="--brg:197;--rng:0.52;--sz:7"></span>
+              <span class="doc-echo" style="--brg:252;--rng:0.71;--sz:10"></span>
+              <span class="doc-echo" style="--brg:305;--rng:0.55;--sz:8"></span>
+              <span class="doc-echo doc-echo--land" style="--brg:322;--rng:0.86;--sz:26"></span>
+              <span class="doc-echo doc-echo--land" style="--brg:331;--rng:0.90;--sz:30"></span>
+              <span class="doc-echo doc-echo--land" style="--brg:340;--rng:0.88;--sz:24"></span>
+              <span class="doc-echo doc-echo--land" style="--brg:349;--rng:0.84;--sz:20"></span>
+
+              <!-- Sea clutter. Close in, and the reason ANTI-CLUTTER SEA exists:
+                   wind-driven wave tops return within about a quarter mile and
+                   swamp the returns that matter. Turn the control up and these
+                   go; turn it too far and the buoy goes with them. -->
+              <span class="doc-echo doc-echo--clutter" data-clutter="1" style="--brg:15;--rng:0.12;--sz:5"></span>
+              <span class="doc-echo doc-echo--clutter" data-clutter="1" style="--brg:88;--rng:0.09;--sz:4"></span>
+              <span class="doc-echo doc-echo--clutter" data-clutter="2" style="--brg:150;--rng:0.16;--sz:5"></span>
+              <span class="doc-echo doc-echo--clutter" data-clutter="2" style="--brg:231;--rng:0.11;--sz:4"></span>
+              <span class="doc-echo doc-echo--clutter" data-clutter="3" style="--brg:279;--rng:0.14;--sz:5"></span>
+              <span class="doc-echo doc-echo--clutter" data-clutter="3" style="--brg:340;--rng:0.08;--sz:4"></span>
+            </div>
+          </div>
+
+          <!-- THE A-SCOPE, and it is here to prove a point about the phosphor
+               rather than to be operated. Before the PPI existed, a radar WAS
+               this: amplitude against range on one bearing, drawn left to right
+               by a spot that then had to hold long enough to be read. It is the
+               same light and the same decay as the face above, on a straight
+               line instead of a circle — so if persistence looked like a
+               property of the circle, this is the control experiment. -->
+          <div class="doc-ascope" id="ascope" role="img" aria-label="A-scope: echo amplitude against range on the sweep's current bearing.">
+            <span class="doc-ascope__bar" style="--h:6"></span><span class="doc-ascope__bar" style="--h:9"></span><span class="doc-ascope__bar" style="--h:7"></span><span class="doc-ascope__bar" style="--h:12"></span><span class="doc-ascope__bar" style="--h:8"></span><span class="doc-ascope__bar" style="--h:5"></span><span class="doc-ascope__bar" style="--h:9"></span><span class="doc-ascope__bar" style="--h:6"></span>
+            <span class="doc-ascope__bar" style="--h:4"></span><span class="doc-ascope__bar" style="--h:7"></span><span class="doc-ascope__bar" style="--h:5"></span><span class="doc-ascope__bar" style="--h:8"></span><span class="doc-ascope__bar" style="--h:62"></span><span class="doc-ascope__bar" style="--h:78"></span><span class="doc-ascope__bar" style="--h:41"></span><span class="doc-ascope__bar" style="--h:9"></span>
+            <span class="doc-ascope__bar" style="--h:6"></span><span class="doc-ascope__bar" style="--h:4"></span><span class="doc-ascope__bar" style="--h:7"></span><span class="doc-ascope__bar" style="--h:5"></span><span class="doc-ascope__bar" style="--h:9"></span><span class="doc-ascope__bar" style="--h:6"></span><span class="doc-ascope__bar" style="--h:4"></span><span class="doc-ascope__bar" style="--h:8"></span>
+            <span class="doc-ascope__bar" style="--h:34"></span><span class="doc-ascope__bar" style="--h:52"></span><span class="doc-ascope__bar" style="--h:28"></span><span class="doc-ascope__bar" style="--h:7"></span><span class="doc-ascope__bar" style="--h:5"></span><span class="doc-ascope__bar" style="--h:9"></span><span class="doc-ascope__bar" style="--h:6"></span><span class="doc-ascope__bar" style="--h:4"></span>
+            <span class="doc-ascope__bar" style="--h:8"></span><span class="doc-ascope__bar" style="--h:6"></span><span class="doc-ascope__bar" style="--h:11"></span><span class="doc-ascope__bar" style="--h:7"></span><span class="doc-ascope__bar" style="--h:5"></span><span class="doc-ascope__bar" style="--h:9"></span><span class="doc-ascope__bar" style="--h:18"></span><span class="doc-ascope__bar" style="--h:24"></span>
+            <span class="doc-ascope__bar" style="--h:14"></span><span class="doc-ascope__bar" style="--h:6"></span><span class="doc-ascope__bar" style="--h:4"></span><span class="doc-ascope__bar" style="--h:8"></span><span class="doc-ascope__bar" style="--h:5"></span><span class="doc-ascope__bar" style="--h:7"></span><span class="doc-ascope__bar" style="--h:4"></span><span class="doc-ascope__bar" style="--h:6"></span>
+          </div>
+          <div class="doc-ascope__scale">
+            <span>0</span>
+            <span id="ascope-brg">Bearing 073.5°</span>
+            <span id="ascope-max">3 NM</span>
+          </div>
+        </div>
+
+        <!-- The guard-zone alarm. Present only while something is actually
+             inside the zone, because law 2 rations emphasis and a banner that is
+             always on the screen has stopped being a banner. It ships raised
+             because T1 IS in the zone — a coaster closing on 041 at a CPA of
+             four cables is exactly what a guard zone is set for — and radar.js
+             takes it down when the track clears. -->
+        <div id="alarm-slot">
+          <div class="ac-banner ac-blink" role="alert">Guard Zone · Track T1</div>
+        </div>
+      </div>
+
+      <!-- ======================================================= INSTRUMENTS == -->
+      <div class="ac-stack" style="--gap: 18px">
+
+        <div class="ac-panel ac-panel--bar">
+          <div class="ac-panel__barTitle">Transmitter</div>
+          <div class="ac-stack" style="--gap: 12px">
+            <div class="ac-readout">
+              <div class="ac-readout__value" id="tx-value">TRANSMIT</div>
+              <div class="ac-readout__label ac-readout__label--plain" id="tx-note">Pulse Short · 80 ns</div>
+            </div>
+            <!-- The warm-up is NOT sped up. Ninety seconds is what a magnetron
+                 of this size actually needed to come up to cathode temperature,
+                 and a bridge waited it out before every departure. The set ships
+                 transmitting so nobody has to; press Standby and back to see it. -->
+            <!-- The plain wrapper is load-bearing. `hidden` is an attribute the
+                 UA implements as `display: none`, and ANY component rule that
+                 sets `display` outranks it — .ac-meter is `display: flex`, so a
+                 hidden meter is not hidden. base/layout.css guards .ac-stack,
+                 .ac-row, .ac-grid and .ac-screen against exactly this; the
+                 components are not guarded. Toggling a div nobody has styled
+                 sidesteps it entirely. -->
+            <div id="warmup" hidden>
+              <div class="ac-meter ac-meter--dim">
+                <div class="ac-meter__track" style="--ac-meter-value: 0" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Magnetron warm-up">
+                  <div class="ac-meter__bar"></div>
+                </div>
+                <div class="ac-meter__scale"><span>Warm-Up</span><span id="warmup-left">90 S</span></div>
+              </div>
+            </div>
+            <button type="button" class="ac-btn ac-btn--block" id="tx-toggle">Standby</button>
+          </div>
+        </div>
+
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">Own Ship</span>
+          <dl class="ac-list ac-list--dense">
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Heading</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" id="own-hdg">047.5°T</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Course</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" id="own-cse">049°T</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Speed</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" id="own-sog">12.4 KN</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Log</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">11.8 KN</dd>
+            </div>
+          </dl>
+          <!-- DECCA, not GPS, and that is the detail that dates this panel.
+               A Decca receiver gave you two lane readings from a chain of
+               transmitters, which you laid on a lattice chart to get a fix. The
+               civilian GPS this would be today did not exist for shipping until
+               the 1990s. -->
+          <dl class="ac-list ac-list--dense ac-list--dim doc-fix">
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Decca 5B</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" id="fix-lanes">R 12.34 G 45.67</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Fix</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" id="fix-posn">51°57.2'N 004°06.8'E</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">Markers</span>
+          <div class="ac-stack" style="--gap: 10px">
+            <div class="doc-marker">
+              <span class="doc-marker__key">EBL</span>
+              <span class="doc-marker__value" id="ebl-out">073.5°</span>
+              <button type="button" class="ac-btn" data-ebl="-2.5" aria-label="Bearing line left">◄</button>
+              <button type="button" class="ac-btn" data-ebl="2.5" aria-label="Bearing line right">►</button>
+            </div>
+            <div class="doc-marker">
+              <span class="doc-marker__key">VRM</span>
+              <span class="doc-marker__value" id="vrm-out">1.62 NM</span>
+              <button type="button" class="ac-btn" data-vrm="-0.04" aria-label="Range marker in">◄</button>
+              <button type="button" class="ac-btn" data-vrm="0.04" aria-label="Range marker out">►</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ac-panel">
+          <span class="ac-panel__title">Range</span>
+          <p class="doc-displays__note">Ring interval follows the scale.</p>
+          <fieldset class="doc-displays">
+            <legend class="ac-sr-only">Range scale</legend>
+            <label class="ac-radio doc-display">
+              <input type="radio" name="ac-range" data-range="0.75" data-rings="0.25">
+              <span class="doc-display__name">0.75 NM</span>
+              <span class="doc-display__fill"></span>
+              <span class="doc-display__note">Rings 0.25</span>
+            </label>
+            <label class="ac-radio doc-display">
+              <input type="radio" name="ac-range" data-range="1.5" data-rings="0.5">
+              <span class="doc-display__name">1.5 NM</span>
+              <span class="doc-display__fill"></span>
+              <span class="doc-display__note">Rings 0.5</span>
+            </label>
+            <label class="ac-radio doc-display">
+              <input type="radio" name="ac-range" checked data-range="3" data-rings="0.5">
+              <span class="doc-display__name">3 NM</span>
+              <span class="doc-display__fill"></span>
+              <span class="doc-display__note">Rings 0.5</span>
+            </label>
+            <label class="ac-radio doc-display">
+              <input type="radio" name="ac-range" data-range="6" data-rings="1">
+              <span class="doc-display__name">6 NM</span>
+              <span class="doc-display__fill"></span>
+              <span class="doc-display__note">Rings 1.0</span>
+            </label>
+            <label class="ac-radio doc-display">
+              <input type="radio" name="ac-range" data-range="12" data-rings="2">
+              <span class="doc-display__name">12 NM</span>
+              <span class="doc-display__fill"></span>
+              <span class="doc-display__note">Rings 2.0</span>
+            </label>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================== CONTROL RAIL ==
+         Four analogue controls, and on the real set they were knobs. A knob is
+         a rotary input this system does not have and will not grow, because
+         nothing in the genre it reproduces is a slider either — so each one is
+         the instrument it always was, an .ac-meter showing where it is set,
+         with a pair of soft keys to move it. That is exactly how the digital
+         sets at the end of this era replaced the knobs. -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">Receiver</span>
+      <div class="doc-knobs">
+        <div class="doc-knob">
+          <div class="ac-meter" id="k-gain">
+            <div class="ac-meter__track" style="--ac-meter-value: 62" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Gain">
+              <div class="ac-meter__bar"></div>
+            </div>
+            <div class="ac-meter__scale"><span>Gain</span><span data-pct>62%</span></div>
+          </div>
+          <button type="button" class="ac-btn" data-knob="gain" data-step="-6" aria-label="Gain down">−</button>
+          <button type="button" class="ac-btn" data-knob="gain" data-step="6" aria-label="Gain up">+</button>
+        </div>
+        <div class="doc-knob">
+          <div class="ac-meter" id="k-sea">
+            <div class="ac-meter__track" style="--ac-meter-value: 30" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" aria-label="Anti-clutter sea">
+              <div class="ac-meter__bar"></div>
+            </div>
+            <div class="ac-meter__scale"><span>A/C Sea</span><span data-pct>30%</span></div>
+          </div>
+          <button type="button" class="ac-btn" data-knob="sea" data-step="-10" aria-label="Sea clutter down">−</button>
+          <button type="button" class="ac-btn" data-knob="sea" data-step="10" aria-label="Sea clutter up">+</button>
+        </div>
+        <div class="doc-knob">
+          <div class="ac-meter" id="k-rain">
+            <div class="ac-meter__track" style="--ac-meter-value: 12" role="progressbar" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100" aria-label="Anti-clutter rain">
+              <div class="ac-meter__bar"></div>
+            </div>
+            <div class="ac-meter__scale"><span>A/C Rain</span><span data-pct>12%</span></div>
+          </div>
+          <button type="button" class="ac-btn" data-knob="rain" data-step="-10" aria-label="Rain clutter down">−</button>
+          <button type="button" class="ac-btn" data-knob="rain" data-step="10" aria-label="Rain clutter up">+</button>
+        </div>
+        <div class="doc-knob">
+          <div class="ac-meter" id="k-tune">
+            <div class="ac-meter__track" style="--ac-meter-value: 84" role="progressbar" aria-valuenow="84" aria-valuemin="0" aria-valuemax="100" aria-label="Tune">
+              <div class="ac-meter__bar"></div>
+            </div>
+            <div class="ac-meter__scale"><span>Tune</span><span data-pct>84%</span></div>
+          </div>
+          <button type="button" class="ac-btn" data-knob="tune" data-step="-4" aria-label="Tune down">−</button>
+          <button type="button" class="ac-btn" data-knob="tune" data-step="4" aria-label="Tune up">+</button>
+        </div>
+      </div>
+
+      <div class="ac-row ac-row--wrap doc-softkeys" style="--gap: 20px">
+        <!-- TRAILS IS A PERSISTENCE CONTROL AND IT IS NOT .ac-afterglow.
+             The simulation class belongs to the CRT toggle on the board above
+             and this must not touch it, which happens to be the historically
+             correct split as well: the tube's persistence is the phosphor, and
+             target trails were a SEPARATE synthetic afterglow the set added on
+             top of it. So this sets the floor the contacts decay to, and the
+             emitter keeps doing whatever it was already doing underneath. -->
+        <div class="ac-row ac-row--center ac-row--wrap" style="--gap: 8px">
+          <span class="doc-softkeys__key">Trails</span>
+          <button type="button" class="ac-btn" data-trails="0" aria-pressed="false">Off</button>
+          <button type="button" class="ac-btn" data-trails="0.12" aria-pressed="false">1 Min</button>
+          <button type="button" class="ac-btn" data-trails="0.2" aria-pressed="true">3 Min</button>
+          <button type="button" class="ac-btn" data-trails="0.3" aria-pressed="false">6 Min</button>
+        </div>
+        <span class="ac-spacer"></span>
+        <div class="ac-row ac-row--center ac-row--wrap" style="--gap: 8px">
+          <span class="doc-softkeys__key">Pulse</span>
+          <button type="button" class="ac-btn" data-pulse="Short · 80 ns" aria-pressed="true">Short</button>
+          <button type="button" class="ac-btn" data-pulse="Medium · 300 ns" aria-pressed="false">Med</button>
+          <button type="button" class="ac-btn" data-pulse="Long · 1000 ns" aria-pressed="false">Long</button>
+        </div>
+        <button type="button" class="ac-toggle" id="ir" aria-pressed="true">
+          <span>Interference Rejection</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================================== ARPA PLOT ==
+         What the set has computed about the four contacts it is tracking. CPA
+         is the closest the target will pass if nobody alters, TCPA is how long
+         until that happens, and they are the two numbers a watchkeeper is
+         actually reading. The selected row is inverse video and its contact is
+         ringed on the face — with one hue available, "this one" is said with
+         brightness and a marker, never with a colour. -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">Target Plot</span>
+      <div class="ac-table-scroll">
+        <table class="ac-table ac-table--zebra doc-targets">
+          <thead>
+            <tr>
+              <th>Trk</th><th>Vessel</th><th class="ac-table__num">Brg</th><th class="ac-table__num">Rng</th>
+              <th class="ac-table__num">Cse</th><th class="ac-table__num">Spd</th>
+              <th class="ac-table__num">CPA</th><th class="ac-table__num">TCPA</th><th>State</th>
+            </tr>
+          </thead>
+          <tbody id="targets">
+            <tr data-trk="1" class="ac-table__row--active">
+              <td>T1</td><td>Coaster</td><td class="ac-table__num" data-brg>041°</td><td class="ac-table__num" data-rng>1.86</td>
+              <td class="ac-table__num">218°</td><td class="ac-table__num">9.2</td>
+              <td class="ac-table__num" data-cpa>0.4</td><td class="ac-table__num" data-tcpa>07:10</td><td data-state>Tracked</td>
+            </tr>
+            <tr data-trk="2">
+              <td>T2</td><td>Tanker</td><td class="ac-table__num" data-brg>105°</td><td class="ac-table__num" data-rng>1.32</td>
+              <td class="ac-table__num">064°</td><td class="ac-table__num">6.1</td>
+              <td class="ac-table__num" data-cpa>1.1</td><td class="ac-table__num" data-tcpa>12:40</td><td data-state>Tracked</td>
+            </tr>
+            <tr data-trk="3">
+              <td>T3</td><td>Ferry</td><td class="ac-table__num" data-brg>168°</td><td class="ac-table__num" data-rng>2.25</td>
+              <td class="ac-table__num">341°</td><td class="ac-table__num">17.5</td>
+              <td class="ac-table__num" data-cpa>0.9</td><td class="ac-table__num" data-tcpa>05:55</td><td data-state>Tracked</td>
+            </tr>
+            <tr data-trk="4">
+              <td>T4</td><td>Fishing</td><td class="ac-table__num" data-brg>214°</td><td class="ac-table__num" data-rng>0.90</td>
+              <td class="ac-table__num">—</td><td class="ac-table__num">1.4</td>
+              <td class="ac-table__num" data-cpa>0.9</td><td class="ac-table__num" data-tcpa>—</td><td data-state>Acquiring</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="ac-statusbar ac-statusbar--line ac-push">
+      <span id="st-pres">HEAD-UP</span>
+      <span>RELATIVE MOTION</span>
+      <span id="st-trails">TRAILS 3 MIN</span>
+      <span id="st-ant">ANT 24 RPM</span>
+      <span class="ac-spacer"></span>
+      <span id="clock">UTC 00:00:00</span>
+    </div>
+  </div>
+</div>
+
+<!-- The classic build, not the ES module: type="module" is blocked over file://
+     and this page must open by double-clicking it. The effects module is the
+     persistence tier — without it the page still works and the phosphor still
+     decays, because .ac-sweep and the contacts are pure CSS; what is lost is
+     the per-pixel drain when the range scale changes. -->
+<script src="../dist/amber-console.global.js"></script>
+<script src="../dist/amber-console.effects.global.js"></script>
+<script src="radar.js"></script>
+</body>
+</html>

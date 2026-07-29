@@ -44,7 +44,7 @@
 
 .ac-spinner--dim {
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
 }
 
 .ac-spinner--lg {

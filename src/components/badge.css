@@ -17,6 +17,7 @@
   text-transform: uppercase;
   padding: 4px 8px;
   border: 1px solid var(--stroke);
+  box-shadow: var(--glow-box);
   border-radius: 2px;
   color: var(--ink);
   text-shadow: var(--glow-text);
@@ -31,6 +32,7 @@
 
 .ac-badge--dim {
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
   border-color: var(--stroke-dim);
+  box-shadow: var(--glow-box-dim);
 }

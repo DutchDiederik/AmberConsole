@@ -79,6 +79,18 @@ function writeStored(key, value) {
     /* Not persisting is survivable; the toggle still works this session. */
   }
 }
+/**
+ * Forget a stored preference — which is a different act from storing its
+ * default. An absent key means "the user has never said", and that is the only
+ * state a derived default is allowed to fill in. See syncDerivedStyles.
+ */
+function clearStored(key) {
+  try {
+    localStorage.removeItem(STORE_PREFIX + key);
+  } catch {
+    /* Same as above: the session is still correct, only the next one is not. */
+  }
+}
 
 /* ---------------------------------------------------------------- tablist -- */
 
@@ -261,6 +273,11 @@ function applySim(name, on) {
     if (state) state.textContent = on ? "ON" : "OFF";
   }
 
+  /* Some styles have no default of their own — they take one from whatever the
+     glass is now doing. The frame's classes are settled by this point, so this
+     is the moment they can be read. */
+  syncDerivedStyles();
+
   writeStored(name, on ? "1" : "0");
 }
 
@@ -418,6 +435,14 @@ function initDisplay() {
     if (wired.has(btn)) continue;
     wired.add(btn);
     btn.addEventListener("click", () => {
+      /* FORGET THE DERIVED STYLES FIRST, and first is the load-bearing word:
+         the change below runs applySim, which re-derives them — but only for
+         flags with nothing stored. Clearing after would leave the user's old
+         choice in place for one more preset, which is not what a reset is. */
+      for (const [name, spec] of Object.entries(STYLES)) {
+        if (typeof spec.defaultOn === "function") clearStored(`style.${name}`);
+      }
+
       const current = radios.find((r) => r.checked);
       if (current) current.dispatchEvent(new Event("change", { bubbles: true }));
     });
@@ -456,6 +481,10 @@ function paintReadout() {
        as a broken panel rather than as a palette that never declared a peak. */
     peak: row?.dataset.acPeak || "—",
     label: `${tech.toUpperCase()} · ${emitter.toUpperCase()}${modified ? " *MOD" : ""}`,
+    /* Not part of the preset — see initEngine — but it belongs on the board,
+       because "three of these effects are dark right now" is exactly the kind
+       of thing a State panel exists to stop being a surprise. */
+    engine: engineOn() ? "CSS + JS" : "CSS ONLY",
   };
 
   for (const el of document.querySelectorAll("[data-ac-display-out]")) {
@@ -554,6 +583,88 @@ function initGas() {
   }
 }
 
+/* ----------------------------------------------------------------- engine -- */
+
+/**
+ * ENGINE — which of the two files is allowed to contribute.
+ *
+ *   <button class="ac-toggle" data-ac-engine aria-pressed="true">
+ *
+ * writes data-ac-engine="css" or "css+js" on the ROOT element.
+ *
+ * A THIRD AXIS, and it has to be, because it is not the same kind of statement
+ * as either of the other two. SIMULATION says what the glass is. STYLE says what
+ * the viewer prefers. ENGINE says how much of the machinery is running — and the
+ * answer changes which effects exist at all, without changing either what the
+ * panel claims to be or what the viewer asked for. Filing it under STYLES would
+ * have made "does this page run JavaScript" a comfort preference, which it is
+ * not.
+ *
+ * It exists because the split is the library's actual shape and was, until now,
+ * only ever described in source comments. Almost everything here is CSS: the
+ * bloom, the cell mesh, the scanlines and the vignette, the blink decay, the
+ * lingering halo, the residual patches, the radar sweep. Three effects are not,
+ * and all three live in amber-console.effects.js — the ghosting of rewritten
+ * text, the scroll smear, and the framebuffer decay on discrete swaps. Turning
+ * this off leaves exactly those three dark and everything else running, which is
+ * a far better answer to "what does the JavaScript buy me" than a paragraph.
+ *
+ * That file reads this attribute off the root itself; nothing here calls it.
+ */
+const ENGINE_DEFAULT_JS = true;
+
+/** True when the JS effects are permitted. Mirrors engineOn() in the effects module. */
+function engineOn() {
+  const set = document.documentElement.getAttribute("data-ac-engine");
+  return set === null ? ENGINE_DEFAULT_JS : set !== "css";
+}
+
+function applyEngine(on, persist = true) {
+  document.documentElement.setAttribute("data-ac-engine", on ? "css+js" : "css");
+
+  /* `button[...]` and not `[...]`, because the line above just put the same
+     attribute on <html> — which document.querySelectorAll matches, and which
+     would then be handed an aria-pressed of its own. */
+  for (const btn of document.querySelectorAll("button[data-ac-engine]")) {
+    btn.setAttribute("aria-pressed", String(on));
+    btn.classList.toggle("ac-toggle--on", on);
+    const state = btn.querySelector(".ac-toggle__state");
+    if (state) state.textContent = on ? "ON" : "OFF";
+  }
+
+  if (persist) writeStored("engine", on ? "1" : "0");
+}
+
+function initEngine() {
+  /* The attribute goes on <html>, and the buttons are found there too — so the
+     root itself would match [data-ac-engine] once applyEngine has written it.
+     Buttons only. */
+  const buttons = [...document.querySelectorAll("button[data-ac-engine]")];
+
+  /* Same rule as the style flags: a stored preference is only restored while the
+     page still ships a way to change it back. */
+  const stored = buttons.length ? readStored("engine") : null;
+  applyEngine(stored === null ? engineOn() : stored === "1", buttons.length > 0);
+
+  for (const btn of buttons) {
+    if (wired.has(btn)) continue;
+    wired.add(btn);
+    btn.addEventListener("click", () => {
+      applyEngine(btn.getAttribute("aria-pressed") !== "true");
+
+      /* Controls for effects that just stopped existing have to say so. */
+      syncDerivedStyles();
+
+      /* Deliberately NOT markModified(). MOD means the panel has been moved off
+         the DISPLAY preset it was set from, and a preset is a statement about
+         hardware — which gas, which phosphor, which simulation. How much of the
+         library is running is not part of that claim and must not read as a
+         change to it. */
+      paintReadout();
+    });
+  }
+}
+
 /* ------------------------------------------------------------------ style -- */
 
 /**
@@ -572,38 +683,107 @@ function initGas() {
  * ways: CSS selecting on the absence of an attribute cannot express "the author
  * has not chosen" separately from "the author chose off", and the defaults below
  * are the only place that distinction is allowed to live.
+ *
+ * A `defaultOn` may be a FUNCTION, and then the default is derived from the
+ * panel's current state rather than fixed. `needs` names the frame class the
+ * style has no effect without, which is what lets a control that cannot do
+ * anything say so instead of lying. See syncDerivedStyles.
  */
 const STYLES = {
   blink: { defaultOn: true },
-  smear: { defaultOn: true },
+  /* SMEAR IS A PROPERTY OF THE AFTERGLOW, not of scrolling. Every selector that
+     implements it is scoped to .ac-afterglow, and .ac-afterglow ships only with
+     CRT — a plasma cell is driven continuously and has nothing that trails, so
+     there is no plasma smear to switch on. The default therefore follows the
+     simulation instead of being a constant: on under CRT, off under plasma, and
+     the switch disables itself where it would be a no-op. */
+  smear: {
+    defaultOn: () => Boolean(screenFrame()?.classList.contains("ac-afterglow")),
+    needs: "ac-afterglow",
+  },
 };
 
 /** Current value of a style flag, defaults included. Safe before init. */
 function styleOn(name) {
   const set = document.documentElement.getAttribute(`data-ac-style-${name}`);
-  return set === null ? (STYLES[name]?.defaultOn ?? true) : set === "on";
+  if (set !== null) return set === "on";
+  const fallback = STYLES[name]?.defaultOn ?? true;
+  return typeof fallback === "function" ? Boolean(fallback()) : Boolean(fallback);
+}
+
+/**
+ * Write one style flag and repaint every control that names it.
+ *
+ * Module scope rather than a closure inside initStyle, for exactly the reason
+ * applySim is: more than one code path writes these now — the click handler, the
+ * restore, and applySim itself through syncDerivedStyles — and a rule enforced
+ * in one of three places is not a rule.
+ *
+ * `persist` is the whole distinction between a preference and a derived default.
+ * A value the USER chose is written to storage and owned by them from then on; a
+ * value DERIVED from the simulation must not be, or the first switch of the
+ * simulation would silently claim the preference and the derivation would never
+ * run again.
+ */
+function applyStyle(name, on, persist = true) {
+  document.documentElement.setAttribute(`data-ac-style-${name}`, on ? "on" : "off");
+
+  /* Smear is the one style with a running cost rather than a CSS rule, and
+     stopping that loop is amber-console.effects.js's job — it watches
+     data-ac-style-smear on the root, which the line above just wrote. Writing
+     the attribute IS the notification. */
+
+  for (const btn of document.querySelectorAll(`[data-ac-style="${name}"]`)) {
+    btn.setAttribute("aria-pressed", String(on));
+    btn.classList.toggle("ac-toggle--on", on);
+    const state = btn.querySelector(".ac-toggle__state");
+    if (state) state.textContent = on ? "ON" : "OFF";
+  }
+
+  if (persist) writeStored(`style.${name}`, on ? "1" : "0");
+}
+
+/**
+ * Re-derive every style whose default is a function, and settle whether its
+ * control can do anything at all.
+ *
+ * Called from applySim, because the thing these derive FROM is the simulation.
+ *
+ * A DERIVED DEFAULT ONLY FILLS IN A SILENCE. The moment the user clicks the
+ * switch themselves the value is written to storage, and a stored value is never
+ * overwritten here — from then on it is theirs and it stops following the
+ * simulation. "Reset to Preset" clears the key, which is what puts it back to
+ * following. That is the entire mechanism; there is no separate "has the user
+ * touched this" flag, because localStorage already answers that question and a
+ * second source of truth for it would be a thing to keep in sync.
+ */
+function syncDerivedStyles() {
+  for (const [name, spec] of Object.entries(STYLES)) {
+    if (typeof spec.defaultOn === "function" && readStored(`style.${name}`) === null) {
+      applyStyle(name, Boolean(spec.defaultOn()), false);
+    }
+
+    /* A SWITCH THAT CANNOT DO ANYTHING SAYS SO. Under plasma the smear has no
+       selectors to match and no loop to run, and leaving the control live meant
+       it could be clicked ON and produce nothing — which reads as a broken
+       effect rather than as an effect this hardware does not have. The engine
+       flag disables it for the same reason: with the JS effects off there is
+       nothing on the other end of the switch either. */
+    if (!spec.needs) continue;
+    const live =
+      Boolean(screenFrame()?.classList.contains(spec.needs)) && engineOn();
+    for (const btn of document.querySelectorAll(`[data-ac-style="${name}"]`)) {
+      btn.disabled = !live;
+    }
+    for (const note of document.querySelectorAll(`[data-ac-style-note="${name}"]`)) {
+      note.hidden = live;
+    }
+  }
 }
 
 function initStyle() {
   const buttons = [...document.querySelectorAll("[data-ac-style]")];
-
-  const apply = (name, on, persist = true) => {
-    document.documentElement.setAttribute(`data-ac-style-${name}`, on ? "on" : "off");
-
-    /* Smear is the one style with a running cost rather than a CSS rule, and
-       stopping that loop is amber-console.effects.js's job — it watches
-       data-ac-style-smear on the root, which the line above just wrote. Writing
-       the attribute IS the notification. */
-
-    for (const btn of document.querySelectorAll(`[data-ac-style="${name}"]`)) {
-      btn.setAttribute("aria-pressed", String(on));
-      btn.classList.toggle("ac-toggle--on", on);
-      const state = btn.querySelector(".ac-toggle__state");
-      if (state) state.textContent = on ? "ON" : "OFF";
-    }
-
-    if (persist) writeStored(`style.${name}`, on ? "1" : "0");
-  };
+  const apply = applyStyle;
 
   for (const name of Object.keys(STYLES)) {
     /* A STORED PREFERENCE IS ONLY RESTORED WHILE THE PAGE STILL OFFERS A WAY TO
@@ -618,7 +798,18 @@ function initStyle() {
        consumes the flag has no business overwriting it. */
     const control = buttons.some((b) => b.dataset.acStyle === name);
     const stored = control ? readStored(`style.${name}`) : null;
-    apply(name, stored === null ? styleOn(name) : stored === "1", control);
+
+    /* AND A DERIVED DEFAULT IS NOT WRITTEN BACK ON LOAD EITHER, which is the
+       same rule one level down: persisting it here would claim the preference
+       on the first page view, before the user had touched anything, and the
+       smear would stop following the simulation forever after. Only a value
+       that was already stored — i.e. one the user chose — is re-stored. */
+    const derived = typeof STYLES[name].defaultOn === "function";
+    apply(
+      name,
+      stored === null ? styleOn(name) : stored === "1",
+      control && !(derived && stored === null)
+    );
   }
 
   for (const btn of buttons) {
@@ -627,10 +818,16 @@ function initStyle() {
     if (!(name in STYLES)) continue;
     wired.add(btn);
     btn.addEventListener("click", () => {
+      /* Clicking it is what makes it a preference: apply() persists, and from
+         here on syncDerivedStyles leaves this flag alone. */
       apply(name, btn.getAttribute("aria-pressed") !== "true");
       markModified();
     });
   }
+
+  /* Settle the disabled state for pages that ship no simulation switches at
+     all — applySim is the usual caller and never runs on those. */
+  syncDerivedStyles();
 }
 
 /* ----------------------------------------------------------------- dialog -- */
@@ -670,7 +867,12 @@ function init(scope = document) {
   for (const el of scope.querySelectorAll('[data-ac="toggle"]')) {
     /* Sim and style toggles are driven by their own initializers; wiring both
        would flip twice and land back where it started. */
-    if (wired.has(el) || el.hasAttribute("data-ac-sim") || el.hasAttribute("data-ac-style")) {
+    if (
+      wired.has(el) ||
+      el.hasAttribute("data-ac-sim") ||
+      el.hasAttribute("data-ac-style") ||
+      el.hasAttribute("data-ac-engine")
+    ) {
       continue;
     }
     wired.add(el);
@@ -683,7 +885,13 @@ function init(scope = document) {
   }
   /* Order matters exactly once: initSims restores the simulations from their own
      keys, and initDisplay then reads that settled state to decide whether the
-     panel is on its preset or has been played with. */
+     panel is on its preset or has been played with.
+
+     initEngine goes first of all, because applySim derives style defaults and
+     one of them asks whether the JS effects are running. Settling that after
+     would mean the first pass computing it from the default rather than from
+     the restored value. */
+  initEngine();
   initSims();
   initStyle();
   initDisplay();

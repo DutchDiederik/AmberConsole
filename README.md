@@ -11,7 +11,7 @@ A monochrome amber-terminal CSS framework — the look of a late-1980s industria
 kind of amber plasma display that drove heavy machinery. One stylesheet, no dependencies, no build
 step, no JavaScript required for any component's appearance.
 
-**[Live demo — ORION-70 console](https://dutchdiederik.github.io/amber-console/) · [D-STAR server dashboard](https://dutchdiederik.github.io/amber-console/docs/server.html) · [System guide](https://dutchdiederik.github.io/amber-console/docs/guide.html)**
+**[Live demo — ORION-70 console](https://dutchdiederik.github.io/amber-console/) · [D-STAR server dashboard](https://dutchdiederik.github.io/amber-console/docs/server.html) · [SEASCAN radar](https://dutchdiederik.github.io/amber-console/docs/radar.html) · [System guide](https://dutchdiederik.github.io/amber-console/docs/guide.html)**
 
 ![The ORION-70 console demo](docs/screenshot.png)
 
@@ -336,8 +336,14 @@ imports the other, and every component looks and reads correctly with both absen
 3. **framebuffer decay** — `transition(fn)`, a real snapshot of the screen you just replaced
 
 It needs no handshake with the behaviour module and no registration call: it watches the DOM for
-`.ac-afterglow` on the frame and `data-ac-style-smear` on the root, because both facts are already
-*in* the DOM. A contract between the two modules would be a thing to keep in sync; an observer is not.
+`.ac-afterglow` on the frame, and `data-ac-style-smear` and `data-ac-engine` on the root, because
+those facts are already *in* the DOM. A contract between the two modules would be a thing to keep in
+sync; an observer is not.
+
+All three are gated on `data-ac-engine` — set it to `css` and this module contributes nothing, which
+is the switch the demo boards expose as **JS Effects**. The scroll smear additionally needs
+`.ac-afterglow`, since it is a property of the afterglow layer: there is no plasma smear, and its
+control disables itself under a plasma simulation rather than offering a switch that does nothing.
 
 ```html
 <script src="dist/amber-console.global.js"></script>          <!-- classic; works from file:// -->
@@ -456,6 +462,18 @@ quarters rather than stacked into one tall list:
 | **Display** | which hardware is in the panel | `data-ac-tech` + `data-ac-emitter` on the root | exactly one |
 | **Simulation** | what the glass does about it — bloom, scanlines, persistence | classes on the frame, via `data-ac-sim` | any combination |
 | **Style** | everything that is *not* the hardware — comfort, typography | `data-ac-style-*` on the root | any combination |
+| **Engine** | how much of the library is running | `data-ac-engine` on the root | `css` or `css+js` |
+
+Engine is the odd one and is on the board for a reason: almost everything above is CSS, and there is
+no way to *see* that from a page where every effect is on at once. `data-ac-engine="css"` puts the
+three effects that need `amber-console.effects.js` — ghosting, scroll smear, framebuffer decay — dark
+and leaves the rest running, which answers "what does the JavaScript buy me" better than a paragraph
+can. A `<button data-ac-engine>` toggles it; the default is `css+js`, and the effects module reads
+the attribute off the root itself.
+
+Note what it is *not*. It makes no claim about the hardware, so it is not a simulation, and it is not
+a comfort preference, so it is not a style — which is also why flipping it does not put the readout
+into `*MOD`.
 
 Display sets color and simulation never does. A **preset** is a display row that also names the
 simulations its technology implies:
@@ -555,18 +573,34 @@ glass and the glass has no idea which component a lit cell belongs to. So **wher
 level, restate the halo that belongs to it**:
 
 ```css
-color: var(--ink);        text-shadow: var(--glow-text);   /* lit */
+color: var(--ink);        text-shadow: var(--glow-text);         /* emit-90, full drive */
 color: var(--ink-bright); text-shadow: var(--glow-text);
-color: var(--ink-dim);    text-shadow: none;               /* not energized */
-color: var(--ink-faint);  text-shadow: none;
-color: var(--on-fill);    text-shadow: none;               /* unlit, inside a lit block */
+color: var(--ink-dim);    text-shadow: var(--glow-text-dim);     /* emit-70, 0.70 */
+color: var(--ink-faint);  text-shadow: var(--glow-text-faint);   /* emit-50, 0.41 */
+color: var(--on-fill);    text-shadow: none;                     /* unlit, inside a lit block */
+
+.thing:disabled { text-shadow: none; box-shadow: none; }         /* inert — never glows */
 ```
+
+**Glow follows the drive level, not the token's name.** `--ink-dim` is `--emit-70`, which
+`derive-gas.mjs` labels *secondary* — a cell driven at 70%, which scatters 70% as much. It is not an
+off state. The only things that go completely flat are genuinely **inert**: a disabled control, and
+the unlit text inside an inverse-video block. The tiers are arithmetic rather than taste — each
+stop's luminance is already fixed by the contrast ratio it was solved to, so 1.00 / 0.70 / 0.41 fall
+straight out of 7.0 / 5.2 / 3.4 : 1, and `--emit-30` lands at 0.11, which is why decorative rules
+stay flat. **Radius never scales, only alpha** — how far light spreads is a property of the glass and
+the wavelength, not of the drive.
+
+**Strokes glow too.** A 2px rule in `--stroke` is the same value as `--ink`, so it is the same lit
+phosphor and carries the same halo — `box-shadow: var(--glow-box)`, or `var(--glow-box-dim)` for
+`--stroke-dim`. This has to be stated per component, because unlike `text-shadow`, `box-shadow` does
+not inherit. Watch for the case where they disagree: an `.ac-input` is bright text inside a dim box.
 
 Inheritance alone is not enough in either direction, which is why the pairing is the rule rather than
 "just let it inherit": an element that *brightens* its own colour inside dim prose inherits the dim's
 suppression and stays flat, and an element that dims its own colour keeps a halo it never asked for.
-`npm run check` enforces the pairing in both directions, across CSS rules and inline `style`
-attributes.
+`npm run check` enforces the pairing **and its direction** — a lit level with the halo off fails just
+as loudly as a lit level with no halo stated at all.
 
 ## The six laws
 
@@ -797,6 +831,11 @@ D-STAR, the self-hosted server dashboard in `docs/server.html`, is the second de
 other half: that these tokens dress an ordinary modern application — tab views, a table of services
 you can start and stop, a destructive action that confirms — rather than only reproducing period
 hardware. It is invented on exactly the same terms as ORION-70.
+
+SEASCAN RM-12, the marine radar in `docs/radar.html`, is the third, and it exists for a single
+emitter. P7 is two coatings — a blue flash the beam writes and a yellow-green layer behind it that
+holds for three seconds — and there is exactly one instrument that was built around that behaviour.
+The other demos can show you the colour of a phosphor; this one shows what the colour is *for*.
 
 The genre was studied from period projection-booth hardware, and the debt is
 [acknowledged below](#acknowledgements). Both demos are invented: their names, their wordmarks and

@@ -31,6 +31,7 @@
   position: relative;
   height: 24px;
   border: var(--border-w) solid var(--stroke-dim);
+  box-shadow: var(--glow-box-dim);
   border-radius: var(--radius-sm);
   background: var(--screen-well);
   overflow: hidden;
@@ -54,7 +55,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
 }
 
 .ac-meter--lg .ac-meter__track {

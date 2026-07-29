@@ -34,6 +34,7 @@
 .ac-setup {
   box-sizing: border-box;
   border-bottom: var(--border-w) solid var(--stroke);
+  box-shadow: var(--glow-box);
   background: var(--screen);
   padding: var(--space-8) var(--space-6) var(--space-6);
 }
@@ -96,6 +97,7 @@
   margin-top: var(--space-6);
   padding-top: var(--space-4);
   border-top: var(--border-w) solid var(--stroke-dim);
+  box-shadow: var(--glow-box-dim);
 }
 
 @media (max-width: 720px) {

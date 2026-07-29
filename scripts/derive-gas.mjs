@@ -193,6 +193,83 @@ const GLOWS = [
 ];
 
 /**
+ * HOW FAR A GLOW STOP MAY DRIFT FROM THE HUE IT IS SUPPOSED TO BE, in CIE xy.
+ *
+ * The luminances above are ambitious on purpose — a halo should be bright — but
+ * a deeply saturated emitter cannot BE bright inside sRGB, and fitToGamut's job
+ * when that happens is to walk the colour toward D65 until it fits. For most
+ * emitters that walk is a few thousandths and invisible. For the two most
+ * out-of-gamut ones it was not:
+ *
+ *   p11    halo landed 0.1025 from its own ink
+ *   argon  halo landed 0.0916 from its own ink
+ *
+ * Both are deep blues, and walking a deep blue toward D65 adds red and green —
+ * so the halo read visibly WARMER than the text it was supposed to be scattered
+ * from. That is the bug this constant fixes, and it was reported as "the glow
+ * has a yellowish tint different from the main color", which is exactly right.
+ *
+ * It was also a quiet contradiction of the rule at the top of colors.css —
+ * "chromaticity is derived from the emitter's spectrum and never adjusted" —
+ * since these triples were being adjusted by up to 0.10 without saying so.
+ *
+ * So luminance now yields to hue rather than the other way round: solveGlow
+ * below keeps the stated Y where it fits and dims it where it does not. A halo
+ * is composited at low alpha over a near-black panel, so a darker but correctly
+ * hued triple reads as MORE of the emitter's colour, not less.
+ *
+ * NOT A CAP ON P7. P7's halo sits 0.35 from its ink and must keep doing so: that
+ * divergence is two different coatings, measured from two different spectra, and
+ * has nothing to do with gamut mapping. The tolerance below is applied between a
+ * stop and ITS OWN target chromaticity, which for P7 is the afterglow layer.
+ */
+const GLOW_SLACK = 0.05;
+
+/**
+ * The brightest luminance at which the halo desaturates no more than the ink.
+ *
+ * THE CRITERION IS THE INK, NOT THE SPECTRUM, and getting that wrong is worth
+ * recording because the obvious version does not work. Holding a glow stop
+ * within some xy distance of the EMITTER's chromaticity is unachievable at any
+ * luminance for most of this catalog: a chromaticity outside the sRGB triangle
+ * has a negative channel at every luminance, so gamut mapping has to walk it
+ * toward D65 no matter how dim it gets. Solving for that tolerance drives Y to
+ * zero and blacks out the halo — which is what it did on the first attempt, for
+ * eight of eleven palettes.
+ *
+ * What IS luminance-dependent is the SECOND half of the walk: the part that
+ * fixes a channel overflowing 1. That is why --gas-1 at Y=0.62 came out visibly
+ * paler than --emit-90 at Y=0.32 even though both start from the same
+ * chromaticity — and that difference, not the absolute saturation, is the defect
+ * somebody actually sees. A halo is scattered light from the stroke; it must
+ * read as the same colour as the stroke. Whether that shared colour is as
+ * saturated as the gas really is, is a separate question this file already
+ * answers elsewhere and answers honestly.
+ *
+ * So the target is the ink's own mix fraction, plus a little slack, and it is
+ * always satisfiable: the glow sits at a lower luminance than the stop it is
+ * being compared to whenever it needs to.
+ */
+function solveGlow(x, y, targetY, maxMix) {
+  const at = (Y) => fitToGamut(x, y, Y);
+
+  const full = at(targetY);
+  if (full.mixed <= maxMix) return { fit: full, Y: targetY, dimmed: 0 };
+
+  /* Largest Y whose mix stays within budget. Mix falls monotonically with Y
+     once the overflow half of the walk is gone, so a bisection is safe. */
+  let lo = 0;
+  let hi = targetY;
+  for (let i = 0; i < 40; i++) {
+    const mid = (lo + hi) / 2;
+    if (at(mid).mixed <= maxMix) lo = mid;
+    else hi = mid;
+  }
+
+  return { fit: at(lo), Y: lo, dimmed: 1 - lo / targetY };
+}
+
+/**
  * HOW MUCH OF THIS GAS'S LIGHT ENDS UP IN THE HALO RATHER THAN THE STROKE.
  *
  * Rayleigh scattering goes as lambda^-4, so a violet gas throws far more of
@@ -291,10 +368,27 @@ function derive(name, emitter) {
   }
   out.onFillRatio = contrast(luminance(linearOfHex(out.tokens["on-fill"])), fillY);
 
+  /* The budget the halo is held to: whatever gamut mapping already did to the
+     ink at its own luminance. For a cascade phosphor this is measured on the
+     AFTERGLOW spectrum, since that is what the halo is made of — P7's halo has
+     to match its yellow-green coating, not its blue flash. */
+  const inkY = luminance(linearOfHex(out.tokens["emit-90"]));
+  const haloBudget = fitToGamut(hx, hy, inkY).mixed + GLOW_SLACK;
+
+  out.glowDimmed = 0;
   for (const [token, Y, tint] of GLOWS) {
+    /* The tint toward D65 is DELIBERATE — a hot core whitens — so it is applied
+       first and then defended. Drift is measured against this post-tint target,
+       never against the raw emitter, or the intended whitening would look like
+       the accidental kind and get solved away. */
     const [gx, gy] = toward([hx, hy], tint);
-    const rgb = fitToGamut(gx, gy, Y).rgb;
-    out.tokens[token] = rgb
+    /* The budget covers the INVOLUNTARY walk only. The tint is already applied
+       above and is exempt — charging it would make --gas-4 dim itself to
+       compensate for a whitening it was asked for, which is the opposite of the
+       intent. So the residual mix from the tinted point is what is compared. */
+    const solved = solveGlow(gx, gy, Y, haloBudget);
+    out.glowDimmed = Math.max(out.glowDimmed, solved.dimmed);
+    out.tokens[token] = solved.fit.rgb
       .map((u) => Math.round(Math.min(1, Math.max(0, u <= 0.0031308 ? 12.92 * u : 1.055 * u ** (1 / 2.4) - 0.055)) * 255))
       .join(", ");
   }
@@ -608,6 +702,7 @@ if (args.includes("--check")) {
       : `${d.kept}/${d.total} lines`).padEnd(20)}` +
     `desat ${(d.desat * 100).toFixed(0)}%`.padEnd(10) +
     `on-fill ${d.onFillRatio.toFixed(2)}:1  scatter x${d.scatter.toFixed(2)}` +
+    (d.glowDimmed > 0.005 ? `  halo -${(d.glowDimmed * 100).toFixed(0)}% to hold hue` : "") +
     (d.persist
       ? `  persist ${d.persist.visible}ms  flicker ${d.persist.modulation.toFixed(3)}`
       : "")).join("\n"));

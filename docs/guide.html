@@ -45,6 +45,7 @@
   <div class="ac-nav__links">
     <a class="ac-nav__link" href="index.html">Console</a>
     <a class="ac-nav__link" href="server.html">Server</a>
+    <a class="ac-nav__link" href="radar.html">Radar</a>
     <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
   </div>
   <span class="ac-nav__meta">
@@ -215,10 +216,31 @@
                itself is still in the framework — write data-ac-style="blink" on
                a toggle to expose it, or set data-ac-style-blink="off" on <html>.
                prefers-reduced-motion stops it either way. -->
-          <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="true">
-            <span>Scroll Smear</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+          <!-- Ships OFF and disabled, because the frame above ships .ac-bloom.
+               The smear lives on .ac-afterglow, which arrives with CRT — so this
+               is the position initStyle settles on anyway, and matching it in
+               markup is what keeps the switch from painting one frame in the
+               wrong place. Pick any CRT preset and it turns itself on. -->
+          <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="false" disabled>
+            <span>Scroll Smear <span class="ac-badge ac-badge--dim">JS</span></span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
           </button>
         </div>
+        <p class="doc-displays__note" data-ac-style-note="smear">CRT only. The smear is a property of
+          the afterglow layer, and a plasma cell is driven continuously — there is nothing to trail.</p>
+      </div>
+
+      <div class="ac-panel">
+        <span class="ac-panel__title">Engine</span>
+        <p class="doc-displays__note">How much of the library is running.</p>
+        <div class="doc-switches">
+          <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
+            <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+          </button>
+        </div>
+        <p class="doc-displays__note">Switch it off and the three effects that need
+          amber-console.effects.js go dark — ghosting, scroll smear, framebuffer decay. Everything
+          else you can see is CSS and keeps running: the bloom, the cell mesh, the scanlines and
+          vignette, the blink decay, the lingering halo, the residual patches.</p>
       </div>
     </div>
 
@@ -246,6 +268,11 @@
             <dt class="ac-list__key">Mode</dt>
             <span class="ac-list__fill"></span>
             <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Engine</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="engine">CSS + JS</dd>
           </div>
         </dl>
       </div>
@@ -576,9 +603,12 @@
       <div class="doc-demo doc-demo--col"><span class="doc-cap">GLOW — ENERGIZED</span>
         <span style="font-size:44px;color:var(--ink-bright);text-shadow:var(--glow-text)">255315</span>
         <span class="doc-faint doc-small">--glow-text on live values, --glow-box on filled and focused elements.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">GLOW — SECONDARY DRIVE</span>
+        <span style="font-size:44px;color:var(--ink-dim);text-shadow:var(--glow-text-dim)">255315</span>
+        <span class="doc-faint doc-small">The same value at <code>--ink-dim</code>. Dim is a DRIVE LEVEL, not an off state — <code>--emit-70</code> is a cell driven at 70%, so it scatters 70% as much. The tiers are arithmetic, not taste: each stop's luminance is already fixed by the contrast ratio it was solved to, so 1.00 / 0.70 / 0.41 fall straight out of 7.0 / 5.2 / 3.4 : 1. Radius never scales — how far light spreads is a property of the glass, not of the drive.</span></div>
       <div class="doc-demo doc-demo--col"><span class="doc-cap">NO GLOW — INERT</span>
-        <span style="font-size:44px;color:var(--ink-faint);text-shadow:none">255315</span>
-        <span class="doc-faint doc-small">Dim and disabled states never glow. Glow is a signal, not a texture. The halo is applied at the frame and inherits, so wherever you set an ink level you restate the halo that belongs to it — <code>npm run check</code> fails the build if you do not.</span></div>
+        <button class="ac-btn" disabled style="font-size:32px">255315</button>
+        <span class="doc-faint doc-small">A <em>disabled</em> control, which is the only thing that genuinely does not glow — the cell is not being driven at all, and a halo would be a lie about the hardware. That is law 1's actual claim, and it is the half the drive tiers must never quietly absorb. <code>npm run check</code> fails the build if an ink level is set without restating the halo that belongs to it.</span></div>
       <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
         <span class="ac-blink" style="font-size:var(--type-title)">✳✳ CHECK DOUSER ✳✳</span>
         <span class="doc-faint doc-small">steps(1) hard on/off, 1.1s. Never a fade — until <code>.ac-afterglow</code> is on, which softens the OFF edge only. The ON edge stays instant either way.</span></div>
@@ -953,7 +983,7 @@
       <div class="doc-grid3">
         <div class="doc-demo doc-demo--col doc-span2"><span class="doc-cap">PANEL — LEGEND CHIP BREAKS THE BORDER</span>
           <div class="ac-panel" style="width:100%"><span class="ac-panel__title">Show Information</span>
-            <div style="color:var(--ink-dim);font-size:var(--type-small);text-shadow:none">TRAILER:</div>
+            <div style="color:var(--ink-dim);font-size:var(--type-small);text-shadow:var(--glow-text-dim)">TRAILER:</div>
             <div>TITLE:HEAT</div>
           </div>
           <code class="doc-code">&lt;div class="ac-panel"&gt;&lt;span class="ac-panel__title"&gt;Show Information&lt;/span&gt;…&lt;/div&gt;</code>
@@ -1104,7 +1134,7 @@
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
-    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:none">GO TO CONSOLE ►</a>
+    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:var(--glow-text-dim)">GO TO CONSOLE ►</a>
   </footer>
 
 </div>

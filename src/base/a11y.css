@@ -82,7 +82,7 @@
 
   /* And the scroll smear, in case the page is captured mid-scroll. The :not()
      list mirrors the one in tokens/effects.css — keep them identical. */
-  .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh) {
+  .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh, .ac-nav--sticky) {
     filter: none;
   }
 

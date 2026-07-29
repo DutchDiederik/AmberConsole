@@ -30,6 +30,7 @@
   margin: 0;
   flex: none;
   border: var(--border-w) solid var(--stroke);
+  box-shadow: var(--glow-box);
   border-radius: 50%;
   background: transparent;
   cursor: pointer;
@@ -49,6 +50,7 @@
 .ac-radio--disabled input,
 .ac-radio input:disabled {
   border-color: var(--stroke-dim);
+  box-shadow: none;
   cursor: default;
 }
 .ac-radio--disabled input:checked,

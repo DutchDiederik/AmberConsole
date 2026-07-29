@@ -26,6 +26,7 @@
   background: transparent;
   text-transform: none;
   border: var(--border-w) solid var(--stroke);
+  box-shadow: var(--glow-box);
   border-radius: var(--radius);
   /* The 20px bottom padding is dead space that makes a soft key read as a
      physical key. It is intentional. Do not snap it to the 4/8px grid. */
@@ -51,6 +52,7 @@
 .ac-tab:disabled {
   color: var(--ink-faint);
   border-color: var(--stroke-dim);
+  box-shadow: var(--glow-box-dim);
   text-shadow: none;
   cursor: default;
 }

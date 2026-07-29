@@ -33,7 +33,7 @@
 .ac-readout__label--plain {
   background: transparent;
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
   padding: 0;
 }
 

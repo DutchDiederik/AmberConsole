@@ -6,6 +6,100 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Fixed — the halo now matches its own ink, and everything lit now glows
+
+Two reports, both correct: *"the glow for P7, P11 has a yellowish tint different from the main
+colour"*, and *"not everything glows like it should"*.
+
+- **P11's halo sat 0.1025 away from its own ink in CIE xy; argon's 0.0916.** `--gas-1` was solved at
+  a fixed luminance of 0.62, which a deep blue cannot reach inside sRGB — so gamut mapping walked it
+  toward D65, adding red and green, and the halo read visibly warmer than the text it was supposed to
+  be scattered from. Both offenders were the two most out-of-gamut emitters, which is the signature.
+  It also quietly contradicted this file's own rule that *chromaticity is never adjusted*.
+  Each glow stop is now solved at the brightest luminance whose gamut walk stays within the INK's,
+  so P11 lands at 0.0284 and argon at 0.0268. P11's `--gas-1` goes `175, 209, 255` → `87, 174, 255`.
+  Nine palettes were already inside tolerance and re-derive byte-identically.
+- **The first attempt at that fix was wrong and is worth recording**: holding each stop within an xy
+  tolerance of the EMITTER is unachievable at any luminance, because a chromaticity outside the sRGB
+  triangle has a negative channel however dim it gets. It drove Y to zero and blacked out eight of
+  eleven halos. Only the *overflow* half of the walk is luminance-dependent, and matching the ink's
+  is the criterion that is both achievable and the one somebody actually sees.
+- **P7 is untouched at 0.3524 and must stay there.** Its halo is a different coating, not a gamut
+  artefact — blue `ZnS:Ag` flash over a yellow-green `(Zn,Cd)S:Cu` afterglow. The budget is measured
+  against the afterglow spectrum, so the cascade survives the fix that removed the others.
+- **`--ink-dim` was being treated as inert when it is a drive level.** `derive-gas.mjs` labels
+  `--emit-70` *secondary* — a cell at 70% drive, which scatters 70% as much — yet every rule setting
+  it also set `text-shadow: none`. That is what left the State box's labels and dim panel titles flat
+  beside values that glowed. Glow now follows the drive level: **1.00 / 0.70 / 0.41**, falling
+  straight out of the 7.0 / 5.2 / 3.4 : 1 contrast targets each stop was already solved to.
+  `--emit-30` computes to 0.11 and stays flat, which is what makes the decorative rules decorative.
+- **No border in the framework had a halo.** `--glow-box` was opt-in and used at fourteen sites, all
+  of them filled or focused states — so an unchecked radio ring drawn in `--stroke` had no glow while
+  the identical value glowed as text next to it. Strokes now carry `--glow-box`, or `--glow-box-dim`
+  for `--stroke-dim`, across fifteen components. Unlike the text pass this had to be stated per
+  component: **`box-shadow` does not inherit.**
+- **A second variable was needed because ink and stroke are not always driven together** — an
+  `.ac-input` is `--ink-bright` text inside a `--stroke-dim` box.
+- **The tidy version of this does not work, and fails silently.** A single `--ac-drive` multiplier
+  that every alpha references is resolved *where the custom property is declared* — at `:root`, where
+  it bakes in as 1 — so descendants inherit a finished shadow list and setting the drive further down
+  changes nothing. Every tier rendered at full strength and looked correct. It is the same trap this
+  file already documents for `--glow-text` itself; the tiers are now separate fully-resolved tokens.
+- **`npm run check` now enforces the DIRECTION of the pairing, not just its presence.** Stating any
+  `text-shadow` used to be enough to pass, so the tiers could have been wired backwards unnoticed. A
+  lit ink with the halo off now fails unless the selector is genuinely inert — `:disabled`,
+  `aria-disabled`, `[hidden]`, `--off`, `[data-stopped]` — and that list is written down because no
+  amount of CSS analysis can infer which application states mean "not lit". It immediately found two
+  stranded inline specimens in the guide.
+- Disabled controls remain completely flat under every palette. That is law 1's actual claim, and it
+  is the half the drive tiers must never absorb.
+
+### Added — `data-ac-engine`, so the CSS/JS split is visible instead of described
+
+Almost everything in this system is CSS, and there was no way to see that from a demo page with every
+effect switched on. `data-ac-engine="css"` on the root turns off exactly the three effects that need
+`amber-console.effects.js` — ghosting, scroll smear, framebuffer decay — and leaves the bloom, cell
+mesh, scanlines, blink decay, lingering halo and residual patches running.
+
+- A `<button data-ac-engine>` drives it, persisted to `localStorage` under the same
+  only-restore-while-a-control-exists rule as the style flags. Default `css+js`.
+- The effects module reads the attribute off the root itself, as it already does for
+  `.ac-afterglow` and `data-ac-style-smear` — no new handshake between the two files.
+- Deliberately a fourth axis rather than another style flag: it makes no claim about the hardware and
+  is not a comfort preference, so flipping it does not put the readout into `*MOD`.
+- All four demo boards gain an **Engine** panel, an `ENGINE` row in the State readout, and a `JS`
+  badge on the controls that depend on the module.
+
+### Changed — Scroll Smear now follows the simulation
+
+The smear is a property of `.ac-afterglow`, which ships only with CRT, so under a plasma simulation
+the switch had no selectors to match and no loop to run — and still read `ON`. It now takes its
+default from the simulation: on under CRT, off under plasma, and **disabled with a stated reason**
+where it cannot do anything, rather than offering a click that produces nothing.
+
+- The derived default only fills a silence. Click the switch and the choice is stored, and from then
+  on it is yours and stops following the simulation; `[data-ac-display-reset]` clears the key and
+  puts it back to following.
+- A derived value is never persisted — writing it would claim the preference on the first page view
+  and the derivation would never run again.
+- `STYLES` entries may now declare `defaultOn` as a function and `needs` as a required frame class.
+
+### Fixed — the scroll smear was running at under half strength
+
+- **Recalibrated, and this was the actual reason it was hard to see.** `SMEAR_FULL` was 55 px per
+  frame, but a browser spreads one wheel notch over several frames and delivers roughly 15–25 — so
+  ordinary scrolling reached about a third of the curve, which at a 0.9 px blur ceiling is invisible.
+  Now 28 px, with the ceiling at 1.8 px and the additive copy's opacity at 0.45. Measured over a
+  sustained 24 px/frame scroll, mean `--ac-smear` went from 0.44 to 0.85.
+- **The sticky nav no longer goes soft.** `.ac-nav--sticky` is pinned to the viewport, so while the
+  page scrolls it is the one element on screen whose pixels are *not* being handed a new value —
+  nothing about it moved, so nothing about it should smear. Added to the `:not()` exclusion list in
+  all four places that mirror it.
+- **`connect()` is now idempotent.** `sync()` called it unconditionally, and each call reseeded the
+  scroll reference — a reseed landing between a scroll and the next frame throws that displacement
+  away and drops the smear mid-scroll. Rare in practice (measured: once over a four-second scroll on
+  the busiest demo, none on the others), but `connect()` has no business not being idempotent.
+
 ### Fixed — the long phosphors now actually persist
 
 The CRT pass derived persistence correctly and then almost nothing consumed it. P7 and P39 — the two
@@ -154,6 +248,45 @@ it is that a phosphor has a *decay*, and the system had nowhere to put one.
   60 Hz display, and sampling a signal at its own frequency is Nyquist rather than a browser
   limitation. What is rendered is the perceptual signature — fixed slow frequency, amplitude scaled
   by `--ac-flicker` — under a hard WCAG 2.3.1 budget stated at the keyframe that spends it.
+
+### Added — a radar, because P7 was built for one
+
+`docs/radar.html` — **SEASCAN RM-12**, an early-1980s marine radar, with `docs/radar.js` and a
+`doc-` block in `docs/docs.css`. `.ac-sweep` gave the system a PPI; this is the set around it, and it
+exists for one emitter. P7 is two coatings and the reason it was fitted to radar is that the flash
+gives position and the trail gives history — so a page that is nothing but a rotating beam and the
+light it leaves is the only honest way to show what that phosphor is *for*.
+
+- **Every mark on the face is a rotated zero-width arm** pinned at the centre with
+  `height: calc(var(--rng) * 50%)`. Polar coordinates land where they belong at any dial size, with
+  no arithmetic in JavaScript and nothing to recompute on resize, and no SVG anywhere near it.
+- **Contacts decay on the phosphor's own curve.** Each one animates on the sweep's period, delayed by
+  its bearing's share of a revolution, crossing from `--gas-flash` to the afterglow ramp exactly as
+  `ac-ghost-cascade` does and draining under the palette's sampled `--ac-decay-ease`. Nothing about
+  the decay is chosen on this page; all of it is read off the emitter.
+- **The sweep is the clock.** There is no `setInterval` for the radar — the page advances the world on
+  `animationiteration` from the beam. A timer would drift against a CSS animation within a minute,
+  and the subject of the page is that the beam and the light are the same event. Switch to P39 and
+  the antenna slows to match the phosphor, because both come off `--ac-persist-tail`.
+- **The controls do something.** A/C SEA suppresses the clutter bands and, turned far enough, the
+  buoy inside them; A/C RAIN differentiates the video so land keeps its leading edge and loses its
+  body; TUNE costs echo strength; range change re-projects the whole picture inside
+  `AmberConsoleEffects.transition()`, so the old face drains per pixel while the new one fills in
+  behind the beam. Standby does the same thing, which is what blanking a long phosphor looks like.
+- **TRAILS is a persistence control that is deliberately not `.ac-afterglow`.** That class belongs to
+  the CRT simulation, and the split is also the historically correct one: the tube's persistence is
+  the phosphor, and target trails were a separate synthetic afterglow the set added on top. The soft
+  key sets the floor the contacts decay to and leaves the emitter alone.
+- **The page fits its own tube.** The display store is shared across the demos, and a radar in neon
+  has no flash layer, so `radar.js` seeds CRT · P7 on a first visit — at parse time, before the
+  framework reads the store, so there is no frame of the wrong palette — and never again after that.
+  The visual harness seeds the same flag, which leaves each case in charge of its own simulation.
+- **Forced colors keeps the picture.** Author backgrounds are mapped away in that mode, which would
+  leave an empty circle, so every mark that carries information is redrawn in system colours.
+- `test/visual/capture.mjs` skips `.doc-ppi` in the overflow probe: a zero-width box reports its
+  centred mark as overflow, and scroll overflow is measured on axis-aligned bounds, so a rotated arm
+  reports a box far wider than the thing at the end of it. Neither is reachable or lost, and the dial
+  cannot overflow its parent regardless.
 
 ### Added — a second demo, and it is not a period piece
 

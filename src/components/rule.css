@@ -5,6 +5,7 @@
 .ac-hr {
   border: none;
   border-top: var(--border-w) solid var(--stroke-dim);
+  box-shadow: var(--glow-box-dim);
   margin: var(--space-4) 0;
 }
 

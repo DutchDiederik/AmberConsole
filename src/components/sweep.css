@@ -35,6 +35,7 @@
   width: 100%;
   max-width: var(--ac-sweep-size, 260px);
   border: 2px solid var(--stroke-dim);
+  box-shadow: var(--glow-box-dim);
   border-radius: 50%;
   overflow: hidden;
   background:

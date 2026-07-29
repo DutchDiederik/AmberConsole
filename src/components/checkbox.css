@@ -34,6 +34,7 @@
   margin: 0;
   flex: none;
   border: var(--border-w) solid var(--stroke);
+  box-shadow: var(--glow-box);
   border-radius: 0;
   background: transparent;
   cursor: pointer;
@@ -53,6 +54,7 @@
 .ac-check--disabled input,
 .ac-check input:disabled {
   border-color: var(--stroke-dim);
+  box-shadow: none;
   cursor: default;
 }
 .ac-check--disabled input:checked,

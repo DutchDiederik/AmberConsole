@@ -61,6 +61,7 @@ const update = process.argv.includes("--update");
 const PAGES = [
   { name: "console", file: "docs/index.html", fullPage: true },
   { name: "server", file: "docs/server.html", fullPage: true, click: "#tab-services" },
+  { name: "radar", file: "docs/radar.html", fullPage: true },
   { name: "guide", file: "docs/guide.html", fullPage: false, anchor: "#controls .doc-grid2" },
 ];
 
@@ -191,6 +192,15 @@ for (const page of PAGES) {
         localStorage.setItem("ac.sim.plasma", want === "plasma" ? "1" : "0");
         /* CRT carries the afterglow; there is no separate key any more. */
         localStorage.setItem("ac.sim.crt", want === "crt" ? "1" : "0");
+        /* The radar page fits its own tube on a first visit — CRT · P7, with the
+           CRT simulation on — because the display store is shared with the other
+           demos and a radar in neon has no flash layer to show. Every context
+           here is a fresh profile, so without this the page would seize both sim
+           keys on all seven cases and `sims-off` would stop testing anything.
+           Marking it already fitted leaves the case in charge of the simulation;
+           the display still lands on P7, because that is the radio the page
+           ships checked and there is no stored palette to override it. */
+        localStorage.setItem("ac.radar.fitted", "1");
       } catch {
         /* ignore */
       }
@@ -256,8 +266,22 @@ for (const page of PAGES) {
       let worst = d.scrollWidth - d.clientWidth;
       for (const el of document.body.querySelectorAll("*")) {
         /* .ac-sr-only is a 1px clip box and .ac-spinner is a 1ch window over a
-           4-line block — both are wider than their box on purpose. */
-        if (el.closest(".ac-sr-only, .ac-spinner")) continue;
+           4-line block — both are wider than their box on purpose.
+
+           .doc-ppi — the radar dial — is the third of that kind and the least
+           obvious. EVERYTHING ON IT IS POLAR: a bearing mark, a contact and the
+           bearing line are each a ZERO-WIDTH arm pinned at the centre of the
+           dial and rotated to their bearing, carrying their mark centred on the
+           far end. Both halves of that defeat this measurement. A zero-width box
+           reports its mark's full width as overflow, and scroll overflow is
+           measured on axis-aligned bounds, so a rotated arm reports a box far
+           wider than the thing at the end of it — while every one of those marks
+           is inside the circle and clipped by nothing.
+
+           The dial cannot overflow its own parent regardless: it carries
+           aspect-ratio: 1 and a max-width, and every box above it is still
+           probed at every width. */
+        if (el.closest(".ac-sr-only, .ac-spinner, .doc-ppi")) continue;
         /* Form controls scroll their own value; that is not a layout bug. */
         if (["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName)) continue;
 

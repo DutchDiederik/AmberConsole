@@ -74,24 +74,55 @@ const CHECKS = [
     /* print.css blanks --glow-text wholesale, and a11y.css runs where the UA has
        already forced shadows off; both set these colors legitimately. */
     exempt: /src[/\\]base[/\\](print|a11y)\.css$/,
-    /* A declaration block, or an inline style attribute. Both are places an ink
-       level gets set, so both are places the halo can be left behind. */
-    re: /\{[^{}]*\}|style="[^"]*"/g,
+    /* Selector plus declaration block, or an inline style attribute. The
+       SELECTOR is captured because the rule below needs to know whether the
+       thing being styled is inert, and only the selector can say so. */
+    re: /([^{}]*)\{([^{}]*)\}|style="[^"]*"/g,
     filter: (m) => {
-      const body = m[0].replace(/\/\*[\s\S]*?\*\//g, "");
-      if (/text-shadow/.test(body)) return false;
-      /* Lit must glow; dim, faint and inverse must not. Both halves are
-         required, and the second half is the one that surprises people:
-         inheritance does NOT cover a rule that brightens its own color inside
-         dim prose — it inherits the dim's suppression and stays flat. That is
-         how eighty-two inline <code> spans sat at --ink-bright with no halo. */
+      const sel = (m[1] ?? "").replace(/\/\*[\s\S]*?\*\//g, "");
+      const body = (m[2] ?? m[0]).replace(/\/\*[\s\S]*?\*\//g, "");
+
       /* The leading boundary is load-bearing: without it `border-color` matches
          `color` and every swatch chip in the guide — which sets a border and no
          text at all — is reported as stranded. */
-      return (
-        /(^|[;{"\s])color\s*:\s*var\(--ink(-bright)?\)/.test(body) ||
-        /(^|[;{"\s])color\s*:\s*var\(--(ink-dim|ink-faint|on-fill)\)/.test(body)
-      );
+      const B = String.raw`(^|[;{"\s])`;
+      const lit = new RegExp(`${B}color\\s*:\\s*var\\(--(ink|ink-bright|ink-dim|ink-faint)\\)`).test(body);
+      const unlit = new RegExp(`${B}color\\s*:\\s*var\\(--on-fill\\)`).test(body);
+      if (!lit && !unlit) return false;
+
+      /* The closing quote has to be excluded or an inline style's
+         `text-shadow:none"` reads as the value `none"` and never matches. */
+      const shadow = body.match(/text-shadow\s*:\s*([^;}"]+)/);
+
+      /* HALF ONE, unchanged: an ink level set with no halo stated either way.
+         Inheritance does NOT cover a rule that brightens its own color inside
+         dim prose — it inherits the dim's suppression and stays flat, which is
+         how eighty-two inline <code> spans sat at --ink-bright with no halo. */
+      if (!shadow) return true;
+
+      const isNone = /^\s*none\s*$/.test(shadow[1]);
+
+      /* HALF TWO, and it is new: the halo must point the RIGHT WAY. Stating a
+         shadow was enough to pass before, so the drive tiers could have been
+         wired backwards and the gate would have shrugged.
+
+         GLOW FOLLOWS THE DRIVE LEVEL. --ink-dim is emit-70 and --ink-faint is
+         emit-50 — both lit cells, both scattering, just less. The only things
+         that may go flat are genuinely INERT: a disabled control, and the unlit
+         text inside an inverse-video block. A disabled control that glows is a
+         lie about the hardware; a dim label that does NOT is a different lie,
+         and until this release the system was telling it everywhere. */
+      /* WHAT COUNTS AS INERT IS A SHORT, PROJECT-SPECIFIC LIST, and it has to be
+         written down somewhere because no amount of CSS analysis can infer it: a
+         stopped container and an "off" readout mean the cell is not lit, and
+         they say so in application vocabulary rather than in a UA state. Add to
+         this list when a new state means UNLIT — and only then. Everything else
+         that is dim is merely driven softly, and must keep its halo. */
+      const inert = /:disabled|--disabled|aria-disabled|\[hidden\]|--off\b|\[data-stopped\]/.test(sel);
+      if (lit && isNone && !inert) return true;
+      if (unlit && !isNone) return true;
+
+      return false;
     },
   },
   {

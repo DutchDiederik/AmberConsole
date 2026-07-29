@@ -44,6 +44,7 @@
     <div class="ac-nav__links">
       <a class="ac-nav__link" href="index.html" aria-current="page">Console</a>
       <a class="ac-nav__link" href="server.html">Server</a>
+      <a class="ac-nav__link" href="radar.html">Radar</a>
       <a class="ac-nav__link" href="guide.html">System Guide</a>
     </div>
     <span class="ac-nav__meta">
@@ -214,10 +215,31 @@
                  in the framework — write data-ac-style="blink" on a toggle to
                  expose it, or set data-ac-style-blink="off" on <html>.
                  prefers-reduced-motion stops it either way. -->
-            <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="true">
-              <span>Scroll Smear</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+            <!-- Ships OFF and disabled, because the frame above ships .ac-bloom.
+                 The smear lives on .ac-afterglow, which arrives with CRT — so
+                 this is the position initStyle settles on anyway, and matching it
+                 in markup is what keeps the switch from painting one frame in the
+                 wrong place. Pick any CRT preset and it turns itself on. -->
+            <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="false" disabled>
+              <span>Scroll Smear <span class="ac-badge ac-badge--dim">JS</span></span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
             </button>
           </div>
+          <p class="doc-displays__note" data-ac-style-note="smear">CRT only. The smear is a property of
+            the afterglow layer, and a plasma cell is driven continuously — there is nothing to trail.</p>
+        </div>
+
+        <div class="ac-panel">
+          <span class="ac-panel__title">Engine</span>
+          <p class="doc-displays__note">How much of the library is running.</p>
+          <div class="doc-switches">
+            <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
+              <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+            </button>
+          </div>
+          <p class="doc-displays__note">Switch it off and the three effects that need
+            amber-console.effects.js go dark — ghosting, scroll smear, framebuffer decay. Everything
+            else you can see is CSS and keeps running: the bloom, the cell mesh, the scanlines and
+            vignette, the blink decay, the lingering halo, the residual patches.</p>
         </div>
       </div>
 
@@ -245,6 +267,11 @@
               <dt class="ac-list__key">Mode</dt>
               <span class="ac-list__fill"></span>
               <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Engine</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="engine">CSS + JS</dd>
             </div>
           </dl>
         </div>

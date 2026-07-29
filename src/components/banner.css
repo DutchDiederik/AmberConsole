@@ -16,6 +16,7 @@
   align-items: center;
   gap: var(--space-6);
   border: var(--border-w) solid var(--stroke);
+  box-shadow: var(--glow-box);
   border-radius: 2px;
   padding: 10px 24px;
   font-family: var(--font-terminal);
@@ -57,5 +58,6 @@
 .ac-banner--dim {
   color: var(--ink-faint);
   border-color: var(--stroke-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
+  box-shadow: var(--glow-box-dim);
 }

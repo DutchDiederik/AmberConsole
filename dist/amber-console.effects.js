@@ -66,6 +66,23 @@ const smearOn = () =>
   document.documentElement.getAttribute("data-ac-style-smear") !== "off";
 
 /**
+ * THE ENGINE FLAG — whether this file is allowed to run at all.
+ *
+ * `data-ac-engine="css"` on the root means the page wants the simulation the
+ * stylesheet can do on its own, and nothing else. It is not a preference about
+ * comfort and not a claim about the hardware, which is why it is neither a style
+ * flag nor a simulation: it is a statement about which of the two files is
+ * permitted to contribute. Everything in here is gated on it — ghosting, the
+ * scroll smear, and the framebuffer decay in transition() — so one attribute
+ * answers "which of these effects need JavaScript" by turning exactly those off.
+ *
+ * Defaults to on when absent, and the default is duplicated from ENGINE in
+ * amber-console.js for the same reason smearOn's is: a module that cannot run
+ * without the other one present is not optional.
+ */
+const engineOn = () => document.documentElement.getAttribute("data-ac-engine") !== "css";
+
+/**
  * Read a time token off the root, in milliseconds.
  *
  * `--ac-persist-tail` is the UNCAPPED decay — the one the long phosphors are
@@ -174,6 +191,12 @@ function spawnGhost(source, text, fast) {
      animation, and animationend never fires. */
   if (document.hidden || REDUCED_MOTION.matches) return;
 
+  /* The exported afterglow() reaches this directly, without going through
+     sync(), so the engine flag is checked here too rather than only at the
+     observer. A page that calls it by hand under the CSS-only engine gets the
+     same nothing as one that never called it. */
+  if (!engineOn()) return;
+
   const frame = source.closest(".ac-afterglow");
   if (!frame) return;
   const layer = persistLayer(frame);
@@ -258,8 +281,17 @@ function makeGhostObserver(frame) {
 
 /* ----------------------------------------------------------- scroll smear -- */
 
-/** Per-frame scroll distance, in px, that saturates the smear. */
-const SMEAR_FULL = 55;
+/**
+ * Per-frame scroll distance, in px, that saturates the smear.
+ *
+ * TUNED AGAINST WHAT A WHEEL ACTUALLY DELIVERS, not against what a flick can.
+ * A browser spreads one wheel notch over several frames, so ordinary scrolling
+ * arrives at roughly 15-25px per frame. At the old 55 that reached barely a
+ * third of the curve and the effect was, in practice, invisible to anyone who
+ * was not dragging the scrollbar — the simulation was running correctly and
+ * could not be seen doing it.
+ */
+const SMEAR_FULL = 28;
 
 /**
  * Geometric drain per frame once the scroll stops, for a 105ms panel.
@@ -291,6 +323,8 @@ function makeScrollSmear(frame) {
   let last = 0;
   let smear = 0;
   let raf = 0;
+  /* Whether the listener is actually attached — see connect(). */
+  let listening = false;
 
   const clear = () => {
     smear = 0;
@@ -327,10 +361,32 @@ function makeScrollSmear(frame) {
          making thing in the simulation; the CSS hides it too, but there is no
          reason to run the loop at all. */
       if (REDUCED_MOTION.matches) return;
+
+      /* AN ALREADY-CONNECTED SMEAR MUST BE LEFT ALONE, and the flag is here for
+         the line below it rather than for the listener — adding the same
+         function with the same options twice was always a no-op. Reseeding
+         `last` was not: sync() calls connect() unconditionally every time it
+         runs, and it runs on any class change anywhere in the document. A
+         reseed that lands between a scroll and the next frame throws away the
+         distance covered in that window, and the smear drops to a drain while
+         the page is still moving.
+
+         MEASURED BEFORE BELIEVING IT, because the obvious story — live pages
+         change classes constantly, so this must be firing all the time — is not
+         what the numbers say. Over a four-second scroll the watcher fires once
+         on the server demo and not at all on the console or the radar: the
+         filter is `class` on a subtree that mostly rewrites TEXT, and text is
+         the ghost observer's business, not this one's. So this is a rare
+         glitch, not the reason the smear was hard to see. That was the
+         calibration — see SMEAR_FULL above. Guarded anyway: connect() has no
+         business not being idempotent. */
+      if (listening) return;
+      listening = true;
       last = window.scrollY;
       window.addEventListener("scroll", onScroll, { passive: true });
     },
     disconnect() {
+      listening = false;
       window.removeEventListener("scroll", onScroll);
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
@@ -361,14 +417,16 @@ function makeScrollSmear(frame) {
  *
  * Declines, and simply runs `fn`, when: the API is absent, motion is reduced,
  * the document is hidden (the API throws InvalidStateError there rather than
- * degrading), or the persistence simulation is off. It is always safe to call.
+ * degrading), the persistence simulation is off, or the page has asked for the
+ * CSS-only engine. It is always safe to call.
  */
 export function transition(fn) {
   if (
     typeof document.startViewTransition !== "function" ||
     REDUCED_MOTION.matches ||
     document.hidden ||
-    !afterglowOn()
+    !afterglowOn() ||
+    !engineOn()
   ) {
     fn();
     return null;
@@ -412,7 +470,9 @@ function sync() {
   }
   if (!frame) return;
 
-  const want = afterglowOn();
+  /* Both halves have to be true: the simulation has to be asking for
+     persistence, and the page has to be allowing this file to provide it. */
+  const want = afterglowOn() && engineOn();
 
   if (want && !connected) {
     persistLayer(frame);
@@ -464,7 +524,12 @@ export function init() {
   frameWatcher.observe(root, {
     subtree: true,
     attributes: true,
-    attributeFilter: ["class", "data-ac-screen", "data-ac-style-smear"],
+    attributeFilter: [
+      "class",
+      "data-ac-screen",
+      "data-ac-style-smear",
+      "data-ac-engine",
+    ],
   });
 
   /* A palette change swaps --ac-persist-tail underneath everything. Nothing

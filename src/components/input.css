@@ -30,7 +30,7 @@
   font-size: var(--type-small);
   line-height: 1;
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
   text-transform: uppercase;
   letter-spacing: var(--tracking-body);
 }
@@ -43,6 +43,7 @@
   text-shadow: var(--glow-text);
   background: var(--screen-well);
   border: var(--border-w) solid var(--stroke-dim);
+  box-shadow: var(--glow-box-dim);
   border-radius: var(--radius-sm);
   padding: 6px 12px;
   letter-spacing: var(--tracking-body);
@@ -52,7 +53,7 @@
 
 .ac-input::placeholder {
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
 }
 
 .ac-input:focus {
@@ -69,7 +70,7 @@
 
 .ac-input:read-only {
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
 }
 
 .ac-input--block {

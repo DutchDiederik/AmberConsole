@@ -16,6 +16,7 @@
   gap: var(--space-4);
   flex-wrap: wrap;
   border-bottom: var(--border-w) solid var(--stroke);
+  box-shadow: var(--glow-box);
   background: var(--screen);
   padding: 0 var(--space-6);
 }
@@ -100,7 +101,7 @@
   font-size: var(--type-micro);
   letter-spacing: var(--tracking-micro);
   color: var(--ink-faint);
-  text-shadow: none;
+  text-shadow: var(--glow-text-faint);
 }
 
 @media (max-width: 720px) {

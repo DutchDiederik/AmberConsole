@@ -33,7 +33,11 @@
   background: transparent;
   color: var(--ink);
   text-shadow: var(--glow-text);
-  box-shadow: none;
   border-top: var(--border-w) solid var(--stroke-dim);
   border-bottom: var(--border-w) solid var(--stroke-dim);
+  /* The `none` that used to sit here cancelled the filled bar's halo, which was
+     right when a border could not carry one. Now it can: the rules are lit
+     cells at emit-50, so they get that tier rather than nothing. Note the text
+     above keeps full drive — only the STROKES stepped down. */
+  box-shadow: var(--glow-box-dim);
 }

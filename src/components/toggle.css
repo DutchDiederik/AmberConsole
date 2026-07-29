@@ -48,6 +48,7 @@
   height: 28px;
   flex: none;
   border: var(--border-w) solid var(--stroke);
+  box-shadow: var(--glow-box);
   border-radius: var(--radius-sm);
 }
 
@@ -72,7 +73,7 @@
   min-width: 2.2em;
   text-align: left;
   color: var(--ink-dim);
-  text-shadow: none;
+  text-shadow: var(--glow-text-dim);
 }
 
 .ac-toggle--on .ac-toggle__state,
@@ -88,6 +89,7 @@
 }
 .ac-toggle:disabled .ac-toggle__track {
   border-color: var(--stroke-dim);
+  box-shadow: var(--glow-box-dim);
 }
 .ac-toggle:disabled .ac-toggle__thumb {
   background: var(--ink-trace);
@@ -132,6 +134,7 @@
 
 .ac-toggle--input input:disabled ~ .ac-toggle__track {
   border-color: var(--stroke-dim);
+  box-shadow: none;
 }
 .ac-toggle--input input:disabled ~ .ac-toggle__track .ac-toggle__thumb {
   background: var(--ink-trace);
