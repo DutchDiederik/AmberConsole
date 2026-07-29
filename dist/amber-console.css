@@ -1520,6 +1520,11 @@
 .ac-afterglow .ac-radio input,
 .ac-afterglow .ac-toggle__track,
 .ac-afterglow .ac-toggle__thumb,
+/* The bar was missing from this list entirely, which is why an alarm clearing
+   used to snap. Its WIDTH is deliberately not transitioned — that is the live
+   edge and it must stay instant; only its colour and halo relax. The vacated
+   region is (5c)'s job. */
+.ac-afterglow .ac-meter__bar,
 .ac-afterglow .ac-table__row--active td {
   transition:
     background-color var(--ac-decay-fast) var(--ac-decay-ease),
@@ -1657,6 +1662,58 @@
 .ac-afterglow .ac-toggle--on .ac-toggle__thumb,
 .ac-afterglow .ac-toggle[aria-pressed="true"] .ac-toggle__thumb {
   transition: none;
+}
+
+/* (5c) A LIT AREA THAT SHRINKS — the bargraph, and a phenomenon none of the
+   decays above covers.
+   ---------------------------------------------------------------------------
+   Every mechanism in this file so far handles a node DISAPPEARING, text being
+   REWRITTEN, or a lamp CHANGING COLOUR. A meter does none of those: the element
+   stays, its text is elsewhere, its colour never moves. What changes is its
+   WIDTH — so the region it vacates was lit a moment ago and is now simply not
+   drawn, with nothing timing the difference. On a 2s phosphor that is the most
+   visible wrong thing on the panel: everything around the bar trails and the bar
+   itself snaps.
+
+   THE GHOST IS A SECOND BAR THAT LAGS, and the asymmetry falls out of paint
+   order rather than needing a rule of its own — which is what makes this cheap.
+   Both bars read the same --ac-meter-value; the live one snaps to it and this
+   one takes --ac-persist-tail to get there. On a DECREASE the ghost is therefore
+   wider than the bar for a moment, and the strip between them is the vacated
+   region, draining. On an INCREASE the ghost is NARROWER, so it sits entirely
+   underneath the live bar and is invisible. Instant up, curve down, for free.
+
+   WHAT THIS IS AND IS NOT, because the difference is real. A bar falling
+   GRADUALLY stops driving each cell at a slightly different moment, so the
+   honest result is a taper behind a receding edge — which is exactly this, and
+   is what the demos' drifting values actually do. A bar that drops SUDDENLY
+   stops every vacated cell at once and should fade uniformly instead. CSS cannot
+   hold the old width, so it cannot tell those apart; amber-console.effects.js
+   recovers the old geometry and parks a proper uniform ghost for that case. This
+   is the half that works with no JavaScript at all.
+
+   The mask is what keeps it reading as light rather than as a wipe: the trailing
+   end is soft, so the strip fades along its length instead of ending on an edge.
+
+   HERE RATHER THAN IN components/meter.css because this is a `transition` and
+   scripts/check-prohibitions.mjs forbids those under src/components/ — the same
+   reason every other decay in this file lives here. Only the `position:
+   relative` that puts the live bar on top belongs to the component. */
+.ac-afterglow .ac-meter__track::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--ac-meter-value, 0) * 1%);
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--fill) 0 8px,
+    transparent 8px 12px
+  );
+  opacity: 0.5;
+  mask-image: linear-gradient(90deg, #000 0 55%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0 55%, transparent 100%);
+  transition: width var(--ac-persist-tail) var(--ac-decay-ease);
 }
 
 /* (6) SCROLL SMEAR.
@@ -1927,6 +1984,11 @@ html:has(.ac-afterglow)::view-transition-group(root) {
   .ac-afterglow .ac-nav__link::after,
   .ac-afterglow .ac-badge::after,
   .ac-afterglow .ac-table__row--active td::after { display: none; }
+
+  /* The lagging bar would already be harmless — the blanket above stops its width
+     from transitioning, so it sits exactly under the live bar and cannot be seen.
+     It goes anyway rather than painting a gradient nobody will ever look at. */
+  .ac-afterglow .ac-meter__track::before { display: none; }
 
   /* A whole page dissolving into the next one is the largest moving image in the
      system. Both halves are cut, not just the old one — leaving the NEW page's
@@ -3615,6 +3677,12 @@ textarea.ac-input {
 }
 
 .ac-meter__bar {
+  /* POSITIONED SO IT PAINTS ABOVE ITS OWN GHOST. tokens/effects.css hangs a
+     lagging copy of this bar on .ac-meter__track::before, and an unpositioned
+     block child paints BELOW any positioned pseudo-element — so without this the
+     draining ghost would cover the live bar instead of trailing behind it. With
+     both positioned, tree order settles it and ::before goes underneath. */
+  position: relative;
   height: 100%;
   width: calc(var(--ac-meter-value, 0) * 1%);
   background: repeating-linear-gradient(
@@ -3962,6 +4030,11 @@ textarea.ac-input {
     display: none;
   }
 
+  /* A trailing bar is a low-contrast duplicate of the live one, which is what high-contrast mode exists to prevent. */
+  .ac-afterglow .ac-meter__track::before {
+    display: none;
+  }
+
   /* A page dissolving into the next one is a low-contrast duplicate of the whole
      screen, for the same reason the ghosts are. */
   html:has(.ac-afterglow)::view-transition-old(root),
@@ -4188,6 +4261,11 @@ textarea.ac-input {
   .ac-afterglow .ac-nav__link::after,
   .ac-afterglow .ac-badge::after,
   .ac-afterglow .ac-table__row--active td::after {
+    display: none;
+  }
+
+  /* A trailing bar is an argument about elapsed time, which paper does not have. */
+  .ac-afterglow .ac-meter__track::before {
     display: none;
   }
 

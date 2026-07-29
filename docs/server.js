@@ -421,17 +421,21 @@
      before the visual suite's shutter opens. Only the clock is painted, and only
      because a stale one would be visible to a human for a whole second.
 
-     THE FIRST TICK IS HELD BACK TO 2.5 SECONDS, and that number is not taste.
+     THE FIRST TICK IS HELD BACK TO SIX SECONDS, and that number is not taste.
      capture.mjs waits for networkidle (500ms of quiet), injects a stylesheet,
-     waits 250ms and then walks the whole DOM for the overflow probe before the
-     shutter opens — measured, that lands somewhere around 800-1300ms. A first
-     tick at 1000ms sits inside that spread, so the same page would screenshot as
-     frame zero or frame one depending on how busy the machine was, and the suite
-     would go red at random. 2.5s clears it with room to spare and nobody
-     watching the page can tell. */
+     waits 250ms, walks the whole DOM for the overflow probe, and opens whatever
+     tabs the page ships closed — then the shutter. A first tick inside that
+     window makes the same page screenshot as frame zero or frame one depending
+     on how busy the machine was, and the suite goes red at random.
+
+     THIS WAS 2.5 SECONDS AND IT WENT RED, which is why the margin is now this
+     wide. The window is not a property of this page: it grows every time a demo
+     is added to the suite, because a slower run delays every capture in it. 2.5
+     was comfortable at two pages and marginal at four. Six is clear of the whole
+     sequence, and nobody watching the page can tell the difference. */
   paintClock();
   setTimeout(function () {
     tick();
     setInterval(tick, 1000);
-  }, 2500);
+  }, 6000);
 })();

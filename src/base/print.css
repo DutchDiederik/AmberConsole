@@ -78,6 +78,11 @@
     display: none;
   }
 
+  /* A trailing bar is an argument about elapsed time, which paper does not have. */
+  .ac-afterglow .ac-meter__track::before {
+    display: none;
+  }
+
   /* Paper holds an image indefinitely, which is the opposite problem. A hidden
      element must print as absent, not as a 40%-opacity smudge over the live one. */
   .ac-afterglow [hidden],

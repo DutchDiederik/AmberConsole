@@ -64,6 +64,11 @@
     display: none;
   }
 
+  /* A trailing bar is a low-contrast duplicate of the live one, which is what high-contrast mode exists to prevent. */
+  .ac-afterglow .ac-meter__track::before {
+    display: none;
+  }
+
   /* A page dissolving into the next one is a low-contrast duplicate of the whole
      screen, for the same reason the ghosts are. */
   html:has(.ac-afterglow)::view-transition-old(root),

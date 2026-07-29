@@ -46,6 +46,7 @@
     <a class="ac-nav__link" href="index.html">Console</a>
     <a class="ac-nav__link" href="server.html">Server</a>
     <a class="ac-nav__link" href="radar.html">Radar</a>
+    <a class="ac-nav__link" href="terminal.html">Terminal</a>
     <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
   </div>
   <span class="ac-nav__meta">
@@ -59,12 +60,18 @@
 </nav>
 
 <!-- ============================================================ SETUP ==
-     Four quarters. Three axes, and they are never the same axis:
+     Four quarters. Four axes, and they are never the same axis:
 
        DISPLAY     what hardware is in the panel. Sets the color.
                    TWO regions, one per technology, never one list of eleven.
        SIMULATION  what the glass does about it. Never sets a color.
        STYLE       preferences that make no claim about the hardware at all.
+       ENGINE      how much of the library is running. Not hardware, and not a
+                   preference either — see the SWITCHES quarter.
+
+     The last three share one quarter and are told apart by the labels inside it
+     rather than by three panel borders, because three regions of switches ran
+     606px on a board that is not allowed to scroll.
 
      Splitting the catalog across two quarters is not only about confusion,
      though that is the point of it: eleven rows in one column is also taller
@@ -191,57 +198,57 @@
       </fieldset>
     </div>
 
-    <!-- --------------------------------------- 1/4 · simulation, style -- -->
-    <div class="ac-stack" style="--gap: 24px">
-      <div class="ac-panel">
-        <span class="ac-panel__title">Simulation</span>
-        <p class="doc-displays__note">What the glass does. Never a color.</p>
-        <div class="doc-switches">
-          <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
-            <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
-          </button>
-          <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
-            <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
-          </button>
-        </div>
+    <!-- ------------------------------------------------ 1/4 · switches -- -->
+    <!-- ONE REGION FOR ALL FOUR SWITCHES, WITH TWO GROUP LABELS INSIDE IT.
+
+         Three panels — SIMULATION, STYLE, ENGINE — read correctly and cost 606px
+         of a board that is not allowed to scroll, against 250 and 350 for the two
+         catalogs beside them. One region is about 370px, and the quarter stops
+         being the tallest thing on the glass.
+
+         THE LABELS ARE NOT DECORATION, THEY ARE WHAT THE PANEL BORDERS WERE
+         SAYING. These are three different KINDS of statement — what the hardware
+         is, what the viewer prefers, and how much of the library is running.
+         Merge them without replacing the boundary and the board quietly claims
+         PLASMA and JS EFFECTS are the same sort of switch, which is the exact
+         confusion the four quarters exist to prevent. -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">Switches</span>
+
+      <p class="doc-switches__axis">Simulation · never a color</p>
+      <div class="doc-switches">
+        <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
+          <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+        <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+          <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+        </button>
       </div>
 
-      <div class="ac-panel">
-        <span class="ac-panel__title">Style</span>
-        <p class="doc-displays__note">Preferences. No claim about the hardware.</p>
-        <div class="doc-switches">
-          <!-- No BLINK switch here on purpose. Blink is law-2 emphasis and half
-               of what the alarm demos further down are demonstrating, so this
-               page keeps it on and does not offer to turn it off. The style flag
-               itself is still in the framework — write data-ac-style="blink" on
-               a toggle to expose it, or set data-ac-style-blink="off" on <html>.
-               prefers-reduced-motion stops it either way. -->
-          <!-- Ships OFF and disabled, because the frame above ships .ac-bloom.
-               The smear lives on .ac-afterglow, which arrives with CRT — so this
-               is the position initStyle settles on anyway, and matching it in
-               markup is what keeps the switch from painting one frame in the
-               wrong place. Pick any CRT preset and it turns itself on. -->
-          <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="false" disabled>
-            <span>Scroll Smear <span class="ac-badge ac-badge--dim">JS</span></span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
-          </button>
-        </div>
-        <p class="doc-displays__note" data-ac-style-note="smear">CRT only. The smear is a property of
-          the afterglow layer, and a plasma cell is driven continuously — there is nothing to trail.</p>
+      <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
+      <div class="doc-switches">
+        <!-- No BLINK switch here on purpose. Blink is law-2 emphasis and half
+             of what the alarm demos further down are demonstrating, so this
+             page keeps it on and does not offer to turn it off. The style flag
+             itself is still in the framework — write data-ac-style="blink" on
+             a toggle to expose it, or set data-ac-style-blink="off" on <html>.
+             prefers-reduced-motion stops it either way. -->
+        <!-- Ships OFF and disabled, because the frame above ships .ac-bloom. The
+             smear lives on .ac-afterglow, which arrives with CRT — so this is the
+             position initStyle settles on anyway, and matching it in markup is what
+             keeps the switch from painting one frame in the wrong place. Pick any
+             CRT preset and it turns itself on. -->
+        <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="false" disabled>
+          <span>Scroll Smear <span class="ac-badge ac-badge--dim">JS</span></span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+        </button>
+        <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
+          <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
       </div>
 
-      <div class="ac-panel">
-        <span class="ac-panel__title">Engine</span>
-        <p class="doc-displays__note">How much of the library is running.</p>
-        <div class="doc-switches">
-          <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
-            <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
-          </button>
-        </div>
-        <p class="doc-displays__note">Switch it off and the three effects that need
-          amber-console.effects.js go dark — ghosting, scroll smear, framebuffer decay. Everything
-          else you can see is CSS and keeps running: the bloom, the cell mesh, the scanlines and
-          vignette, the blink decay, the lingering halo, the residual patches.</p>
-      </div>
+      <p class="doc-displays__note" data-ac-style-note="smear">Smear needs the CRT simulation.</p>
+      <p class="doc-displays__note">JS Effects off: no ghosting, smear or framebuffer
+        decay. Everything else here is CSS.</p>
     </div>
 
     <!-- ----------------------------------------- 1/4 · state, the note -- -->
@@ -623,7 +630,7 @@
       ranges over four orders of magnitude between the parts on the board above. Most of the light
       is gone early either way, then a tail whose length is the whole difference between them.
       <code>.ac-afterglow</code> is that relaxation, and it is several separate things because
-      persistence is seven separate phenomena. <strong>Four of them are pure CSS, and three are
+      persistence is eight separate phenomena. <strong>Five of them are pure CSS, and three are
       not</strong> — and the three are not withheld, they are genuinely not expressible. Nothing in
       the cascade remembers the string a readout held one frame ago; scroll <em>velocity</em> cannot
       be derived from a scroll timeline, which exposes position only; and
@@ -697,7 +704,26 @@
           <code>@view-transition { navigation: auto }</code> — in your own stylesheet, because it is
           a document-level switch and linking a stylesheet must not rewrite how your site
           navigates.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">8 · A LIT AREA SHRINKING — CSS + effects.js</span>
+        <span class="doc-faint doc-small">A bargraph does none of the seven things above: the element
+          stays, its text is elsewhere, its colour never moves. What changes is its <em>width</em>, so
+          the strip it vacates was lit a moment ago and is now simply not drawn. On a two-second
+          phosphor that was the most visible wrong thing on the panel — everything around the bar
+          trailed and the bar itself snapped. A second bar now lags behind the live one on
+          <code>--ac-persist-tail</code>, and the asymmetry needs no rule of its own: on a fall the
+          ghost is <em>wider</em> and its trailing strip drains, and on a rise it is
+          <em>narrower</em>, so it hides underneath and nothing fades in. Watch a load bar on the
+          server dashboard under P39.</span></div>
     </div>
+    <p class="doc-dim" style="margin-top:16px">The eighth is the one place the two tiers do different
+      things rather than one filling a gap the other leaves, and the difference is real. A bar falling
+      <em>gradually</em> stops driving each cell at a slightly different moment, so the honest result
+      is a taper behind a receding edge — which is what the CSS draws, and what a drifting value
+      actually does. A bar that drops <em>suddenly</em> stops every vacated cell at once and should
+      fade uniformly instead. CSS cannot hold the old width, so it cannot tell those apart;
+      <code>effects.js</code> recovers the old geometry and parks a proper uniform ghost for that
+      case — which is also how the radar's A-scope and echoes get theirs, since it watches for any
+      lit area that shrank rather than for anything named.</p>
     <div class="doc-grid2" style="margin-top:16px">
       <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
         <span class="ac-blink" style="background:var(--fill);color:var(--on-fill);padding:4px 14px;text-shadow:none">✳ LAMP FAULT ✳</span>

@@ -55,11 +55,50 @@
   text-shadow: var(--glow-text);
 }
 
+/* All four switches live in ONE region now — see the SWITCHES panel in the demo
+   markup — so the rows fill the width and the label pushes the track and its
+   ON/OFF to the right edge. Four labels running from "CRT" to "Scroll Smear"
+   read as scattered when each row is only as wide as its own contents.
+
+   A fixed label column would have been the obvious way to line the tracks up and
+   is the wrong one: the longest label plus its JS badge needs about 15ch, and a
+   quarter of this board has roughly 298px of inner width at 1440. That overflows,
+   and .ac-setup is the one region in the system that is not allowed to scroll. */
 .doc-switches {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: var(--space-2);
+}
+.doc-switches .ac-toggle {
+  display: flex;
+  width: 100%;
+}
+.doc-switches .ac-toggle > :first-child {
+  margin-right: auto;
+}
+
+/* The axis a group of switches belongs to. Micro type and tight margins: this is
+   a divider that happens to have words on it, not a paragraph — the board's four
+   quarters are the real headings and this sits a level under them.
+
+   It exists because merging Simulation, Style and Engine into one box costs the
+   thing three separate panels were saying for free. Those are three different
+   KINDS of statement — what the hardware is, what the viewer prefers, how much of
+   the library is running — and a flat list of four switches quietly claims Plasma
+   and JS Effects are the same sort of thing. See the header of components/setup.css. */
+.doc-switches__axis {
+  margin: var(--space-4) 0 var(--space-2);
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  line-height: 1.6;
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-faint);
+  text-shadow: var(--glow-text-faint);
+  text-transform: uppercase;
+}
+.doc-switches__axis:first-of-type {
+  margin-top: 0;
 }
 
 /* No cap and no scroller. Every emitter the panel has is on the glass at once —
@@ -973,10 +1012,163 @@
   white-space: nowrap;
 }
 
+/* -------------------------------------------------------- terminal page -- */
+
+/* Three clocks, sized so they do not compete with the wordmark beside them.
+   A dealing room ran on all three and the desk was awake for all three. */
+.doc-clocks {
+  min-width: 190px;
+}
+
+.doc-pagebar__entry {
+  flex: none;
+  width: 15ch;
+}
+
+/* Contributor and centre codes. Four letters that are an identifier rather than
+   a word, so they get the micro face and stop competing with the numbers. */
+.doc-ctr {
+  font-family: var(--font-micro);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-micro);
+  color: var(--ink-dim);
+  text-shadow: var(--glow-text-dim);
+}
+
+/* A FIELD THAT JUST CHANGED, and this is the law-1 answer to the question every
+   market screen has to answer: how do you flag a change with no colour to flag
+   it in? The same way these screens did before colour tubes were affordable —
+   invert the cell for a couple of seconds. terminal.js adds the class and takes
+   it off; the ghost of the previous value is drawn by the effects module and is
+   a separate mechanism entirely, which is why the two read as one event and not
+   as two.
+
+   No `transition` here: this file is not gated for it the way src/components/
+   is, but a value snapping to inverse and back is what the hardware did, and a
+   fade would make the change harder to catch rather than easier.
+
+   THE SELECTOR HAS TO BEAT `.ac-table td`, which is (0,1,1) and sets the ink for
+   every cell in the table. A bare `.doc-tick` is (0,1,0) and loses — the cell
+   took the inverse background and kept the lit foreground, so the value flashed
+   green on green and vanished for a second and a half. */
+.ac-table td.doc-tick {
+  background: var(--fill);
+  color: var(--on-fill);
+  text-shadow: none;
+}
+
+/* The cross-rate matrix. Its row headers are the only <th> in the system that
+   are not a column heading, so they get the same inverse treatment the thead
+   already carries — otherwise the grid reads as though it has lost its left
+   edge. The diagonal is not a rate and must not look like one. */
+.doc-xrat th[scope="row"] {
+  text-align: left;
+  background: var(--fill);
+  color: var(--on-fill);
+  text-shadow: none;
+  white-space: nowrap;
+}
+
+.doc-xrat__self {
+  color: var(--ink-faint);
+  text-shadow: var(--glow-text-faint);
+  text-align: center;
+}
+
+.doc-depo th[scope="row"] {
+  text-align: left;
+  background: var(--fill);
+  color: var(--on-fill);
+  text-shadow: none;
+}
+
+/* Nothing in a quote may wrap. A bid broken across two lines is not a bid, and
+   every one of these columns is a fixed-width figure that would rather scroll
+   inside .ac-table-scroll than fold. */
+.doc-fxsp td,
+.doc-depo td,
+.doc-govt td,
+.doc-indx td,
+.doc-xrat td,
+.doc-book td {
+  white-space: nowrap;
+}
+
+/* THE TAPE. A translate rather than a scroll, which buys three things at once:
+   it cannot widen the page, it costs no layout, and it rewrites no text — so it
+   spends nothing against the ghost budget that the rest of this page is being
+   careful with. */
+.doc-ticker {
+  overflow: hidden;
+  border-top: var(--border-w) solid var(--stroke-dim);
+  border-bottom: var(--border-w) solid var(--stroke-dim);
+  padding: var(--space-2) 0;
+  font-family: var(--font-terminal);
+  font-size: var(--type-small);
+  line-height: 1;
+  letter-spacing: var(--tracking-body);
+  color: var(--ink);
+  text-shadow: var(--glow-text);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* THE METRONOME. It paints nothing and occupies nothing; it exists so the page
+   can take its pulse from an animation rather than from setInterval. The
+   difference matters exactly once, and decisively: the visual suite disables
+   every animation before it screenshots, so a tick driven from here cannot land
+   mid-capture at any machine speed, while a timed one is a race that gets worse
+   every time a page is added to the suite. terminal.js says the rest.
+
+   The animated property is deliberately one that changes nothing anyone can see.
+   `animationiteration` fires on the cycle regardless of what the keyframes do. */
+.doc-metronome {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  animation: doc-metronome 1.4s steps(1) infinite;
+}
+
+@keyframes doc-metronome {
+  from { opacity: 1; }
+  to   { opacity: 1; }
+}
+
+/* The run carries the tape TWICE and slides by half its own width, which is what
+   makes the loop seamless — at -50% the second copy is exactly where the first
+   one started. It also means the tape is fully on screen at frame zero. Starting
+   it at `padding-left: 100%` is the usual marquee trick and is wrong here: it
+   parks the text off the right edge, so every frozen screenshot in the visual
+   suite would capture an empty band. */
+.doc-ticker__run {
+  display: inline-block;
+  animation: doc-tape 60s linear infinite;
+}
+
+@keyframes doc-tape {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* A tape crawling under prose is motion with no state behind it, and unlike the
+   radar's beam it is not the hardware doing something — it is the hardware
+   showing you a list. Stopped, it is a list, which is all it ever was. */
+@media (prefers-reduced-motion: reduce) {
+  .doc-ticker__run {
+    animation: none;
+  }
+}
+
 @media (max-width: 860px) {
   .doc-grid2,
   .doc-grid3,
-  .doc-dodont {
+  .doc-dodont,
+  /* .ac-grid holds whatever --cols says at every width — only --console carries
+     a breakpoint. Two panels of dense figures side by side are about 155px each
+     on a phone, which is narrower than one of their own rows, so this one has to
+     say when to stop. */
+  .doc-desk {
     grid-template-columns: minmax(0, 1fr);
   }
   .doc-span2 { grid-column: auto; }

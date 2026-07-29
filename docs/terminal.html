@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TELEMARK 400 MARKET TERMINAL — Amber Console</title>
+<meta name="description" content="Live demo of Amber Console at full density: a 1980s page-based market data terminal, four hundred numbers on one screen, built entirely from ac-* classes.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#001908">
+
+<!-- Social cards. og:image MUST be absolute — a relative path is ignored by
+     every scraper — so these are the only URLs in the project hardcoded to the
+     Pages host. They are inert over file://, which costs nothing. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Amber Console">
+<meta property="og:title" content="TELEMARK 400 Market Terminal — Amber Console">
+<meta property="og:description" content="Four hundred numbers on one monochrome screen, and every one of them legible. Zero dependencies, one stylesheet.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/terminal.html">
+<meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A dealing-room market data terminal showing spot foreign exchange rates contributed by banks.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@DutchDiederik">
+
+<link rel="stylesheet" href="../dist/amber-console.css">
+<link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<!-- TELEMARK 400 is invented for this design system, the same way ORION-70,
+     D-STAR and SEASCAN are: its name, wordmark and copy are ours, and no
+     manufacturer's branding, wordmark or logo appears in it. The contributing
+     banks are invented too — every four-letter code on the spot page is made up,
+     because a real institution's identifier is exactly the kind of borrowed
+     authority the Provenance note in README.md exists to refuse.
+
+     WHAT THIS PAGE IS FOR. The other three demos each argue something about the
+     hardware: ORION-70 that the system reproduces a period control panel, D-STAR
+     that it dresses a modern application, SEASCAN that P7 is a real phosphor
+     doing a real job. This one argues about DENSITY, which is the claim a design
+     system with one hue and one type scale most has to earn — that four hundred
+     numbers can sit on one screen and every one of them stay readable.
+
+     A PAGE TERMINAL IS THE RIGHT SUBJECT FOR IT because that is what these
+     machines were. You typed a four-character code and the screen filled with a
+     page contributed by banks: no navigation, no chrome, no whitespace, just the
+     numbers and the character grid they sat on. Everything the framework has for
+     density — the dense table, the tabular figures, the micro type, inverse video
+     for a heading — is doing load-bearing work here rather than being specimened.
+
+     AND IT IS THE COMPLEMENT OF THE RADAR'S ARGUMENT ABOUT PERSISTENCE. SEASCAN
+     shows a phosphor decaying on a graphic. This shows it on NUMBERS, which is
+     what the ghost machinery in amber-console.effects.js was actually built for:
+     a quote reprices, and under P39 the value it replaced is still legible,
+     draining behind it. That is not an effect added to the page. That is what
+     these screens looked like.
+
+     THE PERIOD IS 1988 AND THE QUOTING CONVENTIONS ARE LOAD-BEARING, the same way
+     Decca-rather-than-GPS is on the radar page. THERE IS NO EURO — it is eleven
+     years away, so the currencies are DEM, FRF, NLG, ITL, BEF and the ECU basket.
+     Deposits deal in SIXTEENTHS and treasuries in THIRTY-SECONDS, because they
+     did; decimalising either would date the screen to the wrong decade more
+     loudly than any font could. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+  <span class="ac-mesh"></span>
+
+  <nav class="ac-nav ac-nav--sticky">
+    <span class="ac-nav__mark">Amber Console</span>
+    <div class="ac-nav__links">
+      <a class="ac-nav__link" href="index.html">Console</a>
+      <a class="ac-nav__link" href="server.html">Server</a>
+      <a class="ac-nav__link" href="radar.html">Radar</a>
+      <a class="ac-nav__link" href="terminal.html" aria-current="page">Terminal</a>
+      <a class="ac-nav__link" href="guide.html">System Guide</a>
+    </div>
+    <span class="ac-nav__meta">
+      <!-- The bar is the sticky half of the anti-confusion job: the board below
+           scrolls away, this does not, and it always names the TECHNOLOGY first
+           and the emitter second. -->
+      <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">CRT · P39</span></span>
+      <span>REV 1.0</span>
+      <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
+    </span>
+  </nav>
+
+  <!-- THE ONE DELIBERATE DIFFERENCE FROM THE OTHER PAGES' BOARDS: P39 carries the
+       `checked` attribute below rather than neon. P39 is willemite with arsenic —
+       the same green as P1 with the decay lengthened by orders of magnitude — and
+       it is the phosphor that makes this page's argument, because a reprice on a
+       two-second tail leaves the old quote legible underneath the new one.
+       terminal.js does the other half, seeding the stored display on a first
+       visit; see the note at the top of it. Everything else in this board is a
+       byte-identical copy of the one in index.html, and keeping it that way is
+       what lets a diff between two demo pages show only the demo. -->
+
+  <!-- ============================================================ SETUP ==
+       Four quarters. Four axes, and they are never the same axis:
+
+         DISPLAY     what hardware is in the panel. Sets the color.
+                     TWO regions, one per technology, never one list of eleven.
+         SIMULATION  what the glass does about it. Never sets a color.
+         STYLE       preferences that make no claim about the hardware at all.
+         ENGINE      how much of the library is running. Not hardware, and not a
+                     preference either — see the SWITCHES quarter.
+
+       The last three share one quarter and are told apart by the labels inside
+       it rather than by three panel borders, because three regions of switches
+       ran 606px on a board that is not allowed to scroll.
+
+       Splitting the catalog across two quarters is not only about confusion,
+       though that is the point of it: eleven rows in one column is also taller
+       than a board that never scrolls is allowed to be. Four gases and seven
+       phosphors side by side fit.
+
+       data-ac-peak IS NOT THE SAME KIND OF NUMBER ON BOTH SIDES, which is the
+       clearest single reason these two catalogs are not one list:
+
+         A GAS emits a LINE SPECTRUM. The number is the strongest VISIBLE line,
+         and it is NOT the perceived hue — that is the CIE integral of every line
+         at once, which is the whole argument tokens/colors.css makes for landing
+         neon at 24deg rather than at its 585.2nm line. Argon reads violet on the
+         glass while its strongest visible line is deep red at 696.5nm, and most
+         of what argon emits is not visible at all. No contradiction: they are
+         answers to different questions.
+
+         A PHOSPHOR emits a BROAD BAND. The number is the band peak, and it does
+         correspond to the perceived hue, because there is only one band.
+
+       Two phosphors carry two numbers and both are real hardware, not a hedge.
+       P4 is a BLEND of a blue and a yellow emitter, mixed to white; P7 is two
+       LAYERS, a fast blue flash over a yellow-green glow that outlasts it by
+       seconds. Neither has a single peak to state.
+
+       Every row below carries its peak, including the nine not fitted yet, so
+       enabling one is adding data-ac-display/-tech/-emitter/-sims and nothing
+       else. -->
+  <div class="ac-setup">
+    <div class="ac-setup__grid">
+
+      <!-- ------------------------------------------------- 1/4 · plasma -- -->
+      <div class="ac-panel">
+        <span class="ac-panel__title">▮ Plasma Gases</span>
+        <p class="doc-displays__note">Gas emitting directly. No phosphor in the stack.</p>
+        <fieldset class="doc-displays">
+          <legend class="ac-sr-only">Plasma gases</legend>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
+            <span class="doc-display__name">Neon</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">585nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="helium" data-ac-sims="plasma" data-ac-peak="587.6 nm">
+            <span class="doc-display__name">Helium</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Pale pink 588nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="argon" data-ac-sims="plasma" data-ac-peak="696.5 nm">
+            <span class="doc-display__name">Argon</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Lavender 696nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="plasma" data-ac-emitter="krypton" data-ac-sims="plasma" data-ac-peak="587.1 nm">
+            <span class="doc-display__name">Krypton</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Violet 587nm</span>
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- ---------------------------------------------------- 1/4 · crt -- -->
+      <div class="ac-panel">
+        <span class="ac-panel__title">▯ CRT Phosphors</span>
+        <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
+        <fieldset class="doc-displays">
+          <legend class="ac-sr-only">CRT phosphors</legend>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
+            <span class="doc-display__name">P1</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Green 525nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
+            <span class="doc-display__name">P3</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Amber 590nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
+            <span class="doc-display__name">P4</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">White 450+560nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
+            <span class="doc-display__name">P7</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Blue+green 450/558nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
+            <span class="doc-display__name">P11</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Blue 460nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display"
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
+            <span class="doc-display__name">P31</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Green 520nm</span>
+          </label>
+          <label class="ac-radio doc-display">
+            <input type="radio" name="ac-display" checked
+                   data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
+            <span class="doc-display__name">P39</span>
+            <span class="doc-display__fill"></span>
+            <span class="doc-display__note">Long green 525nm</span>
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- ------------------------------------------------ 1/4 · switches -- -->
+      <!-- ONE REGION FOR ALL FOUR SWITCHES, WITH TWO GROUP LABELS INSIDE IT.
+
+           Three panels — SIMULATION, STYLE, ENGINE — read correctly and cost 606px
+           of a board that is not allowed to scroll, against 250 and 350 for the two
+           catalogs beside them. One region is about 370px, and the quarter stops
+           being the tallest thing on the glass.
+
+           THE LABELS ARE NOT DECORATION, THEY ARE WHAT THE PANEL BORDERS WERE
+           SAYING. These are three different KINDS of statement — what the hardware
+           is, what the viewer prefers, and how much of the library is running.
+           Merge them without replacing the boundary and the board quietly claims
+           PLASMA and JS EFFECTS are the same sort of switch, which is the exact
+           confusion the four quarters exist to prevent. -->
+      <div class="ac-panel">
+        <span class="ac-panel__title">Switches</span>
+
+        <p class="doc-switches__axis">Simulation · never a color</p>
+        <div class="doc-switches">
+          <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
+            <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+          </button>
+          <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+            <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+          </button>
+        </div>
+
+        <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
+        <div class="doc-switches">
+          <!-- No BLINK switch here on purpose. Blink is law-2 emphasis and the
+               console below is running a live alarm, so this page keeps it on
+               and does not offer to turn it off. The style flag itself is still
+               in the framework — write data-ac-style="blink" on a toggle to
+               expose it, or set data-ac-style-blink="off" on <html>.
+               prefers-reduced-motion stops it either way. -->
+          <!-- Ships OFF and disabled, because the frame above ships .ac-bloom. The
+               smear lives on .ac-afterglow, which arrives with CRT — so this is the
+               position initStyle settles on anyway, and matching it in markup is what
+               keeps the switch from painting one frame in the wrong place. Pick any
+               CRT preset and it turns itself on. -->
+          <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="false" disabled>
+            <span>Scroll Smear <span class="ac-badge ac-badge--dim">JS</span></span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+          </button>
+          <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
+            <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+          </button>
+        </div>
+
+        <p class="doc-displays__note" data-ac-style-note="smear">Smear needs the CRT simulation.</p>
+        <p class="doc-displays__note">JS Effects off: no ghosting, smear or framebuffer
+          decay. Everything else here is CSS.</p>
+      </div>
+
+      <!-- ----------------------------------------- 1/4 · state, the note -- -->
+      <div class="ac-stack" style="--gap: 24px">
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">State</span>
+          <dl class="ac-list ac-list--dense">
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Technology</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="tech">PLASMA</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Emitter</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Emission</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="peak">585.2 nm</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Mode</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Engine</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value" data-ac-display-out="engine">CSS + JS</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- The prose is markup, one node per key, all but the matching one
+             hidden. A key is a technology, or an exact tech/emitter pair where
+             one phosphor does not behave like the rest of its family. -->
+        <div class="ac-panel ac-panel--dim">
+          <span class="ac-panel__title">Technology</span>
+          <p class="doc-info" data-ac-display-info="plasma">A gas in a sealed gap, struck by a
+            sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
+            hue and varies only how hard it is driven.</p>
+          <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
+               deep red, while the panel is plainly lavender — that looks like a bug
+               until you know the eye is doing the arithmetic. -->
+          <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
+            output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
+            strongest line, not the color. What you see is the faint 415–475nm group, a hundred
+            times weaker and a hundred times better placed. It is also why argon is dim.</p>
+          <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
+            visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
+            yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
+            panel reads violet rather than any one of those colors.</p>
+          <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
+            which emits while struck and then persists. The color belongs to the phosphor, not the
+            beam; the P-number names the compound.</p>
+          <p class="doc-info" data-ac-display-info="crt/p7" hidden>Two coatings, not one. The beam writes into a blue ZnS:Ag layer that decays in
+            microseconds, and that layer's own photons pump a yellow-green one behind it which holds
+            for seconds. So the ink is blue and the halo is green: text you are reading is being
+            re-struck sixty times a second, and text that stops being written leaves only the glow.
+            This is the radar phosphor — the flash gives position, the trail gives history.</p>
+          <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
+            and leaves the colour alone — this palette and P1 are the same green, and differ only in
+            how long it lasts. At hundreds of milliseconds the screen is still near full brightness
+            when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
+            paid for in smear.</p>
+          <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
+            P11 was fitted to screens meant to be photographed rather than watched — and watched, it
+            is the worst screen here. It decays in tens of microseconds, three orders below a
+            refresh interval, so the screen is genuinely dark between frames. Short persistence and
+            heavy flicker are the same fact.</p>
+          <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
+            mixed into one coating, emitting together, which the eye integrates to white. That is
+            what separates it from P7 — two powders mixed have one colour, two powders layered emit
+            in sequence and the colour changes as you watch.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ac-setup__foot">
+      <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
+      <span class="ac-spacer"></span>
+      <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    </div>
+
+  <div class="ac-screen__body">
+    <div class="doc-console-head">
+      <div>
+        <div class="doc-wordmark">TELEMARK</div>
+        <h1 id="headline">FXSP · SPOT FOREIGN EXCHANGE</h1>
+      </div>
+      <!-- A dealing room ran on three clocks and it was never sentimental about
+           it: the London fix, the New York open and the Tokyo close are three
+           different working days and the desk is awake for all of them. These
+           read the wall clock; the SESSION date below is fixed markup, because
+           the visual harness freezes Date to 2026 and that must not leak into a
+           1988 fiction. -->
+      <dl class="ac-list ac-list--dense doc-clocks">
+        <div class="ac-list__item">
+          <dt class="ac-list__key">LON</dt>
+          <span class="ac-list__fill"></span>
+          <dd class="ac-list__value" id="clk-lon">00:00:00</dd>
+        </div>
+        <div class="ac-list__item">
+          <dt class="ac-list__key">NYC</dt>
+          <span class="ac-list__fill"></span>
+          <dd class="ac-list__value" id="clk-nyc">00:00</dd>
+        </div>
+        <div class="ac-list__item">
+          <dt class="ac-list__key">TOK</dt>
+          <span class="ac-list__fill"></span>
+          <dd class="ac-list__value" id="clk-tok">00:00</dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- ========================================================= PAGE BAR ==
+         A page terminal had exactly one way in: you typed a four-character code
+         and the screen filled. That is the entry line, and the soft keys beside
+         it are the same five pages as buttons — which is not redundancy, it is
+         what these machines actually carried once they got function keys.
+
+         The tablist is the load-bearing half for anything that is not a mouse:
+         data-ac="tabs" in amber-console.js gives the roving tabindex, the arrow
+         keys and the aria-selected/aria-controls wiring for free. The entry line
+         drives the same tabs, so both routes end in one place. -->
+    <div class="ac-panel doc-pagebar">
+      <span class="ac-panel__title">Page</span>
+      <div class="ac-row ac-row--wrap ac-row--center" style="--gap: 20px">
+        <label class="ac-field doc-pagebar__entry">
+          <span class="ac-field__label">Code:</span>
+          <input class="ac-input" id="page-entry" type="text" maxlength="4"
+                 value="FXSP" autocomplete="off" spellcheck="false"
+                 aria-describedby="page-hint">
+        </label>
+        <div class="ac-tabs" role="tablist" data-ac="tabs" aria-label="Pages">
+          <button type="button" class="ac-tab" role="tab" aria-selected="true" aria-controls="page-fxsp" id="tab-fxsp" data-code="FXSP">FXSP</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="page-xrat" id="tab-xrat" data-code="XRAT">XRAT</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="page-depo" id="tab-depo" data-code="DEPO">DEPO</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="page-govt" id="tab-govt" data-code="GOVT">GOVT</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="page-indx" id="tab-indx" data-code="INDX">INDX</button>
+        </div>
+        <span class="ac-spacer"></span>
+        <!-- Every one of these machines had a HOLD. A page that reprices under
+             your eye while you are reading a rate off it is unusable, so you
+             froze it, read it, and let it go. -->
+        <button type="button" class="ac-toggle" id="hold" aria-pressed="false">
+          <span>Hold</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+        </button>
+      </div>
+      <p class="doc-displays__note" id="page-hint">Type a page code and press Enter. FXSP · XRAT · DEPO · GOVT · INDX</p>
+    </div>
+
+    <!-- ============================================================= FXSP == -->
+    <div class="ac-panel" id="page-fxsp" role="tabpanel" aria-labelledby="tab-fxsp">
+      <span class="ac-panel__title">FXSP · Spot Foreign Exchange</span>
+      <div class="ac-table-scroll">
+        <table class="ac-table ac-table--dense ac-table--zebra doc-fxsp">
+          <thead>
+            <tr>
+              <th>Pair</th><th>Ctrb</th>
+              <th class="ac-table__num">Bid</th><th class="ac-table__num">Ask</th>
+              <th class="ac-table__num">High</th><th class="ac-table__num">Low</th>
+              <th class="ac-table__num">Spd</th><th class="ac-table__num">Net</th>
+              <th class="ac-table__num">Pct</th><th class="ac-table__num">Time</th>
+              <th>Loc</th>
+            </tr>
+          </thead>
+          <tbody id="fxsp">
+              <tr data-pair="USD/DEM"><td>USD/DEM</td><td class="doc-ctr">MRDN</td><td class="ac-table__num" data-q="bid">1.7825</td><td class="ac-table__num" data-q="ask">1.7835</td><td class="ac-table__num" data-q="high">1.7902</td><td class="ac-table__num" data-q="low">1.7810</td><td class="ac-table__num" data-q="spd">10</td><td class="ac-table__num" data-q="net">-58</td><td class="ac-table__num" data-q="pct">-0.32</td><td class="ac-table__num" data-q="time">14:32</td><td class="doc-ctr">FRA</td></tr>
+              <tr data-pair="USD/JPY"><td>USD/JPY</td><td class="doc-ctr">TKYU</td><td class="ac-table__num" data-q="bid">128.45</td><td class="ac-table__num" data-q="ask">128.55</td><td class="ac-table__num" data-q="high">129.10</td><td class="ac-table__num" data-q="low">128.30</td><td class="ac-table__num" data-q="spd">10</td><td class="ac-table__num" data-q="net">-45</td><td class="ac-table__num" data-q="pct">-0.35</td><td class="ac-table__num" data-q="time">14:32</td><td class="doc-ctr">TOK</td></tr>
+              <tr data-pair="GBP/USD"><td>GBP/USD</td><td class="doc-ctr">LNDX</td><td class="ac-table__num" data-q="bid">1.7640</td><td class="ac-table__num" data-q="ask">1.7650</td><td class="ac-table__num" data-q="high">1.7688</td><td class="ac-table__num" data-q="low">1.7602</td><td class="ac-table__num" data-q="spd">10</td><td class="ac-table__num" data-q="net">+26</td><td class="ac-table__num" data-q="pct">0.15</td><td class="ac-table__num" data-q="time">14:31</td><td class="doc-ctr">LON</td></tr>
+              <tr data-pair="USD/CHF"><td>USD/CHF</td><td class="doc-ctr">ZURG</td><td class="ac-table__num" data-q="bid">1.4285</td><td class="ac-table__num" data-q="ask">1.4295</td><td class="ac-table__num" data-q="high">1.4340</td><td class="ac-table__num" data-q="low">1.4272</td><td class="ac-table__num" data-q="spd">10</td><td class="ac-table__num" data-q="net">-31</td><td class="ac-table__num" data-q="pct">-0.22</td><td class="ac-table__num" data-q="time">14:32</td><td class="doc-ctr">ZUR</td></tr>
+              <tr data-pair="USD/FRF"><td>USD/FRF</td><td class="doc-ctr">ARDN</td><td class="ac-table__num" data-q="bid">6.0150</td><td class="ac-table__num" data-q="ask">6.0200</td><td class="ac-table__num" data-q="high">6.0410</td><td class="ac-table__num" data-q="low">6.0125</td><td class="ac-table__num" data-q="spd">50</td><td class="ac-table__num" data-q="net">-190</td><td class="ac-table__num" data-q="pct">-0.31</td><td class="ac-table__num" data-q="time">14:30</td><td class="doc-ctr">PAR</td></tr>
+              <tr data-pair="USD/NLG"><td>USD/NLG</td><td class="doc-ctr">DELF</td><td class="ac-table__num" data-q="bid">2.0075</td><td class="ac-table__num" data-q="ask">2.0095</td><td class="ac-table__num" data-q="high">2.0160</td><td class="ac-table__num" data-q="low">2.0062</td><td class="ac-table__num" data-q="spd">20</td><td class="ac-table__num" data-q="net">-64</td><td class="ac-table__num" data-q="pct">-0.32</td><td class="ac-table__num" data-q="time">14:31</td><td class="doc-ctr">AMS</td></tr>
+              <tr data-pair="USD/ITL"><td>USD/ITL</td><td class="doc-ctr">MILA</td><td class="ac-table__num" data-q="bid">1268.50</td><td class="ac-table__num" data-q="ask">1269.50</td><td class="ac-table__num" data-q="high">1274.00</td><td class="ac-table__num" data-q="low">1267.25</td><td class="ac-table__num" data-q="spd">100</td><td class="ac-table__num" data-q="net">-310</td><td class="ac-table__num" data-q="pct">-0.24</td><td class="ac-table__num" data-q="time">14:29</td><td class="doc-ctr">MIL</td></tr>
+              <tr data-pair="USD/CAD"><td>USD/CAD</td><td class="doc-ctr">STHM</td><td class="ac-table__num" data-q="bid">1.3125</td><td class="ac-table__num" data-q="ask">1.3135</td><td class="ac-table__num" data-q="high">1.3162</td><td class="ac-table__num" data-q="low">1.3108</td><td class="ac-table__num" data-q="spd">10</td><td class="ac-table__num" data-q="net">+14</td><td class="ac-table__num" data-q="pct">0.11</td><td class="ac-table__num" data-q="time">14:28</td><td class="doc-ctr">NYC</td></tr>
+              <tr data-pair="USD/BEF"><td>USD/BEF</td><td class="doc-ctr">ANTW</td><td class="ac-table__num" data-q="bid">37.250</td><td class="ac-table__num" data-q="ask">37.290</td><td class="ac-table__num" data-q="high">37.420</td><td class="ac-table__num" data-q="low">37.215</td><td class="ac-table__num" data-q="spd">40</td><td class="ac-table__num" data-q="net">-115</td><td class="ac-table__num" data-q="pct">-0.31</td><td class="ac-table__num" data-q="time">14:27</td><td class="doc-ctr">BRU</td></tr>
+              <tr data-pair="DEM/JPY"><td>DEM/JPY</td><td class="doc-ctr">KSTL</td><td class="ac-table__num" data-q="bid">72.04</td><td class="ac-table__num" data-q="ask">72.10</td><td class="ac-table__num" data-q="high">72.31</td><td class="ac-table__num" data-q="low">71.94</td><td class="ac-table__num" data-q="spd">6</td><td class="ac-table__num" data-q="net">+9</td><td class="ac-table__num" data-q="pct">0.13</td><td class="ac-table__num" data-q="time">14:32</td><td class="doc-ctr">FRA</td></tr>
+              <tr data-pair="GBP/DEM"><td>GBP/DEM</td><td class="doc-ctr">CRWN</td><td class="ac-table__num" data-q="bid">3.1450</td><td class="ac-table__num" data-q="ask">3.1472</td><td class="ac-table__num" data-q="high">3.1540</td><td class="ac-table__num" data-q="low">3.1388</td><td class="ac-table__num" data-q="spd">22</td><td class="ac-table__num" data-q="net">-42</td><td class="ac-table__num" data-q="pct">-0.13</td><td class="ac-table__num" data-q="time">14:31</td><td class="doc-ctr">LON</td></tr>
+              <tr data-pair="ECU/USD"><td>ECU/USD</td><td class="doc-ctr">BRGN</td><td class="ac-table__num" data-q="bid">1.1685</td><td class="ac-table__num" data-q="ask">1.1695</td><td class="ac-table__num" data-q="high">1.1724</td><td class="ac-table__num" data-q="low">1.1668</td><td class="ac-table__num" data-q="spd">10</td><td class="ac-table__num" data-q="net">+18</td><td class="ac-table__num" data-q="pct">0.15</td><td class="ac-table__num" data-q="time">14:26</td><td class="doc-ctr">BRU</td></tr>
+              <tr data-pair="XAU/USD"><td>XAU/USD</td><td class="doc-ctr">HOLT</td><td class="ac-table__num" data-q="bid">478.30</td><td class="ac-table__num" data-q="ask">478.80</td><td class="ac-table__num" data-q="high">481.50</td><td class="ac-table__num" data-q="low">477.20</td><td class="ac-table__num" data-q="spd">50</td><td class="ac-table__num" data-q="net">+210</td><td class="ac-table__num" data-q="pct">0.44</td><td class="ac-table__num" data-q="time">14:32</td><td class="doc-ctr">LON</td></tr>
+              <tr data-pair="XAG/USD"><td>XAG/USD</td><td class="doc-ctr">VANB</td><td class="ac-table__num" data-q="bid">6.4750</td><td class="ac-table__num" data-q="ask">6.4950</td><td class="ac-table__num" data-q="high">6.5320</td><td class="ac-table__num" data-q="low">6.4610</td><td class="ac-table__num" data-q="spd">200</td><td class="ac-table__num" data-q="net">-21</td><td class="ac-table__num" data-q="pct">-0.03</td><td class="ac-table__num" data-q="time">14:25</td><td class="doc-ctr">NYC</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================================= XRAT == -->
+    <div class="ac-panel" id="page-xrat" role="tabpanel" aria-labelledby="tab-xrat" hidden>
+      <span class="ac-panel__title">XRAT · Cross Rates</span>
+      <div class="ac-table-scroll">
+        <table class="ac-table ac-table--dense doc-xrat">
+          <caption class="ac-sr-only">Cross rates. Read across: one unit of the currency in the row, expressed in the currency of the column.</caption>
+          <thead>
+            <tr>
+              <th>Per</th><th class="ac-table__num">USD</th><th class="ac-table__num">DEM</th><th class="ac-table__num">JPY</th><th class="ac-table__num">GBP</th><th class="ac-table__num">CHF</th><th class="ac-table__num">FRF</th><th class="ac-table__num">NLG</th><th class="ac-table__num">ITL</th>
+            </tr>
+          </thead>
+          <tbody id="xrat">
+              <tr><th scope="row">USD 1</th><td class="doc-xrat__self">USD</td><td class="ac-table__num">1.7830</td><td class="ac-table__num">128.50</td><td class="ac-table__num">0.5667</td><td class="ac-table__num">1.4290</td><td class="ac-table__num">6.0175</td><td class="ac-table__num">2.0085</td><td class="ac-table__num">1269.0</td></tr>
+              <tr><th scope="row">DEM 1</th><td class="ac-table__num">0.5609</td><td class="doc-xrat__self">DEM</td><td class="ac-table__num">72.070</td><td class="ac-table__num">0.3179</td><td class="ac-table__num">0.8015</td><td class="ac-table__num">3.3749</td><td class="ac-table__num">1.1265</td><td class="ac-table__num">711.72</td></tr>
+              <tr><th scope="row">JPY 100</th><td class="ac-table__num">0.7782</td><td class="ac-table__num">1.3875</td><td class="doc-xrat__self">JPY</td><td class="ac-table__num">0.4410</td><td class="ac-table__num">1.1121</td><td class="ac-table__num">4.6829</td><td class="ac-table__num">1.5630</td><td class="ac-table__num">987.55</td></tr>
+              <tr><th scope="row">GBP 1</th><td class="ac-table__num">1.7645</td><td class="ac-table__num">3.1461</td><td class="ac-table__num">226.74</td><td class="doc-xrat__self">GBP</td><td class="ac-table__num">2.5215</td><td class="ac-table__num">10.618</td><td class="ac-table__num">3.5440</td><td class="ac-table__num">2239.2</td></tr>
+              <tr><th scope="row">CHF 1</th><td class="ac-table__num">0.6998</td><td class="ac-table__num">1.2477</td><td class="ac-table__num">89.923</td><td class="ac-table__num">0.3966</td><td class="doc-xrat__self">CHF</td><td class="ac-table__num">4.2110</td><td class="ac-table__num">1.4055</td><td class="ac-table__num">888.03</td></tr>
+              <tr><th scope="row">FRF 100</th><td class="ac-table__num">16.618</td><td class="ac-table__num">29.630</td><td class="ac-table__num">2135.4</td><td class="ac-table__num">9.4181</td><td class="ac-table__num">23.747</td><td class="doc-xrat__self">FRF</td><td class="ac-table__num">33.378</td><td class="ac-table__num">21,088</td></tr>
+              <tr><th scope="row">NLG 100</th><td class="ac-table__num">49.788</td><td class="ac-table__num">88.773</td><td class="ac-table__num">6397.8</td><td class="ac-table__num">28.217</td><td class="ac-table__num">71.148</td><td class="ac-table__num">299.60</td><td class="doc-xrat__self">NLG</td><td class="ac-table__num">63,181</td></tr>
+              <tr><th scope="row">ITL 1000</th><td class="ac-table__num">0.7880</td><td class="ac-table__num">1.4050</td><td class="ac-table__num">101.26</td><td class="ac-table__num">0.4466</td><td class="ac-table__num">1.1261</td><td class="ac-table__num">4.7419</td><td class="ac-table__num">1.5827</td><td class="doc-xrat__self">ITL</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="doc-displays__note">Read across. JPY, FRF and NLG per 100 · ITL per 1000 ·
+        computed <span id="xrat-at">14:32</span></p>
+    </div>
+
+    <!-- ============================================================= DEPO == -->
+    <div class="ac-panel" id="page-depo" role="tabpanel" aria-labelledby="tab-depo" hidden>
+      <span class="ac-panel__title">DEPO · Eurocurrency Deposits</span>
+      <div class="ac-table-scroll">
+        <table class="ac-table ac-table--dense ac-table--zebra doc-depo">
+          <thead>
+            <tr>
+              <th>Ccy</th><th class="ac-table__num">O/N</th><th class="ac-table__num">1W</th>
+              <th class="ac-table__num">1M</th><th class="ac-table__num">2M</th>
+              <th class="ac-table__num">3M</th><th class="ac-table__num">6M</th>
+              <th class="ac-table__num">12M</th>
+            </tr>
+          </thead>
+          <tbody id="depo">
+              <tr><th scope="row">USD</th><td class="ac-table__num">7 1/16-7 3/16</td><td class="ac-table__num">7 1/8-7 1/4</td><td class="ac-table__num">7 3/16-7 5/16</td><td class="ac-table__num">7 1/4-7 3/8</td><td class="ac-table__num">7 5/16-7 7/16</td><td class="ac-table__num">7 7/16-7 9/16</td><td class="ac-table__num">7 5/8-7 3/4</td></tr>
+              <tr><th scope="row">DEM</th><td class="ac-table__num">3 3/8-3 1/2</td><td class="ac-table__num">3 7/16-3 9/16</td><td class="ac-table__num">3 7/16-3 9/16</td><td class="ac-table__num">3 1/2-3 5/8</td><td class="ac-table__num">3 9/16-3 11/16</td><td class="ac-table__num">3 11/16-3 13/16</td><td class="ac-table__num">3 7/8-4</td></tr>
+              <tr><th scope="row">GBP</th><td class="ac-table__num">9 1/2-9 5/8</td><td class="ac-table__num">9 9/16-9 11/16</td><td class="ac-table__num">9 5/8-9 3/4</td><td class="ac-table__num">9 11/16-9 13/16</td><td class="ac-table__num">9 3/4-9 7/8</td><td class="ac-table__num">9 13/16-9 15/16</td><td class="ac-table__num">9 15/16-10 1/16</td></tr>
+              <tr><th scope="row">CHF</th><td class="ac-table__num">2 1/4-2 3/8</td><td class="ac-table__num">2 5/16-2 7/16</td><td class="ac-table__num">2 3/8-2 1/2</td><td class="ac-table__num">2 3/8-2 1/2</td><td class="ac-table__num">2 7/16-2 9/16</td><td class="ac-table__num">2 9/16-2 11/16</td><td class="ac-table__num">2 11/16-2 13/16</td></tr>
+              <tr><th scope="row">JPY</th><td class="ac-table__num">3 7/8-4</td><td class="ac-table__num">3 7/8-4</td><td class="ac-table__num">3 15/16-4 1/16</td><td class="ac-table__num">4-4 1/8</td><td class="ac-table__num">4 1/16-4 3/16</td><td class="ac-table__num">4 1/8-4 1/4</td><td class="ac-table__num">4 1/4-4 3/8</td></tr>
+              <tr><th scope="row">FRF</th><td class="ac-table__num">7 3/4-7 7/8</td><td class="ac-table__num">7 7/8-8</td><td class="ac-table__num">7 15/16-8 1/16</td><td class="ac-table__num">8-8 1/8</td><td class="ac-table__num">8 1/16-8 3/16</td><td class="ac-table__num">8 3/16-8 5/16</td><td class="ac-table__num">8 3/8-8 1/2</td></tr>
+              <tr><th scope="row">ECU</th><td class="ac-table__num">6 1/2-6 5/8</td><td class="ac-table__num">6 9/16-6 11/16</td><td class="ac-table__num">6 5/8-6 3/4</td><td class="ac-table__num">6 11/16-6 13/16</td><td class="ac-table__num">6 3/4-6 7/8</td><td class="ac-table__num">6 13/16-6 15/16</td><td class="ac-table__num">7-7 1/8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="doc-displays__note">Bid-offer, per cent per annum, in sixteenths.</p>
+    </div>
+
+    <!-- ============================================================= GOVT == -->
+    <div class="ac-panel" id="page-govt" role="tabpanel" aria-labelledby="tab-govt" hidden>
+      <span class="ac-panel__title">GOVT · Government Bonds</span>
+      <div class="ac-table-scroll">
+        <!-- THE TWO PRICE CONVENTIONS ON THIS PAGE ARE BOTH CORRECT AND THAT IS
+             THE POINT. Treasuries and gilts deal in thirty-seconds, so 101-16 is
+             a hundred and one and a half; bunds deal in decimals. Quoting all
+             three the same way would be tidier and would be wrong. -->
+        <table class="ac-table ac-table--dense doc-govt">
+          <thead>
+            <tr>
+              <th>Issue</th><th class="ac-table__num">Coupon</th><th>Maturity</th>
+              <th class="ac-table__num">Bid</th><th class="ac-table__num">Ask</th>
+              <th class="ac-table__num">Chg</th><th class="ac-table__num">Yield</th>
+              <th class="ac-table__num">Spd</th>
+            </tr>
+          </thead>
+          <tbody id="govt">
+              <tr><td>US TREASURY</td><td class="ac-table__num">8 1/4</td><td>MAY 90</td><td class="ac-table__num">100-14</td><td class="ac-table__num">100-16</td><td class="ac-table__num">+2</td><td class="ac-table__num">8.012</td><td class="ac-table__num">—</td></tr>
+              <tr><td>US TREASURY</td><td class="ac-table__num">8 1/2</td><td>NOV 92</td><td class="ac-table__num">101-02</td><td class="ac-table__num">101-04</td><td class="ac-table__num">+4</td><td class="ac-table__num">8.214</td><td class="ac-table__num">—</td></tr>
+              <tr><td>US TREASURY</td><td class="ac-table__num">8 7/8</td><td>FEB 96</td><td class="ac-table__num">102-18</td><td class="ac-table__num">102-22</td><td class="ac-table__num">+6</td><td class="ac-table__num">8.402</td><td class="ac-table__num">—</td></tr>
+              <tr><td>US TREASURY</td><td class="ac-table__num">9 1/8</td><td>MAY 18</td><td class="ac-table__num">104-08</td><td class="ac-table__num">104-12</td><td class="ac-table__num">+9</td><td class="ac-table__num">8.664</td><td class="ac-table__num">—</td></tr>
+              <tr><td>BUNDESANLEIHE</td><td class="ac-table__num">6 1/2</td><td>JUL 92</td><td class="ac-table__num">99.15</td><td class="ac-table__num">99.25</td><td class="ac-table__num">-0.05</td><td class="ac-table__num">6.612</td><td class="ac-table__num">-160</td></tr>
+              <tr><td>BUNDESANLEIHE</td><td class="ac-table__num">6 3/4</td><td>JAN 97</td><td class="ac-table__num">98.80</td><td class="ac-table__num">98.90</td><td class="ac-table__num">-0.10</td><td class="ac-table__num">6.914</td><td class="ac-table__num">-149</td></tr>
+              <tr><td>UK GILT</td><td class="ac-table__num">9 3/4</td><td>JAN 98</td><td class="ac-table__num">101-12</td><td class="ac-table__num">101-20</td><td class="ac-table__num">+4</td><td class="ac-table__num">9.512</td><td class="ac-table__num">+111</td></tr>
+              <tr><td>UK GILT</td><td class="ac-table__num">10</td><td>FEB 94</td><td class="ac-table__num">103-24</td><td class="ac-table__num">104-00</td><td class="ac-table__num">+8</td><td class="ac-table__num">9.284</td><td class="ac-table__num">+107</td></tr>
+              <tr><td>OAT</td><td class="ac-table__num">8 1/8</td><td>APR 94</td><td class="ac-table__num">97.40</td><td class="ac-table__num">97.55</td><td class="ac-table__num">-0.20</td><td class="ac-table__num">8.742</td><td class="ac-table__num">+53</td></tr>
+              <tr><td>JGB NO 89</td><td class="ac-table__num">5 1/2</td><td>JUN 97</td><td class="ac-table__num">101.62</td><td class="ac-table__num">101.72</td><td class="ac-table__num">+0.15</td><td class="ac-table__num">5.284</td><td class="ac-table__num">-292</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="doc-displays__note">Treasuries and gilts in 32nds · bunds, OATs and JGBs decimal · spread to the 10-year Treasury in basis points.</p>
+    </div>
+
+    <!-- ============================================================= INDX == -->
+    <div class="ac-panel" id="page-indx" role="tabpanel" aria-labelledby="tab-indx" hidden>
+      <span class="ac-panel__title">INDX · Index Summary</span>
+      <div class="ac-table-scroll">
+        <table class="ac-table ac-table--dense ac-table--zebra doc-indx">
+          <thead>
+            <tr>
+              <th>Index</th><th class="ac-table__num">Level</th><th class="ac-table__num">Net</th>
+              <th class="ac-table__num">Pct</th><th class="ac-table__num">High</th>
+              <th class="ac-table__num">Low</th><th class="ac-table__num">Volume</th>
+              <th class="ac-table__num">Adv</th><th class="ac-table__num">Dec</th>
+            </tr>
+          </thead>
+          <tbody id="indx">
+              <tr><td>DOW JONES IND</td><td class="ac-table__num">2158.4</td><td class="ac-table__num">-37.6</td><td class="ac-table__num">-1.71</td><td class="ac-table__num">2201.8</td><td class="ac-table__num">2144.0</td><td class="ac-table__num">148.2M</td><td class="ac-table__num">412</td><td class="ac-table__num">1284</td></tr>
+              <tr><td>S&amp;P 500</td><td class="ac-table__num">271.85</td><td class="ac-table__num">-4.62</td><td class="ac-table__num">-1.67</td><td class="ac-table__num">277.10</td><td class="ac-table__num">270.44</td><td class="ac-table__num">—</td><td class="ac-table__num">96</td><td class="ac-table__num">381</td></tr>
+              <tr><td>FT-SE 100</td><td class="ac-table__num">1795.3</td><td class="ac-table__num">-22.1</td><td class="ac-table__num">-1.22</td><td class="ac-table__num">1820.6</td><td class="ac-table__num">1791.0</td><td class="ac-table__num">418.6M</td><td class="ac-table__num">18</td><td class="ac-table__num">74</td></tr>
+              <tr><td>NIKKEI 225</td><td class="ac-table__num">26814</td><td class="ac-table__num">+128</td><td class="ac-table__num">+0.48</td><td class="ac-table__num">26902</td><td class="ac-table__num">26640</td><td class="ac-table__num">862.4M</td><td class="ac-table__num">548</td><td class="ac-table__num">402</td></tr>
+              <tr><td>HANG SENG</td><td class="ac-table__num">2612.4</td><td class="ac-table__num">-8.9</td><td class="ac-table__num">-0.34</td><td class="ac-table__num">2628.1</td><td class="ac-table__num">2604.7</td><td class="ac-table__num">—</td><td class="ac-table__num">12</td><td class="ac-table__num">21</td></tr>
+              <tr><td>CAC GENERAL</td><td class="ac-table__num">402.18</td><td class="ac-table__num">-6.24</td><td class="ac-table__num">-1.53</td><td class="ac-table__num">409.60</td><td class="ac-table__num">401.02</td><td class="ac-table__num">—</td><td class="ac-table__num">44</td><td class="ac-table__num">168</td></tr>
+              <tr><td>AEX</td><td class="ac-table__num">242.60</td><td class="ac-table__num">-3.18</td><td class="ac-table__num">-1.29</td><td class="ac-table__num">246.44</td><td class="ac-table__num">242.11</td><td class="ac-table__num">—</td><td class="ac-table__num">7</td><td class="ac-table__num">18</td></tr>
+              <tr><td>SMI</td><td class="ac-table__num">1418.9</td><td class="ac-table__num">-11.4</td><td class="ac-table__num">-0.80</td><td class="ac-table__num">1432.0</td><td class="ac-table__num">1416.2</td><td class="ac-table__num">—</td><td class="ac-table__num">6</td><td class="ac-table__num">14</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- =========================================================== THE DESK ==
+         What the numbers above are worth to the people reading them. A rate
+         moving is abstract; a position marked against it is not, and every one
+         of these screens sat next to a book that was being marked all day. -->
+    <div class="ac-grid doc-desk" style="--cols: 2; --gap: 18px">
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">Book · Spot</span>
+        <div class="ac-table-scroll">
+          <table class="ac-table ac-table--dense doc-book">
+            <thead>
+              <tr>
+                <th>Ccy</th><th class="ac-table__num">Position</th>
+                <th class="ac-table__num">Average</th><th class="ac-table__num">Mark</th>
+                <th class="ac-table__num">Unrealised</th>
+              </tr>
+            </thead>
+            <tbody id="book">
+              <tr data-book="DEM"><td>DEM</td><td class="ac-table__num">+12,500,000</td><td class="ac-table__num">1.7802</td><td class="ac-table__num" data-mark>1.7830</td><td class="ac-table__num" data-pnl>-19,650</td></tr>
+              <tr data-book="JPY"><td>JPY</td><td class="ac-table__num">-850,000,000</td><td class="ac-table__num">128.92</td><td class="ac-table__num" data-mark>128.50</td><td class="ac-table__num" data-pnl>+21,600</td></tr>
+              <tr data-book="GBP"><td>GBP</td><td class="ac-table__num">+3,000,000</td><td class="ac-table__num">1.7688</td><td class="ac-table__num" data-mark>1.7645</td><td class="ac-table__num" data-pnl>-12,900</td></tr>
+              <tr data-book="CHF"><td>CHF</td><td class="ac-table__num">0</td><td class="ac-table__num">—</td><td class="ac-table__num" data-mark>1.4290</td><td class="ac-table__num" data-pnl>0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ac-statusbar" role="status">
+          <span>NET USD</span>
+          <span class="ac-spacer"></span>
+          <span id="pnl-net">-10,950</span>
+        </div>
+      </div>
+
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">Session</span>
+        <dl class="ac-list ac-list--dense">
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Date</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value">TUE 15 MAR 88</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Turnover</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value">USD 1.284 BN</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Tickets</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" id="tickets">218</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Contributors</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value">142 OF 147</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Updates</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" id="updates">0</dd>
+          </div>
+        </dl>
+        <!-- One instrument is limit-down and that is what the loudest element in
+             the system is for. It is markup rather than something terminal.js
+             raises, because it is true at frame zero. -->
+        <div class="ac-banner ac-blink" role="alert">ITL Limit Down</div>
+      </div>
+    </div>
+
+    <!-- THE METRONOME. Nothing to look at: a zero-sized element whose only job
+         is to run an animation, so terminal.js can take its tick from
+         animationiteration instead of from a timer. See the note at the foot of
+         that file — an animation cannot fire while the visual suite has
+         animations switched off, which makes frame zero exact rather than
+         probable. -->
+    <span class="doc-metronome" id="metronome" aria-hidden="true"></span>
+
+    <!-- The tape. A translate, not a scroll, so it costs nothing and cannot
+         widen the page; and it rewrites no text, so it spends nothing against
+         the ghost budget either. -->
+    <div class="doc-ticker" aria-hidden="true">
+      <div class="doc-ticker__run">USD/DEM 1.7825 -58  ·  USD/JPY 128.45 -45  ·  GBP/USD 1.7640 +26  ·  USD/CHF 1.4285 -31  ·  USD/FRF 6.0150 -190  ·  USD/NLG 2.0075 -64  ·  USD/ITL 1268.50 -310  ·  USD/CAD 1.3125 +14  ·  USD/BEF 37.250 -115  ·  DEM/JPY 72.04 +9  ·  GBP/DEM 3.1450 -42  ·  ECU/USD 1.1685 +18  ·  XAU/USD 478.30 +210  ·  XAG/USD 6.4750 -21  ·  USD/DEM 1.7825 -58  ·  USD/JPY 128.45 -45  ·  GBP/USD 1.7640 +26  ·  USD/CHF 1.4285 -31  ·  USD/FRF 6.0150 -190  ·  USD/NLG 2.0075 -64  ·  USD/ITL 1268.50 -310  ·  USD/CAD 1.3125 +14  ·  USD/BEF 37.250 -115  ·  DEM/JPY 72.04 +9  ·  GBP/DEM 3.1450 -42  ·  ECU/USD 1.1685 +18  ·  XAU/USD 478.30 +210  ·  XAG/USD 6.4750 -21  ·  </div>
+    </div>
+
+    <div class="ac-statusbar ac-statusbar--line ac-push">
+      <span id="st-line">LINE 1 OK · 9600 BAUD</span>
+      <span id="st-page">PAGE FXSP</span>
+      <span id="st-hold">RUNNING</span>
+      <span class="ac-spacer"></span>
+      <span id="st-msg">READY</span><span class="ac-cursor" aria-hidden="true"></span>
+    </div>
+  </div>
+</div>
+<!-- The classic build, not the ES module: type="module" is blocked over file://
+     and this page must open by double-clicking it. The effects module is the
+     persistence tier, and it is the one this page most wants — without it the
+     quotes still reprice and the panel still works, but a reprice no longer
+     leaves the value it replaced draining behind it, which is half of what the
+     page is here to show. -->
+<script src="../dist/amber-console.global.js"></script>
+<script src="../dist/amber-console.effects.global.js"></script>
+<script src="terminal.js"></script>
+</body>
+</html>

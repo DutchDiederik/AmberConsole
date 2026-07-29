@@ -38,6 +38,12 @@
 }
 
 .ac-meter__bar {
+  /* POSITIONED SO IT PAINTS ABOVE ITS OWN GHOST. tokens/effects.css hangs a
+     lagging copy of this bar on .ac-meter__track::before, and an unpositioned
+     block child paints BELOW any positioned pseudo-element — so without this the
+     draining ghost would cover the live bar instead of trailing behind it. With
+     both positioned, tree order settles it and ::before goes underneath. */
+  position: relative;
   height: 100%;
   width: calc(var(--ac-meter-value, 0) * 1%);
   background: repeating-linear-gradient(

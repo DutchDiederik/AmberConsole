@@ -11,7 +11,7 @@ A monochrome amber-terminal CSS framework — the look of a late-1980s industria
 kind of amber plasma display that drove heavy machinery. One stylesheet, no dependencies, no build
 step, no JavaScript required for any component's appearance.
 
-**[Live demo — ORION-70 console](https://dutchdiederik.github.io/amber-console/) · [D-STAR server dashboard](https://dutchdiederik.github.io/amber-console/docs/server.html) · [SEASCAN radar](https://dutchdiederik.github.io/amber-console/docs/radar.html) · [System guide](https://dutchdiederik.github.io/amber-console/docs/guide.html)**
+**[Live demo — ORION-70 console](https://dutchdiederik.github.io/amber-console/) · [D-STAR server dashboard](https://dutchdiederik.github.io/amber-console/docs/server.html) · [SEASCAN radar](https://dutchdiederik.github.io/amber-console/docs/radar.html) · [TELEMARK terminal](https://dutchdiederik.github.io/amber-console/docs/terminal.html) · [System guide](https://dutchdiederik.github.io/amber-console/docs/guide.html)**
 
 ![The ORION-70 console demo](docs/screenshot.png)
 
@@ -70,6 +70,7 @@ import "amber-console/layer";    // wrapped in @layer amber-console
 | Residual patches — the glass never sits perfectly uniform | █ | █ |
 | **Page-to-page persistence** — the old screen decays behind the new one, per pixel | █ *(one-line opt-in)* | █ |
 | PPI radar sweep with a decaying wake | █ | █ |
+| **A lit area shrinking** — a falling bargraph trails behind its own edge | █ | █ *(uniform fade too)* |
 | **Ghosting** — rewritten text leaves its previous value behind | ▯ | █ |
 | **Scroll smear** — scaled by real scroll velocity | ▯ | █ |
 | **Framebuffer decay on state change** — tab switch, dialog | ▯ | █ |
@@ -263,9 +264,22 @@ It also covers the two light-off events you actually hit most:
   drained, so the alarm *throbs* rather than chops, and never reaches the dark half at all.
 - **Scroll smear** — scrolling hands every cell a new value at once, so the image trails. Scaled by
   real scroll speed, drained when you stop, and skipped entirely under `prefers-reduced-motion`.
+- **A lit area shrinking** — a bargraph does none of the above: the element stays, its text is
+  elsewhere, its colour never moves. What changes is its *width*, so the strip it vacates was lit a
+  moment ago and is now simply not drawn. `.ac-meter` grows a second bar that lags behind the live one
+  on `--ac-persist-tail`, and the asymmetry needs no rule of its own — on a fall the ghost is *wider*
+  and its trailing strip drains; on a rise it is *narrower*, so it hides under the live bar and
+  nothing fades in.
 
 In every case the ON edge stays instant: a cell lights on the next refresh, and it is only the
 switching off that hardware cannot do sharply. Nothing here fades *in*.
+
+The CSS draws a **taper behind a receding edge**, which is what a *gradually* falling value genuinely
+looks like — each cell stops being driven at a slightly different moment. A *sudden* drop stops every
+vacated cell at once and should fade uniformly instead; CSS cannot hold the old width, so
+`effects.js` recovers it and parks a proper uniform ghost. It does that generically, for any element
+inside the frame whose lit area shrank, so your own widgets are covered without the framework knowing
+they exist.
 
 **Hover is deliberately excluded from the afterimage.** A pointer crossing a dense panel
 de-energizes every control it touches, and at a two-second tail that leaves a wake of glowing boxes
@@ -452,7 +466,7 @@ would inflate a sub-pixel effect into a hundred and fifty pixels of fog.
 
 ### Three axes, and they are not the same axis
 
-The demo pages carry a **setup board** (`.ac-setup`) that separates the three things it is easy to
+The demo pages carry a **setup board** (`.ac-setup`) that separates the four things it is easy to
 conflate. It never opens, closes or scrolls — every switch the panel has is on the glass at once,
 which is affordable only because the emitter catalog is split by technology across two of the four
 quarters rather than stacked into one tall list:
@@ -474,6 +488,12 @@ the attribute off the root itself.
 Note what it is *not*. It makes no claim about the hardware, so it is not a simulation, and it is not
 a comfort preference, so it is not a style — which is also why flipping it does not put the readout
 into `*MOD`.
+
+Simulation, style and engine share the board's third quarter as one **Switches** region rather than
+one panel each: three regions of switches ran 606px against 342px for the catalog beside them, on a
+board whose contents have to be short enough never to scroll. The boundary the three borders were
+drawing is drawn by group labels inside the one region instead, because it does still have to be
+drawn — a flat list of four switches would say Plasma and JS Effects are the same sort of thing.
 
 Display sets color and simulation never does. A **preset** is a display row that also names the
 simulations its technology implies:
@@ -836,6 +856,11 @@ SEASCAN RM-12, the marine radar in `docs/radar.html`, is the third, and it exist
 emitter. P7 is two coatings — a blue flash the beam writes and a yellow-green layer behind it that
 holds for three seconds — and there is exactly one instrument that was built around that behaviour.
 The other demos can show you the colour of a phosphor; this one shows what the colour is *for*.
+
+TELEMARK 400, the market data terminal in `docs/terminal.html`, is the fourth and argues about
+density: roughly four hundred numbers on one screen, and every one of them legible. Its contributing
+banks are invented alongside it, because a real institution's four-letter code is exactly the kind of
+borrowed authority this section exists to refuse.
 
 The genre was studied from period projection-booth hardware, and the debt is
 [acknowledged below](#acknowledgements). Both demos are invented: their names, their wordmarks and

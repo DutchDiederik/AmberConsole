@@ -6,6 +6,46 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Fixed — a bargraph that falls now leaves something behind
+
+Reported: on the server dashboard a load bar "disappears instantly and doesn't leave a ghost that
+dims", and it reads worst on the long phosphors where everything around it is trailing.
+
+**It was a whole phenomenon the persistence system did not model.** Every decay in the file covers a
+node disappearing, text being rewritten, or a lamp changing colour. A meter does none of those: the
+element stays, its text is elsewhere, its colour never moves — what changes is its **width**, so the
+strip it vacates was lit a moment ago and is now simply not drawn. `.ac-meter__bar` appeared in
+`effects.css` only in blink rules, and the ghost observer watched `childList` and `characterData`
+while the bar is driven by `style.setProperty`, an *attribute* mutation. Nothing could see it.
+
+- **CSS: a second bar that lags.** `.ac-meter__track::before` reads the same `--ac-meter-value` and
+  transitions its width on `--ac-persist-tail`. The direction rule needs no rule of its own — on a
+  fall the ghost is briefly *wider* than the live bar and the strip between them drains; on a rise it
+  is *narrower*, so it sits underneath and nothing fades in. Instant up, curve down, out of paint
+  order. A trailing mask keeps it reading as light rather than as a wipe.
+- `.ac-meter__bar` also joined the de-energizing list, which it was missing from entirely — an alarm
+  clearing used to snap. Its *width* is deliberately still instant; that is the live edge.
+- **JS: the uniform case, generically.** The observer now watches `style` with `attributeOldValue`,
+  and recovers the old geometry by putting the old attribute back on the live element, measuring, and
+  restoring — two synchronous forced layouts with no paint between them. Cloning cannot do this: a
+  meter's width is a percentage of its track, and a clone in `.ac-persist` has no track to be a
+  percentage of. Only shrinking counts.
+- **The styled element is usually not the one that shrinks**, which the first version got wrong. The
+  demo writes `--ac-meter-value` onto the *track*, a fixed-width box that never changes size; the
+  *bar* inside it is what moves. Measuring only the mutated element found nothing and ghosted nothing.
+  The element and its immediate children are measured now.
+- **And the probe fed itself into an infinite loop.** Putting the old `style` back is *itself* a style
+  mutation on an element being watched for style mutations, so every batch queued another batch for
+  ever and the page hung — the visual suite timed out taking a screenshot. It is the same self-feeding
+  trap the `.ac-persist` filter already guards against, arriving by a different route.
+  `observer.takeRecords()` drains the probe's own writes; they are synchronous inside the callback, so
+  nothing an application did can be interleaved with them.
+- Because the JS path asks "did any lit area shrink" rather than naming a component, the radar's
+  A-scope bars and echo blips are covered without the framework knowing they exist.
+- Suppressed in `prefers-reduced-motion`, print and forced colors alongside every other overlay. Under
+  reduced motion the lagging bar would already be invisible — the blanket stops its width from
+  transitioning, so it sits exactly under the live bar — but it is hidden rather than left to paint.
+
 ### Fixed — the halo now matches its own ink, and everything lit now glows
 
 Two reports, both correct: *"the glow for P7, P11 has a yellowish tint different from the main
@@ -67,8 +107,18 @@ mesh, scanlines, blink decay, lingering halo and residual patches running.
   `.ac-afterglow` and `data-ac-style-smear` — no new handshake between the two files.
 - Deliberately a fourth axis rather than another style flag: it makes no claim about the hardware and
   is not a comfort preference, so flipping it does not put the readout into `*MOD`.
-- All four demo boards gain an **Engine** panel, an `ENGINE` row in the State readout, and a `JS`
-  badge on the controls that depend on the module.
+- All four demo boards gain an `ENGINE` row in the State readout and a `JS` badge on the controls
+  that depend on the module.
+- **The board's three switch regions became one.** SIMULATION, STYLE and ENGINE as separate panels
+  ran 606px in a quarter of a board that is explicitly not allowed to scroll — against 221px and
+  342px for the two emitter catalogs beside it. They are now a single **SWITCHES** region carrying
+  all four toggles at **364px**, which is 22px off its tallest neighbour instead of 264px.
+  The saving is mostly prose: two six-line explanations became one-liners.
+- The axis boundary the three panel borders were drawing is now drawn by two micro-type group
+  labels inside the one region, because it still has to be drawn — these are three different kinds
+  of statement, and a flat list of four switches would claim PLASMA and JS EFFECTS are the same
+  sort of thing. Rows are full-width with the label pushed left, so the tracks share a column
+  without a fixed label width that the narrowest quarter could not afford.
 
 ### Changed — Scroll Smear now follows the simulation
 
@@ -248,6 +298,44 @@ it is that a phosphor has a *decay*, and the system had nowhere to put one.
   60 Hz display, and sampling a signal at its own frequency is Nyquist rather than a browser
   limitation. What is rendered is the perceptual signature — fixed slow frequency, amplitude scaled
   by `--ac-flicker` — under a hard WCAG 2.3.1 budget stated at the keyframe that spends it.
+
+### Added — a market terminal, and the argument is density
+
+`docs/terminal.html` — **TELEMARK 400**, a page-based market data terminal of the mid-1980s dealing
+room, with `docs/terminal.js` and a `doc-` block in `docs/docs.css`. The other three demos each argue
+something about the hardware. This one argues the claim a system with one hue and one type scale most
+has to earn: that four hundred numbers can share a screen and every one of them stay readable.
+
+- **Five pages behind a four-character code**, which is what these machines were — FXSP spot foreign
+  exchange with contributor codes, an eight-by-eight XRAT cross-rate matrix, DEPO eurocurrency
+  deposits, GOVT bonds, INDX indices, plus the desk's own book marked against the spot page. Both the
+  entry line and the soft keys route through one place so a page change drains per pixel either way.
+- **The quoting conventions are load-bearing, as Decca-not-GPS is on the radar page.** There is no
+  euro; deposits deal in **sixteenths** and treasuries and gilts in **thirty-seconds** while bunds
+  and OATs are decimal, because that is how each of them dealt. Decimalising any of it would date the
+  screen to the wrong decade more loudly than a font could.
+- **The matrix is derived from the spot legs, not transcribed**, so the two pages cannot disagree;
+  it is a computed snapshot stamped with the time it was computed, which is what a cross-rate page
+  was.
+- **This is the ghost engine's own showcase.** The radar shows a phosphor decaying on a graphic; this
+  shows it on numbers, which is what the mechanism was built for. Under P39 the value a quote
+  replaced is still legible behind it, and the field it changed inverts for a second and a half —
+  law 1's answer to flagging a change with no colour to flag it in.
+- **THE GHOST BUDGET SHAPED THE PAGE, and it turned out to be the period behaviour.** `GHOST_LIMIT`
+  is 24 and a page repricing forty cells at once would blow it in a frame. A contributed page never
+  did: one bank revised one pair. So the tick writes three or four cells, the book and the session
+  counters ride a slow cycle, only the local clock carries seconds, and the matrix is not live at
+  all — measured, a live matrix alone held twenty of the twenty-four and was evicting the quote
+  trails the page exists to show. Steady state now runs 5–9 concurrent.
+- **The market is driven by an animation, not a timer**, which is a determinism decision. The other
+  demos hold their first tick behind a fixed delay chosen to clear the visual suite's shutter; that
+  works until the suite grows, and it went red twice here at 2.5s and again at 6s. `capture.mjs`
+  disables every animation before it shoots, so an animation-driven tick *cannot* fire during a
+  capture — frame zero by construction at any machine speed. `docs/radar.js` already ran on this
+  principle; the metronome generalises it to a page with no moving part to borrow.
+- `capture.mjs`: `click` now takes a list, so all five pages are probed rather than one, and
+  `.doc-ticker` joins the overflow probe's skip list — a marquee is content wider than its box by
+  definition, like `.ac-spinner` before it.
 
 ### Added — a radar, because P7 was built for one
 

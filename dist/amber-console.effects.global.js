@@ -190,8 +190,14 @@ function sanitize(node) {
  * @param {string} [text]   value to show instead of the source's current one
  * @param {boolean} [fast]  use the capped duration, for text updating faster
  *                          than MAX_GENERATIONS of its own decay
+ * @param {DOMRect} [at]    pin the ghost HERE instead of at the source's current
+ *                          rect. For a lit area that SHRANK, the interesting
+ *                          geometry is the one the element no longer has, and by
+ *                          the time a mutation is observed the element is already
+ *                          the new size — so the caller measures the old rect and
+ *                          hands it in.
  */
-function spawnGhost(source, text, fast) {
+function spawnGhost(source, text, fast, at) {
   /* A background tab does not advance the animation clock, so a ghost spawned
      into one never reaches animationend and never cleans itself up. Nothing is
      being looked at either way. Same failure under prefers-reduced-motion: the
@@ -209,7 +215,7 @@ function spawnGhost(source, text, fast) {
   if (!frame) return;
   const layer = persistLayer(frame);
 
-  const rect = source.getBoundingClientRect();
+  const rect = at ?? source.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
 
   const box = frame.getBoundingClientRect();
@@ -245,16 +251,38 @@ function spawnGhost(source, text, fast) {
  * record with oldValue. Miss either one and half the updates on a page ghost.
  */
 function makeGhostObserver(frame) {
-  return new MutationObserver((records) => {
+  /* Named so the callback can drain its own probe writes — see takeRecords at
+     the bottom of this function, which is load-bearing rather than tidy. */
+  let observer;
+
+  observer = new MutationObserver((records) => {
     /* One ghost per element per batch — a single textContent assignment can
        produce a remove and an insert, and two stacked copies read as a smear. */
     const seen = new Map();
+    /* Elements whose lit AREA shrank, with the rect they no longer occupy. */
+    const shrank = new Map();
+    /* Nodes already put through geometryLoss this batch — it costs two forced
+       layouts, so once each is the budget. */
+    const measured = new Set();
 
     for (const m of records) {
       const host = m.type === "characterData" ? m.target.parentElement : m.target;
       if (!(host instanceof Element)) continue;
       /* Our own ghosts are DOM changes too. Watching them would feed itself. */
       if (host.closest(".ac-persist")) continue;
+
+      if (m.type === "attributes") {
+        /* Measured once per mutated element per batch — geometryLoss forces two
+           layouts, and a demo that writes several properties onto the same node
+           in one tick must not pay for each of them. */
+        if (!measured.has(host)) {
+          measured.add(host);
+          for (const [el, rect] of geometryLoss(host, m.oldValue)) {
+            if (!seen.has(el)) shrank.set(el, rect);
+          }
+        }
+        continue;
+      }
 
       let old;
       if (m.type === "characterData") {
@@ -269,22 +297,103 @@ function makeGhostObserver(frame) {
          the console demo reassigns its date field every second unchanged. */
       if (!old?.trim() || old === host.textContent) continue;
       if (!seen.has(host)) seen.set(host, old);
+      shrank.delete(host);
     }
 
-    if (!seen.size) return;
+    /* THE PROBE'S OWN WRITES MUST NOT COME BACK, and this line is why the page
+       does not hang. geometryLoss measures the old geometry by putting the old
+       `style` attribute back on the live element and then restoring the new one —
+       which is two more style mutations, on an element this observer is watching
+       for style mutations. Each batch would therefore queue another batch, for
+       ever. It is the same self-feeding trap the .ac-persist filter above exists
+       to prevent, arriving by a different route.
+
+       Our writes are synchronous inside this callback, so nothing an application
+       did can be interleaved with them — draining here discards exactly the
+       records the probe created and nothing else. */
+    if (measured.size) observer.takeRecords();
+
+    if (!seen.size && !shrank.size) return;
 
     /* Measured once per batch rather than per ghost: it is a read of computed
        style on the root, and the answer cannot change inside one batch. */
     const tail = tailMs();
     const now = performance.now();
 
-    for (const [host, old] of seen) {
+    const rate = (host) => {
       const prev = lastGhostAt.get(host);
       const fast = prev !== undefined && now - prev < tail / MAX_GENERATIONS;
       lastGhostAt.set(host, now);
-      spawnGhost(host, old, fast);
-    }
+      return fast;
+    };
+
+    for (const [host, old] of seen) spawnGhost(host, old, rate(host));
+    for (const [host, old] of shrank) spawnGhost(host, undefined, rate(host), old);
   });
+
+  return observer;
+}
+
+/**
+ * Every element in or under `el` that occupied MORE space before this style
+ * change than it does now, with the rect it has given up.
+ *
+ * A LIT AREA GETTING SMALLER IS ITS OWN PHENOMENON, and until now nothing
+ * modelled it. Every other decay here covers a node disappearing, text being
+ * rewritten, or a lamp changing colour — but a bargraph does none of those. The
+ * element stays, its text is elsewhere, its colour never moves; what changes is
+ * its WIDTH, so the strip it vacates was lit a moment ago and is now simply not
+ * drawn. On a two-second phosphor that was the most visible wrong thing on the
+ * panel: everything around the bar trailed and the bar itself snapped.
+ *
+ * HOW THE OLD GEOMETRY IS RECOVERED, because the obvious way does not work. By
+ * the time a mutation is observed the element is already the new size, and
+ * cloning it to measure the old one fails for the case that matters: a meter's
+ * width is a PERCENTAGE of its track, and a clone parked in .ac-persist has no
+ * track to be a percentage of. So the old inline style goes back onto the LIVE
+ * element, which still has its real parent, and the rect is read there before the
+ * new style is restored. Two forced layouts, synchronous, with no paint between
+ * them — nothing flickers, because the browser never gets a frame in the middle.
+ *
+ * Only SHRINKING counts. Growth is instant, which is the direction rule every
+ * other decay in this module follows.
+ *
+ * THE STYLED ELEMENT IS OFTEN NOT THE ONE THAT SHRINKS, which is the whole reason
+ * this returns a list. A meter is driven by writing --ac-meter-value onto the
+ * TRACK, and the track is a fixed-width box that never changes size at all — the
+ * thing that moves is the BAR inside it, whose width is a percentage of that
+ * custom property. Measuring only the mutated element finds nothing and ghosts
+ * nothing, which is exactly the bug this function existed to fix.
+ *
+ * So the element and its immediate children are measured. One level, not the
+ * whole subtree: it covers the shape this pattern actually takes — a driven
+ * container with the lit region as a child — and keeps the cost a bounded couple
+ * of rect reads instead of a walk of everything under a mutated node.
+ */
+function geometryLoss(el, oldStyle) {
+  const targets = [el, ...el.children].filter((n) => n instanceof Element);
+  const current = el.getAttribute("style");
+
+  const after = targets.map((n) => n.getBoundingClientRect());
+
+  if (oldStyle === null) el.removeAttribute("style");
+  else el.setAttribute("style", oldStyle);
+
+  const before = targets.map((n) => n.getBoundingClientRect());
+
+  if (current === null) el.removeAttribute("style");
+  else el.setAttribute("style", current);
+
+  const lost = [];
+  for (let i = 0; i < targets.length; i++) {
+    /* A whole pixel of slack, so sub-pixel reflow noise is not a light-off
+       event — and an area test rather than either dimension alone, so a box that
+       trades width for height has not "shrunk". */
+    const wasBigger =
+      before[i].width > after[i].width + 1 || before[i].height > after[i].height + 1;
+    if (wasBigger) lost.push([targets[i], before[i]]);
+  }
+  return lost;
 }
 
 /* ----------------------------------------------------------- scroll smear -- */
@@ -491,6 +600,14 @@ function sync() {
       childList: true,
       characterData: true,
       characterDataOldValue: true,
+      /* `style` only, and with the old value, so a lit area that shrinks can be
+         ghosted at the geometry it no longer has — see oldRectOf. Filtered to the
+         one attribute that can change geometry from script without replacing the
+         element, rather than watching all of them: `class` churns constantly on
+         these demos and none of that churn is a light-off event. */
+      attributes: true,
+      attributeOldValue: true,
+      attributeFilter: ["style"],
     });
     connected = true;
   } else if (!want && connected) {

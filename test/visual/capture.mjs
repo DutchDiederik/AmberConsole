@@ -57,11 +57,24 @@ const update = process.argv.includes("--update");
  * this suite exists to catch. So the page is probed as it loads, the tab is
  * opened, and it is probed again; the worse of the two is what gets reported,
  * and the screenshot is taken of the opened state.
+ *
+ * `click` TAKES A LIST, because the terminal page carries five pages behind one
+ * tablist and opening only the first would leave four of the densest tables in
+ * the repo ungated. Each selector is clicked in turn and the page is probed
+ * after each; the worst figure across all of them is what gets reported. The
+ * screenshot is of the LAST one, so put the widest page last — for the terminal
+ * that is XRAT, an eight-by-eight matrix.
  */
 const PAGES = [
   { name: "console", file: "docs/index.html", fullPage: true },
   { name: "server", file: "docs/server.html", fullPage: true, click: "#tab-services" },
   { name: "radar", file: "docs/radar.html", fullPage: true },
+  {
+    name: "terminal",
+    file: "docs/terminal.html",
+    fullPage: true,
+    click: ["#tab-depo", "#tab-govt", "#tab-indx", "#tab-fxsp", "#tab-xrat"],
+  },
   { name: "guide", file: "docs/guide.html", fullPage: false, anchor: "#controls .doc-grid2" },
 ];
 
@@ -201,6 +214,7 @@ for (const page of PAGES) {
            the display still lands on P7, because that is the radio the page
            ships checked and there is no stored palette to override it. */
         localStorage.setItem("ac.radar.fitted", "1");
+        localStorage.setItem("ac.term.fitted", "1");
       } catch {
         /* ignore */
       }
@@ -280,8 +294,13 @@ for (const page of PAGES) {
 
            The dial cannot overflow its own parent regardless: it carries
            aspect-ratio: 1 and a max-width, and every box above it is still
-           probed at every width. */
-        if (el.closest(".ac-sr-only, .ac-spinner, .doc-ppi")) continue;
+           probed at every width.
+
+           .doc-ticker is the fourth and is the same shape of thing as the
+           spinner: a marquee is CONTENT WIDER THAN ITS BOX as its entire
+           definition, translated through a fixed window. Measuring it reports
+           the length of the tape. */
+        if (el.closest(".ac-sr-only, .ac-spinner, .doc-ppi, .doc-ticker")) continue;
         /* Form controls scroll their own value; that is not a layout bug. */
         if (["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName)) continue;
 
@@ -300,11 +319,11 @@ for (const page of PAGES) {
 
     let overflow = await probe();
 
-    /* Open the tab the page ships closed, then probe what it revealed. See the
-       note on `click` above: a display:none panel measures zero, so this is the
-       only way its markup is gated at all. */
-    if (page.click) {
-      await tab.click(page.click);
+    /* Open the tabs the page ships closed, then probe what each one revealed.
+       See the note on `click` above: a display:none panel measures zero, so this
+       is the only way their markup is gated at all. */
+    for (const selector of [page.click ?? []].flat()) {
+      await tab.click(selector);
       await tab.waitForTimeout(120);
       overflow = Math.max(overflow, await probe());
     }
