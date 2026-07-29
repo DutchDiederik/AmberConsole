@@ -1,0 +1,158 @@
+/* ===========================================================================
+   Classic — the corner a real panel could actually draw, and the extruded key
+   edge that came with it.
+
+   An 8px quarter-circle is a thing a modern rasteriser does. A gas-discharge
+   panel addressing a coarse cell grid could not: it cut the corner off, or it
+   stepped it, and the keys carried a hard offset edge under them so a finger
+   could tell a key from a label. This file is that second look, available two
+   ways and OFF by default — the smooth corner is not deprecated, it is the
+   other option.
+
+     .ac-classic                        scope class. Put it on the screen frame,
+                                        on one panel, or on a single button.
+     data-ac-style-classic="on"         the root flag the demo switch writes.
+                                        See STYLES in ../amber-console.js.
+
+   Both are the same rules; neither is more real than the other.
+
+   WHY THE SHAPE AND NOT A CLIP. `clip-path` and `mask-image` can cut any corner
+   at all, including a genuine stair-step, and both were rejected for the same
+   disqualifying reason: they clip the element's ENTIRE painting, and the outer
+   box-shadow is part of it. Every control in this system carries --glow-box,
+   which is the discharge halo — law 1, glow is the signal of energization — so a
+   clipped corner buys a stepped edge by deleting the glow off all four sides.
+   `border-radius` and `corner-shape` change the shadow's shape instead of
+   removing it, which is the only reason this file is written in them.
+
+   WHY THE TWO PATHS ARE DIFFERENT RADII rather than one degraded chamfer.
+   `corner-shape` is Chromium-only at the time of writing, and a switch that
+   silently does nothing in Firefox is worse than a switch that does something
+   simpler. So the fallback is not a failed bevel: it quantizes the radius down
+   to 2px, which is the same statement — a corner the grid could hold — made in a
+   property every engine has had for fifteen years. Flip the switch in any
+   browser and the corners visibly change.
+
+   MOST OF THE REACH IS FREE. Every bordered surface in this framework resolves
+   its corner from --radius or --radius-sm, so the fallback path is two token
+   declarations and the cascade does the rest. `corner-shape` does NOT inherit,
+   which is the only reason the list below is written out by hand.
+   =========================================================================== */
+
+/* (1) THE CORNER — universal path. Quantize the radius to the grid.
+   2px is the same figure .ac-badge and .ac-banner have always used; they are
+   already classic and need nothing here. */
+.ac-classic,
+[data-ac-style-classic="on"] {
+  --radius: 2px;
+  --radius-sm: 2px;
+}
+
+@supports (corner-shape: bevel) {
+  /* Where the shape itself can be cut, the radius stays exactly where the design
+     system put it — 8px on frames and pads, 4px on wells and chips — and only the
+     SHAPE changes. The hierarchy is preserved and the arc becomes a chamfer, so
+     the bevel on a panel is twice the bevel on an input, which is the same
+     relationship the rounded look already has. */
+  .ac-classic,
+  [data-ac-style-classic="on"] {
+    --radius: 8px;
+    --radius-sm: 4px;
+  }
+
+  /* THE LIST IS THE EIGHT PLACES A RADIUS IS DECLARED, and it is worth stating
+     that it was derived rather than chosen: grep `border-radius: var(--radius`
+     across components/ and this is what comes back. .ac-badge and .ac-banner are
+     literal 2px, .ac-check is square and .ac-radio and .ac-sweep are circles —
+     a circle has no corner to cut, so none of the five belong here. Add to this
+     list when a new component takes a --radius, or its corner will stay round
+     while everything around it is cut. */
+  .ac-classic:is(
+    .ac-btn, .ac-tab, .ac-panel, .ac-dialog, .ac-input, .ac-nav__link,
+    .ac-toggle__track, .ac-meter__track
+  ),
+  .ac-classic :is(
+    .ac-btn, .ac-tab, .ac-panel, .ac-dialog, .ac-input, .ac-nav__link,
+    .ac-toggle__track, .ac-meter__track
+  ),
+  [data-ac-style-classic="on"] :is(
+    .ac-btn, .ac-tab, .ac-panel, .ac-dialog, .ac-input, .ac-nav__link,
+    .ac-toggle__track, .ac-meter__track
+  ) {
+    /* stylelint-disable-next-line property-no-unknown -- corner-shape is newer
+       than the property list stylelint ships. The @supports above is the real
+       gate; an engine that does not know the property never reads this block. */
+    corner-shape: bevel;
+  }
+}
+
+/* (2) THE EXTRUSION — on the controls, and only on the controls.
+   A KEY IS EXTRUDED; A PANEL IS A HOLE IN THE BEZEL. The corner treatment is a
+   property of the raster and reaches everything, but a drop shadow is a claim
+   that the thing stands off the glass, and that is true of a soft key and a
+   switch housing and of nothing else on the board. Giving .ac-panel an edge too
+   was tried and reads as a floating card, which is a different design language
+   from a control surface. */
+.ac-classic:is(.ac-btn, .ac-toggle__track),
+.ac-classic :is(.ac-btn, .ac-toggle__track),
+[data-ac-style-classic="on"] :is(.ac-btn, .ac-toggle__track) {
+  box-shadow: var(--glow-box), var(--edge-3d);
+}
+
+/* (3) A PRESSED KEY IS DOWN. The extrusion collapses and the cap moves onto
+   where it was, which is the whole point of drawing one — a 3D key that does not
+   travel is a picture of a key.
+
+   No transition, and not because of the lint rule: a screen redrawn at the
+   refresh has no in-between frames, same law as .ac-btn:active in button.css.
+
+   --filled AND aria-pressed BOTH, because this framework treats them as one
+   state everywhere else (see button.css and the guide, which documents them as
+   equivalent). A latched key therefore sits depressed for as long as it is
+   latched, which is what a latching key does. `translate` is used rather than
+   `margin` or `position` so that nothing around it reflows — the neighbours must
+   not move when one key goes down. */
+.ac-classic:is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]),
+.ac-classic :is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]),
+[data-ac-style-classic="on"] :is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]) {
+  box-shadow: var(--glow-box);
+  translate: 2px 2px;
+}
+
+/* (4) INERT KEEPS NOTHING, AND IT HAS TO BE SAID AGAIN HERE.
+   button.css already sets `box-shadow: none` on a disabled key — glow is the
+   signal of energization, so a dead control that glows is a lie about the
+   hardware. But `[data-ac-style-classic="on"] .ac-btn` weighs the same as
+   `.ac-btn:disabled` and lands later in the cascade, so rule (2) above would
+   quietly hand the halo back. scripts/check-prohibitions.mjs cannot catch this
+   one: it gates an ink level set without its halo, and rule (2) sets no colour.
+
+   No travel either. There is no extrusion left to be pressed into, and a key
+   parked 2px off its own outline just looks like a rendering slip. */
+.ac-classic:is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]),
+.ac-classic :is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]),
+[data-ac-style-classic="on"] :is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]) {
+  box-shadow: none;
+  translate: none;
+}
+
+/* The switch housing dims rather than going dark: it is a box that is still
+   drawn, not a lamp that is out. Matches toggle.css. */
+.ac-classic .ac-toggle:disabled .ac-toggle__track,
+[data-ac-style-classic="on"] .ac-toggle:disabled .ac-toggle__track {
+  box-shadow: var(--glow-box-dim);
+}
+
+/* (5) PRINT PAYS FOR SHADOW IN INK, so the extrusion goes and the cut corner
+   stays — the corner is the shape of the control and survives being printed, the
+   shadow is a lighting effect and does not.
+
+   Blanked through the token rather than by restating four selectors, and it has
+   to be a shadow that paints nothing rather than `none`: `none` is not a valid
+   item inside a comma-separated shadow list, so `var(--glow-box), none` would
+   invalidate the whole declaration and take the halo with it. */
+@media print {
+  :root {
+    --edge-3d: 0 0 0 transparent;
+  }
+}

@@ -92,6 +92,22 @@ const PAGES = [
  * line drift, the flicker and the afterglow — so a capture that exists to prove
  * the motion fallbacks fire is now pointed at the thing that moves most.
  */
+/**
+ * `styles` SEEDS THE STYLE FLAGS, and `only` narrows a case to named pages.
+ *
+ * The classic case is the reason both exist, and it is guide-only on the same
+ * economics the `fullPage` note above argues: five full-page captures of a corner
+ * style would be five of the largest files in the repo, re-written on every
+ * --update, to gate a shape that is identical on all of them. The guide is the
+ * viewport capture and it is where the paired specimen lives, so one case there
+ * costs a screen and covers buttons, a pad, a toggle and the panels around them.
+ *
+ * WHAT THIS GIVES UP: the classic corner is not gated on the console, server,
+ * radar or terminal boards. It is the same CSS on all five — a token override
+ * plus a corner shape, no per-page markup — so a regression that spared the
+ * guide would be a strange one. The overflow probe still walks every page in
+ * every other case, and the fifth switch that grew the boards is gated there.
+ */
 const CASES = [
   { id: "1440-sims-on", width: 1440, height: 900, sims: "plasma" },
   { id: "1440-sims-off", width: 1440, height: 900, sims: false },
@@ -100,6 +116,17 @@ const CASES = [
   { id: "1440-reduced-motion", width: 1440, height: 900, sims: "crt", reducedMotion: "reduce" },
   { id: "1440-forced-colors", width: 1440, height: 900, sims: "plasma", forcedColors: "active" },
   { id: "1280-print", width: 1280, height: 800, sims: "plasma", media: "print" },
+  {
+    id: "1440-classic",
+    width: 1440,
+    height: 900,
+    sims: "plasma",
+    styles: { classic: "1" },
+    only: ["guide"],
+    /* Its own anchor, because the point of the case is the corner and the paired
+       specimen is the one place both corners are in frame together. */
+    anchor: "#controls .doc-demo:has(.ac-classic)",
+  },
 ];
 
 /**
@@ -190,6 +217,10 @@ async function measure(baseline, shot) {
 
 for (const page of PAGES) {
   for (const c of CASES) {
+    /* A case may name the pages it applies to. No `only` means every page, so
+       the seven that came before this option are untouched by it. */
+    if (c.only && !c.only.includes(page.name)) continue;
+
     const context = await browser.newContext({
       viewport: { width: c.width, height: c.height },
       reducedMotion: c.reducedMotion ?? "no-preference",
@@ -200,7 +231,7 @@ for (const page of PAGES) {
     /* Seed the simulation state before the page's script reads it. Both keys are
        always written, and at most one of them says "1" — leaving the other key
        absent would hand it back to its own default, which for plasma is ON. */
-    await context.addInitScript((want) => {
+    await context.addInitScript(({ want, styles }) => {
       try {
         localStorage.setItem("ac.sim.plasma", want === "plasma" ? "1" : "0");
         /* CRT carries the afterglow; there is no separate key any more. */
@@ -215,10 +246,19 @@ for (const page of PAGES) {
            ships checked and there is no stored palette to override it. */
         localStorage.setItem("ac.radar.fitted", "1");
         localStorage.setItem("ac.term.fitted", "1");
+
+        /* STYLE FLAGS ARE SEEDED THE SAME WAY AND FOR THE SAME REASON: initStyle
+           reads storage on load, so a flag set after the fact would capture the
+           page repainting rather than the page as configured. Only the flags a
+           case names are written — an absent key means "the user never said",
+           which is the state every other case is testing and must keep. */
+        for (const [name, on] of Object.entries(styles)) {
+          localStorage.setItem(`ac.sim.style.${name}`, on);
+        }
       } catch {
         /* ignore */
       }
-    }, c.sims);
+    }, { want: c.sims, styles: c.styles ?? {} });
 
     /* The console demo renders a live wall clock, so a byte comparison would
        never match twice. Freeze time before any page script runs. */
@@ -330,11 +370,16 @@ for (const page of PAGES) {
 
     /* Scroll AFTER the overflow probe, so the probe always measures the page in
        its loaded state. `instant` and a settle frame because a smooth scroll is
-       still in flight when the shutter opens. */
-    if (page.anchor) {
+       still in flight when the shutter opens.
+
+       A CASE MAY POINT SOMEWHERE ELSE THAN ITS PAGE DOES. The page's anchor is
+       chosen for what is worth one screen in general; a case that exists to gate
+       one feature is worth pointing at that feature instead. */
+    const anchor = c.anchor ?? page.anchor;
+    if (anchor) {
       await tab.evaluate((sel) => {
         document.querySelector(sel)?.scrollIntoView({ behavior: "instant", block: "start" });
-      }, page.anchor);
+      }, anchor);
       await tab.waitForTimeout(120);
     }
 

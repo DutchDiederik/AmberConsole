@@ -180,6 +180,7 @@ That renders a framed, glowing, scanlined control panel. No build step, no serve
 | `.ac-afterglow` | PERSISTENCE: things that disappear decay instead of switching off, a de-energized control's glow lingers for the emitter's full tail, and the glass holds faint uneven patches. With `effects.js` it also ghosts rewritten text and smears while scrolling. Needs an `.ac-persist` child. |
 | `.ac-sweep` | PPI radar face — a rotating `conic-gradient` whose angular falloff *is* the decaying wake. Pure CSS, no script. Period scales off `--ac-persist-tail`. Needs an `.ac-sweep__beam` child. |
 | `.ac-scanlines` | Static, motion-free line texture, for print and thumbnails |
+| `.ac-classic` | The second corner style: corners cut instead of arced on every bordered surface inside it, plus a hard offset edge under the keys. See below. |
 
 Put any of `.ac-bloom`, `.ac-crt` and `.ac-afterglow` on the outermost frame, once per screen, never
 nested. All three should be operator-toggleable in a real product — the demos show how, putting
@@ -209,6 +210,37 @@ from z-index 40 up, above `.ac-nav--sticky` at 20, so a sticky bar is part of th
 a flat strip floating over it. `.ac-screen` clips with `overflow: clip` rather than `hidden`
 specifically so that works: `hidden` makes the frame a scroll container, and `position: sticky`
 inside a scroll container that never scrolls does not stick.
+
+### Classic corners
+
+An 8px quarter-circle is a thing a modern rasteriser does. A gas-discharge panel addressing a coarse
+cell grid could not — it cut the corner off — and the keys carried a hard offset edge under them so a
+finger could tell a key from a label. `.ac-classic` is that second reading, and the smooth corner is
+not deprecated by it: this is the *other* option, and it ships off.
+
+```html
+<div class="ac-classic">…</div>          <!-- scope: a frame, a panel, or one control -->
+<html data-ac-style-classic="on">        <!-- or the whole page — what the demo switch writes -->
+```
+
+Both forms are the same rules. The corner reaches **every bordered surface** in scope — buttons, tabs,
+panels, dialogs, inputs, nav links, toggle tracks, meter tracks — because a beveled key inside a
+rounded panel reads as two display generations on one screen. The extrusion (`--edge-3d`) reaches
+**only the controls**: a drop shadow claims the thing stands off the glass, which is true of a soft
+key and a switch housing and of nothing else on the board. A filled or `aria-pressed` key spends its
+extrusion and translates 2px into the board, because a latching key that does not travel is a picture
+of a key; a `disabled` one keeps neither edge nor halo.
+
+**Two paths, and the fallback is not a degradation.** Where `corner-shape` is supported the radius
+stays exactly where the design system put it — 8px on frames and pads, 4px on wells — and only the
+*shape* changes, arc to chamfer. Where it is not (Firefox, older Safari) the radius quantizes to 2px
+instead, which is the same statement made in a property every engine has had for fifteen years. Flip
+the switch in any browser and the corners visibly change.
+
+`clip-path` and `mask-image` could cut a genuine stair-step and were both rejected: they clip the
+element's entire painting, `--glow-box` included, so a stepped corner would be bought by deleting the
+discharge halo off all four sides. `border-radius` and `corner-shape` reshape the shadow instead of
+removing it, which is the only reason this is written in them.
 
 ### Persistence
 
@@ -475,7 +507,7 @@ quarters rather than stacked into one tall list:
 | --- | --- | --- | --- |
 | **Display** | which hardware is in the panel | `data-ac-tech` + `data-ac-emitter` on the root | exactly one |
 | **Simulation** | what the glass does about it — bloom, scanlines, persistence | classes on the frame, via `data-ac-sim` | any combination |
-| **Style** | everything that is *not* the hardware — comfort, typography | `data-ac-style-*` on the root | any combination |
+| **Style** | a look the viewer chose, not what the panel is — comfort, typography, corners | `data-ac-style-*` on the root | any combination |
 | **Engine** | how much of the library is running | `data-ac-engine` on the root | `css` or `css+js` |
 
 Engine is the odd one and is on the board for a reason: almost everything above is CSS, and there is
@@ -564,6 +596,7 @@ Override any of these; see [what you may safely change](#theming).
 --radius 8px   --radius-sm 4px       (0–2px on strips and badges)
 
 --glow-text  --glow-box
+--edge-3d    3px 3px 0 · the extruded key edge, and the one shadow that is not a halo
 
 --ac-mesh-pitch 3px   --ac-mesh-wire 0.075   (the cell matrix; see the note below)
 ```

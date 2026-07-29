@@ -52,6 +52,12 @@
 @import "components/spinner.css";
 @import "components/sweep.css";
 
+/* Classic is a second corner style, not a component, so it comes after every
+   component whose radius it re-cuts and whose halo it composes with — and still
+   before the environment overrides, so forced colors and print keep the last
+   word on the shadows it adds. */
+@import "components/classic.css";
+
 /* --- Environment overrides. Last, so they win. --- */
 @import "base/a11y.css";
 @import "base/print.css";

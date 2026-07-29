@@ -105,6 +105,24 @@
     0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1) * var(--drive-faint))),
     inset 0 0 10px rgba(var(--gas-1), calc(0.07 * var(--drive-faint)));
 
+  /* THE EXTRUDED KEY EDGE — a hard offset copy of the stroke, and the one shadow
+     in this file that is NOT a halo. So it takes neither --gas-spread nor
+     --gas-scatter: those two describe light scattering through the glass, and
+     this is geometry. A panel that drew a drop shadow drew it in CELLS, and a
+     cell is the same size on krypton as it is on neon — the extrusion must stay
+     put when the gas changes, while its colour follows --gas-1 like everything
+     else so it cannot end up the only amber thing on a green screen.
+
+     Consumed by components/classic.css and nothing else. Override it to blunt or
+     kill the extrusion wholesale; print does exactly that, at the foot of that
+     file, because a shadow is paid for in ink. */
+  /* THE ALPHA IS SET AGAINST THE BLOOM, NOT AGAINST THE SCREEN. The extrusion
+     lands in exactly the band --glow-box is already lighting, and under .ac-bloom
+     that halo is amplified — at 0.35 the edge washed out into it and read as the
+     stroke being slightly thick. 0.6 is where it separates from its own glow on
+     the brightest simulation, which is the case it has to survive. */
+  --edge-3d: 3px 3px 0 rgba(var(--gas-1), 0.6);
+
   /* Plasma decay. A gas gap that stops being driven does not go dark on the next
      refresh — it relaxes: the discharge leaves excited and metastable neon behind,
      and that keeps emitting while it recombines. No phosphor is involved; see

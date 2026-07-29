@@ -244,6 +244,18 @@
         <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
           <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
+        <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
+             the board with blink and smear rather than beside PLASMA and CRT: a bevel
+             makes no claim about which gas is in the gap. Cuts the corners off every
+             bordered surface and puts a hard offset edge under the keys — one look,
+             one switch. Ships OFF; the rounded corner is what these pages were drawn
+             against and this is the other option, not a fix. Where corner-shape is
+             unsupported the corners quantize to 2px instead of cutting, so the switch
+             does something in every browser. The paired specimen in section 06 shows
+             both corners at once regardless of where this switch is standing. -->
+        <button type="button" class="ac-toggle" data-ac-style="classic" aria-pressed="false">
+          <span>Classic Corners</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+        </button>
       </div>
 
       <p class="doc-displays__note" data-ac-style-note="smear">Smear needs the CRT simulation.</p>
@@ -893,6 +905,47 @@
         <code class="doc-code">class="ac-btn ac-btn--lg ac-btn--pad ac-grow"</code>
         <p class="doc-when">A row of pads without <code>.ac-grow</code> (or <code>min-width:0</code>) —
           the 130px min-width floor will overflow a narrow viewport.</p>
+      </div>
+
+      <!-- THE PAIR IS THE POINT OF THIS SPECIMEN. The switch in the board above
+           flips the whole page, which is the right control for a viewer and the
+           wrong one for documentation — you cannot compare two corners by looking
+           at one of them. So the lower row carries .ac-classic on its own wrapper
+           and both styles sit here at once, whichever way the board is set. -->
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — ROUNDED VS CLASSIC CORNERS</span>
+        <div class="ac-row ac-row--wrap" style="--gap:16px;width:100%;align-items:center">
+          <button type="button" class="ac-btn">Run</button>
+          <button type="button" class="ac-btn ac-btn--filled">Manual</button>
+          <button type="button" class="ac-btn" disabled>Locked</button>
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad" style="min-width:110px">Fn</button>
+          <label class="ac-toggle ac-toggle--input">
+            <span>Sustain</span><input type="checkbox" checked><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state"></span>
+          </label>
+        </div>
+        <div class="ac-classic ac-row ac-row--wrap" style="--gap:16px;width:100%;align-items:center">
+          <button type="button" class="ac-btn">Run</button>
+          <button type="button" class="ac-btn ac-btn--filled">Manual</button>
+          <button type="button" class="ac-btn" disabled>Locked</button>
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad" style="min-width:110px">Fn</button>
+          <label class="ac-toggle ac-toggle--input">
+            <span>Sustain</span><input type="checkbox" checked><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state"></span>
+          </label>
+        </div>
+        <span class="doc-faint doc-small">Same five controls, second row wrapped in <code>.ac-classic</code>. The
+          corner is cut rather than arced and the keys stand on a hard offset edge — one look, one class, and it
+          reaches every bordered surface inside the wrapper, not only the buttons. A filled key is DOWN: it spends
+          its extrusion and sits 2px into the board, because a latching key that does not travel is a picture of a
+          key. <code>Locked</code> keeps neither edge nor halo — inert hardware does not glow. The top-left label on
+          <code>Fn</code> is <code>.ac-btn--pad</code> and is a separate axis; pads and corners compose freely.</span>
+        <code class="doc-code">&lt;div class="ac-classic"&gt; … &lt;/div&gt;      &lt;!-- scope: frame, panel or one control --&gt;
+&lt;html data-ac-style-classic="on"&gt;      &lt;!-- or the whole page; what the demo switch writes --&gt;</code>
+        <p class="doc-when">Both corner styles in one region. They are two readings of the same hardware and
+          mixing them says the panel was assembled from two of them. Scope <code>.ac-classic</code> to a whole
+          frame, or set the flag on the root — this specimen is the documented exception.</p>
+        <p class="doc-faint doc-small">Firefox and older Safari have no <code>corner-shape</code>, so they quantize
+          the radius to 2px instead of cutting a chamfer. Deliberate: a hard 2px corner is the same statement in a
+          property every engine has, and the switch stays honest everywhere. The extrusion is identical on both
+          paths.</p>
       </div>
 
       <div class="doc-demo doc-demo--col"><span class="doc-cap">TABS — SOFT KEYS, TITLE CASE</span>

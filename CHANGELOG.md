@@ -6,6 +6,71 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Added — a second corner style, and the extruded key that came with it
+
+Requested from a photograph of a real panel: the boxes have coarse cut corners rather than smooth
+arcs, and some of the keys stand on a hard offset edge. Both are true of the hardware and neither was
+in the framework — the system drew exactly one corner, an 8px arc, and had no bevel, gradient or 3D
+shading anywhere on purpose.
+
+**Added rather than substituted, and the distinction is the whole design.** The rounded corner is not
+a mistake this corrects; it is the other option. `.ac-classic` and `data-ac-style-classic="on"` are
+two ways into the same rules — a scope class for a frame, a panel or one control, and a root flag for
+the page — and the flag ships **off**, so nothing that existed before this entry looks any different
+until a switch is thrown. `src/components/classic.css` is the whole feature; delete the `@import` and
+it is gone.
+
+- **The corner reaches every bordered surface; the extrusion reaches only the controls.** A beveled
+  key inside a rounded panel reads as a screen assembled from two display generations, so buttons,
+  tabs, panels, dialogs, inputs, nav links, toggle tracks and meter tracks are all re-cut together. A
+  drop shadow is a different claim — that the thing stands off the glass — and that is true of a soft
+  key and a switch housing and of nothing else on the board. Giving `.ac-panel` an edge too was tried
+  and reads as a floating card, which is a different design language from a control surface.
+- **Most of the reach is free, because the tokens were already the API.** Every bordered surface in
+  the framework resolves its corner from `--radius` or `--radius-sm`, so the fallback path is two
+  declarations and the cascade does the rest. `corner-shape` does not inherit, which is the only
+  reason the eight-selector list in that file is written out by hand — and it was derived by grep, not
+  chosen, which is stated at the list so the next component to take a `--radius` gets added to it.
+- **Two paths, and the fallback is not a degradation.** Where `corner-shape` is supported the radius
+  stays exactly where the design system put it — 8px on frames and pads, 4px on wells and chips — and
+  only the *shape* changes, arc to chamfer; the hierarchy survives, so a panel's bevel is still twice
+  an input's. Where it is not, the radius quantizes to 2px instead, which is the same statement about
+  a corner the grid can hold, made in a property every engine has had for fifteen years. A switch that
+  silently does nothing in Firefox would have been worse than a switch that does something simpler.
+- **`clip-path` and `mask-image` were rejected, and they were the obvious answer.** Either could cut a
+  genuine stair-step. Both clip the element's *entire* painting, and the outer `box-shadow` is part of
+  it — so a stepped corner would have been bought by deleting `--glow-box` off all four sides, which
+  is law 1 traded away for a corner. `border-radius` and `corner-shape` reshape the shadow instead of
+  removing it. That constraint, not taste, is why this is written in them.
+- **`--edge-3d` is the one shadow in `effects.css` that is not a halo**, so it takes neither
+  `--gas-spread` nor `--gas-scatter`: those describe light scattering through glass, and this is
+  geometry. A panel that drew a drop shadow drew it in *cells*, and a cell is the same size on krypton
+  as on neon — the extrusion holds still when the gas changes while its colour follows `--gas-1`, so it
+  cannot end up the only amber thing on a green screen. Print blanks it through the token, since a
+  shadow is paid for in ink and a cut corner is not.
+- **A pressed key is down.** `:active`, `--filled` and `aria-pressed="true"` spend the extrusion and
+  translate 2px into the board — a 3D key that does not travel is a picture of a key. All three,
+  because this framework already documents `--filled` and `aria-pressed` as one state; `translate`
+  rather than margin or offset, so a key going down moves nothing around it.
+- **The `:disabled` reset had to be restated, and that is a cascade trap worth naming.**
+  `button.css` already blanks the halo on a dead key, but `[data-ac-style-classic="on"] .ac-btn`
+  weighs the same as `.ac-btn:disabled` and lands later, so the extrusion rule would have quietly
+  handed the glow back. `check-prohibitions.mjs` cannot catch this one: it gates an ink level set
+  without its halo, and the rule in question sets no colour.
+- **The STYLE axis's definition widened, deliberately.** It said "everything that is not the
+  hardware", and a corner quantized by the raster is arguably a hardware artifact. It now says a style
+  is a *look the viewer chose* — including a look that imitates a coarser raster — and the boundary it
+  is really defending is stated instead: a bevel makes no claim about which gas is in the gap, which is
+  what DISPLAY and SIMULATION are for. "Cut the corners" and "make it krypton" must never read as the
+  same kind of switch.
+- The switch is on all five demo boards under *Style & engine*, and the guide gains a **paired**
+  specimen — both corners at once, in one row each, regardless of where the board is set. A page-wide
+  switch is the right control for a viewer and the wrong one for documentation; you cannot compare two
+  corners by looking at one of them.
+- The visual suite gains one guide-only `1440-classic` case rather than five full-page ones, on the
+  economics `capture.mjs` already argues for itself. Every other baseline moved anyway: a fifth switch
+  is 44px of a board that is not allowed to scroll.
+
 ### Fixed — a bargraph that falls now leaves something behind
 
 Reported: on the server dashboard a load bar "disappears instantly and doesn't leave a ghost that

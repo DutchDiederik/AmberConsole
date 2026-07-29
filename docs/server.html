@@ -256,6 +256,18 @@
           <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
             <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
           </button>
+          <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side
+               of the board with blink and smear rather than beside PLASMA and CRT: a
+               bevel makes no claim about which gas is in the gap. Cuts the corners
+               off every bordered surface and puts a hard offset edge under the keys
+               — one look, one switch. Ships OFF; the rounded corner is what these
+               pages were drawn against and this is the other option, not a fix.
+               Where corner-shape is unsupported the corners quantize to 2px instead
+               of cutting, so the switch does something in every browser. See
+               ../src/components/classic.css. -->
+          <button type="button" class="ac-toggle" data-ac-style="classic" aria-pressed="false">
+            <span>Classic Corners</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+          </button>
         </div>
 
         <p class="doc-displays__note" data-ac-style-note="smear">Smear needs the CRT simulation.</p>

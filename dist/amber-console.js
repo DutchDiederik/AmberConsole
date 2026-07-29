@@ -663,11 +663,15 @@ function initEngine() {
  * STYLE — everything that is NOT the hardware.
  *
  * Deliberately a separate axis from both DISPLAY and SIMULATION, on its own
- * attributes, in its own region of the drawer. A style is a preference: comfort,
- * density, typography. It makes no claim about what the panel is. That boundary
- * is the whole reason this is not simply more simulation toggles — "turn the
- * blink off" is not a statement about plasma, and a user must never read it as
- * one.
+ * attributes, in its own region of the drawer. A style is a LOOK the viewer
+ * chose: comfort, density, typography — and, since `classic`, a look that
+ * imitates a coarser raster. It makes no claim about WHAT THE PANEL IS. That is
+ * the boundary, and it is worth stating precisely now that one of these flags
+ * cuts the corners off every control: a bevel is not an assertion about which
+ * gas is in the gap or which phosphor is on the glass, which is exactly what
+ * DISPLAY and SIMULATION are for. "Turn the blink off" and "cut the corners" are
+ * both preferences; "make it krypton" is not, and a user must never read one as
+ * the other.
  *
  *   <button class="ac-toggle" data-ac-style="blink" aria-pressed="true">
  *
@@ -693,6 +697,14 @@ const STYLES = {
     defaultOn: () => Boolean(screenFrame()?.classList.contains("ac-afterglow")),
     needs: "ac-afterglow",
   },
+  /* CLASSIC CORNERS AND THE EXTRUDED KEY EDGE — components/classic.css.
+     No `needs`, and that is the interesting half. It is pure CSS on tokens and
+     the corner shape, so it works under plasma, under CRT and with the effects
+     bundle absent entirely; there is no frame class it could be a no-op without,
+     so unlike `smear` this switch never has cause to disable itself.
+     Ships OFF: the rounded corner is what every existing page was built against
+     and this is a second option, not a correction. */
+  classic: { defaultOn: false },
 };
 
 /** Current value of a style flag, defaults included. Safe before init. */
