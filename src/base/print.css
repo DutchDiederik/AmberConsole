@@ -34,6 +34,20 @@
 
     --glow-text: none;
     --glow-box: none;
+
+    /* Every blink site at once — see the blink header in tokens/effects.css.
+       -force rather than -name so the CRT simulation, which declares -name on a
+       nearer ancestor, cannot reinstate a blink on paper. */
+    --ac-blink-force: none;
+
+    /* The de-energizing afterimage is a halo around a control that is no longer
+       lit — an argument about elapsed time, which paper does not have — and it
+       prints as an unexplained smudge. The scroll smear is the same claim about
+       a page that is not moving, in case one is captured mid-scroll. Both go
+       through their own tokens, so neither of the two selector lists that used
+       to be mirrored into this file is restated here at all. */
+    --ac-afterimage-display: none;
+    --ac-smear-filter: none;
   }
 
   /* .ac-bloom redefines the glow tokens on the frame itself, which is a closer
@@ -67,16 +81,6 @@
     display: none;
   }
 
-  /* The de-energizing afterimage is a halo around a control that is no longer
-     lit — an argument about elapsed time, which paper does not have. It prints
-     as an unexplained smudge, so it does not print. */
-  .ac-afterglow .ac-btn::after,
-  .ac-afterglow .ac-tab::after,
-  .ac-afterglow .ac-nav__link::after,
-  .ac-afterglow .ac-badge::after,
-  .ac-afterglow .ac-table__row--active td::after {
-    display: none;
-  }
 
   /* A trailing bar is an argument about elapsed time, which paper does not have. */
   .ac-afterglow .ac-meter__track::before {
@@ -100,23 +104,10 @@
     transition: none !important;
   }
 
-  /* And the scroll smear, in case the page is captured mid-scroll. The :not()
-     list mirrors the one in tokens/effects.css — keep them identical. */
-  .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh, .ac-nav--sticky) {
-    filter: none;
-  }
 
-  .ac-blink,
-  .ac-cursor::after,
-  .ac-spinner::before,
-  .ac-meter--alarm .ac-meter__bar,
-  .ac-field--invalid .ac-input,
-  /* Restated at the afterglow override's own weight — see tokens/effects.css. */
-  .ac-afterglow .ac-blink,
-  .ac-afterglow .ac-cursor::after,
-  .ac-afterglow .ac-field--invalid .ac-input,
-  .ac-afterglow .ac-input[aria-invalid="true"],
-  .ac-afterglow .ac-meter--alarm .ac-meter__bar {
+  /* The spinner is not a blink site — it runs its own keyframe, so it is still
+     named here. Blink itself is switched off via --ac-blink-force above. */
+  .ac-spinner::before {
     animation: none;
     filter: none;
   }

@@ -27,11 +27,25 @@ const CHECKS = [
     re: /#[0-9a-fA-F]{3,8}\b/g,
   },
   {
+    /* STATE CHANGES ARE INSTANT REDRAWS. A screen has no in-between frames, so
+       nothing in the framework may ease its way into a new state.
+
+       THIS FILE IS THE SOLE OWNER OF THE RULE. stylelint carried a second,
+       overlapping copy of it (declaration-property-value-disallowed-list, with
+       its own exemption list in an `overrides` block) and the two had to be kept
+       in agreement by hand. This one is now the stricter of the two — it catches
+       the longhands, which the stylelint version's `/^transition/` did too but
+       which the old regex here did not — so nothing is lost by dropping that.
+
+       The three exemptions are the panel's PHYSICS rather than its UI: the decay
+       of a phosphor is a timed change and is the one thing here that genuinely
+       is not instant. See the header of tokens/effects.css. */
     id: "transition",
-    what: "transition/animation easing on a state change",
+    what: "transition on a state change — a screen has no in-between frames",
     files: /\.css$/,
-    only: /src[/\\]components[/\\]/,
-    re: /\btransition\s*:/g,
+    only: /src[/\\]/,
+    exempt: /src[/\\]tokens[/\\]effects\.css$|src[/\\]base[/\\](a11y|print)\.css$/,
+    re: /\btransition(-[a-z]+)?\s*:/g,
   },
   {
     id: "icon-set",

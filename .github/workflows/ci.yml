@@ -30,6 +30,13 @@ jobs:
       - name: Check prohibitions
         run: npm run check
 
+      # The palettes are generated; this fails if colors.css has drifted from
+      # what scripts/derive-gas.mjs produces. It was in `npm test` but not here,
+      # so a hand-edited palette could reach main. The two gate sets now match:
+      # lint, check, gas, contrast, build — which is exactly what `npm test` runs.
+      - name: Check palette derivations
+        run: npm run gas -- --check
+
       - name: Check contrast ratios
         run: npm run contrast
 

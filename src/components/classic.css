@@ -84,11 +84,17 @@
    of the five belong here. Add to this list when a new component takes a --radius,
    or its corner will stay round while everything around it is cut. */
 @supports (corner-shape: bevel) {
-  :is(.ac-classic, .ac-rounded):is(
-    .ac-btn, .ac-tab, .ac-panel, .ac-dialog, .ac-input, .ac-nav__link,
-    .ac-toggle__track, .ac-meter__track
-  ),
-  :is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"]) :is(
+  /* The scope half is folded into one :is() so the component list is written
+     ONCE. Specificity is unchanged — :is() takes the highest of its arguments,
+     so both halves weigh (0,1,0) exactly as the two-selector form did, and the
+     pair still lands at (0,2,0). A complex selector inside :is() is safe to lean
+     on HERE and nowhere else in this file: everything in this block is already
+     gated behind corner-shape, which no engine lacking Selectors-4 supports. */
+  :is(
+    .ac-classic,
+    .ac-rounded,
+    :is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"]) *
+  ):is(
     .ac-btn, .ac-tab, .ac-panel, .ac-dialog, .ac-input, .ac-nav__link,
     .ac-toggle__track, .ac-meter__track
   ) {

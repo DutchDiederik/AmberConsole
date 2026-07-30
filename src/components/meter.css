@@ -82,11 +82,11 @@
   border-color: var(--stroke);
 }
 .ac-meter--alarm .ac-meter__bar {
-  animation: ac-blink 1.1s steps(1) infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ac-meter--alarm .ac-meter__bar {
-    animation: none;
-  }
+  /* A blink site: reads the pair from tokens/effects.css, which is also what
+     switches it off for the blink flag, reduced motion, print and forced
+     colors. Nothing outside this rule needs to know this element blinks. */
+  animation-name: var(--ac-blink-force, var(--ac-blink-name));
+  animation-duration: 1.1s;
+  animation-timing-function: var(--ac-blink-force-ease, var(--ac-blink-ease));
+  animation-iteration-count: infinite;
 }

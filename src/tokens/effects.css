@@ -118,6 +118,11 @@
      first, in RATIONALE.md § The cell matrix alpha is a budget. */
   --ac-mesh-pitch: 3px;
   --ac-mesh-wire: 0.075;
+
+  /* Blink, as an inherited pair rather than a selector list — see the header
+     above the keyframe below for what reads these and what overrides them. */
+  --ac-blink-name: ac-blink;
+  --ac-blink-ease: steps(1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -154,12 +159,47 @@
   text-shadow: var(--glow-text);
 }
 
+/* BLINK IS DRIVEN BY TWO INHERITED TOKENS, NOT BY A SELECTOR LIST.
+   ---------------------------------------------------------------------------
+   Every blink site reads the same pair, and every environment that wants to
+   change blink sets the pair ONCE instead of restating where the blink sites
+   are. Custom properties inherit, so a declaration on the root or on the frame
+   reaches all of them without a specificity fight — which is what the four
+   mirrored copies of this list used to be paying for.
+
+     --ac-blink-name   which keyframe, or `none` to stop blinking
+     --ac-blink-ease   its timing function
+
+     --ac-blink-force  the same two, but reserved for the ROOT. Read FIRST at
+     --ac-blink-force-ease   every site, and never declared on .ac-afterglow, so
+                       an environment override cannot lose to the simulation
+                       simply for being further from the element. That inversion
+                       is exactly what the doubled `[data-ac-style-blink="off"]
+                       .ac-afterglow ...` selectors existed to defeat.
+
+   ADDING A BLINK SITE is now one declaration pair on the site itself. Nothing
+   else in this file, and nothing in print.css or a11y.css, has to learn it.
+
+   The two defaults are declared in the :root block at the top of this file. */
+
 /* Hard on/off blink — no fades on a plasma panel */
 @keyframes ac-blink { 0%, 54% { opacity: 1; } 55%, 100% { opacity: 0.1; } }
-.ac-blink { animation: ac-blink 1.1s steps(1) infinite; }
+.ac-blink {
+  animation-name: var(--ac-blink-force, var(--ac-blink-name));
+  animation-duration: 1.1s;
+  animation-timing-function: var(--ac-blink-force-ease, var(--ac-blink-ease));
+  animation-iteration-count: infinite;
+}
 
-/* Block cursor */
-.ac-cursor::after { content: "█"; margin-left: 2px; animation: ac-blink 1s steps(1) infinite; }
+/* Block cursor — same pair, its own 1s cycle. */
+.ac-cursor::after {
+  content: "█";
+  margin-left: 2px;
+  animation-name: var(--ac-blink-force, var(--ac-blink-name));
+  animation-duration: 1s;
+  animation-timing-function: var(--ac-blink-force-ease, var(--ac-blink-ease));
+  animation-iteration-count: infinite;
+}
 
 /* A STYLE FLAG, NOT A SIMULATION. Every display technology here blinks, so
    turning it off says nothing about which one is being simulated.
@@ -168,28 +208,12 @@
    blink stopped there is an element that has silently vanished. Once blink is
    off, the inverse fill and the ✳✳ glyphs are what carry an alarm.
 
-   FOUR BLINK SITES, EACH STATED TWICE — plain and .ac-afterglow-scoped. The
-   scoped variants are descendant selectors and outrank a bare
-   `.ac-blink { animation: none }`, so matching only the plain form leaves blink
-   running the moment the CRT simulation is on. A `*` blanket cannot serve here
-   the way it does for `transition`: it would take the bloom, the retrace and the
-   mesh buzz with it.
-
-   MAINTENANCE COST, KNOWN: adding a fifth blink site means editing this list,
-   the reduced-motion block at the foot of this file, print.css and a11y.css.
-   See RATIONALE.md § The specificity restatement problem. */
-[data-ac-style-blink="off"] .ac-blink,
-[data-ac-style-blink="off"] .ac-cursor::after,
-[data-ac-style-blink="off"] .ac-field--invalid .ac-input,
-[data-ac-style-blink="off"] .ac-input[aria-invalid="true"],
-[data-ac-style-blink="off"] .ac-meter--alarm .ac-meter__bar,
-[data-ac-style-blink="off"] .ac-afterglow .ac-blink,
-[data-ac-style-blink="off"] .ac-afterglow .ac-cursor::after,
-[data-ac-style-blink="off"] .ac-afterglow .ac-field--invalid .ac-input,
-[data-ac-style-blink="off"] .ac-afterglow .ac-input[aria-invalid="true"],
-[data-ac-style-blink="off"] .ac-afterglow .ac-meter--alarm .ac-meter__bar {
-  animation: none;
-  filter: none;
+   ONE DECLARATION, on the root, where the flag already is. It uses the -force
+   pair rather than --ac-blink-name so that switching the CRT simulation on —
+   which declares --ac-blink-name on the nearer .ac-afterglow frame — cannot
+   quietly restart a blink the user has turned off. */
+[data-ac-style-blink="off"] {
+  --ac-blink-force: none;
 }
 
 /* ---------------------------------------------------------------------------
@@ -423,7 +447,13 @@
    the switching OFF that hardware cannot do sharply. That asymmetry is the whole
    reason this file may hold a `transition` at all while src/components/ may not;
    see the header of stylelint.config.mjs. */
-.ac-afterglow { position: relative; }
+.ac-afterglow {
+  position: relative;
+  /* Persistence softens the blink's OFF edge — see (4) below. Declared here as
+     an inherited pair so it reaches every blink site without naming one. */
+  --ac-blink-name: var(--ac-blink-anim, ac-blink-decay);
+  --ac-blink-ease: linear;
+}
 
 /* (1) DECAY-OUT.
 
@@ -497,20 +527,16 @@
    persistence on, only the ON edge stays hard. A cell lights on the next
    refresh and then relaxes, so: instant up, curve down.
 
-   Swapping animation-NAME rather than the shorthand is what lets one rule cover
-   every blink site — the cursor runs a 1s cycle and the rest run 1.1s, and each
-   keeps its own duration. Keyframe stops cannot read a custom property, so the
-   window below is a percentage of whatever cycle it lands in rather than a
-   duration: 54%->62% is ~88ms at 1.1s and ~80ms on the cursor's 1s. Retuning
-   --ac-decay does not move it; the stops themselves are the only handle. */
-.ac-afterglow .ac-blink,
-.ac-afterglow .ac-cursor::after,
-.ac-afterglow .ac-field--invalid .ac-input,
-.ac-afterglow .ac-input[aria-invalid="true"],
-.ac-afterglow .ac-meter--alarm .ac-meter__bar {
-  animation-name: var(--ac-blink-anim, ac-blink-decay);
-  animation-timing-function: linear;
-}
+   Retuning the TOKEN PAIR on the frame rather than naming the blink sites is
+   what lets one rule cover every one of them — the cursor runs a 1s cycle and
+   the rest run 1.1s, and each keeps its own duration. Keyframe stops cannot read
+   a custom property, so the window below is a percentage of whatever cycle it
+   lands in rather than a duration: 54%->62% is ~88ms at 1.1s and ~80ms on the
+   cursor's 1s. Retuning --ac-decay does not move it; the stops are the handle.
+
+   --ac-blink-anim comes from the PALETTE — a long phosphor points it at the
+   throb curve below — so this file still never names one. The pair is declared
+   on .ac-afterglow itself, where the frame's `position: relative` is. */
 /* The stops are spread wider than a literal decay curve would be. A true
    exponential loses most of its light in the first ~80ms, which is close enough
    to the flicker-fusion threshold that the eye files it as a hard switch — the
@@ -658,6 +684,12 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /* The whole layer's on/off switch, as an inherited token rather than a
+     selector list. `block` is what an absolutely-positioned ::after already
+     computes to, so stating it changes nothing — it just gives print.css,
+     a11y.css and the reduced-motion block below one declaration to write
+     instead of five selectors each. */
+  display: var(--ac-afterimage-display, block);
   /* NO mix-blend-mode HERE, though the ghosts and patches both use it: a blended
      element forces its own compositing group, which regressed TEXT ANTIALIASING
      on every button and tab on the page. It is also unnecessary over a
@@ -763,7 +795,12 @@
    every page an inline SVG node, which is not worth the axis. See
    RATIONALE.md § Scroll smear. */
 .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh, .ac-nav--sticky) {
-  filter: blur(calc(var(--ac-smear, 0) * 1.8px));
+  /* The whole filter is the token, not a scale inside it, so an environment that
+     wants no smear gets a literal `none` rather than a blur(0px) — which would
+     still be a filter, and a filter creates a containing block for fixed
+     descendants. One declaration replaces this selector in print.css, a11y.css
+     and the reduced-motion block. */
+  filter: var(--ac-smear-filter, blur(calc(var(--ac-smear, 0) * 1.8px)));
 }
 
 /* …and the panel blooms while it cannot keep up: a blurred, additive copy of
@@ -900,7 +937,24 @@ html:has(.ac-afterglow)::view-transition-group(root) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ac-blink, .ac-cursor::after,
+  /* Everything this block switches off that has a token, switched off in one
+     place. No selector lists and no specificity restatement — see the blink
+     header at the top of this file.
+
+       blink        every blink site at once.
+       smear        smearing the whole viewport in response to scrolling is the
+                    single most motion-sick-making thing in here.
+       afterimage   no animation of its own — it reads --ac-lit, and the
+                    transition blanket below already stops that from moving — but
+                    what is left is a STATIC extra halo around every lit control,
+                    which is not motion and is also not something anybody opted
+                    into. */
+  :root {
+    --ac-blink-force: none;
+    --ac-smear-filter: none;
+    --ac-afterimage-display: none;
+  }
+
   .ac-bloom::before, .ac-crt::after,
   .ac-persist::before { animation: none; }
   .ac-retrace { display: none; }
@@ -919,17 +973,6 @@ html:has(.ac-afterglow)::view-transition-group(root) {
   .ac-bloom > .ac-mesh,
   .ac-crt > .ac-mesh { animation: none; }
 
-  /* The afterglow blink override is a descendant selector and therefore beats a
-     bare `.ac-blink { animation: none }` on specificity. Restated at matching
-     weight, or turning the simulation on would quietly reinstate every blink
-     that this block just switched off. Same reason it is restated in print.css
-     and a11y.css. */
-  .ac-afterglow .ac-blink,
-  .ac-afterglow .ac-cursor::after,
-  .ac-afterglow .ac-field--invalid .ac-input,
-  .ac-afterglow .ac-input[aria-invalid="true"],
-  .ac-afterglow .ac-meter--alarm .ac-meter__bar { animation: none; filter: none; }
-
   /* Every decay in the simulation is a descendant rule under .ac-afterglow, so
      each one outranks a plain reset here and has to be caught. Restating the
      selector list one by one is how the blink override slipped through twice —
@@ -938,20 +981,9 @@ html:has(.ac-afterglow)::view-transition-group(root) {
   .ac-afterglow *::before,
   .ac-afterglow *::after { transition: none !important; }
 
-  /* Smearing the whole viewport in response to scrolling is the single most
-     motion-sick-making thing in here. */
+  /* The smear's additive bloom is a node of its own rather than one of the
+     filtered children, so --ac-smear-filter above does not reach it. */
   .ac-afterglow > .ac-persist::after { display: none; }
-  .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh, .ac-nav--sticky) { filter: none; }
-
-  /* The afterimage has no animation of its own — it reads --ac-lit, and the
-     blanket above already stops that from moving. What is left is a STATIC extra
-     halo around every lit control, which is not motion but is also not something
-     anybody opted into, so it goes too. */
-  .ac-afterglow .ac-btn::after,
-  .ac-afterglow .ac-tab::after,
-  .ac-afterglow .ac-nav__link::after,
-  .ac-afterglow .ac-badge::after,
-  .ac-afterglow .ac-table__row--active td::after { display: none; }
 
   /* The lagging bar would already be harmless — the blanket above stops its width
      from transitioning, so it sits exactly under the live bar and cannot be seen.

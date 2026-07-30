@@ -24,8 +24,11 @@ export default {
     "keyframes-name-pattern": "^ac-[a-z0-9-]+$",
     "custom-property-pattern": "^(ac-)?[a-z0-9]+(-[a-z0-9]+)*$",
 
-    // Law: state changes are instant redraws. A screen has no in-between frames.
-    "declaration-property-value-disallowed-list": { "/^transition/": ["/.*/"] },
+    // NOTE: the ban on `transition` used to live here too, with its own
+    // exemption list in an `overrides` block, duplicating the one in
+    // scripts/check-prohibitions.mjs. Two gates for one law meant two exemption
+    // lists to keep in agreement; check-prohibitions.mjs is now the sole owner
+    // and enforces it across all of src/ rather than only src/components/.
 
     // Law: one gas, one hue. Named colors would smuggle in a second one.
     "color-named": "never",
@@ -64,18 +67,4 @@ export default {
     "rule-empty-line-before": null,
     "declaration-block-single-line-max-declarations": null,
   },
-
-  overrides: [
-    {
-      /* The instant-redraw law is about UI state: a button does not ease into
-         being pressed. It is not about the panel's physics. Plasma persistence
-         IS a timed decay — that is the entire phenomenon — and the only way to
-         hold an element on screen past `display: none` is a transition with
-         allow-discrete. scripts/check-prohibitions.mjs already scopes its own
-         `transition` ban to src/components/ for exactly this reason; this brings
-         stylelint in line with it. Components stay instant. */
-      files: ["src/tokens/effects.css", "src/base/a11y.css", "src/base/print.css"],
-      rules: { "declaration-property-value-disallowed-list": null },
-    },
-  ],
 };

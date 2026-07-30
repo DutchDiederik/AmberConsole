@@ -57,7 +57,7 @@
     "dev": "node scripts/build.mjs --watch --serve",
     "lint": "stylelint \"src/**/*.css\"",
     "test:visual": "node test/visual/capture.mjs",
-    "test": "npm run check && npm run gas -- --check && npm run contrast && npm run build",
+    "test": "npm run lint && npm run check && npm run gas -- --check && npm run contrast && npm run build",
     "gas": "node scripts/derive-gas.mjs"
   },
   "devDependencies": {
