@@ -1,143 +1,50 @@
-/* TECHNOLOGY, THEN EMITTER.
+/* TECHNOLOGY, THEN EMITTER — the palettes.
  *
- * A palette in this system is not a theme and not a light/dark pair. It is a
- * specific piece of hardware, and it takes TWO attributes on the root element to
- * name one, because the same color word means different physics on different
- * glass:
+ * It takes TWO attributes on the root element to name a palette, because the
+ * same color word means different physics on different glass:
  *
- *   data-ac-tech      the display technology. What is making light at all.
- *                     "plasma" — a gas gap struck by a sustain pulse, emitting
- *                     DIRECTLY. No phosphor anywhere in the stack.
- *                     "crt"    — an electron beam exciting a phosphor, which
- *                     emits and then PERSISTS. The color is the phosphor's.
+ *   data-ac-tech      "plasma" (a gas gap emitting directly) or
+ *                     "crt" (a phosphor, which emits and then PERSISTS).
+ *   data-ac-emitter   which gas or phosphor within that technology.
  *
- *   data-ac-emitter   which gas, or which phosphor, inside that technology.
- *                     Only meaningful within its tech: "neon" is a gas and
- *                     exists only under plasma; "p3" is a phosphor and exists
- *                     only under crt. Every palette block below is selected by
- *                     BOTH attributes, so a mismatched pair simply selects
- *                     nothing rather than silently rendering the wrong hardware.
+ * Every block below is selected by BOTH, so a mismatched pair selects nothing
+ * rather than silently rendering the wrong hardware.
  *
- * Currently installed:
- *
- *   plasma / neon      24deg. The default. Law 1's panel: neon emitting directly,
- *                      the color neon simply is. What .ac-bloom simulates.
- *   plasma / helium    pale pink. Multi-line, so genuinely pale.
- *   plasma / argon     pale violet-lavender. Dim, and the file says why.
+ *   plasma / neon      24deg. The default. What .ac-bloom simulates.
+ *   plasma / helium    pale pink.          plasma / argon    pale lavender.
  *   plasma / krypton   pale violet-white.
+ *   crt / p3           38deg amber — the classic terminal, and .ac-crt's pair.
+ *   crt / p1           green.              crt / p4          television white.
+ *   crt / p7           blue flash over a yellow-green afterglow (radar).
+ *   crt / p11          blue.               crt / p31         green.
+ *   crt / p39          yellow-green, long persistence.
  *
- *   crt / p3           38deg. The classic amber phosphor, a broad ~590nm band
- *                      with real green content. The look most people mean by
- *                      "amber terminal", the ramp the source design system was
- *                      drawn against, and the pair for the .ac-crt simulation.
- *   crt / p1           willemite green. Medium persistence.
- *   crt / p4           the television white. A BLEND of two emitters.
- *   crt / p7           blue flash over a yellow-green afterglow. The radar
- *                      phosphor, and the only palette here whose halo is a
- *                      different spectrum from its ink — see its block.
- *   crt / p11          blue. Photographic-recording phosphor; flickers hardest.
- *   crt / p31          green. The scope and terminal phosphor.
- *   crt / p39          yellow-green. Long persistence; P1's chemistry with
- *                      arsenic, so the same color and a decay 16x longer.
+ * P1/P39 and P7/P11 share a ramp on purpose — same compound, different decay.
  *
- * TWO PHOSPHORS SHARE A RAMP WITH ANOTHER PALETTE AND THAT IS NOT A MISTAKE.
- * P1 and P39 are both Zn2SiO4:Mn and differ only in decay; P7's flash and P11
- * are both ZnS:Ag and differ only in what is behind them. Where the compound is
- * the same the color is the same, and the palettes are told apart by their
- * persistence rather than their hue. Deduplicating them would be deduplicating
- * two pieces of hardware that really did look alike.
+ * WHAT EVERY BLOCK MUST DEFINE: the five --emit-* stops, the three surfaces,
+ * --on-fill, the four --gas-* glow triples, and --gas-scatter / --gas-spread.
+ * Every other color token is an alias or is built from those, so adding a
+ * palette means adding one block and nothing else.
  *
- * DEPRECATED: `data-ac-gas="neon"` and `data-ac-gas="amber"` are kept as aliases
- * for the two blocks above and will be removed in 3.0. The name was the bug —
- * "amber" was never a gas, it is a CRT phosphor, and calling it one is exactly
- * the confusion the two attributes above exist to prevent. Migrate:
- *   data-ac-gas="neon"   ->  data-ac-tech="plasma" data-ac-emitter="neon"
- *   data-ac-gas="amber"  ->  data-ac-tech="crt"    data-ac-emitter="p3"
- *
- * Every palette defines the same fifteen SPECTRAL values: the five discharge
- * stops, the three surfaces, --on-fill, the four glow triples, and the two
- * scattering scalars. Every other color token in the system is an alias or is
- * built from those, so adding a technology or an emitter means adding one block
- * and nothing else.
- *
- * A PALETTE MAY ALSO CARRY TIME, and that is new with the CRT pass. Where an
- * emitter has a documented decay, its block additionally declares:
- *
- *   --ac-persist       how long its light is visible after the drive stops
- *   --ac-flicker       how much of it is GONE by the next refresh, 0..1
- *   --ac-decay-ease    that decay's actual curve, as a sampled linear()
- *   --ac-persist-fast  the fast layer, on a two-layer phosphor only
- *
- * Those are not four independent settings. --ac-persist and --ac-flicker are one
- * physical quantity read in two directions — what is left of a frame when the
- * next one arrives IS the persistence, and what is missing IS the flicker — so a
- * phosphor cannot have much of one without little of the other. The derivation
- * in scripts/derive-gas.mjs computes both from one decay constant for exactly
- * that reason, the same way --gas-spread is the square root of --gas-scatter and
- * cannot disagree with it.
- *
- * THE FOUR GASES DELIBERATELY DECLARE NONE OF THEM. Gas afterglow is real, but
- * no decay figure for these panels is cited here yet, and inventing one to fill
- * the column would be exactly the kind of number this file exists to refuse.
- * tokens/effects.css keeps its own :root defaults, every gas falls back to them,
- * and the plasma palettes render byte-identically to what they did before the
- * phosphors arrived. Adding a cited `decay` to a gas is what would opt it in.
- *
- * THESE ARE CONSUMED WITH A CAP, NOT RAW. A 3000ms P7 tail is correct physics
- * and an unusable dialog close, so tokens/effects.css clamps what drives UI
- * state and leaves the decorative layers — ghosts, residual patches — at full
- * length. The split is documented there, at the tokens that do it.
+ * A BLOCK MAY ALSO CARRY TIME, where the emitter has a documented decay:
+ * --ac-persist, --ac-flicker, --ac-decay-ease, and --ac-persist-fast on a
+ * two-layer phosphor. These are consumed WITH A CAP by tokens/effects.css, not
+ * raw. The four gases declare none of them and fall back to its :root defaults.
  *
  * EVERY PALETTE IS GATED. scripts/contrast.mjs runs the full pair table against
  * each block independently — a ratio that passes under one emitter and fails
  * under another is a failure. Do not add a stop to one block without the others.
  *
+ * GENERATED. Nine of the eleven blocks are computed by scripts/derive-gas.mjs
+ * and must not be hand-edited; `npm test` re-derives them and fails on drift.
+ * Neon and P3 predate the script and stay hand-built.
  *
- * SATURATION IS AN OUTPUT, NOT A SETTING.
+ * DEPRECATED, removed in 3.0: data-ac-gas="neon" | "amber". Migrate to
+ *   data-ac-tech="plasma" data-ac-emitter="neon"  /  ="crt" ="p3".
  *
- * This file used to say that saturation is held at 100% for every stop, because
- * a near-monochromatic emitter has no way to be pale. That was true of the only
- * two emitters it then described, and it is false in general — it was a special
- * case wearing a rule's clothes. Helium, argon and krypton are multi-line
- * emitters: their light IS pale, and forcing them to 100% would mean inventing a
- * saturation the gas does not have, which is the opposite of what this file is
- * for. The rule it was a special case of:
- *
- *     Chromaticity is derived from the emitter's spectrum and never adjusted.
- *     A near-monochromatic emitter integrates to a saturated color; a multi-line
- *     emitter integrates to a pale one. Neither is a preference.
- *
- * Neon still solves to 100% under that, so nothing about it changes, and the old
- * --amber-100 special case ("a hotter cell can only get there by whitening")
- * stops being an exception and becomes an instance: every stop whitens exactly
- * as much as sRGB forces it to and no more.
- *
- * HUE FROM THE SPECTRUM, LUMINANCE FROM THE DRIVE LEVEL. The corollary, and the
- * one that has to be said out loud before somebody reads these numbers as a
- * fudge. Argon genuinely emits very little visible light — most of its output is
- * past 700nm, where the eye scores under 0.01 — but that is a fact about radiant
- * efficiency, not about what color the cell is. Drive it harder and it is still
- * argon. So every stop here is the emitter's own chromaticity at whatever
- * luminance the contrast gate demands, and the two decisions never mix.
- *
- * GENERATED PALETTES. Nine of the eleven blocks below are computed by
- * scripts/derive-gas.mjs and must not be hand-edited; `npm test` re-derives them
- * and fails on drift. Neon and P3 predate the script and stay hand-built — see
- * the `emit: false` notes in scripts/data/emitters.json for why regenerating
- * either would repaint the framework to no one's benefit. P3's --gas-scatter is
- * the one exception in the other direction: it was an admitted placeholder and
- * is now derived, because the band model finally gave the integral something to
- * run over. Its ramp did not change; only its halo width did.
- *
- * THE PHOSPHORS CARRY A WEAKER CLAIM THAN THE GASES, and it is not hedging to
- * say so. A gas emits lines and NIST publishes them, so those palettes run
- * spectrum -> color from measured data. No comparable public table of phosphor
- * band SHAPES exists; what is published is the resulting chromaticity. So the
- * phosphor blocks run backwards — published color -> band — and their bands are
- * back-solved rather than measured. The $phosphors block in
- * scripts/data/emitters.json states that plainly, along with the four things
- * that are nonetheless non-circular about the result, and it is worth reading
- * before quoting a number from here as though it came off an instrument.
+ * Why 24deg, why the phosphor bands are back-solved, why saturation is an
+ * output rather than a setting, and why P7's halo is not its ink:
+ * see RATIONALE.md § tokens/colors.css.
  */
 
 :root,
@@ -149,40 +56,17 @@
   --screen-well: #060200;   /* recessed input wells */
 
   /* Discharge scale — ONE hue, five intensities. Never introduce a second hue
-     WITHIN a palette; the two blocks here are hardware, not decoration.
+     WITHIN a palette; these blocks are hardware, not decoration.
 
-     THE HUE IS 24deg AND IT IS DERIVED, NOT PICKED. Weight the Ne I visible
-     lines by the CIE 1931 observer and the discharge lands at x=0.631 y=0.369 —
-     just outside sRGB, gamut-mapping to hue 19deg. That is a DC neon tube. This
-     panel is not one: the sustain is a short high-field pulse, which enriches
-     the 585.2nm line (the highest-energy of the 2p->1s group, and already the
-     strongest) against the 640nm red group, and the hue walks up with it. At the
-     ~2x enrichment a pulsed cell plausibly sees, 24deg. The band 19-31deg is the
-     defensible range; 24 sits in the middle of it.
+     HAND-BUILT, and stays that way: this ramp was solved hue-first at maximum
+     saturation, which is not what derive-gas.mjs does, and neither of its gamut
+     strategies reproduces it. Each stop is solved to a contrast ratio against
+     --screen (10.5 / 7.0 / 5.2 / 3.4) — rotating hue at constant lightness drops
+     --emit-50 to 2.79:1 and silently fails the 3:1 non-text gate. Re-solve,
+     never re-tint; scripts/contrast.mjs is the check.
 
-     scripts/derive-gas.mjs now reproduces that integral independently — it lands
-     x=0.6405 y=0.3591 against the x=0.631 y=0.369 above, agreeing to 0.0137 in
-     xy — and neon is kept in its line table for exactly that reason: it is the
-     known answer the pipeline is checked against before the three gases whose
-     answers nobody knows are trusted. That check is a build gate.
-
-     This ramp is nonetheless still HAND-BUILT and stays that way. It was solved
-     hue-first at maximum saturation, which is not what the script does, and
-     neither of the script's gamut strategies reproduces it: holding the
-     chromaticity gives #ff6954 and clipping gives #ff3d00, against the #ff6b08
-     below. Regenerating neon would repaint every screen in the system to settle
-     a question that is already settled.
-
-     Luminance is not free-floating either. Each stop is solved to a contrast
-     ratio against --screen (10.5 / 7.0 / 5.2 / 3.4), because rotating hue at
-     constant lightness drops --emit-50 to 2.79:1 and silently fails the 3:1
-     non-text gate. Re-solve, never re-tint. scripts/contrast.mjs is the check.
-
-     These used to be --amber-*, which named a hue rather than a ramp and was
-     already only historically true here — under this palette the color is not
-     amber, it is neon. With a lavender and a pink in the file it stopped being
-     defensible at all. --amber-* survives as an alias at the bottom of this
-     file, deprecated, removed in 3.0. */
+     Why the hue is 24deg and why regenerating neon would be a mistake:
+     RATIONALE.md § Hue — why neon is 24deg. */
   --emit-100: #ffa86d; /* hot highlight / focus — 10.57:1 */
   --emit-90:  #ff6b08; /* primary discharge    —  7.02:1 */
   --emit-70:  #dd5800; /* secondary            —  5.22:1 */
@@ -190,19 +74,14 @@
   --emit-30:  #5b2500; /* trace / ghost        —  1.63:1, decorative */
   --on-fill:   #1e0c00;
 
-  /* THE GLOW SOURCE. Four points on the discharge hue, as bare "r, g, b" triples
-     so tokens/effects.css can build every halo from them with its own alphas —
-     rgba(var(--gas-1), 0.4). That indirection is the whole reason the palettes
-     switch cleanly: the halo is the same photons the cell emits, scattered in
-     the glass, so a glow left behind at the other hue puts an amber corona
-     around neon text. Twelve hardcoded rgba() used to live in effects.css and
-     every one of them was a place to forget. */
-  /* THE REFERENCE FOR HOW MUCH LIGHT REACHES THE HALO. Rayleigh scattering goes
-     as lambda^-4, so a violet gas throws far more of itself sideways into the
-     glass than neon's orange-red does. Neon is 1.00 by definition — every other
-     palette's figure is stated against it — and --gas-spread is its square root,
-     because multiple scattering widens the halo as it brightens it. Both are
-     derived by scripts/derive-gas.mjs and consumed in tokens/effects.css. */
+  /* THE GLOW SOURCE — four points on the discharge hue, as bare "r, g, b"
+     triples so tokens/effects.css can build every halo with its own alphas:
+     rgba(var(--gas-1), 0.4). That indirection is why the palettes switch
+     cleanly; hardcoding a halo puts an amber corona around neon text.
+
+     --gas-scatter is how much light reaches the halo, with NEON AT 1.00 BY
+     DEFINITION — every other palette's figure is stated against it — and
+     --gas-spread is its square root. See RATIONALE.md § Scattering. */
   --gas-scatter: 1;
   --gas-spread: 1;
 
@@ -234,29 +113,21 @@
   --gas-3: 255, 120, 0;
   --gas-4: 255, 186, 64;
 
-  /* DERIVED NOW, and the placeholder it replaces was wrong by 23%.
-     This used to be held at neon's 1.00 because P3 is a broad ~590nm band and
-     the lambda^-4 integral had no lines to run over — with a note predicting
-     that a phosphor this close to neon's mean wavelength "would land near 1.00
-     regardless". scripts/lib/cie.mjs grew the band model in the CRT pass, the
-     integral ran, and it lands at 1.23. The prediction was the reasonable guess
-     and it was still a guess; this is the measurement of the model.
-     The RAMP above stays hand-built — see the emit: false note in
-     scripts/data/emitters.json, same standing as neon. Only the halo width was
-     ever a placeholder, and only the halo width changed. */
+  /* Derived from the band model, replacing a placeholder held at neon's 1.00
+     that was wrong by 23%. The RAMP above stays hand-built (emit: false in
+     scripts/data/emitters.json); only the halo width was ever a placeholder.
+     See RATIONALE.md § Scattering. */
   --gas-scatter: 1.23;
   --gas-spread: 1.11;
 
-  /* Persistence: 25ms to 10% (medium).
-     22% still lit when the next frame arrives.
-     --ac-flicker is the inter-frame modulation depth these two share; the
-     amplitude budget that keeps it under the WCAG flash threshold is in
-     tokens/effects.css, in one place, on purpose. */
+  /* Persistence: 25ms to 10% (medium). 22% still lit at the next frame.
+     --ac-flicker is the same quantity read the other way; the WCAG amplitude
+     budget that consumes it lives in tokens/effects.css, in one place. */
   --ac-persist: 25ms;
   --ac-flicker: 0.785;
 
-  /* The decay curve itself, sampled from the exponential.
-     A shape no single cubic-bezier expresses, which is why it is a linear(). */
+  /* The decay curve, sampled from the exponential — a shape no single
+     cubic-bezier expresses, which is why it is a linear(). */
   --ac-decay-ease: linear(0, 0.013 0.5%, 0.023 0.9%, 0.041 1.6%, 0.072 2.9%, 0.127 5.3%, 0.218 9.5%, 0.362 17%, 0.564 31%, 0.802 56%, 1.000 100%);
 }
 
@@ -665,13 +536,10 @@
 
   /* No red, no green. Alarm/danger = inverse video + blink, never a new hue. */
 
-  /* DEPRECATED, removed in 3.0. --amber-* named a hue, and the hue was already
-     only historically right — under the default palette the color is neon, not
-     amber. With a lavender, a pink and a violet in this file the name is simply
-     false, so the ramp is --emit-* now. These aliases exist so a consumer
-     overriding or reading the old names keeps working while they migrate.
+  /* DEPRECATED, removed in 3.0 — the ramp is --emit-* now. Kept so a consumer
+     reading or overriding the old names keeps working while they migrate.
 
-     One line each, and they resolve per palette for free: --emit-90 is redefined
+     They resolve per palette for free: --emit-90 is redefined
      in every block above, so --amber-90 follows whichever palette is active
      without this list needing to know any of them exist. */
   --amber-100: var(--emit-100);

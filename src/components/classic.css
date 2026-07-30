@@ -17,30 +17,24 @@
    All three are the same set of rules reading the same tokens; none is more real
    than the others, and they nest in either direction.
 
-   WHY THE SHAPE AND NOT A CLIP. `clip-path` and `mask-image` can cut any corner at
-   all, including a genuine stair-step, and both were rejected for the same
-   disqualifying reason: they clip the element's ENTIRE painting, and the outer
-   box-shadow is part of it. Every control here carries --glow-box, which is the
-   discharge halo — law 1, glow is the signal of energization — so a clipped corner
-   buys a stepped edge by deleting the glow off all four sides. `border-radius` and
-   `corner-shape` change the shadow's shape instead of removing it. That
-   constraint, not taste, is why this file is written in them.
+   HOW THE SCOPING WORKS — the thing to understand before editing. The three
+   scopes set nothing but CUSTOM PROPERTIES, and custom properties inherit. Every
+   rule below is written ONCE and reads its values out of the cascade, so
+   `.ac-rounded` needs no mirror of any rule and nesting resolves by ordinary
+   inheritance rather than a specificity coin toss. Adding a fourth scope, or a
+   per-region override, is a token block and nothing else.
 
-   WHY THE TWO CORNER PATHS ARE DIFFERENT RADII rather than one degraded chamfer.
-   `corner-shape` is Chromium-only at the time of writing, and a look that silently
-   collapses into the other option in Firefox is not a look. So the fallback is not
-   a failed bevel: it quantizes the radius to 2px, which is the same statement — a
-   corner the cell grid can hold — made in a property every engine has had for
-   fifteen years. The extrusion and the label are identical on both paths, so what
-   Firefox loses is the chamfer and nothing else.
+   IT IS `border-radius` / `corner-shape` AND NOT A CLIP because `clip-path` and
+   `mask-image` clip the element's ENTIRE painting, outer box-shadow included —
+   so a clipped corner would buy a stepped edge by deleting the discharge halo
+   off all four sides. The two corner paths carry different radii rather than one
+   degraded chamfer, so Firefox loses the chamfer and nothing else. Both in
+   RATIONALE.md § components/classic.css.
 
-   HOW THE SCOPING WORKS, because it is the thing to understand before editing.
-   The three scopes above set nothing but CUSTOM PROPERTIES, and custom properties
-   inherit. Every rule below is therefore written ONCE, prefixed by all three
-   scopes, and reads its values out of the cascade — so `.ac-rounded` needs no
-   mirror of any rule, and a scope nested inside another scope resolves by ordinary
-   inheritance from the nearest one rather than by a specificity coin toss. Adding
-   a fourth scope, or a per-region override, is a token block and nothing else.
+   NOTE: classic is the default look only when amber-console.js is loaded — it is
+   the JS that writes data-ac-style-classic="on". A CSS-only consumer gets the
+   rounded corner from tokens/spacing.css. See RATIONALE.md § Known
+   inconsistency: the default corner style.
    =========================================================================== */
 
 /* --- (1) The scopes. Tokens only; no rule below is repeated per scope. --- */
@@ -68,21 +62,12 @@
 }
 
 @supports (corner-shape: bevel) {
-  /* Where the shape itself can be cut, the radius is spent on the CUT instead of
-     an arc — and it is not spent evenly.
-
-     THE FOUR CORNERS ARE NOT THE SAME SIZE, and that is the whole 3D reading
-     rather than a decoration. These keys were drawn as solid objects lit from the
-     top left: the top-left corner is the far one and is barely cut at all, the
-     bottom-right is the near one and is cut hardest, and the two side corners sit
-     between them. Cut all four the same and the key goes flat — it reads as an
-     octagon. The gradient runs along the same diagonal the extrusion is offset on,
-     because they are two halves of one claim about where the light is.
-
-     2 / 4 / 8 / 4 in TL TR BR BL order, and those are the system's own radius
-     steps rather than new numbers. --radius-sm runs the same diagonal at half
-     depth, so a well or a switch housing is cut like a key and reads as smaller —
-     the same relationship the two arcs already had. */
+  /* Where the shape can be cut, the radius is spent on the CUT instead of an arc,
+     and NOT EVENLY: these keys are lit from the top left, so the far corner is
+     barely cut and the near one is cut hardest. Cut all four the same and the key
+     reads as an octagon. 2 / 4 / 8 / 4 in TL TR BR BL order, from the system's own
+     radius steps; --radius-sm runs the same diagonal at half depth.
+     See RATIONALE.md § The four corners are not the same size. */
   .ac-classic,
   [data-ac-style-classic="on"] {
     --radius: 2px 4px 8px 4px;
@@ -126,25 +111,17 @@
   box-shadow: var(--glow-box), var(--ac-edge, 0 0 0 transparent);
 }
 
-/* A PRESSED KEY IS IN, AND THE LIGHT IS WHAT MOVES. The band flips to the top and
-   left, because the near face of a sunken key is the upper one — flipping which
-   edges are lit is how a bevel has always shown a press. The key itself does not
-   budge.
+/* A PRESSED KEY IS IN, AND THE LIGHT IS WHAT MOVES — the band flips to the top and
+   left, because the near face of a sunken key is the upper one. The key itself does
+   not budge: a `translate` here contributed to scrollable overflow and pushed every
+   flush-mounted latched key 4px past its container. See --edge-3d-in in
+   tokens/effects.css.
 
-   IT USED TO BUDGE, and that was a bug worth leaving a note about. `translate:
-   4px 4px` reads correctly and reflows nothing, but a transform DOES contribute to
-   scrollable overflow, so every latched key flush against its container pushed 4px
-   past it — caught by the visual suite on two pages at every width, an .ac-grow pad
-   in a row and the Ent key in the keypad grid. A box-shadow is ink overflow and
-   costs nothing in either direction. See --edge-3d-in in tokens/effects.css.
-
-   No transition, and not because of the lint rule: a screen redrawn at the refresh
-   has no in-between frames, the same law as .ac-btn:active in button.css.
+   No transition — a screen redrawn at the refresh has no in-between frames, the
+   same law as .ac-btn:active in button.css.
 
    --filled AND aria-pressed BOTH, because this framework treats them as one state
-   everywhere else — button.css hooks them together and the guide documents them as
-   equivalent. A latched key therefore reads pressed for as long as it is latched,
-   which is what a latching key does. */
+   everywhere else, so a latched key reads pressed for as long as it is latched. */
 :is(.ac-classic, .ac-rounded):is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]),
 :is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"])
   :is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]) {
@@ -153,25 +130,17 @@
 
 /* --- (4) The face: label top-left. --- */
 
-/* The second half of what a classic key looks like, and a separate rule from the
-   corner because it is about the FACE rather than the outline. A soft key on these
-   panels is a label plus room for a value, so the label is parked in the corner and
-   the body is left empty; centering it says the key is a word rather than a field.
+/* A soft key is a label plus room for a value, so the label parks in the corner
+   and the body is left empty. This is .ac-btn--pad's alignment WITHOUT its 96px
+   height, so it applies at any key size and composes with --pad unchanged.
 
-   .ac-btn--pad already did exactly this and keeps its own 96px min-height. This is
-   that alignment WITHOUT the height, so it applies at whatever size a key happens
-   to be and composes with --pad unchanged.
+   NO `display` HERE, DELIBERATELY: inline-flex would outweigh .ac-btn--block's
+   `display: block` and .ac-btn--pad's `flex`, and a corner style that silently
+   unblocks a full-width key is worse than one that does nothing. The three
+   properties it does set are inert on a non-flex box.
 
-   NO `display` HERE, DELIBERATELY. Setting inline-flex would outweigh
-   .ac-btn--block's `display: block` and .ac-btn--pad's `flex`, and a corner style
-   that silently unblocks a full-width key is worse than one that does nothing.
-   These three properties are inert on a non-flex box, and a plain .ac-btn is sized
-   by its own text, so there is nothing for them to do until the key is taller than
-   its label — which is the only case this rule is about.
-
-   THE KEYPAD IS EXEMPT, and keypad.css states the reason better than a repeat of
-   it would: a digit is one character with no label/value split for the top-left
-   rule to serve, and those keys are centered on purpose. */
+   THE KEYPAD IS EXEMPT — a digit has no label/value split to serve, and those
+   keys are centered on purpose. keypad.css states the reason. */
 .ac-classic.ac-btn:not(.ac-keypad__key),
 .ac-classic .ac-btn:not(.ac-keypad__key),
 [data-ac-style-classic="on"] .ac-btn:not(.ac-keypad__key) {

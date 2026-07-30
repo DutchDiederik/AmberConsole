@@ -1,87 +1,31 @@
 :root {
-  /* The halo is the same photons the cell emits, scattered in the glass, so it
-     tracks the discharge hue exactly. NOTHING in this file names a color: every
-     rgba() is built from the --gas-N triples in tokens/colors.css, which is what
-     makes the display switch the panel and its glow together. Hardcode one and
-     it will keep an amber corona around neon text, which is the one place the
-     mismatch is legible side by side.
+  /* NOTHING IN THIS FILE NAMES A COLOR. Every rgba() is built from the --gas-N
+     triples in tokens/colors.css, which is what makes the display switch the
+     panel and its glow together. Hardcode one and it keeps an amber corona
+     around neon text. (On P7 the halo is a DIFFERENT spectrum from the ink, and
+     that is correct rather than a bug — RATIONALE.md § P7.)
 
-     EXCEPT ON A TWO-COATING PHOSPHOR, WHERE IT IS THE OTHER LIGHT ENTIRELY, and
-     that is worth knowing before the P7 palette looks like a bug. P7 is a blue
-     ZnS:Ag layer facing the beam over a yellow-green (Zn,Cd)S:Cu layer behind
-     it: the beam writes in blue, the blue layer's own photons pump the layer
-     underneath, and what the SCREEN HOLDS is yellow-green. So --emit-* is blue
-     and --gas-* is yellow-green, and blue text inside a green halo is not a
-     mismatch — it is the only thing that palette can honestly look like.
+     The wide layers scale by --gas-scatter / --gas-spread, per palette, both
+     falling back to 1. THE 2px LAYER IS NOT SCALED: it is the glyph's own lit
+     edge, not scattered light. RADIUS NEVER SCALES WITH DRIVE — only alpha.
 
-     Nothing in this file changes to accommodate that, which is the point. The
-     rule here is still "build every halo from --gas-N and never name a color";
-     P7 simply declares a --gas-N that is not its own ink. The one place the
-     difference surfaces is the ghost keyframe, and even there the palette names
-     the animation rather than this file naming the palette.
+     THE DRIVE TIERS ARE ARITHMETIC, NOT TASTE. Each stop's luminance is already
+     fixed by the contrast ratio it was solved to, so the ratios fall out:
 
-     THE HALO IS NOT THE SAME SIZE FOR EVERY GAS, and that is physics rather than
-     styling. Rayleigh scattering goes as lambda^-4, so a violet gas throws
-     half again as much of itself sideways into the glass as a red one does.
-     --gas-scatter is that ratio against neon and --gas-spread is its square root
-     — both derived per palette by scripts/derive-gas.mjs, both falling back to 1
-     so a hand-built palette that never declares them looks exactly as it did.
+       --ink, --stroke        emit-90   7.00:1   drive 1.00
+       --ink-dim              emit-70   5.20:1   drive 0.70
+       --ink-faint, -dim      emit-50   3.40:1   drive 0.41
+       --ink-trace            emit-30   1.63:1   drive 0.11 -> none
 
-     THE 2px LAYER IS NOT SCALED. It is the glyph's own lit edge, not scattered
-     light; it is where the photons started. Only the wide layers are the halo,
-     so only they answer to how much of the light left the stroke.
-
-     HOW HARD THE CELL IS DRIVEN, 0..1, and it is the reason there is only ONE
-     shadow list in this file instead of three.
-
-     Scattered light is proportional to emitted light, so a cell at 70% drive
-     throws 70% of the halo. That is a multiplier, not a different effect — so
-     --ac-drive multiplies every alpha below, and a dim element re-states
-     `text-shadow: var(--glow-text)` with its own drive rather than pointing at a
-     parallel token that would have to be kept in sync with this one.
-
-     THE TIERS ARE ARITHMETIC, NOT TASTE. Each stop's luminance is already fixed
-     by the contrast ratio it was solved to — Y = ratio * (Y_screen + 0.05) -
-     0.05, with the panel at Y=0.00278 — so the ratios between them fall out:
-
-       --ink, --stroke        emit-90   7.00:1   Y 0.3195   drive 1.00
-       --ink-dim              emit-70   5.20:1   Y 0.2245   drive 0.70
-       --ink-faint, -dim      emit-50   3.40:1   Y 0.1295   drive 0.41
-       --ink-trace            emit-30   1.63:1   Y 0.0360   drive 0.11 -> none
-
-     --emit-30 landing at eleven percent is why the decorative rules stay flat:
-     that is not a halo, it is a rounding error.
-
-     RADIUS DOES NOT SCALE — ONLY ALPHA. How far light spreads through the glass
-     is a property of the glass and the wavelength (--gas-spread), not of how
-     hard the cell behind it is driven. Scaling radius too would say that a dim
-     cell's light travels less far, which is not a thing that happens.
-
-     NOTE THAT THE TOKEN FAMILIES DO NOT LINE UP, and the names actively mislead:
+     THE TOKEN FAMILIES DO NOT LINE UP and the names actively mislead:
      --ink-dim is emit-70 but --stroke-dim is emit-50. The tier is chosen by
      DRIVE LEVEL, never by whether the token has "dim" in it.
 
-     WHY THIS IS THREE TOKENS AND NOT ONE MULTIPLIER. The tidy version of this is
-     a single --ac-drive that every alpha below multiplies by, so a dim element
-     sets the number and re-states `text-shadow: var(--glow-text)`. It does not
-     work, and it fails SILENTLY, which is worth recording so nobody rebuilds it.
-
-     A custom property's var() references are substituted when that property's
-     own value is computed — at :root, where these are declared. So --ac-drive is
-     resolved to 1 there and BAKED IN, and what descendants inherit is a finished
-     shadow list with no variable left in it. Setting --ac-drive further down
-     changes nothing at all: every tier renders at full strength and looks like
-     the feature is working. It is the same trap this file already documents two
-     paragraphs up for --glow-text itself.
-
-     So each tier is its own fully-resolved token. The multiplier stays visible
-     in the calc() rather than being folded into a literal, which keeps the
-     derivation checkable without making the value depend on where it is read.
-
-     THE STROKE IS NOT ALWAYS DRIVEN AS HARD AS THE INK, hence a separate box
-     tier. An .ac-input carries --ink-bright text inside a --stroke-dim box, and
-     .ac-statusbar--line is full-drive text between two dim rules — one element,
-     two drive levels, which a single scale could not have expressed either. */
+     EACH TIER IS ITS OWN FULLY-RESOLVED TOKEN rather than one --ac-drive
+     multiplier, and that is not a stylistic choice — the multiplier version
+     fails SILENTLY. Before rebuilding it that way, read RATIONALE.md § Why the
+     tiers are three tokens and not one multiplier. The derivation behind the
+     table, and why the box tier is separate, are in the same section. */
   --drive-dim: 0.7;
   --drive-faint: 0.41;
 
@@ -105,91 +49,50 @@
     0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1) * var(--drive-faint))),
     inset 0 0 10px rgba(var(--gas-1), calc(0.07 * var(--drive-faint)));
 
-  /* THE EXTRUDED KEY EDGE — the one shadow in this file that is NOT a halo. So it
-     takes neither --gas-spread nor --gas-scatter: those two describe light
-     scattering through the glass, and this is geometry. A panel that drew a drop
-     shadow drew it in CELLS, and a cell is the same size on krypton as it is on
-     neon — the extrusion must stay put when the gas changes, while its color
-     follows --gas-1 like everything else so it cannot end up the only amber thing
-     on a green screen.
+  /* THE EXTRUDED KEY EDGE — the one shadow here that is NOT a halo, so it takes
+     neither --gas-spread nor --gas-scatter: those describe light scattering
+     through glass, and this is geometry. It stays the same size when the palette
+     changes, while its color still follows --gas-1.
 
-     IT IS AN EDGE, NOT A GHOST, and that is what the two layers are for. An outer
-     box-shadow is clipped to outside the border box, so a single hard offset copy
-     of the box paints a solid band down the bottom and right — not a floating
-     duplicate. Two of them at different offsets make that band read as depth: a
-     bright 2px lip against the stroke, then 3px more at lower drive falling away
-     from it. One uniform layer looked like a thick border; a blurred one looked
-     like a modern card shadow, which is the whole thing this is not.
+     TWO LAYERS BECAUSE IT IS AN EDGE, NOT A GHOST: a bright 2px lip against the
+     stroke, then 3px more at lower drive falling away from it. The alphas are
+     set against the bloom rather than the screen — see RATIONALE.md § The
+     extruded key edge.
 
-     THE ALPHAS ARE SET AGAINST THE BLOOM RATHER THAN THE SCREEN. The band lands in
-     exactly the region --glow-box is already lighting, and .ac-bloom amplifies
-     that halo — anything under about 0.6 on the lip washed out into it and read as
-     the stroke being slightly heavy.
-
-     Consumed by components/classic.css and nothing else. Override it to blunt or
-     kill the extrusion wholesale; print does exactly that, at the foot of that
-     file, because a shadow is paid for in ink. */
+     Consumed by components/classic.css and nothing else. Override to blunt or
+     kill the extrusion wholesale; print does exactly that. */
   --edge-3d:
     2px 2px 0 rgba(var(--gas-1), 0.92),
     5px 5px 0 rgba(var(--gas-1), 0.6);
 
-  /* THE SAME EDGE, SEEN FROM THE OTHER SIDE — a key that has been pressed IN. The
-     band moves to the top and left because the near face of a sunken key is the
-     upper one; flipping which edges are lit is how a bevel has always shown a
-     press, and it is the whole reason this is a second shadow rather than a
-     transform.
+  /* THE SAME EDGE FROM THE OTHER SIDE — a key pressed IN. The band moves to the
+     top and left because the near face of a sunken key is the upper one.
 
-     A TRANSFORM WAS THE FIRST ANSWER AND IT WAS A BUG. `translate: 4px 4px` looks
-     right and moves nothing around it, but it DOES contribute to scrollable
-     overflow — so every latched key sitting flush against its container pushed 4px
-     past it, which the visual suite caught on two pages at every width (an
-     .ac-grow pad in a row, and the Ent key in the keypad grid). A box-shadow is
-     ink overflow and contributes nothing, in either direction. The key now stays
-     exactly where it was laid out and the light does the moving, which is also the
-     more honest account of what a screen was drawing. */
+     A SHADOW RATHER THAN A TRANSFORM, and that is load-bearing: `translate` DOES
+     contribute to scrollable overflow, so every latched key flush against its
+     container pushed 4px past it. See RATIONALE.md § The extruded key edge. */
   --edge-3d-in:
     -2px -2px 0 rgba(var(--gas-1), 0.92),
     -5px -5px 0 rgba(var(--gas-1), 0.6);
 
-  /* Plasma decay. A gas gap that stops being driven does not go dark on the next
-     refresh — it relaxes: the discharge leaves excited and metastable neon behind,
-     and that keeps emitting while it recombines. No phosphor is involved; see
-     law 1 in the system guide. The curve is the shape of that relaxation: most of the
-     light is gone in the first third, then a long dim tail. --ac-decay-fast is
-     for text that is rewritten continuously (a clock, a frame counter) where the
-     full tail would smear into the next value.
+  /* PERSISTENCE IS A PROPERTY OF THE EMITTER, not of this file. A palette that
+     knows its own decay declares --ac-persist, --ac-flicker and a sampled
+     --ac-decay-ease in tokens/colors.css; the tokens below are derived from it.
+     This block is the fallback for every palette that declares nothing — all
+     four gases — so they render unchanged at 105ms / 60ms.
 
-     These defaults are deliberately near the floor of what registers as a decay
-     at all: much under ~80ms and the eye stops reading a relaxation and starts
-     reading a switch. That is the intended side of the line to be on — the
-     effect should be felt rather than seen. A phosphor is emphatically NOT
-     required to sit there, and the long ones do not.
+     THE CAP IS THE WHOLE POINT OF min(), and it is a usability decision made
+     against the physics on purpose: P7's tail is 3000ms, and a dialog painted
+     for three seconds after it closes is a bug that can cite a source.
 
-     PERSISTENCE IS A PROPERTY OF THE EMITTER NOW, not of this file. A palette
-     that knows its own decay declares --ac-persist (and --ac-flicker, and its
-     own sampled --ac-decay-ease) in tokens/colors.css, and the three tokens
-     below are DERIVED FROM IT rather than set here. This block is the fallback
-     for every palette that declares nothing — which is all four gases, so they
-     resolve to the same 105ms and 60ms they always had and render unchanged.
+       --ac-decay        things that must actually LEAVE — [hidden], a closing
+                         dialog. Capped at 250ms.
+       --ac-decay-fast   de-energizing controls and hover release. Capped at
+                         60ms — this fires on every control the pointer crosses.
+       --ac-persist-tail ghosts and residual patches. NOT capped; pure
+                         decoration, and where the long phosphors earn their keep.
 
-     THE CAP IS THE WHOLE POINT OF min(), AND IT IS A USABILITY DECISION MADE
-     AGAINST THE PHYSICS ON PURPOSE. P7's tail is 3000ms and P39's is 2000ms.
-     Those are correct, and a dialog that stays painted for two seconds after it
-     closes is not a simulation, it is a bug that can cite a source. So:
-
-       --ac-decay       things that must actually LEAVE — [hidden], a closing
-                        dialog. Capped at 250ms however long the phosphor runs.
-       --ac-decay-fast  de-energizing controls and hover release. Capped at 60ms,
-                        because this fires on every control the pointer crosses.
-       --ac-persist-tail  ghosts and residual patches. NOT capped. These are pure
-                        decoration, nothing waits on them, and they are where the
-                        long phosphors are actually allowed to be long — which is
-                        also where the effect lives.
-
-     min() also gets the short phosphors right in the other direction and for
-     free: P11 declares 0.035ms, so its UI snaps rather than decaying, which is
-     exactly what a photographic-recording phosphor did and exactly why nobody
-     enjoyed looking at one. */
+     See RATIONALE.md § The persistence caps. */
   --ac-persist: 105ms;
   --ac-decay: min(var(--ac-persist), 250ms);
   --ac-decay-fast: min(var(--ac-persist), 60ms);
@@ -208,15 +111,11 @@
      --ac-mesh-pitch is the cell spacing; --ac-mesh-wire is the per-axis alpha of
      one rib.
 
-     THE ALPHA IS A BUDGET, NOT A TASTE SETTING. Two crossed 1px wires on a pitch
-     p lose a mean 1 - (1 - a/3)^2 of everything under them, and 0.075 is the
-     value that lands that at 0.050 — exactly the mean loss of the CRT scanlines
-     it sits beside, so turning plasma on costs the same legibility the tube
-     already does. Crossings land at 0.144, near enough to double, which is what
-     makes an intersection read as an intersection.
-
-     scripts/contrast.mjs computes from colors.css and cannot see an overlay, so
-     nothing will fail if this is raised. Redo the arithmetic first. */
+     THE ALPHA IS A BUDGET, NOT A TASTE SETTING. 0.075 lands the mean loss at
+     0.050 — exactly what the CRT scanlines beside it cost, so turning plasma on
+     costs the same legibility the tube already does. scripts/contrast.mjs cannot
+     see an overlay, so nothing will fail if this is raised: redo the arithmetic
+     first, in RATIONALE.md § The cell matrix alpha is a budget. */
   --ac-mesh-pitch: 3px;
   --ac-mesh-wire: 0.075;
 }
@@ -228,13 +127,10 @@
    component a lit cell belongs to. So it is applied ONCE here and inherits to
    every descendant, rather than being opted into per component.
 
-   That direction matters more than it looks. Glow used to be opt-in, and after
-   twenty-odd components each remembering to ask for it, thirty-four elements
-   were still rendering flat: every table cell, every toggle label, all eighty-
-   eight inline <code> spans in the guide, and an alarm banner that blinked
-   without a halo. None of that was decided; it was just never added. Inheriting
-   inverts the failure: a new component glows because it is lit, instead of not
-   glowing because nobody remembered.
+   That direction matters more than it looks: when glow was opt-in, thirty-four
+   elements were still rendering flat because nobody remembered to ask.
+   Inheriting inverts the failure — a new component glows because it is lit.
+   See RATIONALE.md § The halo is inherited, not requested.
 
    WHAT MUST THEN SUPPRESS IT, and why it is a short list rather than a long one:
 
@@ -247,17 +143,12 @@
    a rule that sets dim or faint ink without switching the halo off fails the
    build, because that is the half of this that drifts.
 
-   NOTE ON HOW text-shadow AND CUSTOM PROPERTIES INTERACT: var(--glow-text) is
-   resolved HERE, at the frame, and the resulting shadow list is what inherits.
-   A descendant that sets its own --glow-text does not change what it inherited;
-   only `text-shadow: none` does. That is why suppression is written as
-   `text-shadow: none` everywhere below and never as a token override.
+   SUPPRESSION IS ALWAYS `text-shadow: none`, NEVER A TOKEN OVERRIDE.
+   var(--glow-text) is resolved HERE, at the frame, and the resolved shadow list
+   is what inherits — a descendant setting its own --glow-text changes nothing.
 
-   Print needs no rule of its own: base/print.css sets --glow-text: none at both
-   :root and .ac-bloom, so this resolves to none before it inherits anywhere.
-   Forced colors likewise — the UA forces text-shadow off for anything left at
-   forced-color-adjust: auto, and the inverse-video list that opts out already
-   restates it. --------------------------------------------------------------- */
+   Print and forced colors need no rule of their own; both already blank it
+   upstream. --------------------------------------------------------------- */
 .ac-screen,
 .ac-root {
   text-shadow: var(--glow-text);
@@ -270,32 +161,23 @@
 /* Block cursor */
 .ac-cursor::after { content: "█"; margin-left: 2px; animation: ac-blink 1s steps(1) infinite; }
 
-/* A STYLE FLAG, NOT A SIMULATION. Blink is law-2 emphasis and it is also the
-   single most tiring thing on the panel, so it is switchable independently of
-   which hardware is being simulated — every display technology in here blinks,
-   and turning it off says nothing about any of them.
+/* A STYLE FLAG, NOT A SIMULATION. Every display technology here blinks, so
+   turning it off says nothing about which one is being simulated.
 
    Off settles LIT, not dark: the keyframe's dark half is 0.1 opacity, and a
-   blink stopped there is an element that has silently vanished. This is the same
-   resting state prefers-reduced-motion lands on, deliberately — see the bottom
-   of this file. README's note stands either way: once blink is off, the inverse
-   fill and the ✳✳ glyphs are what carry an alarm.
+   blink stopped there is an element that has silently vanished. Once blink is
+   off, the inverse fill and the ✳✳ glyphs are what carry an alarm.
 
-   FOUR BLINK SITES, EACH STATED TWICE, and that is not repetition for its own
-   sake — it is the fourth time this file has had to make the same point. Every
-   blink has an .ac-afterglow-scoped decay variant later in this file, which is a
-   descendant selector and therefore outranks a bare `.ac-blink { animation:
-   none }` on specificity alone. Matching only the plain form switches blink off
-   on a bare panel and leaves it running the moment the CRT simulation is on —
-   which is precisely the panel a user reaching for this switch is looking at.
-   The flag attribute is on the ROOT, so prefixing it outranks both forms and the
-   rule no longer depends on where in the file it sits.
+   FOUR BLINK SITES, EACH STATED TWICE — plain and .ac-afterglow-scoped. The
+   scoped variants are descendant selectors and outrank a bare
+   `.ac-blink { animation: none }`, so matching only the plain form leaves blink
+   running the moment the CRT simulation is on. A `*` blanket cannot serve here
+   the way it does for `transition`: it would take the bloom, the retrace and the
+   mesh buzz with it.
 
-   A blanket cannot serve here the way it does for `transition` under
-   reduced-motion: `animation: none` on * would take the bloom, the retrace and
-   the mesh buzz with it, and none of those is a blink. The list is the price.
-   Adding a fifth blink site means adding it here, and to the reduced-motion
-   block at the bottom of this file, and to print.css and a11y.css. */
+   MAINTENANCE COST, KNOWN: adding a fifth blink site means editing this list,
+   the reduced-motion block at the foot of this file, print.css and a11y.css.
+   See RATIONALE.md § The specificity restatement problem. */
 [data-ac-style-blink="off"] .ac-blink,
 [data-ac-style-blink="off"] .ac-cursor::after,
 [data-ac-style-blink="off"] .ac-field--invalid .ac-input,
@@ -328,11 +210,8 @@
    scanlines are on. Each still works alone if you wire it yourself. All stop
    under prefers-reduced-motion.
 
-   THE STACK. Every overlay is absolutely positioned to the frame, so the order
-   they paint in is the whole design. It has to be stated in one place, because
-   a sticky bar carrying its own z-index will otherwise punch straight through
-   the simulations and sit on top of them — which is exactly what .ac-nav--sticky
-   (z-index 20) used to do:
+   THE STACK — stated here in one place, because a sticky bar carrying its own
+   z-index will otherwise punch straight through the simulations:
 
      1   frame content
      20  sticky chrome — .ac-nav--sticky, and anything else that outranks content
@@ -411,39 +290,20 @@
   50%      { opacity: 0.37; }
 }
 
-/* THE SCREEN DOOR.
+/* THE SCREEN DOOR — a crossed mesh, not a stack of horizontal lines. A cell
+   lights at the intersection of two wires, boxed in by barrier ribs that emit
+   nothing; the horizontal blanking gaps belong to .ac-crt and the tube it
+   simulates. There is no scan here, so there is nothing to blank.
 
-   The one structural fact about this hardware, and the thing that most clearly
-   is not a CRT. A cell lights at the intersection of a row wire and a column
-   wire, boxed in on four sides by barrier ribs that carry no discharge and emit
-   nothing. So a lit pixel is a neon dot trapped in a square aperture, and a
-   crossed mesh — not a stack of horizontal lines — is what you see when you put
-   your eye close to the glass. The dark horizontal blanking gaps between raster
-   lines belong to .ac-crt and to the tube it simulates; there is no scan here,
-   so there is nothing to blank.
+   THE RIBS ARE PURE BLACK RATHER THAN TINTED, and that is the whole trick: over
+   the near-black unlit panel black alpha has nothing to take away, so the grid
+   appears only where the panel is lit — for free.
 
-   The ribs are pure black rather than tinted, and that is the whole trick: over
-   the unlit panel (--screen is a near-black under either gas) black alpha has
-   nothing to take away and
-   the mesh is simply not there, while over lit amber it occludes. The grid
-   appears only where the panel is lit, which is exactly the behavior of a real
-   screen door and costs nothing to get.
-
-   z-index 48 puts it ABOVE the bleed, which is upside down physically — the ribs
-   sit behind the front glass, so the bleed ought to soften them. It is worth the
-   inaccuracy. .ac-bloom::before is a viewport-sized backdrop-filter, this layer
-   jitters ~24 times a second (below), and anything inside that filter's backdrop
-   drags a full-screen re-blur along on every one of those frames. Today that
-   happens once per 9s breathe. Above the bleed the mesh is compositor-only,
-   costs nothing, and stays sharp — which is what it is for.
-
-   A CHILD NODE, not .ac-bloom::after, and the reason is worth stating because
-   ::after looks free and is not. .ac-bloom and .ac-crt are both classes on the
-   SAME frame, an element has exactly one ::after, and .ac-crt::after — equal
-   specificity, later in this file — already owns it for the scanlines. A mesh
-   declared there is silently replaced the moment both simulations are on, which
-   is the default. Same contract as .ac-retrace and .ac-persist instead: one span,
-   mounted and removed with the switch by amber-console.js. */
+   z-index 48 puts it ABOVE the bleed, which is upside down physically and is a
+   deliberate performance trade. It is A CHILD NODE, not .ac-bloom::after,
+   because .ac-crt::after already owns that pseudo-element for the scanlines and
+   would silently replace a mesh declared there. Both explained in
+   RATIONALE.md § The screen door. */
 .ac-bloom > .ac-mesh {
   position: absolute; inset: 0; z-index: 48;
   pointer-events: none;
@@ -455,28 +315,22 @@
     ac-mesh-hum 0.37s ease-in-out infinite;
 }
 
-/* THE PLASMA SHIMMER.
+/* THE PLASMA SHIMMER — the residue of an AC sustain, which reads as the panel
+   being energized rather than merely bright.
 
-   The sustain voltage is AC, so the gas is never held — it is struck, and struck
-   again, tens of thousands of times a second. None of that is visible directly;
-   what is visible is the residue, a microscopic buzz in the cells that reads as
-   the panel being energized rather than merely bright.
-
-   Two animations because it is two phenomena, and DETUNED because that is the
-   only thing standing between a buzz and a pulse. 0.29 and 0.37 are coprime, so
-   the pair does not repeat for 10.7s, and neither divides into ac-crt-hum (5.5s),
-   ac-bloom-breathe (9s), ac-crt-drift (11s) or ac-retrace (13s). Retune them and
-   all four of those relationships have to survive, or the whole panel finds a
-   beat and starts throbbing.
+   TWO ANIMATIONS, DETUNED, and the periods are load-bearing: 0.29 and 0.37 are
+   coprime, so the pair does not repeat for 10.7s, and neither divides into
+   ac-crt-hum (5.5s), ac-bloom-breathe (9s), ac-crt-drift (11s) or ac-retrace
+   (13s). RETUNE THEM AND ALL FOUR RELATIONSHIPS MUST SURVIVE, or the panel finds
+   a beat and starts throbbing.
 
    Both rest at their zero frame — translate 0, opacity 1. The screenshot harness
    freezes animation, so whatever sits at 0% is what gets baselined. */
 
-/* Sub-pixel vibration of the mesh itself. steps(1, end) so each position is held
-   and then jumped, never interpolated: a wire that eases between two places is a
-   wobble, and a wobble is a much bigger, much worse effect than this one. The
-   0.35px ceiling is what keeps the wires reading as sharp — past about half a
-   pixel the resampling turns the mesh gray and the screen door is gone. */
+/* Sub-pixel vibration of the mesh. steps(1, end) so each position is held and
+   then jumped, never interpolated — a wire that eases between two places is a
+   wobble. The 0.35px ceiling keeps the wires sharp; past about half a pixel the
+   resampling turns the mesh gray and the screen door is gone. */
 @keyframes ac-mesh-buzz {
   0%   { transform: translate3d(0, 0, 0); }
   14%  { transform: translate3d(0.28px, -0.16px, 0); }
@@ -518,41 +372,22 @@
 /* MAINS FLICKER, SCALED BY THE PHOSPHOR — and the first thing to say is what
    this is NOT, because the obvious reading of it is wrong.
 
-   THE ACTUAL FLICKER OF A CRT CANNOT BE RENDERED HERE, EVER. A tube refreshing
-   at 60Hz is being watched on a display refreshing at 60Hz; there is no headroom
-   to show a 60Hz modulation, and asking for one is asking to sample a signal at
-   its own frequency. That is Nyquist, not a browser limitation, and no amount of
-   cleverness gets around it. The same refusal is documented in
-   scripts/derive-gas.mjs for the eye's chromatic aberration: the effect is real,
-   and using it here would not be.
+   THE ACTUAL FLICKER OF A CRT CANNOT BE RENDERED HERE, EVER — a 60Hz modulation
+   watched on a 60Hz display is sampling a signal at its own frequency. That is
+   Nyquist, not a browser limitation. What IS renderable is the perceptual
+   signature, so the FREQUENCY is fixed and slow and only the AMPLITUDE answers
+   to the hardware, via --ac-flicker:
 
-   What IS renderable is the perceptual signature — the slow beat and the sense
-   of an image being re-struck rather than held. So the FREQUENCY here is fixed
-   and slow, and only the AMPLITUDE answers to the hardware, via --ac-flicker:
-   the fraction of the image that is gone by the time the next frame arrives.
-   That number is derived from the same decay constant as --ac-persist, so a
-   phosphor cannot be steady and smear-free at once:
-
-     P11, P31, P4   1.000  fully dark between frames. Maximum unsteadiness, and
-                           the honest reason nobody read text off a P11 tube.
+     P11, P31, P4   1.000  fully dark between frames. Maximum unsteadiness.
      P1, P3         ~0.79  medium persistence, visibly less settled.
-     P7, P39        0.091  the long phosphors, which is what they were bought
-                           for — rock steady at any refresh rate, paid for in
-                           smear. Both halves of that trade, from one number.
+     P7, P39        0.091  the long phosphors — rock steady at any refresh rate,
+                           paid for in smear. Both halves, from one number.
 
-   THE 0.035 IS THE BUDGET AND IT IS NOT A TASTE SETTING. WCAG 2.3.1 prohibits
-   more than 3 flashes/sec above 10% relative luminance over more than 25% of the
-   field, and the 3-8Hz band is the most seizure-provocative there is. This
-   animation runs at 0.18Hz — a 5.5s cycle, more than an order of magnitude below
-   the threshold frequency — and its deepest dip is 3.5% of the opacity of an
-   overlay whose own mean darkening is about 15%, so worst-case panel luminance
-   moves by well under 1%. Both margins are large on purpose. Raising this
-   constant spends both of them at once; redo the arithmetic first, exactly as
-   the --ac-mesh-wire note above demands.
-
-   At --ac-flicker: 1 the two stops resolve to 0.965 and 0.985, which is what
-   this keyframe was before it took a variable — so a gas palette, which declares
-   no flicker, renders identically. */
+   THE 0.035 IS A WCAG 2.3.1 BUDGET, NOT A TASTE SETTING, and the margins are
+   large on purpose. Raising it spends them; redo the arithmetic first, exactly
+   as the --ac-mesh-wire note above demands — RATIONALE.md § The two flash
+   budgets. At --ac-flicker: 1 the stops resolve to 0.965 and 0.985, so a gas
+   palette renders identically to before this took a variable. */
 @keyframes ac-crt-hum {
   0%, 100% { opacity: 1; }
   31%      { opacity: calc(1 - 0.035 * var(--ac-flicker, 1)); }
@@ -765,39 +600,20 @@
 
 /* (5b) THE AFTERIMAGE — the part a long phosphor actually shows you.
    ------------------------------------------------------------------
-   Everything above releases on --ac-decay-fast, which is right for the STRUCTURE
-   of a control: a button must read as released the instant you let go, or the
-   panel feels broken rather than persistent. But on P39 or P7 the structure is
-   not what lingers. The LIGHT lingers — for one to three seconds — and until now
-   nothing in this file expressed that, so the two phosphors whose entire reason
-   for existing is a long tail looked exactly like the ones without one.
+   The two halves are split by what they describe, which is also the physical
+   split: a control's GEOMETRY snaps on --ac-decay-fast, because a button must
+   read as released the instant you let go, and the LIGHT it was emitting decays
+   on --ac-persist-tail, uncapped.
 
-   So the two halves are split by what they describe, which is also the physical
-   split: the control's geometry snaps, and the light it was emitting decays on
-   --ac-persist-tail, uncapped.
-
-   WHY A REGISTERED NUMBER AND NOT A box-shadow TRANSITION. Two reasons, and the
-   second is the load-bearing one. Interpolating box-shadow directly works — a
-   `none` is padded with transparent shadows, so it does animate — but the halo
-   would have to be declared HERE, on every one of these selectors, which means
-   overwriting whatever box-shadow the component itself uses for its border glow
-   and its focus ring. --ac-lit is a number; the components keep their own
-   shadows, and this file adds a layer that reads it. One variable drives the
-   afterimage's alpha and its halo radius together, so the two cannot disagree
-   about how lit the thing is.
-
-   HOVER IS DELIBERATELY NOT IN THE LIT LIST BELOW, and that is a judgement call
-   worth stating. A pointer crossing a dense panel de-energizes every control it
-   touches, and at a 2s tail that leaves a wake of glowing boxes behind the
-   cursor — which reads as lag, not as phosphor. The comment above already warned
-   about this for the fast decay. Hover keeps its instant background change; the
-   afterimage answers only to real STATE — filled, pressed, selected, current,
-   checked — which is what a cell being driven actually corresponds to. */
-/* INHERITS, AND IT HAS TO. The afterimage below is a ::after, and a pseudo-
-   element does not read its originating element's non-inherited properties — it
-   gets the initial value. Registered with `inherits: false` the halo therefore
-   resolved to alpha 0 at every drive level, which looks exactly like the effect
-   being off and is why this is stated rather than left at the tidier default. */
+   A REGISTERED NUMBER RATHER THAN A box-shadow TRANSITION, so the components
+   keep their own shadows and one variable drives the afterimage's alpha and its
+   halo radius together. HOVER IS DELIBERATELY NOT IN THE LIT LIST — at a 2s tail
+   it leaves a wake of glowing boxes behind the cursor. Both in
+   RATIONALE.md § The afterimage. */
+/* INHERITS, AND IT HAS TO: the afterimage is a ::after, and a pseudo-element
+   does not read its originator's non-inherited properties. With `inherits:
+   false` the halo resolved to alpha 0 at every drive level, which looks exactly
+   like the effect being off. */
 @property --ac-lit {
   syntax: "<number>";
   inherits: true;
@@ -842,27 +658,13 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  /* NO mix-blend-mode HERE, THOUGH THE GHOSTS AND THE PATCHES BOTH USE IT.
-     `screen` is the physically right blend for emitted light and it was the
-     first thing tried, but a blended element forces its own compositing group,
-     and that regressed TEXT ANTIALIASING on every button and tab on the page —
-     ~1.1% of pixels moved on a capture where the effect was switched off
-     entirely, concentrated exactly on the rows carrying soft keys. Pure cost,
-     no effect, and it would have shipped invisible.
-     It is also unnecessary here in a way it is not for a ghost. The panel behind
-     these controls is --screen, a near-black, and over a near-black backdrop
-     `screen` and ordinary alpha compositing of a bright halo differ by almost
-     nothing — the same argument tokens/effects.css already makes for drawing the
-     cell mesh in pure black rather than a tint. The ghosts keep their blend
-     because they land on top of LIT text, where the difference is real. */
-  /* NO BACKGROUND, AND THAT IS NOT AN OMISSION. A filled control is inverse
-     video — dark text on a lit block — and --ac-lit sits at 1 for as long as it
-     is lit, so any fill declared here would paint over that text permanently,
-     not just during the decay. `screen` would then lighten the dark glyphs and
-     quietly spend the --on-fill contrast ratio that scripts/contrast.mjs gates.
-     A transparent box with an outer box-shadow paints only OUTSIDE the border
-     box, so the halo decays across the panel and the text underneath is never
-     touched. The lit block itself is already the component's own background. */
+  /* NO mix-blend-mode HERE, though the ghosts and patches both use it: a blended
+     element forces its own compositing group, which regressed TEXT ANTIALIASING
+     on every button and tab on the page. It is also unnecessary over a
+     near-black panel. NO BACKGROUND EITHER — --ac-lit sits at 1 for as long as
+     the control is lit, so a fill would paint over its inverse-video text
+     permanently and spend the --on-fill contrast ratio contrast.mjs gates.
+     Both in RATIONALE.md § The afterimage. */
   box-shadow: 0 0 calc(18px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.26 * var(--ac-lit)));
 }
 .ac-afterglow .ac-btn,
@@ -895,38 +697,29 @@
 /* (5c) A LIT AREA THAT SHRINKS — the bargraph, and a phenomenon none of the
    decays above covers.
    ---------------------------------------------------------------------------
-   Every mechanism in this file so far handles a node DISAPPEARING, text being
-   REWRITTEN, or a lamp CHANGING COLOR. A meter does none of those: the element
-   stays, its text is elsewhere, its color never moves. What changes is its
-   WIDTH — so the region it vacates was lit a moment ago and is now simply not
-   drawn, with nothing timing the difference. On a 2s phosphor that is the most
-   visible wrong thing on the panel: everything around the bar trails and the bar
-   itself snaps.
+   A meter's element stays, its text is elsewhere and its color never moves; what
+   changes is its WIDTH, so the region it vacates was lit a moment ago and is now
+   simply not drawn, with nothing timing the difference.
 
    THE GHOST IS A SECOND BAR THAT LAGS, and the asymmetry falls out of paint
    order rather than needing a rule of its own — which is what makes this cheap.
    Both bars read the same --ac-meter-value; the live one snaps to it and this
-   one takes --ac-persist-tail to get there. On a DECREASE the ghost is therefore
-   wider than the bar for a moment, and the strip between them is the vacated
-   region, draining. On an INCREASE the ghost is NARROWER, so it sits entirely
-   underneath the live bar and is invisible. Instant up, curve down, for free.
+   one takes --ac-persist-tail to get there. On a DECREASE the ghost is briefly
+   wider, and the strip between them is the vacated region draining. On an
+   INCREASE it sits under the live bar, invisible. Instant up, curve down, free.
 
-   WHAT THIS IS AND IS NOT, because the difference is real. A bar falling
-   GRADUALLY stops driving each cell at a slightly different moment, so the
-   honest result is a taper behind a receding edge — which is exactly this, and
-   is what the demos' drifting values actually do. A bar that drops SUDDENLY
-   stops every vacated cell at once and should fade uniformly instead. CSS cannot
-   hold the old width, so it cannot tell those apart; amber-console.effects.js
-   recovers the old geometry and parks a proper uniform ghost for that case. This
-   is the half that works with no JavaScript at all.
+   This is the half that works with no JavaScript at all, and it models a bar
+   falling GRADUALLY — a taper behind a receding edge. A bar that drops SUDDENLY
+   should fade uniformly instead; CSS cannot hold the old width to tell those
+   apart, so amber-console.effects.js covers that case. See RATIONALE.md § The
+   lagging bar.
 
-   The mask is what keeps it reading as light rather than as a wipe: the trailing
-   end is soft, so the strip fades along its length instead of ending on an edge.
+   The mask keeps it reading as light rather than as a wipe: the trailing end is
+   soft, so the strip fades along its length instead of ending on an edge.
 
    HERE RATHER THAN IN components/meter.css because this is a `transition` and
-   scripts/check-prohibitions.mjs forbids those under src/components/ — the same
-   reason every other decay in this file lives here. Only the `position:
-   relative` that puts the live bar on top belongs to the component. */
+   scripts/check-prohibitions.mjs forbids those under src/components/. Only the
+   `position: relative` that puts the live bar on top belongs to the component. */
 .ac-afterglow .ac-meter__track::before {
   content: "";
   position: absolute;
@@ -956,31 +749,19 @@
    the cost is one viewport rather than one document (the guide page is 26,000px
    tall), and it filters the BACKDROP rather than blurring the content itself,
    so the text you are reading stays sharp while its afterimage does not. */
-/* The image itself loses focus. This is the part you actually see, and it has to
-   be a filter on the CONTENT — an additive copy of the backdrop cannot do it, no
-   matter how hard it is blurred, because `screen` leaves the live text perfectly
-   sharp underneath and you get a halo instead of a smear. Displacing that copy
-   does not rescue it either: a filtered backdrop is sampled in the element's own
-   transformed space, so translating the layer slides the window over the
-   backdrop rather than moving the image.
+/* The image itself loses focus, and this HAS to be a filter on the CONTENT — an
+   additive copy of the backdrop cannot do it, however hard it is blurred.
 
-   Only the frame's real children are filtered, never the overlay nodes. The
-   scanline mask, the vignette and the cell mesh are the glass, not the image —
-   the glass does not go out of focus when the picture moves.
+   THE :not() LIST IS THE GLASS, NOT THE IMAGE. Only the frame's real children
+   are filtered; the scanline mask, vignette and cell mesh do not go out of focus
+   when the picture moves. .ac-nav--sticky is excluded from the other direction:
+   it is pinned to the viewport, so its pixels are NOT being handed a new value.
 
-   .ac-nav--sticky is excluded for the same reason arrived at from the other
-   direction: it is pinned to the top of the viewport, so while the page scrolls
-   it is the one element on screen whose pixels are NOT being handed a new value.
-   Nothing about it moved, so nothing about it smears. Blurring it read as the
-   header losing focus, which is the opposite of what a stationary object does.
+   (Keep this list identical to the copies in print.css and a11y.css.)
 
-   The blur is isotropic, and a real smear is not — it runs along the axis of
-   travel. `filter: blur()` has no directional form; the honest one is an inline
-   SVG feGaussianBlur with stdDeviation="0 N" referenced through filter: url(),
-   and that costs every page an SVG node in its markup. Every other effect here
-   is one class and at most one span, and that contract is worth more than the
-   axis. Recalibrated instead: 1.8px, reached by an ordinary wheel rather than
-   only by a flick — see SMEAR_FULL in amber-console.effects.js. */
+   The blur is isotropic and a real smear is not; the directional form costs
+   every page an inline SVG node, which is not worth the axis. See
+   RATIONALE.md § Scroll smear. */
 .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh, .ac-nav--sticky) {
   filter: blur(calc(var(--ac-smear, 0) * 1.8px));
 }
@@ -1016,11 +797,8 @@
      that never ran the keyframes — the right thing to show is nothing at all,
      not an opaque duplicate of live text sitting on top of it. */
   opacity: 0;
-  /* ON --ac-persist-tail, WHICH IS THE UNCAPPED ONE. A ghost is pure decoration
-     — nothing waits on it, nothing is unreachable behind it — so this is the one
-     place the long phosphors get to run at their real length. P39 holds a ghost
-     for two seconds and P7 for three, which is the entire reason anybody fitted
-     those phosphors to a radar set.
+  /* ON --ac-persist-tail, THE UNCAPPED ONE — a ghost is pure decoration, so this
+     is where the long phosphors run at their real length.
 
      animation-NAME comes from the palette, defaulting to the single-hue curve.
      A two-layer phosphor declares --ac-ghost-anim in its own block and gets the
@@ -1040,24 +818,14 @@
   to   { opacity: 0; filter: blur(0.8px); }
 }
 
-/* THE CASCADE — P7, and anything else with two coatings.
+/* THE CASCADE — P7, and anything else with two coatings. A ghost here shows not
+   one color fading but TWO in sequence: the flash, then the afterglow.
 
-   The beam writes in ZnS:Ag blue and the layer behind it holds in (Zn,Cd)S:Cu
-   yellow-green, so what a ghost shows is not one color fading but TWO in
-   sequence: the flash, gone within a frame, and then the afterglow for as long
-   as it lasts. That is what the eye actually reads off a radar screen, and it is
-   why P7 exists rather than a single phosphor with a long decay.
-
-   4% is the crossover, and it is hardcoded for the same reason the blink window
-   below is: keyframe offsets cannot read a custom property. At P7's 3000ms tail
-   that is 120ms — a shade longer than the real flash, which is nearer one frame,
-   because a literal single-frame step reads as a glitch rather than as a flash.
-   --ac-persist-fast carries the true figure for anyone who needs it.
-
-   The color is animated rather than set, so it beats the inline `color` that
-   amber-console.js copies onto the clone — an animation outranks an inline style
-   in the cascade. Palettes with one coating never reach this keyframe at all, so
-   their ghosts keep the source's own color exactly as before. */
+   4% is the crossover, hardcoded because keyframe offsets cannot read a custom
+   property; --ac-persist-fast carries the true figure. The color is ANIMATED
+   rather than set, so it beats the inline `color` amber-console.js copies onto
+   the clone. Palettes with one coating never reach this keyframe.
+   See RATIONALE.md § Ghosts. */
 @keyframes ac-ghost-cascade {
   0%   { opacity: 0.46; color: rgb(var(--gas-flash)); filter: blur(0); }
   4%   { opacity: 0.38; color: rgb(var(--gas-1)); filter: blur(0.1px); }
@@ -1067,38 +835,21 @@
 /* (7) THE PAGE ITSELF DECAYS — cross-document persistence, and the only place in
    this system where a REAL framebuffer snapshot is available without JavaScript.
 
-   Everything else in this file decays an ELEMENT: something the cascade can name
-   and time. A phosphor does not work that way — it decays whatever was drawn,
-   including the middle of a glyph and the part of the screen nothing owns. The
-   View Transition API is the one browser primitive that hands us that: the old
-   page as an image, which is exactly what a coating full of excited electrons
-   is. So navigating from one page to the next under P39 leaves the previous
-   screen genuinely draining behind the new one, per pixel, in pure CSS.
+   Everything else here decays an ELEMENT. A phosphor decays whatever was DRAWN,
+   including the middle of a glyph; the View Transition API is the one primitive
+   that hands us that. The direction rule survives intact — the OLD snapshot
+   decays on the emitter's curve, the NEW page gets `animation: none` and is
+   simply THERE on the first frame.
 
-   The direction rule survives intact and is the whole reason this reads as
-   phosphor rather than as a crossfade: the OLD snapshot decays on the emitter's
-   own sampled curve, and the NEW page gets `animation: none` so it is simply
-   THERE on the first frame. Instant up, curve down — the same asymmetry as every
-   other decay here. A default view transition cross-fades both halves, which is
-   a slideshow effect and reads as nothing in particular.
+   THE AT-RULE IS NOT SHIPPED, DELIBERATELY — THE ONE OPT-IN IN THE FRAMEWORK.
+   `@view-transition { navigation: auto; }` is a document-level switch that
+   cannot be scoped, and linking a stylesheet must not rewrite how a site
+   navigates. Add that one line yourself and the rules below take it from there;
+   docs/docs.css does exactly that.
 
-   THE AT-RULE IS NOT SHIPPED, DELIBERATELY, AND THIS IS THE ONE OPT-IN IN THE
-   FRAMEWORK. `@view-transition { navigation: auto; }` cannot be scoped to a
-   selector — it is a document-level switch — so putting it here would change how
-   navigation behaves for every consumer who links this stylesheet, including
-   ones who never asked for a screen simulation. Linking a stylesheet must not
-   rewrite how a site navigates. Add the one line yourself:
-
-       @view-transition { navigation: auto; }
-
-   and the rules below take it from there. docs/docs.css does exactly that.
-
-   CAPPED SEPARATELY FROM --ac-persist-tail, and for a harder reason than taste:
-   the transition overlay sits above the document while it runs, so a 3000ms P7
-   tail would mean three seconds of a page that cannot be clicked. `pointer-events`
-   is cut below as a belt-and-braces measure, but the duration cap is the real
-   fix. 900ms is long enough to read as persistence and short enough that nobody
-   waits on it. */
+   CAPPED AT 900ms SEPARATELY from --ac-persist-tail: the overlay sits above the
+   document while it runs, so P7's 3000ms tail would mean three seconds of a page
+   that cannot be clicked. See RATIONALE.md § The page itself decays. */
 html:has(.ac-afterglow)::view-transition-old(root) {
   animation: ac-page-decay min(var(--ac-persist-tail), 900ms) var(--ac-decay-ease) forwards;
   mix-blend-mode: screen;
@@ -1124,28 +875,16 @@ html:has(.ac-afterglow)::view-transition-group(root) {
 
 /* --- THE GLASS IS THE VIEWPORT, NOT THE DOCUMENT ---
 
-   Every overlay above is positioned against the frame, and on a full-screen
-   frame the frame is the whole document — 26,500px on the system guide. That is
-   wrong twice over.
+   Anchoring these overlays to a document-height frame is wrong physically (glass
+   does not scroll, so a vignette would darken the top of the PAGE rather than the
+   edges of the SCREEN) and practically (a document-height backdrop-filter
+   rasterizes in tiles, and the seams band). Fixing them to the viewport fixes the
+   look, the physics and the cost at once.
 
-   Physically: the bleed, the scanline mask, the vignette and the retrace are all
-   properties of the glass. Glass does not scroll. A vignette anchored to the
-   document darkens the top and bottom of the PAGE instead of the edges of the
-   SCREEN, which is not an effect any hardware has.
-
-   Practically: it banded. A backdrop-filter stretched over a document-height
-   layer is rasterized in tiles, and the tile seams show up as static horizontal
-   and vertical steps across the background — the bars this fixes. The enormous
-   mask and vignette gradients quantize into visible steps for the same reason,
-   8-bit alpha spread over thousands of pixels.
-
-   Anchoring to the viewport fixes the look, the physics and the cost — the
-   backdrop-filter now covers one screen instead of one document.
-
-   Scoped to .ac-screen on purpose: .ac-bloom and .ac-crt also go on small tiles
-   (the guide documents itself with them), and those must stay local to the tile.
-   .ac-persist itself stays document-absolute — ghosts are pinned to the rect
-   their source occupied, which is a document coordinate. */
+   SCOPED TO .ac-screen ON PURPOSE: .ac-bloom and .ac-crt also go on small tiles,
+   which must stay local to the tile. .ac-persist stays document-absolute —
+   ghosts are pinned to a document coordinate.
+   See RATIONALE.md § The glass is the viewport, not the document. */
 .ac-screen.ac-bloom::before,
 .ac-screen.ac-crt::after,
 .ac-screen.ac-afterglow > .ac-persist::before {
