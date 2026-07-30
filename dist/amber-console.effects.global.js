@@ -16,7 +16,7 @@
  *                              on its own — de-energizing afterimages, the blink
  *                              off-edge, residual patches, decay-out, and
  *                              cross-document page persistence. Complete alone.
- *   amber-console.js           BEHAVIOUR. The tablist keyboard model, dialogs,
+ *   amber-console.js           BEHAVIOR. The tablist keyboard model, dialogs,
  *                              toggles, the DISPLAY presets. No effects.
  *   amber-console.effects.js   THIS FILE. The three persistence phenomena that
  *                              are not reachable from CSS at all.
@@ -39,8 +39,8 @@
  * HOW IT FINDS ITS WORK WITHOUT BEING TOLD. There is no registration call and no
  * event contract with amber-console.js. This file watches the DOM for the two
  * facts it needs — whether `.ac-afterglow` is on the frame, and whether
- * `data-ac-style-smear` is off on the root — because both are already in the DOM
- * and observable. A contract between the two modules would be a thing to keep in
+ * `data-ac-engine` permits it — because both are already in the DOM and
+ * observable. A contract between the two modules would be a thing to keep in
  * sync; an observer is not.
  */
 
@@ -62,16 +62,13 @@ function screenFrame() {
 
 const afterglowOn = () => Boolean(screenFrame()?.classList.contains("ac-afterglow"));
 
-/**
- * The style flag, read straight off the root.
- *
- * Defaults to ON when the attribute is absent, matching the STYLES table in
- * amber-console.js — which this file deliberately does not import. The default
- * is duplicated rather than shared, and that is a real cost, but the alternative
- * is a module that cannot run without the other one present.
- */
-const smearOn = () =>
-  document.documentElement.getAttribute("data-ac-style-smear") !== "off";
+/* THE SMEAR HAS NO SWITCH OF ITS OWN ANY MORE, and losing it removed a whole
+   class of confusion rather than a feature. It was a STYLE flag that could only
+   ever be on under CRT and had to disable itself under plasma, which meant a
+   control that spent most of its life explaining why it could not do anything.
+   Every other thing this module does is governed by one question — is the
+   persistence simulation running and is this module allowed to contribute — and
+   the smear is now governed by the same one. */
 
 /**
  * THE ENGINE FLAG — whether this file is allowed to run at all.
@@ -85,10 +82,48 @@ const smearOn = () =>
  * answers "which of these effects need JavaScript" by turning exactly those off.
  *
  * Defaults to on when absent, and the default is duplicated from ENGINE in
- * amber-console.js for the same reason smearOn's is: a module that cannot run
- * without the other one present is not optional.
+ * amber-console.js rather than shared with it. That is a real cost, and the
+ * alternative is worse: a module that cannot run without the other one present
+ * is not optional.
  */
 const engineOn = () => document.documentElement.getAttribute("data-ac-engine") !== "css";
+
+/**
+ * THE SHORTEST TAIL THESE EFFECTS CAN BE SEEN AT, in milliseconds.
+ *
+ * Mirrored from ENGINE_FLOOR_MS in amber-console.js, duplicated for the same
+ * reason engineOn's default is: a module that cannot run without the other one
+ * present is not optional. If the two ever disagree, the switch and the work it
+ * governs disagree — so they are commented as a pair.
+ *
+ * 5ms is a third of a frame at 60Hz. Three phosphors declare a tail below it by
+ * three orders of magnitude — P11 at 0.035ms, P31 at 0.038ms, P4 at 0.06ms — and
+ * on those every effect in this file is real work with no visible result: a ghost
+ * is cloned, measured, appended, given a 0.035ms animation and removed inside the
+ * same frame. Stopping is not just honesty about the switch, it is not doing that.
+ */
+const PERSIST_FLOOR_MS = 5;
+
+/**
+ * Whether this module should be contributing anything at all.
+ *
+ * THREE CONDITIONS THAT FAIL FOR THREE DIFFERENT REASONS, which is why they are
+ * gathered here instead of restated at each call site:
+ *
+ *   the engine flag   the page asked for the stylesheet's simulation only
+ *   .ac-afterglow     there is no persistence layer to decay onto — every
+ *                     selector in the CSS half is scoped to it, and a plasma cell
+ *                     is driven continuously and has nothing that trails
+ *   the tail          the phosphor relaxes faster than a frame, so nothing these
+ *                     effects draw could survive to be composited
+ *
+ * amber-console.js disables the JS Effects switch on the last two and paints it
+ * OFF, so the control agrees with this function rather than claiming to be on
+ * while nothing runs.
+ */
+function effectsActive() {
+  return engineOn() && afterglowOn() && tailMs() >= PERSIST_FLOOR_MS;
+}
 
 /**
  * Read a time token off the root, in milliseconds.
@@ -206,10 +241,10 @@ function spawnGhost(source, text, fast, at) {
   if (document.hidden || REDUCED_MOTION.matches) return;
 
   /* The exported afterglow() reaches this directly, without going through
-     sync(), so the engine flag is checked here too rather than only at the
-     observer. A page that calls it by hand under the CSS-only engine gets the
-     same nothing as one that never called it. */
-  if (!engineOn()) return;
+     sync(), so the full gate is checked here too rather than only at the
+     observer. A page that calls it by hand where these effects cannot be seen
+     gets the same nothing as one that never called it. */
+  if (!effectsActive()) return;
 
   const frame = source.closest(".ac-afterglow");
   if (!frame) return;
@@ -339,9 +374,9 @@ function makeGhostObserver(frame) {
  * change than it does now, with the rect it has given up.
  *
  * A LIT AREA GETTING SMALLER IS ITS OWN PHENOMENON, and until now nothing
- * modelled it. Every other decay here covers a node disappearing, text being
- * rewritten, or a lamp changing colour — but a bargraph does none of those. The
- * element stays, its text is elsewhere, its colour never moves; what changes is
+ * modeled it. Every other decay here covers a node disappearing, text being
+ * rewritten, or a lamp changing color — but a bargraph does none of those. The
+ * element stays, its text is elsewhere, its color never moves; what changes is
  * its WIDTH, so the strip it vacates was lit a moment ago and is now simply not
  * drawn. On a two-second phosphor that was the most visible wrong thing on the
  * panel: everything around the bar trailed and the bar itself snapped.
@@ -530,7 +565,7 @@ function makeScrollSmear(frame) {
  * would mean a 3000ms P7 snapshot being thrown away 60 times a second and never
  * completing once — strictly worse than not doing it. Tab switches, dialogs and
  * panel swaps are far enough apart to finish. Frequent text keeps the ghost
- * mechanism above, which composes rather than cancelling.
+ * mechanism above, which composes rather than canceling.
  *
  * Declines, and simply runs `fn`, when: the API is absent, motion is reduced,
  * the document is hidden (the API throws InvalidStateError there rather than
@@ -542,8 +577,7 @@ function transition(fn) {
     typeof document.startViewTransition !== "function" ||
     REDUCED_MOTION.matches ||
     document.hidden ||
-    !afterglowOn() ||
-    !engineOn()
+    !effectsActive()
   ) {
     fn();
     return null;
@@ -587,9 +621,10 @@ function sync() {
   }
   if (!frame) return;
 
-  /* Both halves have to be true: the simulation has to be asking for
-     persistence, and the page has to be allowing this file to provide it. */
-  const want = afterglowOn() && engineOn();
+  /* All of it has to be true — see effectsActive. The observer, the smear loop
+     and the framebuffer decay are the same three effects behind the same three
+     conditions, so there is one answer rather than one per call site. */
+  const want = effectsActive();
 
   if (want && !connected) {
     persistLayer(frame);
@@ -616,9 +651,11 @@ function sync() {
     connected = false;
   }
 
-  /* The smear flag moves independently of the simulation, so it is settled on
-     every sync rather than only on the transitions above. */
-  if (connected && smearOn()) scrollSmear?.connect();
+  /* The smear rides the same answer as everything else here now — see the note
+     where its flag used to be. Settled on every sync rather than only on the
+     transitions above, because the engine flag can move without the simulation
+     moving with it. */
+  if (connected) scrollSmear?.connect();
   else scrollSmear?.disconnect();
 }
 
@@ -652,8 +689,15 @@ function init() {
     attributeFilter: [
       "class",
       "data-ac-screen",
-      "data-ac-style-smear",
       "data-ac-engine",
+      /* THE PALETTE IS PART OF THE GATE NOW, because --ac-persist-tail comes
+         from the emitter and effectsActive() reads it. P39 to P11 is still CRT,
+         still afterglow, still engine-on — and goes from a two-second tail to
+         thirty-five microseconds, which is the difference between these effects
+         being the point and being invisible work. Without these two the observer
+         would stay connected across that change. */
+      "data-ac-tech",
+      "data-ac-emitter",
     ],
   });
 

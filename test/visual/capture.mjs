@@ -95,18 +95,20 @@ const PAGES = [
 /**
  * `styles` SEEDS THE STYLE FLAGS, and `only` narrows a case to named pages.
  *
- * The classic case is the reason both exist, and it is guide-only on the same
- * economics the `fullPage` note above argues: five full-page captures of a corner
- * style would be five of the largest files in the repo, re-written on every
- * --update, to gate a shape that is identical on all of them. The guide is the
- * viewport capture and it is where the paired specimen lives, so one case there
- * costs a screen and covers buttons, a pad, a toggle and the panels around them.
+ * The rounded case is the reason both exist. CLASSIC IS THE DEFAULT, so the seven
+ * cases above already gate it on all five pages; what nothing covered was the
+ * page with it switched OFF, which is a whole second set of corner geometry and an
+ * .ac-btn alignment reset. This case is that, and it is guide-only on the same
+ * economics the `fullPage` note above argues: five full-page captures would be
+ * five of the largest files in the repo, re-written on every --update, to gate a
+ * shape identical on all of them. The guide is the viewport capture and the paired
+ * specimen lives there, so one case costs a screen and covers buttons, a pad, a
+ * toggle and the panels around them.
  *
- * WHAT THIS GIVES UP: the classic corner is not gated on the console, server,
- * radar or terminal boards. It is the same CSS on all five — a token override
- * plus a corner shape, no per-page markup — so a regression that spared the
- * guide would be a strange one. The overflow probe still walks every page in
- * every other case, and the fifth switch that grew the boards is gated there.
+ * WHAT THIS GIVES UP: the rounded path is not gated on the console, server, radar
+ * or terminal boards. It is the same CSS on all five — a token override and a
+ * corner shape, no per-page markup — so a regression that spared the guide would
+ * be a strange one. Every other case still walks every page.
  */
 const CASES = [
   { id: "1440-sims-on", width: 1440, height: 900, sims: "plasma" },
@@ -117,11 +119,11 @@ const CASES = [
   { id: "1440-forced-colors", width: 1440, height: 900, sims: "plasma", forcedColors: "active" },
   { id: "1280-print", width: 1280, height: 800, sims: "plasma", media: "print" },
   {
-    id: "1440-classic",
+    id: "1440-rounded",
     width: 1440,
     height: 900,
     sims: "plasma",
-    styles: { classic: "1" },
+    styles: { classic: "0" },
     only: ["guide"],
     /* Its own anchor, because the point of the case is the corner and the paired
        specimen is the one place both corners are in frame together. */
@@ -130,7 +132,7 @@ const CASES = [
 ];
 
 /**
- * Rasterisation noise floor — the one thing byte equality cannot promise.
+ * Rasterization noise floor — the one thing byte equality cannot promise.
  *
  * `backdrop-filter` is composited on the GPU and Chrome has two raster paths for
  * it, picking between them per run. The output is not bit-identical: measured
@@ -324,8 +326,8 @@ for (const page of PAGES) {
 
            .doc-ppi — the radar dial — is the third of that kind and the least
            obvious. EVERYTHING ON IT IS POLAR: a bearing mark, a contact and the
-           bearing line are each a ZERO-WIDTH arm pinned at the centre of the
-           dial and rotated to their bearing, carrying their mark centred on the
+           bearing line are each a ZERO-WIDTH arm pinned at the center of the
+           dial and rotated to their bearing, carrying their mark centered on the
            far end. Both halves of that defeat this measurement. A zero-width box
            reports its mark's full width as overflow, and scroll overflow is
            measured on axis-aligned bounds, so a rotated arm reports a box far

@@ -233,32 +233,26 @@
              itself is still in the framework — write data-ac-style="blink" on
              a toggle to expose it, or set data-ac-style-blink="off" on <html>.
              prefers-reduced-motion stops it either way. -->
-        <!-- Ships OFF and disabled, because the frame above ships .ac-bloom. The
-             smear lives on .ac-afterglow, which arrives with CRT — so this is the
-             position initStyle settles on anyway, and matching it in markup is what
-             keeps the switch from painting one frame in the wrong place. Pick any
-             CRT preset and it turns itself on. -->
-        <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="false" disabled>
-          <span>Scroll Smear <span class="ac-badge ac-badge--dim">JS</span></span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
-        </button>
-        <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true" disabled>
           <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
         <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
              the board with blink and smear rather than beside PLASMA and CRT: a bevel
              makes no claim about which gas is in the gap. Cuts the corners off every
-             bordered surface and puts a hard offset edge under the keys — one look,
-             one switch. Ships OFF; the rounded corner is what these pages were drawn
-             against and this is the other option, not a fix. Where corner-shape is
-             unsupported the corners quantize to 2px instead of cutting, so the switch
-             does something in every browser. The paired specimen in section 06 shows
-             both corners at once regardless of where this switch is standing. -->
-        <button type="button" class="ac-toggle" data-ac-style="classic" aria-pressed="false">
-          <span>Classic Corners</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+             bordered surface, stands the keys on a hard offset edge and parks their
+             labels top-left — one look, one switch. Ships ON, because that is what the
+             panel was; switching it off asks for a smoother corner than the hardware
+             could draw. Where corner-shape is unsupported the corners quantize to 2px
+             instead of cutting, so both positions mean something in every browser.
+             The paired specimen in section 06 shows both corners at once regardless of
+             where this switch is standing — it uses .ac-rounded, the region-scoped
+             version of switching this off. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="classic" aria-pressed="true">
+          <span>Classic Buttons</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
       </div>
 
-      <p class="doc-displays__note" data-ac-style-note="smear">Smear needs the CRT simulation.</p>
+      <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
       <p class="doc-displays__note">JS Effects off: no ghosting, smear or framebuffer
         decay. Everything else here is CSS.</p>
     </div>
@@ -324,7 +318,7 @@
           re-struck sixty times a second, and text that stops being written leaves only the glow.
           This is the radar phosphor — the flash gives position, the trail gives history.</p>
         <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
-          and leaves the colour alone — this palette and P1 are the same green, and differ only in
+          and leaves the color alone — this palette and P1 are the same green, and differ only in
           how long it lasts. At hundreds of milliseconds the screen is still near full brightness
           when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
           paid for in smear.</p>
@@ -335,8 +329,8 @@
           heavy flicker are the same fact.</p>
         <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
           mixed into one coating, emitting together, which the eye integrates to white. That is
-          what separates it from P7 — two powders mixed have one colour, two powders layered emit
-          in sequence and the colour changes as you watch.</p>
+          what separates it from P7 — two powders mixed have one color, two powders layered emit
+          in sequence and the color changes as you watch.</p>
       </div>
     </div>
 
@@ -485,7 +479,7 @@
 
     <h3 style="margin:32px 0 12px">PLASMA / ARGON · PALE VIOLET-LAVENDER</h3>
     <p class="doc-dim doc-small" style="margin-bottom:14px">Argon puts most of its power into the 696–772nm array, where the CIE observer scores under 0.01 — which is
-      why argon is <em>dim</em>, and why its 696.5nm peak is the strongest line but not the colour. What you see
+      why argon is <em>dim</em>, and why its 696.5nm peak is the strongest line but not the color. What you see
       is the 415–475nm group, a hundred times weaker on the meter and a hundred times better placed for the eye.
       x=0.2163 y=0.1047, desaturated 35% toward D65 to fit sRGB: paler here than in the tube.</p>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="argon" style="gap:12px">
@@ -522,7 +516,7 @@
 
     <p class="doc-dim doc-small" style="margin-top:18px">The ramp is <code>--emit-100</code> through
       <code>--emit-30</code>. It used to be <code>--amber-*</code>, which named a hue rather than a ramp and was
-      already only historically true — under NEON the colour is not amber. With a lavender and a pink in the
+      already only historically true — under NEON the color is not amber. With a lavender and a pink in the
       file it stopped being defensible at all. <code>--amber-*</code> survives as a deprecated alias and goes in
       3.0. Adding an emitter, or a whole technology, means adding one block to <code>colors.css</code>: five
       stops, three surfaces, <code>--on-fill</code>, the four <code>--gas-N</code> triples the glow is built
@@ -698,7 +692,7 @@
         <span class="doc-faint doc-small">The commonest light-off event on a control panel is not a
           node disappearing, it is a lamp going out: a pressed button releasing, a tab deselecting,
           an interlock unchecking. <strong>Split by what each property describes:</strong> the
-          structure — background, border, colour — releases fast so the control reads as off
+          structure — background, border, color — releases fast so the control reads as off
           immediately, while the <em>halo</em> decays on the full uncapped tail, because the halo is
           the scattered light that persists. Under P39 a released button glows for a second and a
           half. Hover is excluded on purpose — a wake behind the cursor reads as lag.</span></div>
@@ -718,7 +712,7 @@
           navigates.</span></div>
       <div class="doc-demo doc-demo--col"><span class="doc-cap">8 · A LIT AREA SHRINKING — CSS + effects.js</span>
         <span class="doc-faint doc-small">A bargraph does none of the seven things above: the element
-          stays, its text is elsewhere, its colour never moves. What changes is its <em>width</em>, so
+          stays, its text is elsewhere, its color never moves. What changes is its <em>width</em>, so
           the strip it vacates was lit a moment ago and is now simply not drawn. On a two-second
           phosphor that was the most visible wrong thing on the panel — everything around the bar
           trailed and the bar itself snapped. A second bar now lags behind the live one on
@@ -910,10 +904,11 @@
       <!-- THE PAIR IS THE POINT OF THIS SPECIMEN. The switch in the board above
            flips the whole page, which is the right control for a viewer and the
            wrong one for documentation — you cannot compare two corners by looking
-           at one of them. So the lower row carries .ac-classic on its own wrapper
-           and both styles sit here at once, whichever way the board is set. -->
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — ROUNDED VS CLASSIC CORNERS</span>
-        <div class="ac-row ac-row--wrap" style="--gap:16px;width:100%;align-items:center">
+           at one of them. So each row states its own corner explicitly and both
+           sit here at once, whichever way the board is standing: .ac-rounded on
+           the upper row, .ac-classic on the lower. -->
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — CLASSIC VS ROUNDED</span>
+        <div class="ac-rounded ac-row ac-row--wrap" style="--gap:16px;width:100%;align-items:center">
           <button type="button" class="ac-btn">Run</button>
           <button type="button" class="ac-btn ac-btn--filled">Manual</button>
           <button type="button" class="ac-btn" disabled>Locked</button>
@@ -931,21 +926,32 @@
             <span>Sustain</span><input type="checkbox" checked><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state"></span>
           </label>
         </div>
-        <span class="doc-faint doc-small">Same five controls, second row wrapped in <code>.ac-classic</code>. The
-          corner is cut rather than arced and the keys stand on a hard offset edge — one look, one class, and it
-          reaches every bordered surface inside the wrapper, not only the buttons. A filled key is DOWN: it spends
-          its extrusion and sits 2px into the board, because a latching key that does not travel is a picture of a
-          key. <code>Locked</code> keeps neither edge nor halo — inert hardware does not glow. The top-left label on
-          <code>Fn</code> is <code>.ac-btn--pad</code> and is a separate axis; pads and corners compose freely.</span>
-        <code class="doc-code">&lt;div class="ac-classic"&gt; … &lt;/div&gt;      &lt;!-- scope: frame, panel or one control --&gt;
-&lt;html data-ac-style-classic="on"&gt;      &lt;!-- or the whole page; what the demo switch writes --&gt;</code>
-        <p class="doc-when">Both corner styles in one region. They are two readings of the same hardware and
-          mixing them says the panel was assembled from two of them. Scope <code>.ac-classic</code> to a whole
-          frame, or set the flag on the root — this specimen is the documented exception.</p>
+        <span class="doc-faint doc-small">Same five controls: upper row <code>.ac-rounded</code>, lower row
+          <code>.ac-classic</code> — which is the default, so the lower row is what a page looks like untouched.
+          <strong>The four corners are not cut the same.</strong> These keys were drawn as solid objects lit from
+          the top left, so the far corner is barely cut and the near one is cut hardest — 2 / 4 / 8 / 4 px running
+          down the diagonal. Cut all four alike and the key reads as an octagon instead of an object. The extrusion
+          is offset along that same diagonal, which is why the bottom and right edges carry a heavy band and the top
+          and left stay a single stroke: one claim about where the light is, made twice.</span>
+        <span class="doc-faint doc-small">A filled key is IN — the band flips to the top and left, because the near
+          face of a sunken key is the upper one. The key does not move: a transform reads correctly but contributes
+          to scrollable overflow, and a latched key flush against its container pushed 4px past it. A box-shadow
+          costs nothing either way, so the light moves and the geometry does not.
+          <code>Locked</code> keeps neither edge nor halo: inert hardware does not glow. Labels park top-left
+          wherever a key is taller than its text, which is the classic face — a label plus room for a value.
+          <code>Fn</code> is <code>.ac-btn--pad</code>, the 96px touch pad, and it composes with either corner.
+          Keypad digits are exempt and stay centered; one character has no label/value split to serve.</span>
+        <code class="doc-code">&lt;!-- classic is the default; these are the ways to say otherwise --&gt;
+&lt;div class="ac-rounded"&gt; … &lt;/div&gt;     &lt;!-- one region back to the arc --&gt;
+&lt;div class="ac-classic"&gt; … &lt;/div&gt;     &lt;!-- one region back to the cut --&gt;
+&lt;html data-ac-style-classic="off"&gt;     &lt;!-- the whole page; what the demo switch writes --&gt;</code>
+        <p class="doc-when">Both corner styles in one region. They are two readings of the same hardware, and
+          mixing them says the panel was assembled from two of them. Scope either class to a whole frame, or set
+          the flag on the root — this specimen is the documented exception.</p>
         <p class="doc-faint doc-small">Firefox and older Safari have no <code>corner-shape</code>, so they quantize
-          the radius to 2px instead of cutting a chamfer. Deliberate: a hard 2px corner is the same statement in a
-          property every engine has, and the switch stays honest everywhere. The extrusion is identical on both
-          paths.</p>
+          the radius to a hard 2px instead of cutting a chamfer. Deliberate: that is the same statement in a
+          property every engine has had for fifteen years, so both positions of the switch mean something
+          everywhere. The extrusion and the top-left label are identical on both paths.</p>
       </div>
 
       <div class="doc-demo doc-demo--col"><span class="doc-cap">TABS — SOFT KEYS, TITLE CASE</span>

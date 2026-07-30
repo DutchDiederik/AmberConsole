@@ -53,8 +53,8 @@ try {
 const cssHref = "../dist/amber-console.css";
 
 /**
- * The mark. Optical centring, not geometric: VT323's cap height sits high in the
- * em box, so a glyph centerd on its line box reads low. The grid is nudged up
+ * The mark. Optical centering, not geometric: VT323's cap height sits high in the
+ * em box, so a glyph centered on its line box reads low. The grid is nudged up
  * by 6% of the tile to put the letter's visual mass in the middle.
  */
 const icon = (px) => `

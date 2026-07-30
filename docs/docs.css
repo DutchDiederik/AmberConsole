@@ -638,7 +638,7 @@
 
 /* A stopped container is still listed — an operator needs to see the thing that
    is not running — but it is no longer reporting, so it recedes to the faintest
-   ink with the halo off. This is the whole colour argument in one rule: with a
+   ink with the halo off. This is the whole color argument in one rule: with a
    single hue available, "off" is said with brightness rather than with red. */
 .doc-services tr[data-stopped] td {
   color: var(--ink-faint);
@@ -657,7 +657,7 @@
    polar — a bearing and a range — and none of it may be an SVG, which law 6
    bans and `npm run check` greps for.
 
-   So each mark is a zero-width span pinned with its BOTTOM at the centre of the
+   So each mark is a zero-width span pinned with its BOTTOM at the center of the
    dial, given a height in percent and rotated by its bearing. The far end then
    lands exactly where polar coordinates say it does, at any dial size, with no
    arithmetic in JavaScript and nothing to recompute on resize. The mark itself
@@ -838,7 +838,7 @@
 }
 
 /* The selected track, ringed. With one hue available, "this one" is a marker
-   and a brightness, never a colour. */
+   and a brightness, never a color. */
 .doc-echo--sel::before {
   content: "";
   position: absolute;
@@ -909,7 +909,7 @@
    the radar face: the wake is already dropped by base/a11y.css for reasons of its
    own, and the contacts, the bearing ticks and the A-scope are all filled boxes.
    A blank circle is worse than a plain one, so everything that carries
-   INFORMATION is redrawn in the user's own palette — system colour keywords are
+   INFORMATION is redrawn in the user's own palette — system color keywords are
    the one set of values this mode does not override. The decorative marks (the
    guard sector, the range marker) are left to disappear. */
 @media (forced-colors: active) {
@@ -1025,7 +1025,7 @@
   width: 15ch;
 }
 
-/* Contributor and centre codes. Four letters that are an identifier rather than
+/* Contributor and center codes. Four letters that are an identifier rather than
    a word, so they get the micro face and stop competing with the numbers. */
 .doc-ctr {
   font-family: var(--font-micro);
@@ -1036,8 +1036,8 @@
 }
 
 /* A FIELD THAT JUST CHANGED, and this is the law-1 answer to the question every
-   market screen has to answer: how do you flag a change with no colour to flag
-   it in? The same way these screens did before colour tubes were affordable —
+   market screen has to answer: how do you flag a change with no color to flag
+   it in? The same way these screens did before color tubes were affordable —
    invert the cell for a couple of seconds. terminal.js adds the class and takes
    it off; the ghost of the previous value is drawn by the effects module and is
    a separate mechanism entirely, which is why the two read as one event and not

@@ -51,8 +51,8 @@ import "amber-console/layer";    // wrapped in @layer amber-console
 | `dist/amber-console.min.css` | Production. 35kb, 6.6kb gzipped, same behavior. |
 | `dist/amber-console.layer.css` | Dropping into an existing app — `@layer` makes the framework lose specificity fights against your own rules. Use *instead of*, never alongside. |
 | `dist/amber-console.layer.min.css` | The same, minified. Production embedding. |
-| `dist/amber-console.js` | Optional **behaviour**, ES module. For bundlers. |
-| `dist/amber-console.global.js` | Optional behaviour, classic script. Needed for `file://` pages, where `type="module"` is blocked. |
+| `dist/amber-console.js` | Optional **behavior**, ES module. For bundlers. |
+| `dist/amber-console.global.js` | Optional behavior, classic script. Needed for `file://` pages, where `type="module"` is blocked. |
 | `dist/amber-console.effects.js` | Optional **persistence**, ES module. Ghosting, scroll smear, framebuffer decay. |
 | `dist/amber-console.effects.global.js` | The same, classic script. |
 
@@ -84,7 +84,7 @@ snapshot of the screen you just replaced.
 <!-- CSS only. Complete. -->
 <link rel="stylesheet" href="dist/amber-console.css">
 
-<!-- add behaviour (tabs, dialogs, presets) and/or persistence, in either order -->
+<!-- add behavior (tabs, dialogs, presets) and/or persistence, in either order -->
 <script src="dist/amber-console.global.js"></script>
 <script src="dist/amber-console.effects.global.js"></script>
 ```
@@ -180,7 +180,8 @@ That renders a framed, glowing, scanlined control panel. No build step, no serve
 | `.ac-afterglow` | PERSISTENCE: things that disappear decay instead of switching off, a de-energized control's glow lingers for the emitter's full tail, and the glass holds faint uneven patches. With `effects.js` it also ghosts rewritten text and smears while scrolling. Needs an `.ac-persist` child. |
 | `.ac-sweep` | PPI radar face — a rotating `conic-gradient` whose angular falloff *is* the decaying wake. Pure CSS, no script. Period scales off `--ac-persist-tail`. Needs an `.ac-sweep__beam` child. |
 | `.ac-scanlines` | Static, motion-free line texture, for print and thumbnails |
-| `.ac-classic` | The second corner style: corners cut instead of arced on every bordered surface inside it, plus a hard offset edge under the keys. See below. |
+| `.ac-classic` | The default look, stated explicitly: corners cut instead of arced on every bordered surface inside it, keys on a hard offset edge, labels top-left. See below. |
+| `.ac-rounded` | The way back to the smooth 8px arc, at any scope. Same rules, original values. |
 
 Put any of `.ac-bloom`, `.ac-crt` and `.ac-afterglow` on the outermost frame, once per screen, never
 nested. All three should be operator-toggleable in a real product — the demos show how, putting
@@ -211,36 +212,65 @@ a flat strip floating over it. `.ac-screen` clips with `overflow: clip` rather t
 specifically so that works: `hidden` makes the frame a scroll container, and `position: sticky`
 inside a scroll container that never scrolls does not stick.
 
-### Classic corners
+### Classic buttons
 
-An 8px quarter-circle is a thing a modern rasteriser does. A gas-discharge panel addressing a coarse
-cell grid could not — it cut the corner off — and the keys carried a hard offset edge under them so a
-finger could tell a key from a label. `.ac-classic` is that second reading, and the smooth corner is
-not deprecated by it: this is the *other* option, and it ships off.
+An 8px quarter-circle is a thing a modern rasterizer does. A gas-discharge panel addressing a coarse
+cell grid could not — it cut the corner off — and the keys on one stood on a hard offset edge with the
+label parked in the top-left corner and the body left empty for a value. **That is the default look**,
+because it is what the hardware was. The smooth corner is still fully supported; it is now the thing
+you opt into.
 
 ```html
-<div class="ac-classic">…</div>          <!-- scope: a frame, a panel, or one control -->
-<html data-ac-style-classic="on">        <!-- or the whole page — what the demo switch writes -->
+<!-- classic is the default; these are the ways to say otherwise -->
+<div class="ac-rounded">…</div>            <!-- one region back to the arc -->
+<div class="ac-classic">…</div>            <!-- one region back to the cut -->
+<html data-ac-style-classic="off">         <!-- the whole page — what the demo switch writes -->
 ```
 
-Both forms are the same rules. The corner reaches **every bordered surface** in scope — buttons, tabs,
-panels, dialogs, inputs, nav links, toggle tracks, meter tracks — because a beveled key inside a
-rounded panel reads as two display generations on one screen. The extrusion (`--edge-3d`) reaches
-**only the controls**: a drop shadow claims the thing stands off the glass, which is true of a soft
-key and a switch housing and of nothing else on the board. A filled or `aria-pressed` key spends its
-extrusion and translates 2px into the board, because a latching key that does not travel is a picture
-of a key; a `disabled` one keeps neither edge nor halo.
+All three are the same rules reading the same tokens, and they nest in either direction — a classic
+island inside a rounded region is a supported arrangement, not a specificity coin toss.
 
-**Two paths, and the fallback is not a degradation.** Where `corner-shape` is supported the radius
-stays exactly where the design system put it — 8px on frames and pads, 4px on wells — and only the
-*shape* changes, arc to chamfer. Where it is not (Firefox, older Safari) the radius quantizes to 2px
-instead, which is the same statement made in a property every engine has had for fifteen years. Flip
-the switch in any browser and the corners visibly change.
+**The corner reaches every bordered surface** in scope — buttons, tabs, panels, dialogs, inputs, nav
+links, toggle tracks, meter tracks — because a beveled key inside a rounded panel reads as two display
+generations on one screen. Two other things reach **only the controls**:
+
+- **The extruded edge** (`--edge-3d`). A drop shadow claims the thing stands off the glass, which is
+  true of a soft key and a switch housing and of nothing else on the board. It is an *edge*, not a
+  ghost: an outer `box-shadow` is clipped to outside the border box, so a hard offset copy paints a
+  solid band down the bottom and right rather than a floating duplicate. Two layers give it depth — a
+  bright 2px lip against the stroke, then 3px more falling away.
+- **The top-left label.** A soft key is a label plus room for a value, so it is parked in the corner;
+  centering it says the key is a word rather than a field. This is `.ac-btn--pad`'s alignment without
+  its 96px min-height, so it applies at whatever size a key happens to be and composes with `--pad`
+  unchanged. Keypad digits are exempt — one character has no label/value split to serve.
+
+**The four corners are not cut the same, and that is the 3D reading rather than a decoration.** These
+keys were drawn as solid objects lit from the top left, so the far corner is barely cut and the near
+one is cut hardest: `2 / 4 / 8 / 4` px in TL TR BR BL order, with `--radius-sm` running the same
+diagonal at half depth for wells and switch housings. Cut all four alike and the key reads as an
+octagon instead of an object. The extrusion is offset along that same diagonal — one claim about where
+the light is, made twice.
+
+A filled or `aria-pressed` key is **pressed in: the band flips to the top and left**, because the near
+face of a sunken key is the upper one. The key itself does not move — a `translate` reads correctly but
+contributes to scrollable overflow, so a latched key flush against its container pushed 4px past it
+(caught on an `.ac-grow` pad and the keypad's `Ent`). A box-shadow is ink overflow and costs nothing
+either way, so the light moves and the geometry does not. A `disabled` key keeps neither edge nor halo.
+
+**Two corner paths, and the fallback is not a degradation.** Where `corner-shape` is supported the
+radius is spent on the cut. Where it is not (Firefox, older Safari) it quantizes to a hard 2px
+instead, which is the same statement — a corner the cell grid can hold — made in a property every
+engine has had for fifteen years. The extrusion and the top-left label are identical on both paths, so
+what Firefox loses is the chamfer and nothing else.
 
 `clip-path` and `mask-image` could cut a genuine stair-step and were both rejected: they clip the
 element's entire painting, `--glow-box` included, so a stepped corner would be bought by deleting the
 discharge halo off all four sides. `border-radius` and `corner-shape` reshape the shadow instead of
 removing it, which is the only reason this is written in them.
+
+Everything above lives in `src/components/classic.css`. The three scopes set nothing but custom
+properties, and every rule is written once and reads its values out of the cascade — so adding a fourth
+scope, or a per-region override, is a token block and nothing else.
 
 ### Persistence
 
@@ -287,7 +317,7 @@ It also covers the two light-off events you actually hit most:
 
 - **De-energizing** — a lamp going out. A pressed button releasing, a tab deselecting, an interlock
   unchecking. These never hide, so decay-out never sees them. The control's *structure* — background,
-  border, text colour — releases on `--ac-decay-fast` so it reads as off immediately, while its
+  border, text color — releases on `--ac-decay-fast` so it reads as off immediately, while its
   **halo** decays on the uncapped `--ac-persist-tail`, because the halo is precisely the scattered
   light that persists. Under P39 a released button glows for a second and a half.
 - **The blink OFF edge** — `.ac-blink`, `.ac-cursor`, an invalid `.ac-input`, an over-range
@@ -297,7 +327,7 @@ It also covers the two light-off events you actually hit most:
 - **Scroll smear** — scrolling hands every cell a new value at once, so the image trails. Scaled by
   real scroll speed, drained when you stop, and skipped entirely under `prefers-reduced-motion`.
 - **A lit area shrinking** — a bargraph does none of the above: the element stays, its text is
-  elsewhere, its colour never moves. What changes is its *width*, so the strip it vacates was lit a
+  elsewhere, its color never moves. What changes is its *width*, so the strip it vacates was lit a
   moment ago and is now simply not drawn. `.ac-meter` grows a second bar that lags behind the live one
   on `--ac-persist-tail`, and the asymmetry needs no rule of its own — on a fall the ghost is *wider*
   and its trailing strip drains; on a rise it is *narrower*, so it hides under the live bar and
@@ -338,7 +368,7 @@ AmberConsoleEffects.transition(() => {           // falls back to a plain call
 Use it for **discrete** changes only — a tab switch, a dialog, a panel swap. A view transition
 cancels whichever one is already running, so wrapping every text tick would mean a 3000 ms P7
 snapshot being thrown away sixty times a second and never completing once. Frequent updates keep the
-ghost mechanism, which composes instead of cancelling.
+ghost mechanism, which composes instead of canceling.
 
 This is the one place the framework uses a `transition`. It is hardware, not UI: nothing fades *in*,
 and components stay instant redraws — `scripts/check-prohibitions.mjs` still enforces that.
@@ -364,7 +394,7 @@ Two modules, both dependency-free, both **strictly optional**, and optional *sep
 imports the other, and every component looks and reads correctly with both absent. See
 [the two tiers](#the-two-tiers) for what each buys you.
 
-### `amber-console.js` — behaviour
+### `amber-console.js` — behavior
 
 1. the `role="tablist"` keyboard model (←/→/Home/End, roving tabindex)
 2. flipping an `aria-pressed` toggle — the `.ac-toggle--input` variant needs no JS at all
@@ -381,15 +411,31 @@ imports the other, and every component looks and reads correctly with both absen
 2. **scroll smear** — scaled by real scroll velocity
 3. **framebuffer decay** — `transition(fn)`, a real snapshot of the screen you just replaced
 
-It needs no handshake with the behaviour module and no registration call: it watches the DOM for
-`.ac-afterglow` on the frame, and `data-ac-style-smear` and `data-ac-engine` on the root, because
-those facts are already *in* the DOM. A contract between the two modules would be a thing to keep in
-sync; an observer is not.
+It needs no handshake with the behavior module and no registration call: it watches the DOM for
+`.ac-afterglow` on the frame and `data-ac-engine` on the root, because those facts are already *in*
+the DOM. A contract between the two modules would be a thing to keep in sync; an observer is not.
 
-All three are gated on `data-ac-engine` — set it to `css` and this module contributes nothing, which
-is the switch the demo boards expose as **JS Effects**. The scroll smear additionally needs
-`.ac-afterglow`, since it is a property of the afterglow layer: there is no plasma smear, and its
-control disables itself under a plasma simulation rather than offering a switch that does nothing.
+**All three need the same two things, so there is one switch rather than three.** Each is scoped to
+`.ac-afterglow`, which ships with the CRT simulation — there is no plasma equivalent, because a
+plasma cell is driven continuously and has nothing that trails. And each is *timed* by
+`--ac-persist`, so a phosphor whose tail is measured in microseconds gives them no time to be seen.
+`data-ac-engine="css"` turns the module off entirely; the demo boards expose that as **JS Effects**,
+and the control **reads OFF and goes unclickable wherever it would be a no-op** — under any plasma
+simulation, and under P4, P11 and P31, whose tails are 0.06, 0.035 and 0.038 ms. It is live under P7,
+P39, P3 and P1, and under a plasma gas if you switch the CRT simulation on by hand, since the gate
+reads the frame rather than the preset.
+
+Two details worth knowing if you drive this yourself. **The switch shows what is contributing, not
+what the flag permits** — so it can read OFF while `data-ac-engine` is still `css+js`, because nothing
+it governs can be seen on that panel. And **the flag is never rewritten to force that**: your
+preference survives a trip through a palette where the effects are pointless and comes back when you
+return to one where they are not.
+
+> The scroll smear used to have a `data-ac-style-smear` flag of its own. It was removed: it could only
+> ever be on under CRT, so it spent most of its life disabled and explaining why, which is a third
+> axis of state for a preference nobody was expressing. It is now simply part of what this module
+> does. `prefers-reduced-motion` still stops it, which was the only accessibility case the flag was
+> actually carrying.
 
 ```html
 <script src="dist/amber-console.global.js"></script>          <!-- classic; works from file:// -->
@@ -426,15 +472,15 @@ hardware.
 | --- | --- | --- | --- | --- |
 | **`plasma`** *(default)* | **`neon`** | 0.631, 0.369 | orange-red | A monochrome AC plasma panel. Neon emitting directly from the gas — no phosphor anywhere in the stack. This is what the six laws describe and what `.ac-bloom` simulates. |
 | `plasma` | `helium` | 0.394, 0.299 | pale pink | No manifold dominates — helium's visible lines all fall out of n=3 and n=4 decaying to n=2 at comparable energies. The 587.6 nm yellow carries the luminance; 447.1 and 667.8 nm pull it off the blackbody locus toward purple. |
-| `plasma` | `argon` | 0.216, 0.105 | pale violet-lavender | Most of argon's output is past 700 nm where the eye scores under 0.01, so its 696.5 nm peak is the strongest line but not the colour. What you see is the 415–475 nm group. Also why argon is **dim**. |
+| `plasma` | `argon` | 0.216, 0.105 | pale violet-lavender | Most of argon's output is past 700 nm where the eye scores under 0.01, so its 696.5 nm peak is the strongest line but not the color. What you see is the 415–475 nm group. Also why argon is **dim**. |
 | `plasma` | `krypton` | 0.315, 0.255 | pale violet-white | A blue-violet cluster at 427–450 nm against the 557.0 nm green and the 587.1 nm yellow. Spread that wide integrates close to white. |
 | **`crt`** | **`p3`** | 0.523, 0.469 | amber | The classic amber CRT phosphor: a broad ~590 nm band with real green content. A *different* display technology — a beam exciting a phosphor, which emits and then persists — but it is what most people mean by "amber terminal", it is the ramp the source design system was drawn against, and it pairs with `.ac-crt`. |
 | `crt` | `p1` | 0.215, 0.711 | willemite green | Zn₂SiO₄:Mn, the oldest CRT phosphor and the one the early scopes and radar indicators were built around. A silicate, so a narrow 48 nm band against the sulfides' 76–130. Medium persistence. |
-| `crt` | `p4` | 0.270, 0.300 | white | The television phosphor, and a **blend**: ZnS:Ag blue mixed with a yellow emitter in one coating, integrating to white. Two powders mixed have one colour — which is what separates it from P7. |
+| `crt` | `p4` | 0.270, 0.300 | white | The television phosphor, and a **blend**: ZnS:Ag blue mixed with a yellow emitter in one coating, integrating to white. Two powders mixed have one color — which is what separates it from P7. |
 | `crt` | `p7` | 0.138, 0.150 **/** 0.355, 0.537 | blue flash over yellow-green | **Two coatings, in sequence.** The beam writes in blue ZnS:Ag; that layer's own photons pump a long yellow-green (Zn,Cd)S:Cu layer behind it. Ink is blue, halo is green, and the trail outlives the flash by seconds. The radar phosphor — see law 1. |
 | `crt` | `p11` | 0.138, 0.150 | blue | A photographic-recording phosphor: blue is where film is most sensitive, so P11 was fitted to screens meant to be photographed rather than watched. Decays in tens of microseconds, so it flickers hardest of anything here. |
 | `crt` | `p31` | 0.208, 0.530 | green | ZnS:Cu — the green everybody pictures when they picture a terminal or a lab oscilloscope. The highest luminous efficiency here, sitting near the peak of the photopic curve. |
-| `crt` | `p39` | 0.225, 0.696 | yellow-green, long | P1's willemite with arsenic added, which lengthens the decay by orders of magnitude and leaves the colour alone. No visible flicker at any refresh rate, paid for in smear. |
+| `crt` | `p39` | 0.225, 0.696 | yellow-green, long | P1's willemite with arsenic added, which lengthens the decay by orders of magnitude and leaves the color alone. No visible flicker at any refresh rate, paid for in smear. |
 
 Nine of the eleven palettes are **computed, not picked**. `scripts/derive-gas.mjs` integrates a cited
 spectrum against the CIE 1931 2° observer, maps the result into sRGB, and solves each of the five
@@ -449,14 +495,14 @@ silently shipping wrong palettes.
 
 **Two palettes share a ramp with another and that is not a bug.** P1 and P39 are both Zn₂SiO₄:Mn and
 differ only in decay; P7's flash and P11 are both ZnS:Ag and differ only in what sits behind them.
-Where the compound is the same the colour is the same, and the palettes are told apart by their
+Where the compound is the same the color is the same, and the palettes are told apart by their
 persistence rather than their hue. The derivation found this on its own — P1 and P39 were fitted from
 different published coordinates and converged on the same band.
 
 > **The phosphors carry a weaker claim than the gases, and it is not hedging to say so.** A gas emits
-> lines and NIST publishes them, so those palettes run *spectrum → colour* from measured data. No
+> lines and NIST publishes them, so those palettes run *spectrum → color* from measured data. No
 > comparable public table of phosphor band **shapes** exists; what is published is the resulting
-> chromaticity. The phosphor blocks therefore run backwards — *published colour → band* — and their
+> chromaticity. The phosphor blocks therefore run backwards — *published color → band* — and their
 > bands are back-solved rather than measured, which makes their `validate` gate a consistency check
 > rather than the independent known-answer gate neon provides. The `$phosphors` block in
 > `emitters.json` states this plainly, along with the four things that are nonetheless non-circular
@@ -491,7 +537,7 @@ goes as λ⁻⁴, so a violet gas throws far more of itself sideways into the gl
 edge, not scattered light. A palette that declares neither falls back to 1 and renders exactly as
 before.
 
-Not modelled, deliberately: the eye's longitudinal chromatic aberration, which genuinely makes violet
+Not modeled, deliberately: the eye's longitudinal chromatic aberration, which genuinely makes violet
 sources look fuzzier and ratios out at 2.67× for argon. The absolute difference behind that ratio is
 0.126 dioptres — under one pixel at any normal viewing distance — so scaling a bloom radius by it
 would inflate a sub-pixel effect into a hundred and fifty pixels of fog.
@@ -596,7 +642,7 @@ Override any of these; see [what you may safely change](#theming).
 --radius 8px   --radius-sm 4px       (0–2px on strips and badges)
 
 --glow-text  --glow-box
---edge-3d    3px 3px 0 · the extruded key edge, and the one shadow that is not a halo
+--edge-3d    2px+5px hard offset · the extruded key edge, the one shadow that is not a halo
 
 --ac-mesh-pitch 3px   --ac-mesh-wire 0.075   (the cell matrix; see the note below)
 ```
@@ -608,7 +654,7 @@ exactly the mean loss of the CRT scanlines it sits beside. `scripts/contrast.mjs
 first.
 
 The ramp is `--emit-100` through `--emit-30`. It was `--amber-*` until 2.0: that named a hue rather
-than a ramp, and was already only historically true — under the default palette the colour is neon,
+than a ramp, and was already only historically true — under the default palette the color is neon,
 not amber. With a lavender and a pink in the file it stopped being defensible at all.
 **`--amber-*` survives as a deprecated alias and is removed in 3.0.** The aliases resolve per palette
 for free, since they point at `--emit-*`, which every palette block redefines.
@@ -650,8 +696,8 @@ phosphor and carries the same halo — `box-shadow: var(--glow-box)`, or `var(--
 not inherit. Watch for the case where they disagree: an `.ac-input` is bright text inside a dim box.
 
 Inheritance alone is not enough in either direction, which is why the pairing is the rule rather than
-"just let it inherit": an element that *brightens* its own colour inside dim prose inherits the dim's
-suppression and stays flat, and an element that dims its own colour keeps a halo it never asked for.
+"just let it inherit": an element that *brightens* its own color inside dim prose inherits the dim's
+suppression and stays flat, and an element that dims its own color keeps a halo it never asked for.
 `npm run check` enforces the pairing **and its direction** — a lit level with the halo off fails just
 as loudly as a lit level with no halo stated at all.
 
@@ -887,8 +933,8 @@ hardware. It is invented on exactly the same terms as ORION-70.
 
 SEASCAN RM-12, the marine radar in `docs/radar.html`, is the third, and it exists for a single
 emitter. P7 is two coatings — a blue flash the beam writes and a yellow-green layer behind it that
-holds for three seconds — and there is exactly one instrument that was built around that behaviour.
-The other demos can show you the colour of a phosphor; this one shows what the colour is *for*.
+holds for three seconds — and there is exactly one instrument that was built around that behavior.
+The other demos can show you the color of a phosphor; this one shows what the color is *for*.
 
 TELEMARK 400, the market data terminal in `docs/terminal.html`, is the fourth and argues about
 density: roughly four hundred numbers on one screen, and every one of them legible. Its contributing

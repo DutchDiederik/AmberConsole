@@ -206,7 +206,7 @@ function wrapLayer(css) {
 /**
  * The optional modules, as [source file, global name, exported functions].
  *
- * amber-console.js is BEHAVIOUR — tablist, dialogs, toggles, DISPLAY presets.
+ * amber-console.js is BEHAVIOR — tablist, dialogs, toggles, DISPLAY presets.
  * amber-console.effects.js is PERSISTENCE — ghosting, scroll smear, framebuffer
  * decay. Separately optional on purpose: accessible tabs without the eye-candy,
  * or the full phosphor simulation over somebody else's tab implementation.
@@ -273,7 +273,7 @@ async function build() {
   const layerMin = wrapLayer(min);
   await writeFile(path.join(DIST, "amber-console.layer.min.css"), layerMin);
 
-  /* Two independently optional modules, each shipped in both flavours. They are
+  /* Two independently optional modules, each shipped in both flavors. They are
      built the same way and must never import each other — the classic-script
      builds have no module system to do it with, and the split only means
      anything if either can be loaded alone. */

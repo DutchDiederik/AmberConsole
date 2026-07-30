@@ -6,7 +6,7 @@
  * of a line that is delivering prices.
  *
  * THE GHOST BUDGET IS WHAT SHAPES THIS FILE, and it is worth writing down
- * because the constraint and the period behaviour turn out to be the same thing.
+ * because the constraint and the period behavior turn out to be the same thing.
  *
  * amber-console.effects.js caps concurrent ghosts at GHOST_LIMIT = 24, and
  * MAX_GENERATIONS = 4 decides whether a rewrite gets the emitter's full tail or
@@ -23,7 +23,7 @@
  *
  * Determinism, as on the server and radar pages: THE MARKUP IS FRAME ZERO. Every
  * number in terminal.html is what this file would compute before the first tick;
- * nothing is randomised on load; drift comes from a seeded Lehmer generator
+ * nothing is randomized on load; drift comes from a seeded Lehmer generator
  * rather than Math.random; and the first tick is held to 2.5s so it lands well
  * clear of the visual suite's shutter, measured at 800-1300ms. Only the three
  * clocks are painted at load, and they read a Date the harness freezes.
@@ -113,7 +113,7 @@
   QUOTES.forEach(function (q) { BY_PAIR[q.pair] = q; });
 
   /* A field that has just changed inverts for a moment. That is how these
-     screens flagged an update before a colour tube was affordable, and it is the
+     screens flagged an update before a color tube was affordable, and it is the
      law-1 answer to the same question today. The ghost of the old value is the
      effects module's doing and is a separate mechanism — together they read as
      one event, which is the point. */

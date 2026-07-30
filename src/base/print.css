@@ -62,7 +62,7 @@
      looks: a single `mix-blend-mode` anywhere in the document promotes the
      containing stacking context and costs SUBPIXEL TEXT ANTIALIASING for the
      whole page. Every other overlay here was already hidden in print, so this
-     one arriving quietly turned every printed glyph greyscale. */
+     one arriving quietly turned every printed glyph grayscale. */
   .ac-sweep__beam {
     display: none;
   }

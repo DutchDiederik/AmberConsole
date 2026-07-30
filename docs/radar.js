@@ -16,7 +16,7 @@
  * match the phosphor, because both come off --ac-persist-tail.
  *
  * Determinism, as on the server page: THE MARKUP IS FRAME ZERO. Nothing is
- * randomised on load, drift comes from a seeded Lehmer generator rather than
+ * randomized on load, drift comes from a seeded Lehmer generator rather than
  * Math.random, and no revolution has happened when the visual suite takes its
  * screenshot — capture.mjs disables every animation, so `animationiteration`
  * never fires there at all. Only the UTC clock is painted at load, and it reads
@@ -30,7 +30,7 @@
  * this repo, which is what makes it stick while you read the guide. Arriving
  * here it is a problem: a visitor coming from the console demo brings PLASMA ·
  * NEON with them, and a radar in neon is a red strobe with no flash layer —
- * the sweep's leading edge falls back to the trail colour and the one thing
+ * the sweep's leading edge falls back to the trail color and the one thing
  * this page exists to show is simply absent.
  *
  * So on a FIRST visit this seeds the store with the set's own tube and records
@@ -410,7 +410,7 @@
   }
 
   /* Selecting a track rings it on the face. One hue, so "this one" is a marker
-     and a brightness — never a colour. */
+     and a brightness — never a color. */
   $$("#targets tr").forEach(function (row) {
     row.addEventListener("click", function () {
       $$("#targets tr").forEach(function (r) {

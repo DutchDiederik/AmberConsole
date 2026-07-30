@@ -9,7 +9,7 @@
  *
  * 1. THE MARKUP IS FRAME ZERO. Every number in server.html is what this file
  *    computes before the first tick, so the page a screenshot catches at 250ms
- *    is the page in the HTML. Nothing is randomised on load, and setInterval has
+ *    is the page in the HTML. Nothing is randomized on load, and setInterval has
  *    no leading tick() — the first one lands at t=1s, well after the shutter.
  *    The single exception is the wall clock, which is painted immediately and is
  *    deterministic anyway because the harness freezes Date.
@@ -32,7 +32,7 @@
   var clamp = function (v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; };
 
   /* Write only when the string actually changed.
-     This is not a micro-optimisation. The afterglow simulation watches the frame
+     This is not a micro-optimization. The afterglow simulation watches the frame
      for text mutations and leaves a decaying ghost behind every one it sees, so
      re-writing "ACTIVE" into eight rows every second would spray the panel with
      ghosts of text that never changed and burn the ghost budget the mutations

@@ -1,158 +1,235 @@
 /* ===========================================================================
-   Classic — the corner a real panel could actually draw, and the extruded key
-   edge that came with it.
+   Classic — the corner a real panel could actually draw, the extruded key edge
+   that came with it, and the label parked in the corner of the face.
 
-   An 8px quarter-circle is a thing a modern rasteriser does. A gas-discharge
-   panel addressing a coarse cell grid could not: it cut the corner off, or it
-   stepped it, and the keys carried a hard offset edge under them so a finger
-   could tell a key from a label. This file is that second look, available two
-   ways and OFF by default — the smooth corner is not deprecated, it is the
-   other option.
+   THIS IS THE DEFAULT LOOK. An 8px quarter-circle is a thing a modern rasterizer
+   does; a gas-discharge panel addressing a coarse cell grid could not, and the
+   keys on one stood on a hard offset edge with their label in the top-left corner
+   and the body left empty for a value. That is what these panels were, so it is
+   what the framework ships. The smooth corner is still here and still supported —
+   it is now the thing you opt into rather than the thing you opt out of.
 
-     .ac-classic                        scope class. Put it on the screen frame,
-                                        on one panel, or on a single button.
-     data-ac-style-classic="on"         the root flag the demo switch writes.
-                                        See STYLES in ../amber-console.js.
+     data-ac-style-classic="on"   the root flag. ON by default; see STYLES in
+                                  ../amber-console.js.
+     .ac-classic                  scope class — a frame, a panel, or one control.
+     .ac-rounded                  the way back to the arc, at any scope.
 
-   Both are the same rules; neither is more real than the other.
+   All three are the same set of rules reading the same tokens; none is more real
+   than the others, and they nest in either direction.
 
-   WHY THE SHAPE AND NOT A CLIP. `clip-path` and `mask-image` can cut any corner
-   at all, including a genuine stair-step, and both were rejected for the same
+   WHY THE SHAPE AND NOT A CLIP. `clip-path` and `mask-image` can cut any corner at
+   all, including a genuine stair-step, and both were rejected for the same
    disqualifying reason: they clip the element's ENTIRE painting, and the outer
-   box-shadow is part of it. Every control in this system carries --glow-box,
-   which is the discharge halo — law 1, glow is the signal of energization — so a
-   clipped corner buys a stepped edge by deleting the glow off all four sides.
-   `border-radius` and `corner-shape` change the shadow's shape instead of
-   removing it, which is the only reason this file is written in them.
+   box-shadow is part of it. Every control here carries --glow-box, which is the
+   discharge halo — law 1, glow is the signal of energization — so a clipped corner
+   buys a stepped edge by deleting the glow off all four sides. `border-radius` and
+   `corner-shape` change the shadow's shape instead of removing it. That
+   constraint, not taste, is why this file is written in them.
 
-   WHY THE TWO PATHS ARE DIFFERENT RADII rather than one degraded chamfer.
-   `corner-shape` is Chromium-only at the time of writing, and a switch that
-   silently does nothing in Firefox is worse than a switch that does something
-   simpler. So the fallback is not a failed bevel: it quantizes the radius down
-   to 2px, which is the same statement — a corner the grid could hold — made in a
-   property every engine has had for fifteen years. Flip the switch in any
-   browser and the corners visibly change.
+   WHY THE TWO CORNER PATHS ARE DIFFERENT RADII rather than one degraded chamfer.
+   `corner-shape` is Chromium-only at the time of writing, and a look that silently
+   collapses into the other option in Firefox is not a look. So the fallback is not
+   a failed bevel: it quantizes the radius to 2px, which is the same statement — a
+   corner the cell grid can hold — made in a property every engine has had for
+   fifteen years. The extrusion and the label are identical on both paths, so what
+   Firefox loses is the chamfer and nothing else.
 
-   MOST OF THE REACH IS FREE. Every bordered surface in this framework resolves
-   its corner from --radius or --radius-sm, so the fallback path is two token
-   declarations and the cascade does the rest. `corner-shape` does NOT inherit,
-   which is the only reason the list below is written out by hand.
+   HOW THE SCOPING WORKS, because it is the thing to understand before editing.
+   The three scopes above set nothing but CUSTOM PROPERTIES, and custom properties
+   inherit. Every rule below is therefore written ONCE, prefixed by all three
+   scopes, and reads its values out of the cascade — so `.ac-rounded` needs no
+   mirror of any rule, and a scope nested inside another scope resolves by ordinary
+   inheritance from the nearest one rather than by a specificity coin toss. Adding
+   a fourth scope, or a per-region override, is a token block and nothing else.
    =========================================================================== */
 
-/* (1) THE CORNER — universal path. Quantize the radius to the grid.
-   2px is the same figure .ac-badge and .ac-banner have always used; they are
-   already classic and need nothing here. */
+/* --- (1) The scopes. Tokens only; no rule below is repeated per scope. --- */
+
 .ac-classic,
 [data-ac-style-classic="on"] {
+  /* Fallback corner: quantize to the grid. 2px is the figure .ac-badge and
+     .ac-banner have always used — they are already classic and need nothing. */
   --radius: 2px;
   --radius-sm: 2px;
+  --ac-corner: bevel;
+  --ac-edge: var(--edge-3d);
+  --ac-edge-press: var(--edge-3d-in);
+}
+
+.ac-rounded {
+  --radius: 8px;
+  --radius-sm: 4px;
+  --ac-corner: round;
+  /* A shadow that paints nothing, rather than `none`: `none` is not a valid item
+     inside a comma-separated shadow list, so `var(--glow-box), none` would
+     invalidate the whole declaration and take the halo down with it. */
+  --ac-edge: 0 0 0 transparent;
+  --ac-edge-press: 0 0 0 transparent;
 }
 
 @supports (corner-shape: bevel) {
-  /* Where the shape itself can be cut, the radius stays exactly where the design
-     system put it — 8px on frames and pads, 4px on wells and chips — and only the
-     SHAPE changes. The hierarchy is preserved and the arc becomes a chamfer, so
-     the bevel on a panel is twice the bevel on an input, which is the same
-     relationship the rounded look already has. */
+  /* Where the shape itself can be cut, the radius is spent on the CUT instead of
+     an arc — and it is not spent evenly.
+
+     THE FOUR CORNERS ARE NOT THE SAME SIZE, and that is the whole 3D reading
+     rather than a decoration. These keys were drawn as solid objects lit from the
+     top left: the top-left corner is the far one and is barely cut at all, the
+     bottom-right is the near one and is cut hardest, and the two side corners sit
+     between them. Cut all four the same and the key goes flat — it reads as an
+     octagon. The gradient runs along the same diagonal the extrusion is offset on,
+     because they are two halves of one claim about where the light is.
+
+     2 / 4 / 8 / 4 in TL TR BR BL order, and those are the system's own radius
+     steps rather than new numbers. --radius-sm runs the same diagonal at half
+     depth, so a well or a switch housing is cut like a key and reads as smaller —
+     the same relationship the two arcs already had. */
   .ac-classic,
   [data-ac-style-classic="on"] {
-    --radius: 8px;
-    --radius-sm: 4px;
+    --radius: 2px 4px 8px 4px;
+    --radius-sm: 1px 2px 4px 2px;
   }
+}
 
-  /* THE LIST IS THE EIGHT PLACES A RADIUS IS DECLARED, and it is worth stating
-     that it was derived rather than chosen: grep `border-radius: var(--radius`
-     across components/ and this is what comes back. .ac-badge and .ac-banner are
-     literal 2px, .ac-check is square and .ac-radio and .ac-sweep are circles —
-     a circle has no corner to cut, so none of the five belong here. Add to this
-     list when a new component takes a --radius, or its corner will stay round
-     while everything around it is cut. */
-  .ac-classic:is(
+/* --- (2) The corner. One rule, three scopes, value from the cascade. --- */
+
+/* THE LIST IS THE EIGHT PLACES A RADIUS IS DECLARED, and it was derived rather
+   than chosen: grep `border-radius: var(--radius` across components/ and this is
+   what comes back. .ac-badge and .ac-banner are literal 2px, .ac-check is square,
+   and .ac-radio and .ac-sweep are circles — a circle has no corner to cut, so none
+   of the five belong here. Add to this list when a new component takes a --radius,
+   or its corner will stay round while everything around it is cut. */
+@supports (corner-shape: bevel) {
+  :is(.ac-classic, .ac-rounded):is(
     .ac-btn, .ac-tab, .ac-panel, .ac-dialog, .ac-input, .ac-nav__link,
     .ac-toggle__track, .ac-meter__track
   ),
-  .ac-classic :is(
-    .ac-btn, .ac-tab, .ac-panel, .ac-dialog, .ac-input, .ac-nav__link,
-    .ac-toggle__track, .ac-meter__track
-  ),
-  [data-ac-style-classic="on"] :is(
+  :is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"]) :is(
     .ac-btn, .ac-tab, .ac-panel, .ac-dialog, .ac-input, .ac-nav__link,
     .ac-toggle__track, .ac-meter__track
   ) {
     /* stylelint-disable-next-line property-no-unknown -- corner-shape is newer
-       than the property list stylelint ships. The @supports above is the real
-       gate; an engine that does not know the property never reads this block. */
-    corner-shape: bevel;
+       than the property list stylelint ships. The @supports is the real gate; an
+       engine that does not know the property never reads this block. */
+    corner-shape: var(--ac-corner, round);
   }
 }
 
-/* (2) THE EXTRUSION — on the controls, and only on the controls.
-   A KEY IS EXTRUDED; A PANEL IS A HOLE IN THE BEZEL. The corner treatment is a
-   property of the raster and reaches everything, but a drop shadow is a claim
-   that the thing stands off the glass, and that is true of a soft key and a
-   switch housing and of nothing else on the board. Giving .ac-panel an edge too
-   was tried and reads as a floating card, which is a different design language
-   from a control surface. */
-.ac-classic:is(.ac-btn, .ac-toggle__track),
-.ac-classic :is(.ac-btn, .ac-toggle__track),
-[data-ac-style-classic="on"] :is(.ac-btn, .ac-toggle__track) {
-  box-shadow: var(--glow-box), var(--edge-3d);
+/* --- (3) The extrusion — on the controls, and only on the controls. --- */
+
+/* A KEY IS EXTRUDED; A PANEL IS A HOLE IN THE BEZEL. The corner belongs to the
+   raster and reaches everything, but a drop shadow claims the thing stands off the
+   glass, and that is true of a soft key and a switch housing and of nothing else
+   on the board. Giving .ac-panel an edge too was tried and reads as a floating
+   card, which is a different design language from a control surface. */
+:is(.ac-classic, .ac-rounded):is(.ac-btn, .ac-toggle__track),
+:is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"]) :is(.ac-btn, .ac-toggle__track) {
+  box-shadow: var(--glow-box), var(--ac-edge, 0 0 0 transparent);
 }
 
-/* (3) A PRESSED KEY IS DOWN. The extrusion collapses and the cap moves onto
-   where it was, which is the whole point of drawing one — a 3D key that does not
-   travel is a picture of a key.
+/* A PRESSED KEY IS IN, AND THE LIGHT IS WHAT MOVES. The band flips to the top and
+   left, because the near face of a sunken key is the upper one — flipping which
+   edges are lit is how a bevel has always shown a press. The key itself does not
+   budge.
 
-   No transition, and not because of the lint rule: a screen redrawn at the
-   refresh has no in-between frames, same law as .ac-btn:active in button.css.
+   IT USED TO BUDGE, and that was a bug worth leaving a note about. `translate:
+   4px 4px` reads correctly and reflows nothing, but a transform DOES contribute to
+   scrollable overflow, so every latched key flush against its container pushed 4px
+   past it — caught by the visual suite on two pages at every width, an .ac-grow pad
+   in a row and the Ent key in the keypad grid. A box-shadow is ink overflow and
+   costs nothing in either direction. See --edge-3d-in in tokens/effects.css.
 
-   --filled AND aria-pressed BOTH, because this framework treats them as one
-   state everywhere else (see button.css and the guide, which documents them as
-   equivalent). A latched key therefore sits depressed for as long as it is
-   latched, which is what a latching key does. `translate` is used rather than
-   `margin` or `position` so that nothing around it reflows — the neighbours must
-   not move when one key goes down. */
-.ac-classic:is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]),
-.ac-classic :is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]),
-[data-ac-style-classic="on"] :is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]) {
-  box-shadow: var(--glow-box);
-  translate: 2px 2px;
+   No transition, and not because of the lint rule: a screen redrawn at the refresh
+   has no in-between frames, the same law as .ac-btn:active in button.css.
+
+   --filled AND aria-pressed BOTH, because this framework treats them as one state
+   everywhere else — button.css hooks them together and the guide documents them as
+   equivalent. A latched key therefore reads pressed for as long as it is latched,
+   which is what a latching key does. */
+:is(.ac-classic, .ac-rounded):is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]),
+:is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"])
+  :is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]) {
+  box-shadow: var(--glow-box), var(--ac-edge-press, 0 0 0 transparent);
 }
 
-/* (4) INERT KEEPS NOTHING, AND IT HAS TO BE SAID AGAIN HERE.
-   button.css already sets `box-shadow: none` on a disabled key — glow is the
-   signal of energization, so a dead control that glows is a lie about the
-   hardware. But `[data-ac-style-classic="on"] .ac-btn` weighs the same as
-   `.ac-btn:disabled` and lands later in the cascade, so rule (2) above would
-   quietly hand the halo back. scripts/check-prohibitions.mjs cannot catch this
-   one: it gates an ink level set without its halo, and rule (2) sets no colour.
+/* --- (4) The face: label top-left. --- */
 
-   No travel either. There is no extrusion left to be pressed into, and a key
-   parked 2px off its own outline just looks like a rendering slip. */
-.ac-classic:is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]),
-.ac-classic :is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]),
-[data-ac-style-classic="on"] :is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]) {
+/* The second half of what a classic key looks like, and a separate rule from the
+   corner because it is about the FACE rather than the outline. A soft key on these
+   panels is a label plus room for a value, so the label is parked in the corner and
+   the body is left empty; centering it says the key is a word rather than a field.
+
+   .ac-btn--pad already did exactly this and keeps its own 96px min-height. This is
+   that alignment WITHOUT the height, so it applies at whatever size a key happens
+   to be and composes with --pad unchanged.
+
+   NO `display` HERE, DELIBERATELY. Setting inline-flex would outweigh
+   .ac-btn--block's `display: block` and .ac-btn--pad's `flex`, and a corner style
+   that silently unblocks a full-width key is worse than one that does nothing.
+   These three properties are inert on a non-flex box, and a plain .ac-btn is sized
+   by its own text, so there is nothing for them to do until the key is taller than
+   its label — which is the only case this rule is about.
+
+   THE KEYPAD IS EXEMPT, and keypad.css states the reason better than a repeat of
+   it would: a digit is one character with no label/value split for the top-left
+   rule to serve, and those keys are centered on purpose. */
+.ac-classic.ac-btn:not(.ac-keypad__key),
+.ac-classic .ac-btn:not(.ac-keypad__key),
+[data-ac-style-classic="on"] .ac-btn:not(.ac-keypad__key) {
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* Back to undeclared, which is what a bare .ac-btn computes to — `normal` on both
+   flex properties and an inherited text-align. NOT `center`: that would center a
+   --pad, and a pad parks its label top-left in either corner style. --pad is
+   excluded outright for the same reason, since it out-specifies nothing here.
+
+   `text-align` is restated rather than token-driven because a CSS-wide keyword
+   arriving through var() substitution is the one part of this mechanism not worth
+   betting the alignment on. */
+.ac-rounded.ac-btn:not(.ac-btn--pad),
+.ac-rounded .ac-btn:not(.ac-btn--pad) {
+  align-items: normal;
+  justify-content: normal;
+  text-align: inherit;
+}
+
+/* --- (5) Inert keeps nothing, and it has to be said again here. --- */
+
+/* button.css already blanks the halo on a disabled key — glow is the signal of
+   energization, so a dead control that glows is a lie about the hardware. But
+   `[data-ac-style-classic="on"] .ac-btn` weighs the same as `.ac-btn:disabled` and
+   lands later in the cascade, so rule (3) would quietly hand the halo back.
+   scripts/check-prohibitions.mjs cannot catch this one: it gates an ink level set
+   without its halo, and rule (3) sets no color.
+
+   One declaration covers it now that the press is a shadow rather than a
+   transform: blanking the shadow takes the halo, the resting band and the pressed
+   band together, so a dead key cannot be caught standing on an edge either. */
+:is(.ac-classic, .ac-rounded):is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]),
+:is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"])
+  :is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]) {
   box-shadow: none;
-  translate: none;
 }
 
-/* The switch housing dims rather than going dark: it is a box that is still
-   drawn, not a lamp that is out. Matches toggle.css. */
-.ac-classic .ac-toggle:disabled .ac-toggle__track,
-[data-ac-style-classic="on"] .ac-toggle:disabled .ac-toggle__track {
+/* The switch housing dims rather than going dark: it is a box that is still drawn,
+   not a lamp that is out. Matches toggle.css. */
+:is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"])
+  .ac-toggle:disabled
+  .ac-toggle__track {
   box-shadow: var(--glow-box-dim);
 }
 
-/* (5) PRINT PAYS FOR SHADOW IN INK, so the extrusion goes and the cut corner
-   stays — the corner is the shape of the control and survives being printed, the
-   shadow is a lighting effect and does not.
+/* --- (6) Print pays for shadow in ink. --- */
 
-   Blanked through the token rather than by restating four selectors, and it has
-   to be a shadow that paints nothing rather than `none`: `none` is not a valid
-   item inside a comma-separated shadow list, so `var(--glow-box), none` would
-   invalidate the whole declaration and take the halo with it. */
+/* The extrusion goes and the cut corner stays: the corner is the shape of the
+   control and survives being printed, the shadow is a lighting effect and does
+   not. Blanked through the token rather than by restating four selectors — which
+   is the same reason `--ac-edge` exists at all. */
 @media print {
   :root {
     --edge-3d: 0 0 0 transparent;
+    --edge-3d-in: 0 0 0 transparent;
   }
 }

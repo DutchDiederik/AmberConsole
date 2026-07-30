@@ -6,70 +6,147 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
-### Added — a second corner style, and the extruded key that came with it
+### Removed — the Scroll Smear switch, and the JS Effects switch now knows when it is idle
 
-Requested from a photograph of a real panel: the boxes have coarse cut corners rather than smooth
-arcs, and some of the keys stand on a hard offset edge. Both are true of the hardware and neither was
-in the framework — the system drew exactly one corner, an 8px arc, and had no bevel, gradient or 3D
-shading anywhere on purpose.
+- **`data-ac-style-smear` is gone.** It was a STYLE flag that could only ever be on under CRT — every
+  selector implementing it is scoped to `.ac-afterglow`, and a plasma cell is driven continuously and
+  has nothing that trails — so it derived its default from the simulation and disabled itself under
+  plasma. That is a switch which spends most of its life explaining why it cannot do anything, and a
+  third axis of persisted state for a preference nobody was expressing. The smear is now simply part
+  of what `amber-console.effects.js` does: on wherever the persistence simulation is running and the
+  engine flag permits it, off everywhere else. `prefers-reduced-motion` still stops it, which was the
+  only accessibility case the flag was carrying.
+- **The JS Effects switch is forced OFF as well as unclickable wherever it would be a no-op.** Showing
+  ON while nothing it governs is running is a small lie, and it is the same one the smear switch used
+  to tell. The control now reflects what is *contributing* rather than what the flag permits, and the
+  State readout agrees with it — `CSS ONLY`, not `CSS + JS`, beside a switch that reads OFF.
+- **The flag itself is not written when that happens**, which is the important half. Forcing
+  `data-ac-engine="css"` would clobber a preference the user did express, and picking P39 again would
+  leave the effects off with nothing to explain why. The attribute stays as it was and the switch comes
+  back by itself — same rule as the derived style defaults: a derived value fills a silence, it does
+  not overwrite an answer. Verified by turning it off on P39, passing through neon, and returning to
+  find it still off.
+- **The module stops doing the work too, not just reporting it.** All three effects are timed by
+  `--ac-persist`, so under P11 the observer was still cloning a ghost, measuring it, appending it,
+  giving it a 0.035 ms animation and removing it inside the same frame — per text update, plus the
+  forced layouts of the geometry probe. One `effectsActive()` now gates the observer, the smear loop
+  and `transition()` on all three conditions, and the root watcher gained `data-ac-tech` and
+  `data-ac-emitter` because P39 → P11 changes the tail without touching the simulation.
+- **The JS Effects switch disables itself wherever it would be a no-op**, on two conditions that fail
+  for different reasons. All three effects are scoped to `.ac-afterglow`, so under any plasma
+  simulation the switch is wired to nothing at all — a *mechanical* no-op. And all three are timed by
+  `--ac-persist`, so a phosphor whose tail is measured in microseconds gives them no time to be seen —
+  a *perceptual* one. It is live under **P7, P39, P3 and P1**, and dead under **P4, P11 and P31**
+  (0.06, 0.035 and 0.038 ms) and every plasma gas.
+- **The gate reads the frame, not the preset**, which matters for a state the system explicitly
+  allows: a plasma gas with the CRT simulation switched on by hand has a real afterglow layer, and the
+  switch correctly goes live there. Gating on the emitter would have got that backwards.
+- `ENGINE_FLOOR_MS` is 5 — a third of a frame at 60Hz, so anything under it cannot survive to be
+  composited even once. Nothing in the catalog is near the boundary: the phosphors that clear it do so
+  by 24ms or more and the ones that fail do so by three orders of magnitude, which is what makes a
+  single threshold safe rather than a fudge.
+- The `needs` mechanism in `STYLES` now has no shipped user, since `smear` was its only one. It stays,
+  documented as the framework's answer for a consumer flag that depends on a simulation.
 
-**Added rather than substituted, and the distinction is the whole design.** The rounded corner is not
-a mistake this corrects; it is the other option. `.ac-classic` and `data-ac-style-classic="on"` are
-two ways into the same rules — a scope class for a frame, a panel or one control, and a root flag for
-the page — and the flag ships **off**, so nothing that existed before this entry looks any different
-until a switch is thrown. `src/components/classic.css` is the whole feature; delete the `@import` and
-it is gone.
+### Changed — the buttons are classic now: cut corners, an extruded edge, label top-left
 
-- **The corner reaches every bordered surface; the extrusion reaches only the controls.** A beveled
-  key inside a rounded panel reads as a screen assembled from two display generations, so buttons,
-  tabs, panels, dialogs, inputs, nav links, toggle tracks and meter tracks are all re-cut together. A
-  drop shadow is a different claim — that the thing stands off the glass — and that is true of a soft
-  key and a switch housing and of nothing else on the board. Giving `.ac-panel` an edge too was tried
-  and reads as a floating card, which is a different design language from a control surface.
-- **Most of the reach is free, because the tokens were already the API.** Every bordered surface in
-  the framework resolves its corner from `--radius` or `--radius-sm`, so the fallback path is two
-  declarations and the cascade does the rest. `corner-shape` does not inherit, which is the only
-  reason the eight-selector list in that file is written out by hand — and it was derived by grep, not
-  chosen, which is stated at the list so the next component to take a `--radius` gets added to it.
-- **Two paths, and the fallback is not a degradation.** Where `corner-shape` is supported the radius
-  stays exactly where the design system put it — 8px on frames and pads, 4px on wells and chips — and
-  only the *shape* changes, arc to chamfer; the hierarchy survives, so a panel's bevel is still twice
-  an input's. Where it is not, the radius quantizes to 2px instead, which is the same statement about
-  a corner the grid can hold, made in a property every engine has had for fifteen years. A switch that
-  silently does nothing in Firefox would have been worse than a switch that does something simpler.
+Built from photographs of a real panel. The boxes have coarse cut corners rather than smooth arcs, the
+corners are *not all the same size*, the keys stand on a hard offset edge, and the label sits in the
+top-left with the body left empty. None of it was in the framework: the system drew exactly one corner,
+an 8px arc, centered its labels, and had no bevel, gradient or 3D shading anywhere on purpose.
+
+**This is now the default look, because it is what the hardware was.** The smooth corner is not
+deprecated and not a mistake — it is the thing you now opt into, at either scope:
+`data-ac-style-classic="off"` on the root, or `.ac-rounded` on a region. `.ac-classic` states the
+default explicitly for a region inside a rounded one. All of it is `src/components/classic.css`.
+
+- **The four corners are not cut the same, and that is the whole 3D reading rather than a
+  decoration.** These keys were drawn as solid objects lit from the top left, so the far corner is
+  barely cut and the near one is cut hardest — `2 / 4 / 8 / 4` px in TL TR BR BL order, using the
+  system's own radius steps rather than new numbers, with `--radius-sm` running the same diagonal at
+  half depth for wells and switch housings. The first version of this cut all four alike and the keys
+  read as octagons; the gradient runs along the same diagonal the extrusion is offset on, because they
+  are two halves of one claim about where the light is.
+- **The extrusion is an edge, not a ghost, and two layers are what make it one.** An outer
+  `box-shadow` is clipped to outside the border box, so a hard offset copy of the box paints a solid
+  band down the bottom and right rather than a floating duplicate — which is exactly what the
+  photographs show, a single stroke on the top and left against a heavy band on the bottom and right.
+  Two offsets give that band depth: a bright 2px lip against the stroke, then 3px more at lower drive
+  falling away from it. One uniform layer looked like a thick border and a blurred one looked like a
+  modern card shadow, which is the whole thing this is not. The alphas are set against `.ac-bloom`
+  rather than the bare screen — the band lands in the region `--glow-box` is already lighting, and
+  under the amplified halo anything below about 0.6 on the lip washed out into it.
+- **The label parks top-left**, which is the second half of what a classic key looks like and a
+  separate rule from the corner because it is about the face rather than the outline. A soft key is a
+  label plus room for a value; centering it says the key is a word rather than a field. This is
+  `.ac-btn--pad`'s alignment without its 96px min-height, so it applies at whatever size a key is and
+  composes with `--pad` unchanged. It deliberately sets no `display` — `inline-flex` would have
+  outweighed `.ac-btn--block`'s `block`, and a corner style that silently unblocks a full-width key is
+  worse than one that does nothing. **Keypad digits are exempt**, and `keypad.css` had already written
+  down why: one character has no label/value split for the top-left rule to serve.
+- **A pressed key is in, and the light is what moves.** `:active`, `--filled` and `aria-pressed="true"`
+  flip the band to the top and left, because the near face of a sunken key is the upper one — which is
+  how a bevel has always shown a press. All three, because this framework already documents `--filled`
+  and `aria-pressed` as one state.
+- **The press was a transform first, and that was a bug the suite caught.** `translate: 4px 4px` reads
+  correctly and reflows nothing, but a transform *does* contribute to scrollable overflow — so every
+  latched key sitting flush against its container pushed 4px past it, on two pages at every width: an
+  `.ac-grow` pad in a row, and the `Ent` key in the keypad grid. A box-shadow is ink overflow and
+  contributes nothing in either direction, so the key now stays exactly where it was laid out. Both the
+  token and the rule carry a note, because `translate` is the obvious thing to reach for again.
+- **The corner reaches every bordered surface; the extrusion and the label reach only the controls.**
+  A beveled key inside a rounded panel reads as a screen assembled from two display generations, so
+  buttons, tabs, panels, dialogs, inputs, nav links, toggle tracks and meter tracks are re-cut
+  together. A drop shadow is a different claim — that the thing stands off the glass — and that is true
+  of a soft key and a switch housing and of nothing else on the board. Giving `.ac-panel` an edge too
+  was tried and reads as a floating card, a different design language from a control surface.
+- **Most of the reach is free, because the tokens were already the API.** Every bordered surface
+  resolves its corner from `--radius` or `--radius-sm`. `corner-shape` does not inherit, which is the
+  only reason the eight-selector list in that file is written out by hand — and it was derived by grep,
+  not chosen, which is stated at the list so the next component to take a `--radius` gets added to it.
+- **Two corner paths, and the fallback is not a degradation.** Where `corner-shape` is supported the
+  radius is spent on the cut. Where it is not, it quantizes to a hard 2px instead — the same statement
+  about a corner the grid can hold, made in a property every engine has had for fifteen years. The
+  extrusion and the label are identical on both paths, so what Firefox loses is the chamfer and
+  nothing else. A default look that silently collapsed into the other option in Firefox would not have
+  been a look.
 - **`clip-path` and `mask-image` were rejected, and they were the obvious answer.** Either could cut a
   genuine stair-step. Both clip the element's *entire* painting, and the outer `box-shadow` is part of
-  it — so a stepped corner would have been bought by deleting `--glow-box` off all four sides, which
-  is law 1 traded away for a corner. `border-radius` and `corner-shape` reshape the shadow instead of
+  it — so a stepped corner would have been bought by deleting `--glow-box` off all four sides, which is
+  law 1 traded away for a corner. `border-radius` and `corner-shape` reshape the shadow instead of
   removing it. That constraint, not taste, is why this is written in them.
 - **`--edge-3d` is the one shadow in `effects.css` that is not a halo**, so it takes neither
   `--gas-spread` nor `--gas-scatter`: those describe light scattering through glass, and this is
   geometry. A panel that drew a drop shadow drew it in *cells*, and a cell is the same size on krypton
-  as on neon — the extrusion holds still when the gas changes while its colour follows `--gas-1`, so it
+  as on neon — the extrusion holds still when the gas changes while its color follows `--gas-1`, so it
   cannot end up the only amber thing on a green screen. Print blanks it through the token, since a
   shadow is paid for in ink and a cut corner is not.
-- **A pressed key is down.** `:active`, `--filled` and `aria-pressed="true"` spend the extrusion and
-  translate 2px into the board — a 3D key that does not travel is a picture of a key. All three,
-  because this framework already documents `--filled` and `aria-pressed` as one state; `translate`
-  rather than margin or offset, so a key going down moves nothing around it.
-- **The `:disabled` reset had to be restated, and that is a cascade trap worth naming.**
-  `button.css` already blanks the halo on a dead key, but `[data-ac-style-classic="on"] .ac-btn`
-  weighs the same as `.ac-btn:disabled` and lands later, so the extrusion rule would have quietly
-  handed the glow back. `check-prohibitions.mjs` cannot catch this one: it gates an ink level set
-  without its halo, and the rule in question sets no colour.
+- **The scopes set nothing but custom properties, and that is what makes `.ac-rounded` four lines.**
+  The first cut of this file spelled every rule out once per scope; making the default classic meant an
+  opt-out was suddenly mandatory, and mirroring the whole rule set for it would have been a block to
+  hand-sync forever. Custom properties inherit, so each rule is now written once, prefixed by all
+  three scopes, reading its values out of the cascade. Nesting resolves by inheritance from the
+  nearest scope rather than by a specificity coin toss, and a fourth scope would be a token block and
+  nothing else.
+- **The `:disabled` reset is still restated, and that is a cascade trap worth naming.** `button.css`
+  already blanks the halo on a dead key, but `[data-ac-style-classic="on"] .ac-btn` weighs the same as
+  `.ac-btn:disabled` and lands later, so the extrusion rule would have quietly handed the glow back.
+  `check-prohibitions.mjs` cannot catch this one: it gates an ink level set without its halo, and the
+  rule in question sets no color.
 - **The STYLE axis's definition widened, deliberately.** It said "everything that is not the
   hardware", and a corner quantized by the raster is arguably a hardware artifact. It now says a style
   is a *look the viewer chose* — including a look that imitates a coarser raster — and the boundary it
   is really defending is stated instead: a bevel makes no claim about which gas is in the gap, which is
   what DISPLAY and SIMULATION are for. "Cut the corners" and "make it krypton" must never read as the
   same kind of switch.
-- The switch is on all five demo boards under *Style & engine*, and the guide gains a **paired**
-  specimen — both corners at once, in one row each, regardless of where the board is set. A page-wide
-  switch is the right control for a viewer and the wrong one for documentation; you cannot compare two
-  corners by looking at one of them.
-- The visual suite gains one guide-only `1440-classic` case rather than five full-page ones, on the
-  economics `capture.mjs` already argues for itself. Every other baseline moved anyway: a fifth switch
-  is 44px of a board that is not allowed to scroll.
+- The *Classic Buttons* switch is on all five demo boards under *Style & engine*, shipping in its ON
+  position so it does not repaint a frame on load. The guide gains a **paired** specimen — both corners
+  at once, one row each, regardless of where the board is standing. A page-wide switch is the right
+  control for a viewer and the wrong one for documentation; you cannot compare two corners by looking
+  at one of them, and that specimen is what forced `.ac-rounded` to exist on the day it did.
+- The visual suite gains one guide-only `1440-rounded` case, pointed at the non-default path since the
+  seven existing cases now gate classic on all five pages. Guide-only on the economics `capture.mjs`
+  already argues for itself; `styles`, `only` and a per-case `anchor` were added to support it.
 
 ### Fixed — a bargraph that falls now leaves something behind
 
@@ -77,8 +154,8 @@ Reported: on the server dashboard a load bar "disappears instantly and doesn't l
 dims", and it reads worst on the long phosphors where everything around it is trailing.
 
 **It was a whole phenomenon the persistence system did not model.** Every decay in the file covers a
-node disappearing, text being rewritten, or a lamp changing colour. A meter does none of those: the
-element stays, its text is elsewhere, its colour never moves — what changes is its **width**, so the
+node disappearing, text being rewritten, or a lamp changing color. A meter does none of those: the
+element stays, its text is elsewhere, its color never moves — what changes is its **width**, so the
 strip it vacates was lit a moment ago and is now simply not drawn. `.ac-meter__bar` appeared in
 `effects.css` only in blink rules, and the ghost observer watched `childList` and `characterData`
 while the bar is driven by `style.setProperty`, an *attribute* mutation. Nothing could see it.
@@ -114,7 +191,7 @@ while the bar is driven by `style.setProperty`, an *attribute* mutation. Nothing
 ### Fixed — the halo now matches its own ink, and everything lit now glows
 
 Two reports, both correct: *"the glow for P7, P11 has a yellowish tint different from the main
-colour"*, and *"not everything glows like it should"*.
+color"*, and *"not everything glows like it should"*.
 
 - **P11's halo sat 0.1025 away from its own ink in CIE xy; argon's 0.0916.** `--gas-1` was solved at
   a fixed luminance of 0.62, which a deep blue cannot reach inside sRGB — so gamut mapping walked it
@@ -130,7 +207,7 @@ colour"*, and *"not everything glows like it should"*.
   eleven halos. Only the *overflow* half of the walk is luminance-dependent, and matching the ink's
   is the criterion that is both achievable and the one somebody actually sees.
 - **P7 is untouched at 0.3524 and must stay there.** Its halo is a different coating, not a gamut
-  artefact — blue `ZnS:Ag` flash over a yellow-green `(Zn,Cd)S:Cu` afterglow. The budget is measured
+  artifact — blue `ZnS:Ag` flash over a yellow-green `(Zn,Cd)S:Cu` afterglow. The budget is measured
   against the afterglow spectrum, so the cascade survives the fix that removed the others.
 - **`--ink-dim` was being treated as inert when it is a drive level.** `derive-gas.mjs` labels
   `--emit-70` *secondary* — a cell at 70% drive, which scatters 70% as much — yet every rule setting
@@ -177,7 +254,7 @@ mesh, scanlines, blink decay, lingering halo and residual patches running.
 - **The board's three switch regions became one.** SIMULATION, STYLE and ENGINE as separate panels
   ran 606px in a quarter of a board that is explicitly not allowed to scroll — against 221px and
   342px for the two emitter catalogs beside it. They are now a single **SWITCHES** region carrying
-  all four toggles at **364px**, which is 22px off its tallest neighbour instead of 264px.
+  all four toggles at **364px**, which is 22px off its tallest neighbor instead of 264px.
   The saving is mostly prose: two six-line explanations became one-liners.
 - The axis boundary the three panel borders were drawing is now drawn by two micro-type group
   labels inside the one region, because it still has to be drawn — these are three different kinds
@@ -232,7 +309,7 @@ second, because three separate things capped it away before the CSS ever saw it.
   under P39 shows two generations, which is the thing radar operators were looking at.
 - **De-energizing ignored persistence entirely** — every lit control released on `--ac-decay-fast`,
   so a P39 lamp went out in 60 ms. Now split by what each property describes, which is also the
-  physical split: **structure** (background, border, colour) still releases on the fast token so the
+  physical split: **structure** (background, border, color) still releases on the fast token so the
   control reads as off immediately, and the **halo** decays on the uncapped `--ac-persist-tail`,
   because the halo is precisely the scattered light that persists.
 - Driven by a registered `@property --ac-lit`, not by transitioning `box-shadow` directly — a number
@@ -254,7 +331,7 @@ second, because three separate things capped it away before the CSS ever saw it.
 - **A `mix-blend-mode` costs subpixel text antialiasing for the whole page, and both new layers were
   spending it.** One blended element promotes its containing stacking context, and the browser drops
   LCD text rendering inside it — so the afterimage moved ~1.1% of pixels on a capture where the
-  effect was switched *off*, and the radar beam turned every glyph on the printed guide greyscale
+  effect was switched *off*, and the radar beam turned every glyph on the printed guide grayscale
   because it was the one blended element still rendering in print and forced colors. The afterimage
   no longer blends at all (over a near-black panel `screen` and ordinary alpha compositing of a
   bright halo are indistinguishable — the same argument the cell mesh already makes for drawing its
@@ -286,7 +363,7 @@ second, because three separate things capped it away before the CSS ever saw it.
   and the clearest demonstration of P7 in the system. Period scales off the tail, with a floor,
   because neon would scale to 0.16 s and that is a strobe rather than a radar.
 - **`src/amber-console.effects.js`**, and the framework is now explicitly two tiers. The CSS is
-  complete alone; `amber-console.js` is behaviour (tabs, dialogs, presets); the new module is
+  complete alone; `amber-console.js` is behavior (tabs, dialogs, presets); the new module is
   persistence. **Neither imports the other and either works alone** — the effects module watches the
   DOM for `.ac-afterglow` and `data-ac-style-smear` rather than being told, because both facts are
   already in the DOM and a contract between two independently optional modules is a thing to keep in
@@ -298,7 +375,7 @@ second, because three separate things capped it away before the CSS ever saw it.
 ### Added — six CRT phosphors, and persistence as a property of the emitter
 
 The catalog has carried disabled rows for P1, P4, P7, P11, P31 and P39 since the display/emitter
-split landed. They are fitted now, and the interesting part is not that there are six more colours —
+split landed. They are fitted now, and the interesting part is not that there are six more colors —
 it is that a phosphor has a *decay*, and the system had nowhere to put one.
 
 - **A band model, which closes a debt this file opened.** A gas emits lines and NIST publishes them;
@@ -351,12 +428,12 @@ it is that a phosphor has a *decay*, and the system had nowhere to put one.
   panels is cited yet, and inventing one to fill the column is exactly the kind of number this system
   refuses. They fall back to the same 105 ms and 60 ms they always had.
 - **Honest about the evidence, which is weaker here than for the gases.** The phosphor blocks run
-  *published colour → band* rather than *spectrum → colour*, so their bands are back-solved and their
+  *published color → band* rather than *spectrum → color*, so their bands are back-solved and their
   `validate` gate is a consistency check rather than the independent known-answer gate neon provides.
   Four things about the result are nonetheless non-circular, and the `$phosphors` block in
   `emitters.json` lists them — the best being that **P1 and P39 were fitted from different published
   coordinates and converged on the same band**, because P39 *is* P1's chemistry with arsenic added to
-  lengthen the decay and not to change the colour. The fit reproduced a fact about the compounds that
+  lengthen the decay and not to change the color. The fit reproduced a fact about the compounds that
   was never given to it. Persistence figures are marked **provisional** pending per-phosphor
   data-sheet citations; the persistence *class* is solid and is all the design depends on.
 - **Not attempted, deliberately:** the actual 60 Hz flicker of a tube. That is being watched on a
@@ -377,7 +454,7 @@ has to earn: that four hundred numbers can share a screen and every one of them 
   entry line and the soft keys route through one place so a page change drains per pixel either way.
 - **The quoting conventions are load-bearing, as Decca-not-GPS is on the radar page.** There is no
   euro; deposits deal in **sixteenths** and treasuries and gilts in **thirty-seconds** while bunds
-  and OATs are decimal, because that is how each of them dealt. Decimalising any of it would date the
+  and OATs are decimal, because that is how each of them dealt. Decimalizing any of it would date the
   screen to the wrong decade more loudly than a font could.
 - **The matrix is derived from the spot legs, not transcribed**, so the two pages cannot disagree;
   it is a computed snapshot stamped with the time it was computed, which is what a cross-rate page
@@ -385,8 +462,8 @@ has to earn: that four hundred numbers can share a screen and every one of them 
 - **This is the ghost engine's own showcase.** The radar shows a phosphor decaying on a graphic; this
   shows it on numbers, which is what the mechanism was built for. Under P39 the value a quote
   replaced is still legible behind it, and the field it changed inverts for a second and a half —
-  law 1's answer to flagging a change with no colour to flag it in.
-- **THE GHOST BUDGET SHAPED THE PAGE, and it turned out to be the period behaviour.** `GHOST_LIMIT`
+  law 1's answer to flagging a change with no color to flag it in.
+- **THE GHOST BUDGET SHAPED THE PAGE, and it turned out to be the period behavior.** `GHOST_LIMIT`
   is 24 and a page repricing forty cells at once would blow it in a frame. A contributed page never
   did: one bank revised one pair. So the tick writes three or four cells, the book and the session
   counters ride a slow cycle, only the local clock carries seconds, and the matrix is not live at
@@ -410,7 +487,7 @@ exists for one emitter. P7 is two coatings and the reason it was fitted to radar
 gives position and the trail gives history — so a page that is nothing but a rotating beam and the
 light it leaves is the only honest way to show what that phosphor is *for*.
 
-- **Every mark on the face is a rotated zero-width arm** pinned at the centre with
+- **Every mark on the face is a rotated zero-width arm** pinned at the center with
   `height: calc(var(--rng) * 50%)`. Polar coordinates land where they belong at any dial size, with
   no arithmetic in JavaScript and nothing to recompute on resize, and no SVG anywhere near it.
 - **Contacts decay on the phosphor's own curve.** Each one animates on the sweep's period, delayed by
@@ -435,9 +512,9 @@ light it leaves is the only honest way to show what that phosphor is *for*.
   framework reads the store, so there is no frame of the wrong palette — and never again after that.
   The visual harness seeds the same flag, which leaves each case in charge of its own simulation.
 - **Forced colors keeps the picture.** Author backgrounds are mapped away in that mode, which would
-  leave an empty circle, so every mark that carries information is redrawn in system colours.
+  leave an empty circle, so every mark that carries information is redrawn in system colors.
 - `test/visual/capture.mjs` skips `.doc-ppi` in the overflow probe: a zero-width box reports its
-  centred mark as overflow, and scroll overflow is measured on axis-aligned bounds, so a rotated arm
+  centered mark as overflow, and scroll overflow is measured on axis-aligned bounds, so a rotated arm
   reports a box far wider than the thing at the end of it. Neither is reachable or lost, and the dial
   cannot overflow its parent regardless.
 
@@ -478,14 +555,14 @@ would actually ship.
   failure inverts: a new component glows because it is lit, instead of not glowing because nobody
   remembered.
 - **Pairing is now the rule, in both directions.** Inheritance alone is not sufficient and that was
-  the surprise: an element that brightens its own colour inside dim prose inherits the dim's
+  the surprise: an element that brightens its own color inside dim prose inherits the dim's
   suppression and stays flat, which is exactly how those 82 `<code>` spans sat at `--ink-bright` with
   no halo. So every rule that sets an ink level restates the halo that belongs to it — lit glows,
   dim/faint/inverse do not.
 - **`text-shadow: inherit` added to the form-control reset.** `button`, `input`, `select` and
-  `textarea` inherited font and colour but not the shadow, so a toggle's own label sat flat on a panel
+  `textarea` inherited font and color but not the shadow, so a toggle's own label sat flat on a panel
   where every word around it glowed.
-- **`.ac-panel--dim .ac-panel__title` no longer glows.** It overrode the colour to `--ink-dim` and
+- **`.ac-panel--dim .ac-panel__title` no longer glows.** It overrode the color to `--ink-dim` and
   kept the halo it inherited from the base rule — a glowing title above non-glowing contents.
 - **New `unpaired-glow` gate** in `check-prohibitions.mjs`, covering CSS rules *and* inline `style`
   attributes, since the guide builds its specimens out of the latter and seven of them were stranded.
@@ -510,13 +587,13 @@ would actually ship.
 - **A known-answer gate.** Neon is in the line table but is *not* generated (`emit: false`). It is
   there to prove the pipeline: it derives to x=0.6405 y=0.3591 against the x=0.631 y=0.369 this
   project established independently, agreeing to 0.0137, and the build fails if that ever stops being
-  true. Finding out the colour maths broke against an answer we know beats staring at three palettes
+  true. Finding out the color math broke against an answer we know beats staring at three palettes
   whose answers nobody knows.
 
 ### Added — per-gas glow
 
 - **`--gas-scatter` and `--gas-spread`.** Until now every palette bloomed with identical geometry and
-  only the colour changed. Rayleigh scattering goes as λ⁻⁴, so a violet gas throws far more of itself
+  only the color changed. Rayleigh scattering goes as λ⁻⁴, so a violet gas throws far more of itself
   sideways into the glass than a red one: helium 1.26, krypton 1.31, argon 1.49 against neon's 1.00.
   `--gas-spread` is the square root, since multiple scattering widens the halo as it brightens it, so
   both numbers come off one mechanism and cannot disagree. Derived per palette; both fall back to 1,
@@ -526,7 +603,7 @@ would actually ship.
 - Weighted by `I(λ)·V(λ)`, and it is the mean of λ⁻⁴ rather than λ⁻⁴ of the mean wavelength. Those
   differ for a spread spectrum, and the second is wrong: luminance-weighting a mean wavelength drags
   every gas toward 555 nm by construction and under-reports the difference.
-- **Not modelled, on purpose:** the eye's longitudinal chromatic aberration. It really does make
+- **Not modeled, on purpose:** the eye's longitudinal chromatic aberration. It really does make
   violet look fuzzier and ratios out at 2.67× for argon, but the absolute difference is 0.126 D —
   about half an arcminute, under a pixel — so using it would inflate a sub-pixel effect into 150 px
   of fog. The ratio is real; using it here would not be.
@@ -547,7 +624,7 @@ would actually ship.
   cell can only get there by whitening") stops being an exception and becomes an instance.
 - Stated explicitly alongside it: **hue comes from the spectrum, luminance from the drive level.**
   Argon really does emit very little visible light — that is a fact about radiant efficiency, not
-  about what colour the cell is. Drive it harder and it is still argon.
+  about what color the cell is. Drive it harder and it is still argon.
 - **Law 1 is now written as per-palette**, which it always was — `crt/p3` established that at 38°.
   Its prose narrated neon specifically and would have read as false beside a lavender panel.
 
@@ -793,9 +870,9 @@ before `initSims` removes it.
 - **On a full-screen frame the glass is anchored to the viewport, not the document.** The bleed, the
   scanline mask, the vignette and the retrace are properties of the glass, and glass does not
   scroll: a document-anchored vignette darkens the top and bottom of the *page* rather than the
-  edges of the *screen*. It is also the only version that renders — Chrome rasterises a
+  edges of the *screen*. It is also the only version that renders — Chrome rasterizes a
   `backdrop-filter` stretched over a 15,105px document in tiles, and the seams showed as static
-  horizontal and vertical bars, with the huge mask and vignette gradients quantising into visible
+  horizontal and vertical bars, with the huge mask and vignette gradients quantizing into visible
   steps for the same reason. Scoped to `.ac-screen`, so the small `.ac-bloom` / `.ac-crt` tiles the
   guide documents itself with stay local. `.ac-persist` stays document-absolute, because ghosts are
   pinned to a document coordinate.

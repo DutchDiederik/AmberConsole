@@ -38,10 +38,10 @@
      single emitter. P7 is two coatings — the beam writes into a blue ZnS:Ag
      layer that decays in microseconds, and that layer's own photons pump a
      yellow-green one behind it which holds for three seconds. There is exactly
-     one instrument that was built around that behaviour, and this is it: on a
+     one instrument that was built around that behavior, and this is it: on a
      radar the flash gives position and the trail gives history. Every other
-     page in this repo can show you the colour of a phosphor. This one shows you
-     what the colour is FOR.
+     page in this repo can show you the color of a phosphor. This one shows you
+     what the color is FOR.
 
      THE PERIOD IS THE EARLY 1980s AND THE DETAILS ARE LOAD-BEARING. The set is
      an ARPA-capable marine radar of the Decca / Racal / Kelvin Hughes genre.
@@ -252,32 +252,26 @@
                data-ac-style="blink" on a toggle to expose it, or set
                data-ac-style-blink="off" on <html>. prefers-reduced-motion
                stops it either way. -->
-          <!-- Ships OFF and disabled, because the frame above ships .ac-bloom. The
-               smear lives on .ac-afterglow, which arrives with CRT — so this is the
-               position initStyle settles on anyway, and matching it in markup is what
-               keeps the switch from painting one frame in the wrong place. Pick any
-               CRT preset and it turns itself on. -->
-          <button type="button" class="ac-toggle" data-ac-style="smear" aria-pressed="false" disabled>
-            <span>Scroll Smear <span class="ac-badge ac-badge--dim">JS</span></span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
-          </button>
-          <button type="button" class="ac-toggle" data-ac-engine aria-pressed="true">
+          <button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true">
             <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
           </button>
           <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side
                of the board with blink and smear rather than beside PLASMA and CRT: a
                bevel makes no claim about which gas is in the gap. Cuts the corners
-               off every bordered surface and puts a hard offset edge under the keys
-               — one look, one switch. Ships OFF; the rounded corner is what these
-               pages were drawn against and this is the other option, not a fix.
-               Where corner-shape is unsupported the corners quantize to 2px instead
-               of cutting, so the switch does something in every browser. See
-               ../src/components/classic.css. -->
-          <button type="button" class="ac-toggle" data-ac-style="classic" aria-pressed="false">
-            <span>Classic Corners</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+               off every bordered surface, stands the keys on a hard offset edge and
+               parks their labels top-left — one look, one switch.
+               Ships ON, because that is what the panel was; switching it off asks
+               for a smoother corner than the hardware could draw. Where corner-shape
+               is unsupported the corners quantize to 2px instead of cutting, so both
+               positions of the switch mean something in every browser. See
+               ../src/components/classic.css, and .ac-rounded for the same opt-out
+               scoped to one region. -->
+          <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="classic" aria-pressed="true">
+            <span>Classic Buttons</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
           </button>
         </div>
 
-        <p class="doc-displays__note" data-ac-style-note="smear">Smear needs the CRT simulation.</p>
+        <p hidden class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
         <p class="doc-displays__note">JS Effects off: no ghosting, smear or framebuffer
           decay. Everything else here is CSS.</p>
       </div>
@@ -343,7 +337,7 @@
             re-struck sixty times a second, and text that stops being written leaves only the glow.
             This is the radar phosphor — the flash gives position, the trail gives history.</p>
           <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
-            and leaves the colour alone — this palette and P1 are the same green, and differ only in
+            and leaves the color alone — this palette and P1 are the same green, and differ only in
             how long it lasts. At hundreds of milliseconds the screen is still near full brightness
             when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
             paid for in smear.</p>
@@ -354,8 +348,8 @@
             heavy flicker are the same fact.</p>
           <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
             mixed into one coating, emitting together, which the eye integrates to white. That is
-            what separates it from P7 — two powders mixed have one colour, two powders layered emit
-            in sequence and the colour changes as you watch.</p>
+            what separates it from P7 — two powders mixed have one color, two powders layered emit
+            in sequence and the color changes as you watch.</p>
         </div>
       </div>
 
@@ -395,7 +389,7 @@
            bans the SVG element and `npm run check` greps for it.
 
            EVERY CONTACT IS AN ARM, not a positioned dot. A span pinned at the
-           centre with `height: calc(var(--rng) * 50%)` and rotated by --brg puts
+           center with `height: calc(var(--rng) * 50%)` and rotated by --brg puts
            its far end exactly where polar coordinates say it goes, at any dial
            size, with no arithmetic in JavaScript and nothing to recompute when
            the panel is resized. The blip itself is the arm's ::after, so one
@@ -632,7 +626,7 @@
     </div>
 
     <!-- ===================================================== CONTROL RAIL ==
-         Four analogue controls, and on the real set they were knobs. A knob is
+         Four analog controls, and on the real set they were knobs. A knob is
          a rotary input this system does not have and will not grow, because
          nothing in the genre it reproduces is a slider either — so each one is
          the instrument it always was, an .ac-meter showing where it is set,
@@ -717,7 +711,7 @@
          until that happens, and they are the two numbers a watchkeeper is
          actually reading. The selected row is inverse video and its contact is
          ringed on the face — with one hue available, "this one" is said with
-         brightness and a marker, never with a colour. -->
+         brightness and a marker, never with a color. -->
     <div class="ac-panel">
       <span class="ac-panel__title">Target Plot</span>
       <div class="ac-table-scroll">

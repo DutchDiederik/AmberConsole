@@ -7,7 +7,7 @@
  *   node scripts/derive-gas.mjs --check    re-derive and diff against colors.css
  *   node scripts/derive-gas.mjs --swatch f write an HTML preview of every ramp
  *
- * The colour of a gas is COMPUTED here, never picked, for the same reason
+ * The color of a gas is COMPUTED here, never picked, for the same reason
  * scripts/contrast.mjs computes its ratios: a number somebody typed is a number
  * nobody can check. What the emitter radiates decides the hue; what the panel
  * has to stay legible at decides the luminance; and the two are separate
@@ -17,7 +17,7 @@
  * whole method and it is not a compromise, it is how a panel works. Argon really
  * does emit very little visible light — most of its output sits past 700nm where
  * the eye scores under 0.01 — but "argon is dim" is a statement about radiant
- * efficiency, not about what colour the cell is. Drive the cell harder and it is
+ * efficiency, not about what color the cell is. Drive the cell harder and it is
  * still argon. So every stop below is the emitter's own chromaticity, held
  * exactly, at whatever luminance the contrast gate demands.
  *
@@ -114,7 +114,7 @@ function persistence(decay) {
  * is to sample the actual model.
  *
  * Emitted as PROGRESS, not as intensity: a timing function drives a transition
- * from lit to unlit, so progress = 1 - I(t), normalised to reach exactly 1 at
+ * from lit to unlit, so progress = 1 - I(t), normalized to reach exactly 1 at
  * the end of the run or the property never finishes arriving.
  */
 function decayEasing(decay, durationMs, stops = 10) {
@@ -173,7 +173,7 @@ const STOPS = [
 ];
 
 /**
- * The unlit panel, as luminances rather than colours.
+ * The unlit panel, as luminances rather than colors.
  *
  * Taken from the shipped neon surfaces (#100600 / #1b0c02 / #060200) so every
  * palette sits at the same depth, and tinted to its own gas: dark glass in front
@@ -197,7 +197,7 @@ const GLOWS = [
  *
  * The luminances above are ambitious on purpose — a halo should be bright — but
  * a deeply saturated emitter cannot BE bright inside sRGB, and fitToGamut's job
- * when that happens is to walk the colour toward D65 until it fits. For most
+ * when that happens is to walk the color toward D65 until it fits. For most
  * emitters that walk is a few thousandths and invisible. For the two most
  * out-of-gamut ones it was not:
  *
@@ -216,7 +216,7 @@ const GLOWS = [
  * So luminance now yields to hue rather than the other way round: solveGlow
  * below keeps the stated Y where it fits and dims it where it does not. A halo
  * is composited at low alpha over a near-black panel, so a darker but correctly
- * hued triple reads as MORE of the emitter's colour, not less.
+ * hued triple reads as MORE of the emitter's color, not less.
  *
  * NOT A CAP ON P7. P7's halo sits 0.35 from its ink and must keep doing so: that
  * divergence is two different coatings, measured from two different spectra, and
@@ -242,7 +242,7 @@ const GLOW_SLACK = 0.05;
  * paler than --emit-90 at Y=0.32 even though both start from the same
  * chromaticity — and that difference, not the absolute saturation, is the defect
  * somebody actually sees. A halo is scattered light from the stroke; it must
- * read as the same colour as the stroke. Whether that shared colour is as
+ * read as the same color as the stroke. Whether that shared color is as
  * saturated as the gas really is, is a separate question this file already
  * answers elsewhere and answers honestly.
  *
@@ -283,7 +283,7 @@ function solveGlow(x, y, targetY, maxMix) {
  * a mean wavelength drags every gas toward 555nm by construction and reports a
  * difference of 1.4x where the honest figure is larger.
  *
- * NOT MODELLED, DELIBERATELY: the eye's own longitudinal chromatic aberration,
+ * NOT MODELED, DELIBERATELY: the eye's own longitudinal chromatic aberration,
  * which really does make violet sources look fuzzier and which ratios out at
  * 2.67x for argon. The absolute difference behind that ratio is 0.126 diopters —
  * about half an arcminute at a 4mm pupil, under one pixel at any normal viewing
@@ -426,7 +426,7 @@ function derive(name, emitter) {
     /* Below a millisecond the decay is three orders under a frame and no easing
        curve is observable — the screen simply snaps, which for P11 and P31 is
        the correct and historically miserable answer. Emitting a linear() there
-       would be precision theatre. */
+       would be precision theater. */
     if (visible >= 1) out.tokens["ac-decay-ease"] = decayEasing(held, visible);
   }
 
@@ -434,7 +434,7 @@ function derive(name, emitter) {
      tokens/effects.css names no palette anywhere — that is the rule that lets a
      consumer ship their own hardware without editing the framework — so P7
      cannot be reached from there by selector. Instead the palette declares the
-     decay animation it needs and the flash colour that animation starts from,
+     decay animation it needs and the flash color that animation starts from,
      and effects.css falls back to the single-hue keyframe for everything else.
      Any future two-layer phosphor works with no edit to the CSS.
 
@@ -586,7 +586,7 @@ for (const { d } of all) {
 }
 
 /* KNOWN-ANSWER GATE, and it runs first.
-   Any emitter carrying `validate` is one whose colour was established
+   Any emitter carrying `validate` is one whose color was established
    independently of this script. If the pipeline cannot reproduce it, the
    pipeline is wrong, and finding that out here — against neon, whose answer we
    know — is worth more than any amount of staring at the three palettes whose
@@ -601,7 +601,7 @@ function checkValidate(label, dx, dy, spec) {
   );
   if (!ok) {
     console.error(
-      `\n  The colour pipeline no longer reproduces a known answer. Fix that before\n` +
+      `\n  The color pipeline no longer reproduces a known answer. Fix that before\n` +
       `  trusting anything else this script emits.`
     );
     process.exit(1);
@@ -612,7 +612,7 @@ for (const { d, e } of all) {
   if (e.validate) checkValidate(d.name, d.x, d.y, e.validate);
   /* A cascade phosphor has two spectra and therefore two answers to check. P7's
      afterglow is the layer that carries the halo and every ghost on the screen;
-     leaving it unchecked would gate the colour nobody looks at and skip the one
+     leaving it unchecked would gate the color nobody looks at and skip the one
      the effect is made of. */
   if (e.afterglow?.validate) {
     checkValidate(`${d.name} afterglow`, d.hx, d.hy, e.afterglow.validate);

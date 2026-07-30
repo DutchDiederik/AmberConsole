@@ -15,7 +15,7 @@
      mismatch — it is the only thing that palette can honestly look like.
 
      Nothing in this file changes to accommodate that, which is the point. The
-     rule here is still "build every halo from --gas-N and never name a colour";
+     rule here is still "build every halo from --gas-N and never name a color";
      P7 simply declares a --gas-N that is not its own ink. The one place the
      difference surfaces is the ghost keyframe, and even there the palette names
      the animation rather than this file naming the palette.
@@ -105,23 +105,51 @@
     0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1) * var(--drive-faint))),
     inset 0 0 10px rgba(var(--gas-1), calc(0.07 * var(--drive-faint)));
 
-  /* THE EXTRUDED KEY EDGE — a hard offset copy of the stroke, and the one shadow
-     in this file that is NOT a halo. So it takes neither --gas-spread nor
-     --gas-scatter: those two describe light scattering through the glass, and
-     this is geometry. A panel that drew a drop shadow drew it in CELLS, and a
-     cell is the same size on krypton as it is on neon — the extrusion must stay
-     put when the gas changes, while its colour follows --gas-1 like everything
-     else so it cannot end up the only amber thing on a green screen.
+  /* THE EXTRUDED KEY EDGE — the one shadow in this file that is NOT a halo. So it
+     takes neither --gas-spread nor --gas-scatter: those two describe light
+     scattering through the glass, and this is geometry. A panel that drew a drop
+     shadow drew it in CELLS, and a cell is the same size on krypton as it is on
+     neon — the extrusion must stay put when the gas changes, while its color
+     follows --gas-1 like everything else so it cannot end up the only amber thing
+     on a green screen.
+
+     IT IS AN EDGE, NOT A GHOST, and that is what the two layers are for. An outer
+     box-shadow is clipped to outside the border box, so a single hard offset copy
+     of the box paints a solid band down the bottom and right — not a floating
+     duplicate. Two of them at different offsets make that band read as depth: a
+     bright 2px lip against the stroke, then 3px more at lower drive falling away
+     from it. One uniform layer looked like a thick border; a blurred one looked
+     like a modern card shadow, which is the whole thing this is not.
+
+     THE ALPHAS ARE SET AGAINST THE BLOOM RATHER THAN THE SCREEN. The band lands in
+     exactly the region --glow-box is already lighting, and .ac-bloom amplifies
+     that halo — anything under about 0.6 on the lip washed out into it and read as
+     the stroke being slightly heavy.
 
      Consumed by components/classic.css and nothing else. Override it to blunt or
      kill the extrusion wholesale; print does exactly that, at the foot of that
      file, because a shadow is paid for in ink. */
-  /* THE ALPHA IS SET AGAINST THE BLOOM, NOT AGAINST THE SCREEN. The extrusion
-     lands in exactly the band --glow-box is already lighting, and under .ac-bloom
-     that halo is amplified — at 0.35 the edge washed out into it and read as the
-     stroke being slightly thick. 0.6 is where it separates from its own glow on
-     the brightest simulation, which is the case it has to survive. */
-  --edge-3d: 3px 3px 0 rgba(var(--gas-1), 0.6);
+  --edge-3d:
+    2px 2px 0 rgba(var(--gas-1), 0.92),
+    5px 5px 0 rgba(var(--gas-1), 0.6);
+
+  /* THE SAME EDGE, SEEN FROM THE OTHER SIDE — a key that has been pressed IN. The
+     band moves to the top and left because the near face of a sunken key is the
+     upper one; flipping which edges are lit is how a bevel has always shown a
+     press, and it is the whole reason this is a second shadow rather than a
+     transform.
+
+     A TRANSFORM WAS THE FIRST ANSWER AND IT WAS A BUG. `translate: 4px 4px` looks
+     right and moves nothing around it, but it DOES contribute to scrollable
+     overflow — so every latched key sitting flush against its container pushed 4px
+     past it, which the visual suite caught on two pages at every width (an
+     .ac-grow pad in a row, and the Ent key in the keypad grid). A box-shadow is
+     ink overflow and contributes nothing, in either direction. The key now stays
+     exactly where it was laid out and the light does the moving, which is also the
+     more honest account of what a screen was drawing. */
+  --edge-3d-in:
+    -2px -2px 0 rgba(var(--gas-1), 0.92),
+    -5px -5px 0 rgba(var(--gas-1), 0.6);
 
   /* Plasma decay. A gas gap that stops being driven does not go dark on the next
      refresh — it relaxes: the discharge leaves excited and metastable neon behind,
@@ -722,7 +750,7 @@
 .ac-afterglow .ac-toggle__thumb,
 /* The bar was missing from this list entirely, which is why an alarm clearing
    used to snap. Its WIDTH is deliberately not transitioned — that is the live
-   edge and it must stay instant; only its colour and halo relax. The vacated
+   edge and it must stay instant; only its color and halo relax. The vacated
    region is (5c)'s job. */
 .ac-afterglow .ac-meter__bar,
 .ac-afterglow .ac-table__row--active td {
@@ -868,8 +896,8 @@
    decays above covers.
    ---------------------------------------------------------------------------
    Every mechanism in this file so far handles a node DISAPPEARING, text being
-   REWRITTEN, or a lamp CHANGING COLOUR. A meter does none of those: the element
-   stays, its text is elsewhere, its colour never moves. What changes is its
+   REWRITTEN, or a lamp CHANGING COLOR. A meter does none of those: the element
+   stays, its text is elsewhere, its color never moves. What changes is its
    WIDTH — so the region it vacates was lit a moment ago and is now simply not
    drawn, with nothing timing the difference. On a 2s phosphor that is the most
    visible wrong thing on the panel: everything around the bar trails and the bar
@@ -1014,7 +1042,7 @@
 /* THE CASCADE — P7, and anything else with two coatings.
 
    The beam writes in ZnS:Ag blue and the layer behind it holds in (Zn,Cd)S:Cu
-   yellow-green, so what a ghost shows is not one colour fading but TWO in
+   yellow-green, so what a ghost shows is not one color fading but TWO in
    sequence: the flash, gone within a frame, and then the afterglow for as long
    as it lasts. That is what the eye actually reads off a radar screen, and it is
    why P7 exists rather than a single phosphor with a long decay.
@@ -1025,10 +1053,10 @@
    because a literal single-frame step reads as a glitch rather than as a flash.
    --ac-persist-fast carries the true figure for anyone who needs it.
 
-   The colour is animated rather than set, so it beats the inline `color` that
+   The color is animated rather than set, so it beats the inline `color` that
    amber-console.js copies onto the clone — an animation outranks an inline style
    in the cascade. Palettes with one coating never reach this keyframe at all, so
-   their ghosts keep the source's own colour exactly as before. */
+   their ghosts keep the source's own color exactly as before. */
 @keyframes ac-ghost-cascade {
   0%   { opacity: 0.46; color: rgb(var(--gas-flash)); filter: blur(0); }
   4%   { opacity: 0.38; color: rgb(var(--gas-1)); filter: blur(0.1px); }
@@ -1105,9 +1133,9 @@ html:has(.ac-afterglow)::view-transition-group(root) {
    SCREEN, which is not an effect any hardware has.
 
    Practically: it banded. A backdrop-filter stretched over a document-height
-   layer is rasterised in tiles, and the tile seams show up as static horizontal
+   layer is rasterized in tiles, and the tile seams show up as static horizontal
    and vertical steps across the background — the bars this fixes. The enormous
-   mask and vignette gradients quantise into visible steps for the same reason,
+   mask and vignette gradients quantize into visible steps for the same reason,
    8-bit alpha spread over thousands of pixels.
 
    Anchoring to the viewport fixes the look, the physics and the cost — the

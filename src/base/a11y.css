@@ -52,7 +52,7 @@
 
   /* Same argument for the de-energizing afterimage. The UA forces shadows off
      for anything still at forced-color-adjust: auto, but this halo is built from
-     --gas-N rather than from a forced system colour, and the elements it sits on
+     --gas-N rather than from a forced system color, and the elements it sits on
      are exactly the ones a11y.css opts OUT of forced colors further down — which
      hands them their box-shadow back. Stated at matching weight so it cannot
      survive on the controls that opt out. */

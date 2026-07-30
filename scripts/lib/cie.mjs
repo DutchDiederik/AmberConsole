@@ -7,7 +7,7 @@
  * scripts/derive-gas.mjs decides what to do with the answer.
  */
 
-/* CIE 1931 2-degree colour matching functions, 5nm, 380-780nm.
+/* CIE 1931 2-degree color matching functions, 5nm, 380-780nm.
    [x-bar, y-bar, z-bar] per row. y-bar is also the photopic luminosity
    function V(lambda), which is why a 750nm line at ten thousand counts is
    worth less to the eye than a 555nm line at one. */
@@ -79,7 +79,7 @@ export function cmf(nm) {
  * than branching there is what keeps the phosphor pass from forking the
  * pipeline the gases are already validated against.
  *
- * Each band is { nm, fwhm, weight }: a Gaussian in PHOTON ENERGY, centred on the
+ * Each band is { nm, fwhm, weight }: a Gaussian in PHOTON ENERGY, centered on the
  * quoted peak, whose width is the quoted FWHM converted to eV at that peak.
  *
  * THE GAUSSIAN IS IN ENERGY, NOT IN WAVELENGTH, AND THAT IS NOT A DETAIL.

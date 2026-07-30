@@ -476,7 +476,11 @@ function paintReadout() {
     /* Not part of the preset — see initEngine — but it belongs on the board,
        because "three of these effects are dark right now" is exactly the kind
        of thing a State panel exists to stop being a surprise. */
-    engine: engineOn() ? "CSS + JS" : "CSS ONLY",
+    /* What is actually rendering this panel, not what the flag permits. Under a
+       plasma simulation or a microsecond phosphor the effects module contributes
+       nothing, so "CSS + JS" beside a switch that reads OFF would be the readout
+       disagreeing with the control right next to it. */
+    engine: engineOn() && engineUseful() ? "CSS + JS" : "CSS ONLY",
   };
 
   for (const el of document.querySelectorAll("[data-ac-display-out]")) {
@@ -485,6 +489,13 @@ function paintReadout() {
   }
 
   paintInfo();
+
+  /* AND THE PALETTE IS THE OTHER HALF OF THE ENGINE GATE. Every display change
+     comes through here — presets, the legacy gas toggle, the restore path — and a
+     change of emitter can move --ac-persist across the floor without the
+     simulation moving at all. P39 to P11 is exactly that: still CRT, still
+     afterglow, and the effects go from a two-second tail to 35 microseconds. */
+  syncEngineControls();
 }
 
 /**
@@ -611,20 +622,97 @@ function engineOn() {
   return set === null ? ENGINE_DEFAULT_JS : set !== "css";
 }
 
+/**
+ * THE SHORTEST TAIL WORTH OFFERING A SWITCH FOR, in milliseconds.
+ *
+ * All three JS effects are timed by --ac-persist, and three of the seven
+ * phosphors declare a tail in MICROSECONDS: P11 at 0.035ms, P31 at 0.038ms, P4
+ * at 0.06ms. Those are real figures and the effects genuinely run on them — a
+ * ghost is spawned, given a 0.035ms animation, and removed again inside the same
+ * frame. Nothing is drawn that any eye could catch.
+ *
+ * So the switch has nothing to offer there, and 5ms is where that line sits: it
+ * is a third of a frame at 60Hz, so anything under it cannot survive to be
+ * composited even once, and everything over it is at least visible in principle.
+ * P1 at 24ms and P3 at 25ms clear it; the microsecond sulfides do not, by three
+ * orders of magnitude. Nothing in the catalog is anywhere near the boundary,
+ * which is what makes a single threshold safe rather than a fudge.
+ */
+const ENGINE_FLOOR_MS = 5;
+
+/** The active palette's uncapped tail, in ms. Falls back to the :root default. */
+function persistTailMs() {
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue("--ac-persist-tail")
+    .trim();
+  const n = parseFloat(raw);
+  if (!Number.isFinite(n)) return 105;
+  return raw.endsWith("ms") ? n : n * 1000;
+}
+
+/**
+ * Whether the ENGINE switch has anything on the other end of it.
+ *
+ * TWO CONDITIONS, AND THEY FAIL FOR DIFFERENT REASONS. Every effect in the
+ * module is scoped to .ac-afterglow, which ships with the CRT simulation — so
+ * under any plasma preset the switch is wired to nothing at all. And even with
+ * the simulation on, a phosphor whose tail is measured in microseconds gives
+ * those effects no time to be seen. The first is a mechanical no-op, the second
+ * a perceptual one, and a control that cannot change what you are looking at
+ * should say so either way rather than inviting a click that does nothing.
+ */
+function engineUseful() {
+  return (
+    Boolean(screenFrame()?.classList.contains("ac-afterglow")) &&
+    persistTailMs() >= ENGINE_FLOOR_MS
+  );
+}
+
+/**
+ * Disable the ENGINE switch wherever it would be a no-op, and reveal the note
+ * that says why. Runs from every path that can change either condition: the
+ * simulation (applySim -> syncDerivedStyles), the palette (paintReadout) and the
+ * flag itself (applyEngine).
+ */
+function syncEngineControls() {
+  const live = engineUseful();
+  /* FORCED OFF, NOT MERELY UNCLICKABLE. A switch reading ON while nothing it
+     governs is running is a small lie, and it is the one the smear switch used to
+     tell before it was removed. So the control shows what is actually
+     contributing — engineOn() AND useful — rather than what the flag permits.
+
+     THE FLAG ITSELF IS NOT WRITTEN, and that is the important half. Forcing
+     data-ac-engine to "css" here would clobber a preference the user did express,
+     and picking P39 again would leave the effects off with no way to know why.
+     The attribute stays what it was, the module gates on the same three
+     conditions in effectsActive(), and the switch comes back ON by itself when
+     the panel is one where it means something. Same rule as the derived style
+     defaults: a derived value fills a silence, it does not overwrite an answer. */
+  const showing = live && engineOn();
+
+  for (const btn of document.querySelectorAll("button[data-ac-engine]")) {
+    btn.disabled = !live;
+    btn.setAttribute("aria-pressed", String(showing));
+    btn.classList.toggle("ac-toggle--on", showing);
+    const state = btn.querySelector(".ac-toggle__state");
+    if (state) state.textContent = showing ? "ON" : "OFF";
+  }
+  for (const note of document.querySelectorAll("[data-ac-engine-note]")) {
+    note.hidden = live;
+  }
+}
+
 function applyEngine(on, persist = true) {
   document.documentElement.setAttribute("data-ac-engine", on ? "css+js" : "css");
 
-  /* `button[...]` and not `[...]`, because the line above just put the same
-     attribute on <html> — which document.querySelectorAll matches, and which
-     would then be handed an aria-pressed of its own. */
-  for (const btn of document.querySelectorAll("button[data-ac-engine]")) {
-    btn.setAttribute("aria-pressed", String(on));
-    btn.classList.toggle("ac-toggle--on", on);
-    const state = btn.querySelector(".ac-toggle__state");
-    if (state) state.textContent = on ? "ON" : "OFF";
-  }
-
   if (persist) writeStored("engine", on ? "1" : "0");
+
+  /* THE PAINTING IS ALL DOWN THERE, deliberately. This used to set aria-pressed
+     and the ON/OFF text from `on` directly, which is the flag — but the control
+     shows what is CONTRIBUTING, and those differ wherever the effects cannot be
+     seen. Two code paths painting the same switch from two different truths is
+     how it would end up reading ON under neon again. */
+  syncEngineControls();
 }
 
 function initEngine() {
@@ -687,24 +775,35 @@ function initEngine() {
  */
 const STYLES = {
   blink: { defaultOn: true },
-  /* SMEAR IS A PROPERTY OF THE AFTERGLOW, not of scrolling. Every selector that
-     implements it is scoped to .ac-afterglow, and .ac-afterglow ships only with
-     CRT — a plasma cell is driven continuously and has nothing that trails, so
-     there is no plasma smear to switch on. The default therefore follows the
-     simulation instead of being a constant: on under CRT, off under plasma, and
-     the switch disables itself where it would be a no-op. */
-  smear: {
-    defaultOn: () => Boolean(screenFrame()?.classList.contains("ac-afterglow")),
-    needs: "ac-afterglow",
-  },
-  /* CLASSIC CORNERS AND THE EXTRUDED KEY EDGE — components/classic.css.
-     No `needs`, and that is the interesting half. It is pure CSS on tokens and
-     the corner shape, so it works under plasma, under CRT and with the effects
-     bundle absent entirely; there is no frame class it could be a no-op without,
-     so unlike `smear` this switch never has cause to disable itself.
-     Ships OFF: the rounded corner is what every existing page was built against
-     and this is a second option, not a correction. */
-  classic: { defaultOn: false },
+  /* NO `smear` ENTRY ANY MORE, and it is worth saying why rather than leaving a
+     gap where a reader expects one.
+
+     The smear was a STYLE flag that could only ever be on under CRT: every
+     selector implementing it is scoped to .ac-afterglow, and a plasma cell is
+     driven continuously and has nothing that trails. So it derived its default
+     from the simulation and disabled itself under plasma — which is a switch
+     that spends most of its life explaining why it cannot do anything, and a
+     third axis of state for a preference nobody was expressing.
+
+     It is now simply part of what amber-console.effects.js does: on wherever the
+     persistence simulation is running and the engine flag permits it, off
+     everywhere else, with no separate control and nothing to keep in sync.
+     prefers-reduced-motion still stops it, which was the only accessibility case
+     the flag was actually carrying. */
+  /* CLASSIC BUTTONS — the cut corner, the extruded key edge and the top-left
+     label. components/classic.css.
+
+     No `needs`, and that is the interesting half. It is pure CSS on tokens and the
+     corner shape, so it works under plasma, under CRT and with the effects bundle
+     absent entirely; there is no frame class it could be a no-op without, so
+     unlike `smear` this switch never has cause to disable itself.
+
+     ON, because it is what the hardware looked like. Turning it off is a
+     preference for a smoother corner than the panel could draw, which is a real
+     thing to want and the reason the switch exists — but it is the departure from
+     the panel, not the default reading of it. .ac-rounded is the same opt-out
+     scoped to a region instead of the page. */
+  classic: { defaultOn: true },
 };
 
 /** Current value of a style flag, defaults included. Safe before init. */
@@ -731,11 +830,6 @@ function styleOn(name) {
  */
 function applyStyle(name, on, persist = true) {
   document.documentElement.setAttribute(`data-ac-style-${name}`, on ? "on" : "off");
-
-  /* Smear is the one style with a running cost rather than a CSS rule, and
-     stopping that loop is amber-console.effects.js's job — it watches
-     data-ac-style-smear on the root, which the line above just wrote. Writing
-     the attribute IS the notification. */
 
   for (const btn of document.querySelectorAll(`[data-ac-style="${name}"]`)) {
     btn.setAttribute("aria-pressed", String(on));
@@ -767,12 +861,13 @@ function syncDerivedStyles() {
       applyStyle(name, Boolean(spec.defaultOn()), false);
     }
 
-    /* A SWITCH THAT CANNOT DO ANYTHING SAYS SO. Under plasma the smear has no
-       selectors to match and no loop to run, and leaving the control live meant
-       it could be clicked ON and produce nothing — which reads as a broken
-       effect rather than as an effect this hardware does not have. The engine
-       flag disables it for the same reason: with the JS effects off there is
-       nothing on the other end of the switch either. */
+    /* A SWITCH THAT CANNOT DO ANYTHING SAYS SO. No shipped style needs this any
+       more — the smear was the one that did, and it is no longer a style at all —
+       but the mechanism stays because it is the framework's answer for a consumer
+       flag that depends on a simulation, and because the ENGINE switch is gated
+       the same way a few functions down. A control that can be clicked ON and
+       produce nothing reads as a broken effect rather than as an effect this
+       hardware does not have. */
     if (!spec.needs) continue;
     const live =
       Boolean(screenFrame()?.classList.contains(spec.needs)) && engineOn();
@@ -783,6 +878,11 @@ function syncDerivedStyles() {
       note.hidden = live;
     }
   }
+
+  /* The ENGINE switch depends on the simulation too — every effect it governs is
+     scoped to .ac-afterglow — so it is settled on the same signal rather than
+     given its own hook into applySim. */
+  syncEngineControls();
 }
 
 function initStyle() {
@@ -805,8 +905,8 @@ function initStyle() {
 
     /* AND A DERIVED DEFAULT IS NOT WRITTEN BACK ON LOAD EITHER, which is the
        same rule one level down: persisting it here would claim the preference
-       on the first page view, before the user had touched anything, and the
-       smear would stop following the simulation forever after. Only a value
+       on the first page view, before the user had touched anything, and a
+       derived flag would stop following the simulation forever after. Only a value
        that was already stored — i.e. one the user chose — is re-stored. */
     const derived = typeof STYLES[name].defaultOn === "function";
     apply(
@@ -906,7 +1006,7 @@ export function init(scope = document) {
  * MOVED — this is a forwarding shim, kept so existing calls keep working.
  *
  * Ghosting now lives in amber-console.effects.js, because it is an effect and
- * this file is behaviour. Call `AmberConsoleEffects.afterglow(row)` directly;
+ * this file is behavior. Call `AmberConsoleEffects.afterglow(row)` directly;
  * this delegates when that module is present and does nothing when it is not,
  * which is the same no-op it always was with the simulation switched off.
  *
