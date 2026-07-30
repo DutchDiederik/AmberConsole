@@ -449,6 +449,15 @@ const SMEAR_FULL = 28;
 const SMEAR_DRAIN = 0.55;
 const SMEAR_REFERENCE_MS = 105;
 
+/**
+ * Quantum for the value written to `--ac-smear`.
+ *
+ * 0.02 of a 1.8px blur is 0.036px. It exists to make consecutive frames write
+ * the SAME string, so the write can be skipped and the filtered subtree does not
+ * re-rasterize — see the note in step().
+ */
+const SMEAR_STEP = 0.02;
+
 /** Drain factor for this palette: 0.55 at 105ms, approaching 1 as the tail grows. */
 function smearDrain() {
   const tail = Math.max(tailMs(), 1);
@@ -469,9 +478,12 @@ function makeScrollSmear(frame) {
   let raf = 0;
   /* Whether the listener is actually attached — see connect(). */
   let listening = false;
+  /* The last value actually written to the frame — see SMEAR_STEP below. */
+  let written = "";
 
   const clear = () => {
     smear = 0;
+    written = "";
     frame.removeAttribute("data-ac-scrolling");
     frame.style.removeProperty("--ac-smear");
   };
@@ -491,7 +503,20 @@ function makeScrollSmear(frame) {
       return;
     }
     frame.setAttribute("data-ac-scrolling", "");
-    frame.style.setProperty("--ac-smear", smear.toFixed(3));
+
+    /* QUANTIZED, AND THE POINT IS THE WRITE THAT DOESN'T HAPPEN. --ac-smear
+       drives `filter: blur()` on the frame's content, and a blur radius that
+       changes invalidates the raster of everything under it. At three decimals
+       essentially every frame of a scroll was a new radius, so the subtree was
+       re-rastered on every one of them — while the whole span of the effect is
+       1.8px, and a step of 0.02 is 0.036px of blur. Nobody has ever seen 0.036px
+       of blur. Rounding to the step and skipping the write when it has not moved
+       costs nothing visible and drops most of the invalidations. */
+    const next = (Math.round(smear / SMEAR_STEP) * SMEAR_STEP).toFixed(2);
+    if (next !== written) {
+      written = next;
+      frame.style.setProperty("--ac-smear", next);
+    }
     raf = requestAnimationFrame(step);
   };
 

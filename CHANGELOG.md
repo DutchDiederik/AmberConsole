@@ -6,6 +6,32 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Fixed — the PPI wake was on the wrong side of the beam, and the beam had no line
+
+- **`.ac-sweep__beam` painted its falloff in FRONT of the sweep.** A `conic-gradient` runs clockwise
+  and so does `rotate()`, so putting the flash at `0deg` lit `[A, A+arc]` — the bearings the beam is
+  travelling toward, not the ones it has just written. The stops now count down from `360deg` and the
+  rotation is untouched, because bearings on a PPI increase clockwise and the bearing scale, the EBL,
+  the guard sector and every contact arm are built on that. The contacts were the tell all along: each
+  one delays its strike to fire when the rotation equals its own bearing and then drains where the beam
+  has already been, so the wedge and the plot had been running in opposite directions.
+- **The wake is the palette's own decay law now, not a hand-picked ramp.** Alphas are read off the
+  Becquerel curve `--ac-decay-ease` is sampled from, at `t₀ = 0.032 × --ac-persist-tail`, through a
+  perceptual compression. The knee is sampled finely and the tail coarsely: a gradient interpolates
+  straight, the curve is convex, and sparse stops filled the first forty degrees in as a flat slab with
+  an edge on it.
+- **The beam has a writing line.** A few degrees of gradient is a *wedge* — 1.8px at the rim of a 260px
+  face and under half a pixel at quarter range, so it thinned out and aliased away exactly where the
+  picture is densest. It is now a constant-width arm on the beam's leading edge, drawn the way every
+  mark on a radar face is drawn, and it inherits its bearing from the rotation for free.
+- **The origin saturates.** Every one of the 360 bearings crosses the center, so it takes the whole
+  revolution's dose — the bright spot in the middle of every scope photograph ever taken. It is the one
+  place on the face a radial falloff is earned, and it goes out with the beam on standby.
+- **New public custom properties:** `--ac-sweep-arc` (how much of the face the wake covers, default
+  `250deg`, which is what `--ac-persist-tail ÷ --ac-sweep-period × 360` evaluates to for every phosphor
+  above the period floor, plus a taper) and `--ac-sweep-line` (the writing line's width, default `3px`).
+  Both are fallbacks rather than declarations, so a page can reach them.
+
 ### Removed — the Scroll Smear switch, and the JS Effects switch now knows when it is idle
 
 - **`data-ac-style-smear` is gone.** It was a STYLE flag that could only ever be on under CRT — every

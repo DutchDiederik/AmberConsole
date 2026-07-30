@@ -65,6 +65,22 @@ const update = process.argv.includes("--update");
  * screenshot is of the LAST one, so put the widest page last — for the terminal
  * that is XRAT, an eight-by-eight matrix.
  */
+/**
+ * `probeOnly` IS THE ANSWER TO THE GUIDE BECOMING EIGHT PAGES.
+ *
+ * The two jobs this file does are separable, and the split made that matter. The
+ * screenshot gates appearance and costs a PNG in git forever; the overflow probe
+ * gates responsive collapse, walks the whole DOM, and costs nothing at all. When
+ * the guide was one document, listing it once bought both. Eight chapters would
+ * buy eight times the bytes for a shape that is the same on all of them — and
+ * NOT listing them would silently drop the overflow probe from six of the seven,
+ * which is the regression this suite was actually built to catch.
+ *
+ * So every chapter is probed and two are photographed: the overview, which is
+ * the only page carrying the chapter strip and the directory cards, and CONTROLS,
+ * which is where the anchor already pointed and where the forced-colors and print
+ * fallbacks have the most to get wrong.
+ */
 const PAGES = [
   { name: "console", file: "docs/index.html", fullPage: true },
   { name: "server", file: "docs/server.html", fullPage: true, click: "#tab-services" },
@@ -75,7 +91,16 @@ const PAGES = [
     fullPage: true,
     click: ["#tab-depo", "#tab-govt", "#tab-indx", "#tab-fxsp", "#tab-xrat"],
   },
-  { name: "guide", file: "docs/guide.html", fullPage: false, anchor: "#controls .doc-grid2" },
+  /* The directory rather than the masthead: the cards are the new shape on this
+     page, and the board above them is already gated on four other captures. */
+  { name: "guide", file: "docs/guide.html", fullPage: false, anchor: "#chapters" },
+  { name: "guide-controls", file: "docs/guide-controls.html", fullPage: false, anchor: "#controls .doc-grid2" },
+  { name: "guide-color", file: "docs/guide-color.html", probeOnly: true },
+  { name: "guide-type", file: "docs/guide-type.html", probeOnly: true },
+  { name: "guide-effects", file: "docs/guide-effects.html", probeOnly: true },
+  { name: "guide-persistence", file: "docs/guide-persistence.html", probeOnly: true },
+  { name: "guide-display", file: "docs/guide-display.html", probeOnly: true },
+  { name: "guide-screen", file: "docs/guide-screen.html", probeOnly: true },
 ];
 
 /**
@@ -98,12 +123,12 @@ const PAGES = [
  * The rounded case is the reason both exist. CLASSIC IS THE DEFAULT, so the seven
  * cases above already gate it on all five pages; what nothing covered was the
  * page with it switched OFF, which is a whole second set of corner geometry and an
- * .ac-btn alignment reset. This case is that, and it is guide-only on the same
+ * .ac-btn alignment reset. This case is that, and it is CONTROLS-only on the same
  * economics the `fullPage` note above argues: five full-page captures would be
  * five of the largest files in the repo, re-written on every --update, to gate a
- * shape identical on all of them. The guide is the viewport capture and the paired
- * specimen lives there, so one case costs a screen and covers buttons, a pad, a
- * toggle and the panels around them.
+ * shape identical on all of them. The guide's CONTROLS chapter is a viewport
+ * capture and the paired specimen lives there, so one case costs a screen and
+ * covers buttons, a pad, a toggle and the panels around them.
  *
  * WHAT THIS GIVES UP: the rounded path is not gated on the console, server, radar
  * or terminal boards. It is the same CSS on all five — a token override and a
@@ -124,7 +149,7 @@ const CASES = [
     height: 900,
     sims: "plasma",
     styles: { classic: "0" },
-    only: ["guide"],
+    only: ["guide-controls"],
     /* Its own anchor, because the point of the case is the corner and the paired
        specimen is the one place both corners are in frame together. */
     anchor: "#controls .doc-demo:has(.ac-classic)",
@@ -386,6 +411,14 @@ for (const page of PAGES) {
     }
 
     const name = `${page.name}-${c.id}.png`;
+
+    /* Probed, not photographed — see the note on PAGES. */
+    if (page.probeOnly) {
+      results.push({ name, status: "probed", overflow, errors });
+      await context.close();
+      continue;
+    }
+
     const shot = await tab.screenshot({ fullPage: page.fullPage });
     const target = path.join(BASELINES, name);
 

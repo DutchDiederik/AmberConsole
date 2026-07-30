@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SYSTEM GUIDE — Amber Console</title>
-<meta name="description" content="The Amber Console design guide: philosophy, color, type, effects, geometry and every component with its class string.">
+<title>COLOR — Amber Console</title>
+<meta name="description" content="Five discharge intensities over three warm blacks, and why a palette is a piece of hardware rather than a theme.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -14,9 +14,9 @@
      Pages host. They are inert over file://, which costs nothing. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amber Console">
-<meta property="og:title" content="System Guide — Amber Console">
-<meta property="og:description" content="The Amber Console design guide: six laws, two gas palettes, every component with its class string.">
-<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/guide.html">
+<meta property="og:title" content="COLOR — Amber Console System Guide">
+<meta property="og:description" content="Five discharge intensities over three warm blacks, and why a palette is a piece of hardware rather than a theme.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/guide-color.html">
 <meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -363,8 +363,8 @@
      and these are page loads, which is the distinction the TABS specimen in the
      CONTROLS chapter draws itself. Marked with aria-current by the build. -->
 <nav class="doc-chapters" aria-label="Guide chapters">
-  <a class="doc-chapter" aria-current="page" href="guide.html">Overview</a>
-  <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
+  <a class="doc-chapter" href="guide.html">Overview</a>
+  <a class="doc-chapter" aria-current="page" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
   <a class="doc-chapter" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
   <a class="doc-chapter" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
   <a class="doc-chapter" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
@@ -374,163 +374,161 @@
 </nav>
 <!-- @end -->
 
-  <header class="doc-head">
-    <div class="doc-kicker">AMBER CONSOLE</div>
-    <h1>SYSTEM GUIDE</h1>
+  <header class="doc-head doc-head--chapter">
+    <div class="doc-kicker"><span class="doc-num">01</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>COLOR</h1>
   </header>
-  <div class="doc-mono">REV 1.0 · MONOCHROME PLASMA UI · INDUSTRIAL CONTROL PANEL GENRE</div>
-  <p class="doc-lede">A design system for interfaces that look like they run machinery. Everything here is
-    derived from the physical limits of a late-80s amber plasma display: one lit color, a character
-    grid, 2-pixel strokes, and no time for decoration. The constraints are the design.</p>
+  <p class="doc-lede">Five discharge intensities over three warm blacks. Every color decision in the system is a choice of intensity, and intensity means energization: bright is live, faint is inert.</p>
 
-  <!-- ================================================================ 00 --
-       THE LAWS STAY ON THE FRONT PAGE, and everything else moved off it.
-
-       This page was one 26,000px document with ten sections on it, which is a
-       reference manual pretending to be a home page: heavy to paint, hostile to
-       scan, and impossible to link to a part of. The seven chapters are their
-       own pages now. What is left here is the thesis — a reader who lands on
-       this page and leaves again should still have got the point. -->
-  <section id="philosophy">
-    <div class="doc-sec-head"><span class="doc-num">00</span><h2>PHILOSOPHY</h2></div>
-    <p class="doc-dim">Six laws, each inherited from a hardware limitation rather than a style preference.
-      Break one and the illusion collapses.</p>
-    <div class="doc-grid2" style="margin-top:24px;row-gap:26px">
-      <div class="doc-law"><span class="doc-law-n">1</span><div><h3>ONE GAS, MANY INTENSITIES</h3>
-        <p>There is no phosphor in here. A monochrome plasma panel is a grid of gas gaps holding a
-          neon–argon mixture, and the amber is neon emitting directly when the gap strikes — around
-          590nm, the color neon simply is. Phosphors arrive only with color plasma, where xenon UV
-          excites red, green and blue stripes. So the panel can light one color and vary how hard.
-          Hierarchy comes from brightness, inverse video, and blink — never hue. There is no red, no
-          green, no success color.</p></div></div>
-      <div class="doc-law"><span class="doc-law-n">2</span><div><h3>INVERSE VIDEO IS IMPORTANCE</h3>
-        <p>A solid amber block with dark text is the machine speaking: live status, section headers,
-          the active mode. Ration it — two or three per screen, no more.</p></div></div>
-      <div class="doc-law"><span class="doc-law-n">3</span><div><h3>EVERYTHING IS A BOX</h3>
-        <p>Regions are drawn with rules. Controls are large bordered rectangles with the label parked
-          top-left and empty space below — targets for a gloved finger. Borders do the layout work;
-          elevation and shadow do not exist.</p></div></div>
-      <div class="doc-law"><span class="doc-law-n">4</span><div><h3>THE CHARACTER GRID RULES</h3>
-        <p>Text sits on terminal rows. Labels are <code>KEY:VALUE</code> pairs, columns align, leading
-          is tight at 1.15. Space is measured in 4px half-cells, never eyeballed.</p></div></div>
-      <div class="doc-law"><span class="doc-law-n">5</span><div><h3>CASING IS SEMANTIC</h3>
-        <p>System and machine text is ALL CAPS. Operator-facing soft keys — the labels a human presses
-          — are Title Case. That split is information, so preserve it.</p></div></div>
-      <div class="doc-law"><span class="doc-law-n">6</span><div><h3>ORNAMENT IS TYPOGRAPHIC</h3>
-        <p>Emphasis is built from repeated glyphs, dashes, and colons: <code>✳✳ REMOTE MODE ✳✳</code>.
-          No icon libraries, no illustration, no imagery of any kind.</p></div></div>
+  <section id="color">
+    <div class="doc-prose">
+    <p class="doc-dim">Five discharge intensities over three warm blacks. Every color decision in the system
+      is a choice of intensity, and intensity means energization: bright is live, faint is inert.</p>
+    <p class="doc-dim">A palette is not a theme and not a light/dark pair — it is a specific piece of
+      hardware, and naming one takes <strong>two</strong> attributes on the root element:
+      <code>data-ac-tech</code> is the technology, what is making light at all;
+      <code>data-ac-emitter</code> is which gas, or which phosphor, inside it. An emitter is only
+      meaningful within its technology — <code>neon</code> is a gas and exists only under plasma,
+      <code>p3</code> is a phosphor and exists only under CRT — so every block is selected by both, and a
+      mismatched pair selects nothing rather than quietly rendering the wrong hardware. Pick one from
+      the two display catalogs on the board at the top of the page; the menu bar carries the readout,
+      not the choice. Both ramps are shown below regardless of which is active, and both are held to
+      the same contrast gate.</p>
     </div>
-    <hr class="ac-hr" style="margin:32px 0">
-    <div class="doc-dodont">
-      <div><span class="doc-dd-h">DO</span>
-        <ul>
-          <li>Say <code>STATUS:AUTO MODE</code> — terse, declarative, no pleasantries.</li>
-          <li>Abbreviate like firmware: <code>MM:SS</code>, <code>FRM</code>, <code>LAMP V</code>.</li>
-          <li>Zero-pad fixed-width numbers: <code>0000:00</code>, <code>07/23/26</code>.</li>
-          <li>Signal danger with blink plus inverse video.</li>
-        </ul></div>
-      <div><span class="doc-dd-h doc-dd-h--off">DO NOT</span>
-        <ul>
-          <li>Write "Your presets have been completed!" — no exclamation, no second person.</li>
-          <li>Introduce a second hue, a gradient, or a drop shadow.</li>
-          <li>Use emoji or an SVG icon set. Ever.</li>
-          <li>Animate with fades, eases, or slides — state changes are instant redraws.</li>
-        </ul></div>
+
+    <h3 style="margin:28px 0 12px">PLASMA / NEON · 24° · THE DEFAULT</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">A monochrome AC plasma panel. The light is neon
+      emitting directly from the gas — no phosphor anywhere in the stack. The hue is derived, not picked:
+      weight the Ne I visible lines by the CIE 1931 observer and the discharge sits at x=0.631 y=0.369, just
+      outside sRGB. That maps to 19°, which is a DC neon tube; a pulsed sustain enriches the 585.2nm line and
+      walks it up. 19–31° is the defensible band and 24° is its middle.</p>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="neon" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFA86D</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #FF6B08</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #DD5800</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #AB4500</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #5B2500</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="neon" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #100600</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #1B0C02</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1E0C00</span></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">CRT / P3 · 38° · THE PHOSPHOR</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">The classic amber CRT phosphor (P3): a broad
+      ~590nm band with real green content, where neon is a line spectrum with almost none. Historically this is
+      a <em>different</em> display technology — but it is what most people mean by "amber terminal", it is the
+      ramp the source design system was drawn against, and it pairs naturally with <code>.ac-crt</code>.</p>
+    <div class="doc-demo" data-ac-tech="crt" data-ac-emitter="p3" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFD052</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #FFAE1E</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #CD8817</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #8D5B10</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #4A2F08</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-tech="crt" data-ac-emitter="p3" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0D0700</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #170E02</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1A0E00</span></div>
+    </div>
+
+
+    <h3 style="margin:32px 0 12px">PLASMA / HELIUM · PALE PINK</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">Helium has no low manifold to dominate the way the heavier gases do — its visible lines all fall out of
+      n=3 and n=4 decaying to n=2, at comparable energies, so nothing outranks the rest. The strong yellow at
+      587.6nm carries the luminance while 447.1nm and 667.8nm pull the result off the blackbody locus toward
+      purple. Integrates to x=0.3944 y=0.2986: a near-white with a pink cast, which is what a helium tube is.</p>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="helium" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFA2B9</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #DC7D96</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #BC6A80</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #925163</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #502A34</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="helium" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0E0809</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #1B1214</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060404</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #201216</span></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">PLASMA / ARGON · PALE VIOLET-LAVENDER</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">Argon puts most of its power into the 696–772nm array, where the CIE observer scores under 0.01 — which is
+      why argon is <em>dim</em>, and why its 696.5nm peak is the strongest line but not the color. What you see
+      is the 415–475nm group, a hundred times weaker on the meter and a hundred times better placed for the eye.
+      x=0.2163 y=0.1047, desaturated 35% toward D65 to fit sRGB: paler here than in the tube.</p>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="argon" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #C9B0FF</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #AF81FF</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #9F5DFF</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #8925F1</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #4B1088</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="argon" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0B0812</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #171222</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #050309</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1B112C</span></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">PLASMA / KRYPTON · PALE VIOLET-WHITE</h3>
+    <p class="doc-dim doc-small" style="margin-bottom:14px">A blue-violet cluster at 427–450nm against the 557.0nm green and the 587.1nm yellow. Spread that wide
+      integrates close to white — x=0.3153 y=0.2551 — which is why the panel reads violet rather than any one of
+      those lines. The strongest visible krypton line is 587.1nm, not the 557.0nm that is often quoted.</p>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="krypton" style="gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #EAA5EB</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #BF86C0</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #A372A3</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #7F587F</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #442E45</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+    </div>
+    <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="krypton" style="margin-top:16px;gap:12px">
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0B080B</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #181318</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #050405</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1B141B</span></div>
+    </div>
+
+    <div class="doc-prose" style="margin-top:18px">
+    <p class="doc-dim doc-small">The ramp is <code>--emit-100</code> through
+      <code>--emit-30</code>. It used to be <code>--amber-*</code>, which named a hue rather than a ramp and was
+      already only historically true — under NEON the color is not amber. With a lavender and a pink in the
+      file it stopped being defensible at all. <code>--amber-*</code> survives as a deprecated alias and goes in
+      3.0. Adding an emitter, or a whole technology, means adding one block to <code>colors.css</code>: five
+      stops, three surfaces, <code>--on-fill</code>, the four <code>--gas-N</code> triples the glow is built
+      from — and for the gases that block is generated by <code>scripts/derive-gas.mjs</code>, not typed.</p>
+    <p class="doc-dim doc-small">The older <code>data-ac-gas="neon"</code> and
+      <code>data-ac-gas="amber"</code> still work and go in 3.0. The name was the bug: AMBER was never a gas,
+      it is the P3 CRT phosphor, and calling it one is exactly the confusion the pair above exists to
+      prevent.</p>
+    </div>
+    <h3 style="margin:32px 0 12px">SEMANTIC ALIASES</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>TOKEN</th><th>MAPS TO</th><th>USE</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">--ink / --ink-bright</td><td class="doc-tok">emit-90 / 100</td><td>Body text; bright for live values and hover.</td></tr>
+        <tr><td class="doc-tok">--ink-dim / --ink-faint</td><td class="doc-tok">emit-70 / 50</td><td>Labels and legends; faint for disabled. Neither glows — and neither does inverse video.</td></tr>
+        <tr><td class="doc-tok">--fill / --on-fill</td><td class="doc-tok">emit-90 / per palette</td><td>Inverse-video surfaces and the dark text on them.</td></tr>
+        <tr><td class="doc-tok">--stroke / --stroke-dim</td><td class="doc-tok">emit-90 / 50</td><td>All borders, always 2px. Dim for secondary frames.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="doc-demo doc-demo--col" style="margin-top:24px">
+      <span class="doc-cap">THE THREE EMPHASIS LEVELS — NO FOURTH EXISTS</span>
+      <span style="text-shadow:var(--glow-text)">STATUS:AUTO MODE&nbsp;&nbsp;PRESETS COMPLETED</span>
+      <span style="background:var(--fill);color:var(--on-fill);padding:4px 14px;box-shadow:var(--glow-box);text-shadow:none">STATUS:AUTO MODE&nbsp;&nbsp;PRESETS COMPLETED</span>
+      <span class="ac-blink" style="background:var(--fill);color:var(--on-fill);padding:4px 14px;text-shadow:none">✳ LAMP FAULT ✳</span>
     </div>
   </section>
 
-  <!-- ================================================================ -- -->
-  <section id="chapters">
-    <div class="doc-sec-head"><h2>THE GUIDE</h2></div>
-    <p class="doc-dim">Seven chapters. Every specimen on every one of them is live markup from the
-      library, running under whatever hardware the board above is set to — so the guide is also the
-      largest test of the system in the repository.</p>
-    <div class="doc-cards" style="margin-top:20px">
-      <a class="doc-card" href="guide-color.html">
-        <span class="doc-card__n">01</span>
-        <span class="doc-card__title">COLOR</span>
-        <span class="doc-card__blurb">Five intensities over three warm blacks, two technologies, eleven emitters. Why a palette is a piece of hardware and not a theme, and why naming one takes two attributes.</span>
-      </a>
-      <a class="doc-card" href="guide-type.html">
-        <span class="doc-card__n">02</span>
-        <span class="doc-card__title">TYPE &amp; GEOMETRY</span>
-        <span class="doc-card__blurb">Two bitmap faces, an 18px floor, 4px half-cells and a 2px stroke. The character grid, and the box rules that fall out of it.</span>
-      </a>
-      <a class="doc-card" href="guide-effects.html">
-        <span class="doc-card__n">03</span>
-        <span class="doc-card__title">EFFECTS</span>
-        <span class="doc-card__blurb">Glow, blink and scanlines — the only three — plus the screen simulations that layer over them. A screen door is not a scanline, and the difference is the whole point.</span>
-      </a>
-      <a class="doc-card" href="guide-persistence.html">
-        <span class="doc-card__n">04</span>
-        <span class="doc-card__title">PERSISTENCE</span>
-        <span class="doc-card__blurb">Eight separate phenomena, five of them pure CSS and three that genuinely cannot be. What a long phosphor costs, and the PPI sweep that is the argument in one widget.</span>
-      </a>
-      <a class="doc-card" href="guide-controls.html">
-        <span class="doc-card__n">05</span>
-        <span class="doc-card__title">CONTROLS</span>
-        <span class="doc-card__blurb">Live specimens: buttons and touch pads, both corner styles, tabs, recessed wells, status bits, toggles, the keypad and the dialog. Every one with its class string.</span>
-      </a>
-      <a class="doc-card" href="guide-display.html">
-        <span class="doc-card__n">06</span>
-        <span class="doc-card__title">DISPLAY</span>
-        <span class="doc-card__blurb">The machine's own voice — status strips, panels, readouts, tables, keyed lists, stepped meters, the spinner and the one banner a screen is allowed.</span>
-      </a>
-      <a class="doc-card" href="guide-screen.html">
-        <span class="doc-card__n">07</span>
-        <span class="doc-card__title">SCREEN &amp; BOARD</span>
-        <span class="doc-card__blurb">How a full console assembles, zone by zone — and every control on the setup board at the top of these pages: what it writes, where it starts, whether it is remembered.</span>
-      </a>
-    </div>
-  </section>
-
-  <!-- ================================================================ -- -->
-  <section id="demos">
-    <div class="doc-sec-head"><h2>THE DEMOS</h2></div>
-    <p class="doc-dim">Four assembled screens, none of them a component gallery. Each is a whole
-      product built only from what this guide documents, and each puts a different part of the system
-      under load — which is why the effect worth watching is a different one on each.</p>
-    <div class="doc-grid2" style="margin-top:20px">
-
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">CONSOLE — ORION-70 PROJECTION CONSOLE</span>
-        <a href="index.html" style="font-size:var(--type-title);text-shadow:var(--glow-text)">SHOW LOCAL - STANDBY ►</a>
-        <span class="doc-faint doc-small">The reference screen, and the one <a href="guide-screen.html">SCREEN &amp; BOARD</a> is describing:
-          operating column left, instrumentation right, destructive actions bottom-right. Show
-          information in input wells, an alarm log, interlock bits, lamp values, a frame counter.
-          <strong>Watch ghosting here</strong> — the clock and the frame counter rewrite themselves in
-          place, which is the one persistence effect CSS cannot do at all.</span></div>
-
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">SERVER — D-STAR NODE DASHBOARD</span>
-        <a href="server.html" style="font-size:var(--type-title);text-shadow:var(--glow-text)">NODE 01 · 8 OF 8 SERVICES UP ►</a>
-        <span class="doc-faint doc-small">Node vitals, host load, network throughput, disks, daemons,
-          containers, ZFS pools and an event log, behind tabs. The density case: tables that scroll
-          rather than fold, and a stopped container that recedes to the faintest ink with its halo off
-          because there is no red to say it in. <strong>Watch a load bar under P39</strong> — a lit
-          area shrinking is the eighth persistence effect, and the bar is where it was most obviously
-          missing.</span></div>
-
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">RADAR — SEASCAN RM-12</span>
-        <a href="radar.html" style="font-size:var(--type-title);text-shadow:var(--glow-text)">RM-12 · 3 NM · HEAD-UP ►</a>
-        <span class="doc-faint doc-small">A PPI with a bearing ring, contacts, a guard sector, an
-          electronic bearing line and a variable range marker, plus an A-scope, receiver controls and a
-          target plot. Every mark is a rotated zero-width span, because law 6 bans the SVG element and
-          <code>npm run check</code> greps for it. <strong>Watch it under P7</strong> — the leading
-          edge turns blue against a yellow-green wake, which is the two coatings doing what they did on
-          the real tube.</span></div>
-
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">TERMINAL — TELEMARK 400</span>
-        <a href="terminal.html" style="font-size:var(--type-title);text-shadow:var(--glow-text)">FXSP · SPOT FOREIGN EXCHANGE ►</a>
-        <span class="doc-faint doc-small">A dealing-room page: spot FX, cross rates, eurocurrency
-          deposits, government bonds, an index summary, an order book and a crawling tape. The
-          law-1 answer to the question every market screen has to answer — how do you flag a change
-          with no color to flag it in? <strong>Watch a quote update</strong>: the cell inverts for a
-          beat, which is what these screens did before color tubes were affordable.</span></div>
-
-    </div>
-    <p class="doc-when">Reading any of them as a component gallery. They are four different products
-      that happen to share a stylesheet — the point is that the constraints survive being taken
-      somewhere they were not designed for.</p>
-  </section>
+  <nav class="doc-pager" aria-label="Chapter">
+    <a class="doc-pager__link" href="guide.html">◄ Previous: Overview</a>
+    <a class="doc-pager__link" href="guide-type.html">Next: Type & Geometry ►</a>
+  </nav>
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>

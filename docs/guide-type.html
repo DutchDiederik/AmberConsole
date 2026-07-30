@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ORION-70 PROJECTION CONSOLE — Amber Console</title>
-<meta name="description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework: a fictional projector control panel built entirely from ac-* classes.">
+<title>TYPE & GEOMETRY — Amber Console</title>
+<meta name="description" content="Two bitmap faces, 4px half-cells, 2px strokes: everything on this panel is measured on the character grid.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -14,9 +14,9 @@
      Pages host. They are inert over file://, which costs nothing. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amber Console">
-<meta property="og:title" content="ORION-70 Projection Console — Amber Console">
-<meta property="og:description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework. Zero dependencies, one stylesheet.">
-<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/">
+<meta property="og:title" content="TYPE & GEOMETRY — Amber Console System Guide">
+<meta property="og:description" content="Two bitmap faces, 4px half-cells, 2px strokes: everything on this panel is measured on the character grid.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/guide-type.html">
 <meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,26 +29,27 @@
 </head>
 <body>
 
-<!-- ORION-70 is invented for this design system: its name, wordmark and copy
-     are ours, and no manufacturer's branding, wordmark or logo appears in it.
-     See Provenance in README.md. -->
-<!-- The frame ships in the DEFAULT state, not the everything-on state: plasma on,
-     CRT off. Any class or overlay node that is off by default must be absent
-     here, or it paints for one frame on every load before initSims removes it.
-     amber-console.js mounts .ac-retrace and .ac-persist when CRT is switched on. -->
-<div class="ac-screen ac-bloom" data-ac-screen>
-  <span class="ac-mesh"></span>
+<!-- The nav lives INSIDE the frame. A menu bar floating above the simulations
+     is a menu bar that is not part of the screen — no bleed, no scanlines, no
+     vignette on it. .ac-screen uses overflow:clip precisely so a sticky bar can
+     sit inside the frame and still stick to the viewport.
 
-  <!-- @include _nav.html -->
-  <!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
+     The frame ships in the DEFAULT state, not the everything-on state: plasma on,
+     CRT off. Any class or overlay node that is off by default must be absent here,
+     or it paints for one frame on every load before initSims removes it. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+<span class="ac-mesh"></span>
+
+<!-- @include _nav.html -->
+<!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
 <nav class="ac-nav ac-nav--sticky">
   <span class="ac-nav__mark">Amber Console</span>
   <div class="ac-nav__links">
-    <a class="ac-nav__link" href="index.html" aria-current="page">Console</a>
+    <a class="ac-nav__link" href="index.html">Console</a>
     <a class="ac-nav__link" href="server.html">Server</a>
     <a class="ac-nav__link" href="radar.html">Radar</a>
     <a class="ac-nav__link" href="terminal.html">Terminal</a>
-    <a class="ac-nav__link" href="guide.html">System Guide</a>
+    <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
   </div>
   <span class="ac-nav__meta">
     <!-- The bar is the sticky half of the anti-confusion job: the board below
@@ -59,10 +60,10 @@
     <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
   </span>
 </nav>
-  <!-- @end -->
+<!-- @end -->
 
-  <!-- @include _board.html emitter="neon" -->
-  <!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- @include _board.html emitter="neon" -->
+<!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
 <!-- ============================================================ SETUP ==
      Four quarters. Four axes, and they are never the same axis:
 
@@ -347,154 +348,100 @@
     <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
   </div>
 </div>
-  <!-- @end -->
+<!-- @end -->
 
-<div class="ac-screen__body">
-    <div class="doc-console-head">
-      <div>
-        <div class="doc-wordmark">ORION-70</div>
-        <h1 id="title">SHOW LOCAL - STANDBY</h1>
-      </div>
-      <div class="ac-tabs" role="tablist" data-ac="tabs">
-        <button type="button" class="ac-tab" role="tab" aria-selected="true" aria-controls="view-functions" id="tab-functions">Functions</button>
-        <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="view-alarms" id="tab-alarms">Alarms</button>
-      </div>
+<div class="doc-wrap">
+
+<!-- @include _chapters.html -->
+<!-- GENERATED from docs/_chapters.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- The guide's own second level. The top bar names the four demos and the
+     guide; this names the guide's chapters, and it is deliberately NOT sticky —
+     the bar above it is the one thing that must survive scrolling, and two
+     stacked sticky strips eat a quarter of a laptop viewport.
+
+     Not .ac-tabs, though it looks like a row of soft keys: tabs swap a region
+     and these are page loads, which is the distinction the TABS specimen in the
+     CONTROLS chapter draws itself. Marked with aria-current by the build. -->
+<nav class="doc-chapters" aria-label="Guide chapters">
+  <a class="doc-chapter" href="guide.html">Overview</a>
+  <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
+  <a class="doc-chapter" aria-current="page" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
+  <a class="doc-chapter" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
+  <a class="doc-chapter" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
+  <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
+  <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
+  <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+</nav>
+<!-- @end -->
+
+  <header class="doc-head doc-head--chapter">
+    <div class="doc-kicker"><span class="doc-num">02</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>TYPE &amp; GEOMETRY</h1>
+  </header>
+  <p class="doc-lede">Two bitmap faces and one grid. Text sits on terminal rows, space is measured in 4px half-cells, and a stroke is 2px because a hairline cannot exist on this panel.</p>
+
+  <section id="type">
+    <div class="doc-sec-head"><h2>TYPE</h2></div>
+    <p class="doc-dim">Two bitmap faces. VT323 — a digitization of the DEC VT320 terminal ROM — carries
+      everything at 18px and above. Silkscreen handles 8px bit labels where VT323 loses its grid.
+      Below 18px, VT323 is unreadable: that is the floor, not a guideline.</p>
+    <div class="doc-demo doc-demo--col" style="margin-top:20px;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">DISPLAY · 44 / 0.1EM</span><span style="font-size:var(--type-display);letter-spacing:var(--tracking-display);color:var(--ink-bright);text-shadow:var(--glow-text)">SHOW LOCAL - AUTO</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">TITLE · 30</span><span style="font-size:var(--type-title);text-shadow:var(--glow-text)">RESET FRAME COUNT</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">BODY · 22</span><span style="font-size:var(--type-body)">SHOW TIME 0000:00 (MM:SS) DATE 07/23/26</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">SMALL · 18</span><span style="font-size:var(--type-small);color:var(--ink-dim);text-shadow:var(--glow-text-dim)">SHOW INFORMATION ──────────────</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">MICRO · 8 SILKSCREEN</span><span style="font-family:var(--font-micro);font-size:var(--type-micro);letter-spacing:var(--tracking-micro)">REMOTE START BIT · REEL UNIT READY · SYSTEM READY</span></div>
     </div>
-
-    <div class="ac-grid ac-grid--console ac-grow">
-
-      <!-- Operating column. Reading order is the operator's workflow. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-functions" role="tabpanel" aria-labelledby="tab-functions">
-        <div class="ac-panel">
-          <span class="ac-panel__title">Show Information</span>
-          <div class="doc-fields">
-            <label class="ac-field">
-              <span class="ac-field__label">Trailer:</span>
-              <input class="ac-input" type="text" value="GOLDENEYE" placeholder="NONE LOADED">
-            </label>
-            <label class="ac-field">
-              <span class="ac-field__label">Title:</span>
-              <input class="ac-input" type="text" value="HEAT">
-            </label>
-          </div>
-        </div>
-
-        <div class="ac-statusbar" role="status">
-          <span id="status">STATUS:IDLE</span>
-          <span>PRESETS COMPLETED</span>
-        </div>
-
-        <div class="ac-statusbar ac-statusbar--line">
-          <span id="showtime">SHOW TIME 0000:00 (MM:SS)</span>
-          <span id="date">DATE 07/25/26</span>
-          <span id="time">TIME 00:00:00</span>
-        </div>
-
-        <!-- --wrap matters: three pads at the 130px min-width floor plus gaps
-             need 430px, so below that STOP must drop to a second row rather
-             than be clipped by the frame's overflow:hidden. -->
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="RUN" aria-pressed="false">Run</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="JOG" aria-pressed="false">Jog</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="STOP" aria-pressed="true">Stop</button>
-        </div>
-
-        <div class="ac-banner" id="banner" role="alert">Remote Mode</div>
-
-        <div class="ac-row ac-row--wrap ac-push" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg">Manual</button>
-          <button type="button" class="ac-btn ac-btn--lg">Auto Load</button>
-          <span class="ac-spacer"></span>
-          <button type="button" class="ac-btn ac-btn--lg">Change Show</button>
-        </div>
-      </div>
-
-      <!-- Alarms view. Same column slot; the tablist swaps them. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-alarms" role="tabpanel" aria-labelledby="tab-alarms" hidden>
-        <div class="ac-panel">
-          <span class="ac-panel__title">Alarm Log</span>
-          <div class="ac-table-scroll">
-            <table class="ac-table doc-alarms">
-              <thead>
-                <tr><th>TIME</th><th>CODE</th><th>DESCRIPTION</th><th>STATE</th></tr>
-              </thead>
-              <tbody>
-                <tr class="ac-table__row--active ac-blink" id="alarm-active">
-                  <td>22:28:41</td><td>E-114</td><td>DOUSER NOT CONFIRMED</td><td data-state>ACTIVE</td>
-                </tr>
-                <tr><td>22:14:02</td><td>W-062</td><td>LAMP CURRENT LOW 148A</td><td>CLEARED</td></tr>
-                <tr><td>21:58:37</td><td>W-041</td><td>REEL UNIT SLACK</td><td>CLEARED</td></tr>
-                <tr><td>21:02:19</td><td>I-008</td><td>PRESET BANK LOADED</td><td>LOGGED</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg" id="ack">Acknowledge</button>
-          <span class="ac-spacer"></span>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--dim">Print Log</button>
-        </div>
-      </div>
-
-      <!-- Instrument column. Dim frames so read-only data recedes. -->
-      <div class="ac-stack" style="--gap: 18px">
-        <div class="ac-panel ac-panel--dim">
-          <span class="ac-panel__title">Interlocks</span>
-          <fieldset class="doc-bits">
-            <!-- The panel title is the visible label; this names the group for
-                 assistive tech without drawing a second heading. -->
-            <legend class="ac-sr-only">Interlocks</legend>
-            <label class="ac-check"><input type="checkbox"><span>Spare</span></label>
-            <label class="ac-check"><input type="checkbox"><span>Remote Start Bit</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>In Show Position</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>Reel Unit Ready</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>System Ready</span></label>
-          </fieldset>
-        </div>
-
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Lamp Values</div>
-          <div class="doc-lamp">
-            <div class="ac-readout"><div class="ac-readout__value">41.0<span class="ac-readout__unit">V</span></div></div>
-            <div class="ac-readout"><div class="ac-readout__value">154<span class="ac-readout__unit">A</span></div></div>
-          </div>
-        </div>
-
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Frame Count</div>
-          <div class="ac-readout"><div class="ac-readout__value" id="frames">255315</div></div>
-        </div>
-
-        <button type="button" class="ac-btn" id="reset">Reset Frame Count</button>
-
-        <div class="ac-row ac-row--end ac-push">
-          <button type="button" class="ac-btn ac-btn--lg" data-ac-dialog-open="exit-dialog">Exit Show</button>
-        </div>
-      </div>
-
+    <div class="doc-grid2" style="margin-top:24px">
+      <div><h3>CASING</h3><p class="doc-dim doc-small">ALL CAPS for machine text,
+        Title Case for operator soft keys. <code>SHOW LOCAL - AUTO MODE</code> is the system reporting;
+        <code>Change Show</code> is a key a human presses.</p></div>
+      <div><h3>SUBSTITUTION NOTE</h3><p class="doc-faint doc-small">The source
+        hardware used a mask-ROM face with no digital release. VT323 and Silkscreen are era-correct
+        stand-ins. Supply a licensed bitmap face and only <code>--font-terminal</code> changes.</p></div>
     </div>
-  </div>
+  </section>
+
+  <section id="geometry">
+    <div class="doc-sec-head"><h2>GEOMETRY</h2></div>
+    <div class="doc-grid3" style="margin-top:4px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">SPACING · 4 8 12 16 24 32 48</span>
+        <div style="display:flex;flex-direction:column;gap:8px;width:100%">
+          <div style="height:12px;width:4px;background:var(--emit-50)"></div>
+          <div style="height:12px;width:8px;background:var(--emit-50)"></div>
+          <div style="height:12px;width:16px;background:var(--emit-50)"></div>
+          <div style="height:12px;width:32px;background:var(--emit-50)"></div>
+          <div style="height:12px;width:48px;background:var(--emit-50)"></div>
+        </div>
+        <span class="doc-faint doc-small">4px half-cells of the character grid.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">STROKE · 2PX ONLY</span>
+        <div style="width:100%;height:56px;border:var(--border-w) solid var(--stroke)"></div>
+        <span class="doc-faint doc-small">No hairlines — a 1px rule cannot exist on this panel. The one
+          exception is <code>.ac-badge</code>, which is a chip rather than structure.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">RADIUS · 8 PADS / 4 WELLS / 0 STRIPS</span>
+        <div style="display:flex;gap:10px">
+          <div style="width:56px;height:44px;border:var(--border-w) solid var(--stroke);border-radius:var(--radius)"></div>
+          <div style="width:56px;height:44px;border:var(--border-w) solid var(--stroke-dim);border-radius:var(--radius-sm);background:var(--screen-well)"></div>
+          <div style="width:56px;height:44px;background:var(--fill)"></div>
+        </div>
+        <span class="doc-faint doc-small">CRT-rounded corners, never pills.</span></div>
+    </div>
+  </section>
+
+  <nav class="doc-pager" aria-label="Chapter">
+    <a class="doc-pager__link" href="guide-color.html">◄ Previous: Color</a>
+    <a class="doc-pager__link" href="guide-effects.html">Next: Effects ►</a>
+  </nav>
+
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:var(--glow-text-dim)">GO TO CONSOLE ►</a>
+  </footer>
+
+</div>
 </div>
 
-<!-- Exiting is destructive and sits far from the motion keys, so it confirms. -->
-<dialog class="ac-dialog" id="exit-dialog">
-  <form method="dialog">
-    <h2 class="ac-dialog__title">Confirm Exit</h2>
-    <div class="ac-dialog__body">
-      EXIT SHOW WILL DROP THE DOUSER AND RELEASE REMOTE CONTROL.
-      FRAME COUNT IS RETAINED.
-    </div>
-    <div class="ac-dialog__actions">
-      <button type="submit" class="ac-btn" value="cancel">Cancel</button>
-      <button type="submit" class="ac-btn ac-btn--filled" value="exit">Exit Show</button>
-    </div>
-  </form>
-</dialog>
-
-<!-- The classic build, not the ES module: type="module" is blocked over file://
-     and this page must open by double-clicking it. -->
 <script src="../dist/amber-console.global.js"></script>
 <script src="../dist/amber-console.effects.global.js"></script>
-<script src="console.js"></script>
 </body>
 </html>

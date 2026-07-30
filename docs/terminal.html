@@ -66,319 +66,330 @@
 <div class="ac-screen ac-bloom" data-ac-screen>
   <span class="ac-mesh"></span>
 
-  <nav class="ac-nav ac-nav--sticky">
-    <span class="ac-nav__mark">Amber Console</span>
-    <div class="ac-nav__links">
-      <a class="ac-nav__link" href="index.html">Console</a>
-      <a class="ac-nav__link" href="server.html">Server</a>
-      <a class="ac-nav__link" href="radar.html">Radar</a>
-      <a class="ac-nav__link" href="terminal.html" aria-current="page">Terminal</a>
-      <a class="ac-nav__link" href="guide.html">System Guide</a>
-    </div>
-    <span class="ac-nav__meta">
-      <!-- The bar is the sticky half of the anti-confusion job: the board below
-           scrolls away, this does not, and it always names the TECHNOLOGY first
-           and the emitter second. -->
-      <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">CRT · P39</span></span>
-      <span>REV 1.0</span>
-      <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
-    </span>
-  </nav>
+  <!-- @include _nav.html -->
+  <!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
+<nav class="ac-nav ac-nav--sticky">
+  <span class="ac-nav__mark">Amber Console</span>
+  <div class="ac-nav__links">
+    <a class="ac-nav__link" href="index.html">Console</a>
+    <a class="ac-nav__link" href="server.html">Server</a>
+    <a class="ac-nav__link" href="radar.html">Radar</a>
+    <a class="ac-nav__link" href="terminal.html" aria-current="page">Terminal</a>
+    <a class="ac-nav__link" href="guide.html">System Guide</a>
+  </div>
+  <span class="ac-nav__meta">
+    <!-- The bar is the sticky half of the anti-confusion job: the board below
+         scrolls away, this does not, and it always names the TECHNOLOGY first
+         and the emitter second. -->
+    <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">PLASMA · NEON</span></span>
+    <span>REV 1.0</span>
+    <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
+  </span>
+</nav>
+  <!-- @end -->
 
-  <!-- THE ONE DELIBERATE DIFFERENCE FROM THE OTHER PAGES' BOARDS: P39 carries the
-       `checked` attribute below rather than neon. P39 is willemite with arsenic —
-       the same green as P1 with the decay lengthened by orders of magnitude — and
-       it is the phosphor that makes this page's argument, because a reprice on a
-       two-second tail leaves the old quote legible underneath the new one.
-       terminal.js does the other half, seeding the stored display on a first
-       visit; see the note at the top of it. Everything else in this board is a
-       byte-identical copy of the one in index.html, and keeping it that way is
-       what lets a diff between two demo pages show only the demo. -->
+  <!-- WHY emitter="p39" AND NOT THE NEON THE OTHER BOARDS SHIP. P39 is willemite
+       with arsenic — the same green as P1 with the decay lengthened by orders of
+       magnitude — and it is the phosphor that makes this page's argument, because
+       a reprice on a two-second tail leaves the old quote legible underneath the
+       new one. terminal.js does the other half, seeding the stored display on a
+       first visit; see the note at the top of it.
 
-  <!-- ============================================================ SETUP ==
-       Four quarters. Four axes, and they are never the same axis:
+       The argument is the whole difference now. Everything else in the board comes
+       from docs/_board.html, and the two consequences of this emitter — which row
+       is checked, and whether the JS Effects switch has anything to do — are
+       derived from it at build time rather than restated here. They used to be
+       three hand-maintained edits per page. -->
 
-         DISPLAY     what hardware is in the panel. Sets the color.
-                     TWO regions, one per technology, never one list of eleven.
-         SIMULATION  what the glass does about it. Never sets a color.
-         STYLE       preferences that make no claim about the hardware at all.
-         ENGINE      how much of the library is running. Not hardware, and not a
-                     preference either — see the SWITCHES quarter.
+  <!-- @include _board.html emitter="p39" -->
+  <!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- ============================================================ SETUP ==
+     Four quarters. Four axes, and they are never the same axis:
 
-       The last three share one quarter and are told apart by the labels inside
-       it rather than by three panel borders, because three regions of switches
-       ran 606px on a board that is not allowed to scroll.
+       DISPLAY     what hardware is in the panel. Sets the color.
+                   TWO regions, one per technology, never one list of eleven.
+       SIMULATION  what the glass does about it. Never sets a color.
+       STYLE       preferences that make no claim about the hardware at all.
+       ENGINE      how much of the library is running. Not hardware, and not a
+                   preference either — see the SWITCHES quarter.
 
-       Splitting the catalog across two quarters is not only about confusion,
-       though that is the point of it: eleven rows in one column is also taller
-       than a board that never scrolls is allowed to be. Four gases and seven
-       phosphors side by side fit.
+     The last three share one quarter and are told apart by the labels inside it
+     rather than by three panel borders, because three regions of switches ran
+     606px on a board that is not allowed to scroll.
 
-       data-ac-peak IS NOT THE SAME KIND OF NUMBER ON BOTH SIDES, which is the
-       clearest single reason these two catalogs are not one list:
+     Splitting the catalog across two quarters is not only about confusion,
+     though that is the point of it: eleven rows in one column is also taller
+     than a board that never scrolls is allowed to be. Four gases and seven
+     phosphors side by side fit.
 
-         A GAS emits a LINE SPECTRUM. The number is the strongest VISIBLE line,
-         and it is NOT the perceived hue — that is the CIE integral of every line
-         at once, which is the whole argument tokens/colors.css makes for landing
-         neon at 24deg rather than at its 585.2nm line. Argon reads violet on the
-         glass while its strongest visible line is deep red at 696.5nm, and most
-         of what argon emits is not visible at all. No contradiction: they are
-         answers to different questions.
+     data-ac-peak IS NOT THE SAME KIND OF NUMBER ON BOTH SIDES, which is the
+     clearest single reason these two catalogs are not one list:
 
-         A PHOSPHOR emits a BROAD BAND. The number is the band peak, and it does
-         correspond to the perceived hue, because there is only one band.
+       A GAS emits a LINE SPECTRUM. The number is the strongest VISIBLE line,
+       and it is NOT the perceived hue — that is the CIE integral of every line
+       at once, which is the whole argument tokens/colors.css makes for landing
+       neon at 24deg rather than at its 585.2nm line. Argon reads violet on the
+       glass while its strongest visible line is deep red at 696.5nm, and most
+       of what argon emits is not visible at all. No contradiction: they are
+       answers to different questions.
 
-       Two phosphors carry two numbers and both are real hardware, not a hedge.
-       P4 is a BLEND of a blue and a yellow emitter, mixed to white; P7 is two
-       LAYERS, a fast blue flash over a yellow-green glow that outlasts it by
-       seconds. Neither has a single peak to state.
+       A PHOSPHOR emits a BROAD BAND. The number is the band peak, and it does
+       correspond to the perceived hue, because there is only one band.
 
-       Every row below carries its peak, including the nine not fitted yet, so
-       enabling one is adding data-ac-display/-tech/-emitter/-sims and nothing
-       else. -->
-  <div class="ac-setup">
-    <div class="ac-setup__grid">
+     Two phosphors carry two numbers and both are real hardware, not a hedge.
+     P4 is a BLEND of a blue and a yellow emitter, mixed to white; P7 is two
+     LAYERS, a fast blue flash over a yellow-green glow that outlasts it by
+     seconds. Neither has a single peak to state.
 
-      <!-- ------------------------------------------------- 1/4 · plasma -- -->
-      <div class="ac-panel">
-        <span class="ac-panel__title">▮ Plasma Gases</span>
-        <p class="doc-displays__note">Gas emitting directly. No phosphor in the stack.</p>
-        <fieldset class="doc-displays">
-          <legend class="ac-sr-only">Plasma gases</legend>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
-            <span class="doc-display__name">Neon</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">585nm</span>
-          </label>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="plasma" data-ac-emitter="helium" data-ac-sims="plasma" data-ac-peak="587.6 nm">
-            <span class="doc-display__name">Helium</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Pale pink 588nm</span>
-          </label>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="plasma" data-ac-emitter="argon" data-ac-sims="plasma" data-ac-peak="696.5 nm">
-            <span class="doc-display__name">Argon</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Lavender 696nm</span>
-          </label>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="plasma" data-ac-emitter="krypton" data-ac-sims="plasma" data-ac-peak="587.1 nm">
-            <span class="doc-display__name">Krypton</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Violet 587nm</span>
-          </label>
-        </fieldset>
-      </div>
+     Every row below carries its peak, and all eleven are fitted — the four
+     gases and the seven phosphors each have a block in tokens/colors.css. Adding
+     a twelfth is one block there plus one row here carrying
+     data-ac-display/-tech/-emitter/-sims, and nothing else. -->
+<div class="ac-setup">
+  <div class="ac-setup__grid">
 
-      <!-- ---------------------------------------------------- 1/4 · crt -- -->
-      <div class="ac-panel">
-        <span class="ac-panel__title">▯ CRT Phosphors</span>
-        <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
-        <fieldset class="doc-displays">
-          <legend class="ac-sr-only">CRT phosphors</legend>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
-            <span class="doc-display__name">P1</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Green 525nm</span>
-          </label>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
-            <span class="doc-display__name">P3</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Amber 590nm</span>
-          </label>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
-            <span class="doc-display__name">P4</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">White 450+560nm</span>
-          </label>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
-            <span class="doc-display__name">P7</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Blue+green 450/558nm</span>
-          </label>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
-            <span class="doc-display__name">P11</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Blue 460nm</span>
-          </label>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display"
-                   data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
-            <span class="doc-display__name">P31</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Green 520nm</span>
-          </label>
-          <label class="ac-radio doc-display">
-            <input type="radio" name="ac-display" checked
-                   data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
-            <span class="doc-display__name">P39</span>
-            <span class="doc-display__fill"></span>
-            <span class="doc-display__note">Long green 525nm</span>
-          </label>
-        </fieldset>
-      </div>
-
-      <!-- ------------------------------------------------ 1/4 · switches -- -->
-      <!-- ONE REGION FOR ALL FOUR SWITCHES, WITH TWO GROUP LABELS INSIDE IT.
-
-           Three panels — SIMULATION, STYLE, ENGINE — read correctly and cost 606px
-           of a board that is not allowed to scroll, against 250 and 350 for the two
-           catalogs beside them. One region is about 370px, and the quarter stops
-           being the tallest thing on the glass.
-
-           THE LABELS ARE NOT DECORATION, THEY ARE WHAT THE PANEL BORDERS WERE
-           SAYING. These are three different KINDS of statement — what the hardware
-           is, what the viewer prefers, and how much of the library is running.
-           Merge them without replacing the boundary and the board quietly claims
-           PLASMA and JS EFFECTS are the same sort of switch, which is the exact
-           confusion the four quarters exist to prevent. -->
-      <div class="ac-panel">
-        <span class="ac-panel__title">Switches</span>
-
-        <p class="doc-switches__axis">Simulation · never a color</p>
-        <div class="doc-switches">
-          <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
-            <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
-          </button>
-          <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
-            <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
-          </button>
-        </div>
-
-        <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
-        <div class="doc-switches">
-          <!-- No BLINK switch here on purpose. Blink is law-2 emphasis and the
-               console below is running a live alarm, so this page keeps it on
-               and does not offer to turn it off. The style flag itself is still
-               in the framework — write data-ac-style="blink" on a toggle to
-               expose it, or set data-ac-style-blink="off" on <html>.
-               prefers-reduced-motion stops it either way. -->
-          <button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true">
-            <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
-          </button>
-          <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side
-               of the board with blink and smear rather than beside PLASMA and CRT: a
-               bevel makes no claim about which gas is in the gap. Cuts the corners
-               off every bordered surface, stands the keys on a hard offset edge and
-               parks their labels top-left — one look, one switch.
-               Ships ON, because that is what the panel was; switching it off asks
-               for a smoother corner than the hardware could draw. Where corner-shape
-               is unsupported the corners quantize to 2px instead of cutting, so both
-               positions of the switch mean something in every browser. See
-               ../src/components/classic.css, and .ac-rounded for the same opt-out
-               scoped to one region. -->
-          <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="classic" aria-pressed="true">
-            <span>Classic Buttons</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
-          </button>
-        </div>
-
-        <p hidden class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
-        <p class="doc-displays__note">JS Effects off: no ghosting, smear or framebuffer
-          decay. Everything else here is CSS.</p>
-      </div>
-
-      <!-- ----------------------------------------- 1/4 · state, the note -- -->
-      <div class="ac-stack" style="--gap: 24px">
-        <div class="ac-panel ac-panel--dim">
-          <span class="ac-panel__title">State</span>
-          <dl class="ac-list ac-list--dense">
-            <div class="ac-list__item">
-              <dt class="ac-list__key">Technology</dt>
-              <span class="ac-list__fill"></span>
-              <dd class="ac-list__value" data-ac-display-out="tech">PLASMA</dd>
-            </div>
-            <div class="ac-list__item">
-              <dt class="ac-list__key">Emitter</dt>
-              <span class="ac-list__fill"></span>
-              <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
-            </div>
-            <div class="ac-list__item">
-              <dt class="ac-list__key">Emission</dt>
-              <span class="ac-list__fill"></span>
-              <dd class="ac-list__value" data-ac-display-out="peak">585.2 nm</dd>
-            </div>
-            <div class="ac-list__item">
-              <dt class="ac-list__key">Mode</dt>
-              <span class="ac-list__fill"></span>
-              <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
-            </div>
-            <div class="ac-list__item">
-              <dt class="ac-list__key">Engine</dt>
-              <span class="ac-list__fill"></span>
-              <dd class="ac-list__value" data-ac-display-out="engine">CSS + JS</dd>
-            </div>
-          </dl>
-        </div>
-
-        <!-- The prose is markup, one node per key, all but the matching one
-             hidden. A key is a technology, or an exact tech/emitter pair where
-             one phosphor does not behave like the rest of its family. -->
-        <div class="ac-panel ac-panel--dim">
-          <span class="ac-panel__title">Technology</span>
-          <p class="doc-info" data-ac-display-info="plasma">A gas in a sealed gap, struck by a
-            sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
-            hue and varies only how hard it is driven.</p>
-          <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
-               deep red, while the panel is plainly lavender — that looks like a bug
-               until you know the eye is doing the arithmetic. -->
-          <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
-            output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
-            strongest line, not the color. What you see is the faint 415–475nm group, a hundred
-            times weaker and a hundred times better placed. It is also why argon is dim.</p>
-          <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
-            visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
-            yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
-            panel reads violet rather than any one of those colors.</p>
-          <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
-            which emits while struck and then persists. The color belongs to the phosphor, not the
-            beam; the P-number names the compound.</p>
-          <p class="doc-info" data-ac-display-info="crt/p7" hidden>Two coatings, not one. The beam writes into a blue ZnS:Ag layer that decays in
-            microseconds, and that layer's own photons pump a yellow-green one behind it which holds
-            for seconds. So the ink is blue and the halo is green: text you are reading is being
-            re-struck sixty times a second, and text that stops being written leaves only the glow.
-            This is the radar phosphor — the flash gives position, the trail gives history.</p>
-          <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
-            and leaves the color alone — this palette and P1 are the same green, and differ only in
-            how long it lasts. At hundreds of milliseconds the screen is still near full brightness
-            when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
-            paid for in smear.</p>
-          <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
-            P11 was fitted to screens meant to be photographed rather than watched — and watched, it
-            is the worst screen here. It decays in tens of microseconds, three orders below a
-            refresh interval, so the screen is genuinely dark between frames. Short persistence and
-            heavy flicker are the same fact.</p>
-          <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
-            mixed into one coating, emitting together, which the eye integrates to white. That is
-            what separates it from P7 — two powders mixed have one color, two powders layered emit
-            in sequence and the color changes as you watch.</p>
-        </div>
-      </div>
-
+    <!-- ------------------------------------------------- 1/4 · plasma -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▮ Plasma Gases</span>
+      <p class="doc-displays__note">Gas emitting directly. No phosphor in the stack.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">Plasma gases</legend>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
+          <span class="doc-display__name">Neon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">585nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="helium" data-ac-sims="plasma" data-ac-peak="587.6 nm">
+          <span class="doc-display__name">Helium</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Pale pink 588nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="argon" data-ac-sims="plasma" data-ac-peak="696.5 nm">
+          <span class="doc-display__name">Argon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Lavender 696nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="krypton" data-ac-sims="plasma" data-ac-peak="587.1 nm">
+          <span class="doc-display__name">Krypton</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Violet 587nm</span>
+        </label>
+      </fieldset>
     </div>
 
-    <div class="ac-setup__foot">
-      <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
-      <span class="ac-spacer"></span>
-      <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    <!-- ---------------------------------------------------- 1/4 · crt -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▯ CRT Phosphors</span>
+      <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">CRT phosphors</legend>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
+          <span class="doc-display__name">P1</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 525nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
+          <span class="doc-display__name">P3</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Amber 590nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
+          <span class="doc-display__name">P4</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">White 450+560nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
+          <span class="doc-display__name">P7</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Blue+green 450/558nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
+          <span class="doc-display__name">P11</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Blue 460nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
+          <span class="doc-display__name">P31</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 520nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" checked
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
+          <span class="doc-display__name">P39</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Long green 525nm</span>
+        </label>
+      </fieldset>
     </div>
 
-  <div class="ac-screen__body">
+    <!-- ------------------------------------------------ 1/4 · switches -- -->
+    <!-- ONE REGION FOR ALL FOUR SWITCHES, WITH TWO GROUP LABELS INSIDE IT.
+
+         Three panels — SIMULATION, STYLE, ENGINE — read correctly and cost 606px
+         of a board that is not allowed to scroll, against 250 and 350 for the two
+         catalogs beside them. One region is about 370px, and the quarter stops
+         being the tallest thing on the glass.
+
+         THE LABELS ARE NOT DECORATION, THEY ARE WHAT THE PANEL BORDERS WERE
+         SAYING. These are three different KINDS of statement — what the hardware
+         is, what the viewer prefers, and how much of the library is running.
+         Merge them without replacing the boundary and the board quietly claims
+         PLASMA and JS EFFECTS are the same sort of switch, which is the exact
+         confusion the four quarters exist to prevent. -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">Switches</span>
+
+      <p class="doc-switches__axis">Simulation · never a color</p>
+      <div class="doc-switches">
+        <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
+          <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+        <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+          <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+        </button>
+      </div>
+
+      <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
+      <div class="doc-switches">
+        <!-- No BLINK switch here on purpose. Blink is law-2 emphasis, and every
+             page carrying this board has a live alarm on it somewhere, so they
+             keep it on and do not offer to turn it off. The style flag itself is
+             still in the framework — write data-ac-style="blink" on a toggle to
+             expose it, or set data-ac-style-blink="off" on <html>.
+             prefers-reduced-motion stops it either way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true">
+          <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+        <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
+             the board with blink and smear rather than beside PLASMA and CRT: a bevel
+             makes no claim about which gas is in the gap. Cuts the corners off every
+             bordered surface, stands the keys on a hard offset edge and parks their
+             labels top-left — one look, one switch. Ships ON, because that is what the
+             panel was; switching it off asks for a smoother corner than the hardware
+             could draw. Where corner-shape is unsupported the corners quantize to 2px
+             instead of cutting, so both positions mean something in every browser.
+             See ../src/components/classic.css, and .ac-rounded for the same opt-out
+             scoped to one region — which is how the guide's CONTROLS chapter shows
+             both corners at once regardless of where this switch is standing. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="classic" aria-pressed="true">
+          <span>Classic Buttons</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+      </div>
+
+      <p hidden class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
+      <p class="doc-displays__note">JS Effects off: no ghosting, smear or framebuffer
+        decay. Everything else here is CSS.</p>
+    </div>
+
+    <!-- ----------------------------------------- 1/4 · state, the note -- -->
+    <div class="ac-stack" style="--gap: 24px">
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">State</span>
+        <dl class="ac-list ac-list--dense">
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Technology</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="tech">PLASMA</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emitter</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emission</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="peak">585.2 nm</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Mode</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Engine</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="engine">CSS + JS</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- The prose is markup, one node per key, all but the matching one
+           hidden. A key is a technology, or an exact tech/emitter pair where
+           one phosphor does not behave like the rest of its family. -->
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">Technology</span>
+        <p class="doc-info" data-ac-display-info="plasma" hidden>A gas in a sealed gap, struck by a
+          sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
+          hue and varies only how hard it is driven.</p>
+        <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
+             deep red, while the panel is plainly lavender — that looks like a bug
+             until you know the eye is doing the arithmetic. -->
+        <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
+          output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
+          strongest line, not the color. What you see is the faint 415–475nm group, a hundred
+          times weaker and a hundred times better placed. It is also why argon is dim.</p>
+        <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
+          visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
+          yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
+          panel reads violet rather than any one of those colors.</p>
+        <p class="doc-info" data-ac-display-info="crt">A beam sweeps a phosphor coating,
+          which emits while struck and then persists. The color belongs to the phosphor, not the
+          beam; the P-number names the compound.</p>
+        <p class="doc-info" data-ac-display-info="crt/p7" hidden>Two coatings, not one. The beam writes into a blue ZnS:Ag layer that decays in
+          microseconds, and that layer's own photons pump a yellow-green one behind it which holds
+          for seconds. So the ink is blue and the halo is green: text you are reading is being
+          re-struck sixty times a second, and text that stops being written leaves only the glow.
+          This is the radar phosphor — the flash gives position, the trail gives history.</p>
+        <p class="doc-info" data-ac-display-info="crt/p39">P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
+          and leaves the color alone — this palette and P1 are the same green, and differ only in
+          how long it lasts. At hundreds of milliseconds the screen is still near full brightness
+          when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
+          paid for in smear.</p>
+        <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
+          P11 was fitted to screens meant to be photographed rather than watched — and watched, it
+          is the worst screen here. It decays in tens of microseconds, three orders below a
+          refresh interval, so the screen is genuinely dark between frames. Short persistence and
+          heavy flicker are the same fact.</p>
+        <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
+          mixed into one coating, emitting together, which the eye integrates to white. That is
+          what separates it from P7 — two powders mixed have one color, two powders layered emit
+          in sequence and the color changes as you watch.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ac-setup__foot">
+    <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
+    <span class="ac-spacer"></span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+  </div>
+</div>
+  <!-- @end -->
+
+<div class="ac-screen__body">
     <div class="doc-console-head">
       <div>
         <div class="doc-wordmark">TELEMARK</div>

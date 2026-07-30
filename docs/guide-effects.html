@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ORION-70 PROJECTION CONSOLE — Amber Console</title>
-<meta name="description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework: a fictional projector control panel built entirely from ac-* classes.">
+<title>GLOW, BLINK, SCANLINES — Amber Console</title>
+<meta name="description" content="The only three effects in the system, and the three screen simulations that layer over them.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -14,9 +14,9 @@
      Pages host. They are inert over file://, which costs nothing. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amber Console">
-<meta property="og:title" content="ORION-70 Projection Console — Amber Console">
-<meta property="og:description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework. Zero dependencies, one stylesheet.">
-<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/">
+<meta property="og:title" content="GLOW, BLINK, SCANLINES — Amber Console System Guide">
+<meta property="og:description" content="The only three effects in the system, and the three screen simulations that layer over them.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/guide-effects.html">
 <meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,26 +29,27 @@
 </head>
 <body>
 
-<!-- ORION-70 is invented for this design system: its name, wordmark and copy
-     are ours, and no manufacturer's branding, wordmark or logo appears in it.
-     See Provenance in README.md. -->
-<!-- The frame ships in the DEFAULT state, not the everything-on state: plasma on,
-     CRT off. Any class or overlay node that is off by default must be absent
-     here, or it paints for one frame on every load before initSims removes it.
-     amber-console.js mounts .ac-retrace and .ac-persist when CRT is switched on. -->
-<div class="ac-screen ac-bloom" data-ac-screen>
-  <span class="ac-mesh"></span>
+<!-- The nav lives INSIDE the frame. A menu bar floating above the simulations
+     is a menu bar that is not part of the screen — no bleed, no scanlines, no
+     vignette on it. .ac-screen uses overflow:clip precisely so a sticky bar can
+     sit inside the frame and still stick to the viewport.
 
-  <!-- @include _nav.html -->
-  <!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
+     The frame ships in the DEFAULT state, not the everything-on state: plasma on,
+     CRT off. Any class or overlay node that is off by default must be absent here,
+     or it paints for one frame on every load before initSims removes it. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+<span class="ac-mesh"></span>
+
+<!-- @include _nav.html -->
+<!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
 <nav class="ac-nav ac-nav--sticky">
   <span class="ac-nav__mark">Amber Console</span>
   <div class="ac-nav__links">
-    <a class="ac-nav__link" href="index.html" aria-current="page">Console</a>
+    <a class="ac-nav__link" href="index.html">Console</a>
     <a class="ac-nav__link" href="server.html">Server</a>
     <a class="ac-nav__link" href="radar.html">Radar</a>
     <a class="ac-nav__link" href="terminal.html">Terminal</a>
-    <a class="ac-nav__link" href="guide.html">System Guide</a>
+    <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
   </div>
   <span class="ac-nav__meta">
     <!-- The bar is the sticky half of the anti-confusion job: the board below
@@ -59,10 +60,10 @@
     <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
   </span>
 </nav>
-  <!-- @end -->
+<!-- @end -->
 
-  <!-- @include _board.html emitter="neon" -->
-  <!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- @include _board.html emitter="neon" -->
+<!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
 <!-- ============================================================ SETUP ==
      Four quarters. Four axes, and they are never the same axis:
 
@@ -347,154 +348,182 @@
     <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
   </div>
 </div>
-  <!-- @end -->
+<!-- @end -->
 
-<div class="ac-screen__body">
-    <div class="doc-console-head">
-      <div>
-        <div class="doc-wordmark">ORION-70</div>
-        <h1 id="title">SHOW LOCAL - STANDBY</h1>
-      </div>
-      <div class="ac-tabs" role="tablist" data-ac="tabs">
-        <button type="button" class="ac-tab" role="tab" aria-selected="true" aria-controls="view-functions" id="tab-functions">Functions</button>
-        <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="view-alarms" id="tab-alarms">Alarms</button>
-      </div>
+<div class="doc-wrap">
+
+<!-- @include _chapters.html -->
+<!-- GENERATED from docs/_chapters.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- The guide's own second level. The top bar names the four demos and the
+     guide; this names the guide's chapters, and it is deliberately NOT sticky —
+     the bar above it is the one thing that must survive scrolling, and two
+     stacked sticky strips eat a quarter of a laptop viewport.
+
+     Not .ac-tabs, though it looks like a row of soft keys: tabs swap a region
+     and these are page loads, which is the distinction the TABS specimen in the
+     CONTROLS chapter draws itself. Marked with aria-current by the build. -->
+<nav class="doc-chapters" aria-label="Guide chapters">
+  <a class="doc-chapter" href="guide.html">Overview</a>
+  <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
+  <a class="doc-chapter" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
+  <a class="doc-chapter" aria-current="page" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
+  <a class="doc-chapter" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
+  <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
+  <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
+  <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+</nav>
+<!-- @end -->
+
+  <header class="doc-head doc-head--chapter">
+    <div class="doc-kicker"><span class="doc-num">03</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>GLOW, BLINK, SCANLINES</h1>
+  </header>
+  <p class="doc-lede">The only three effects in the system. Glow marks energization, blink marks alarm, scanlines sit once on the outermost frame. There is no fourth effect.</p>
+
+  <section id="effects">
+    <p class="doc-dim">The only three effects in the system. Glow marks energization, blink marks alarm,
+      scanlines sit once on the outermost frame. There is no fourth effect, and no component
+      anywhere in the CSS carries a transition — a control does not ease into being pressed. The one
+      timing function in the whole framework belongs to the gas, not to the UI: see
+      <code>.ac-afterglow</code> in <a href="guide-persistence.html">PERSISTENCE</a>.</p>
+    <h3 style="margin:28px 0 12px">THE THREE SIMULATIONS</h3>
+    <div class="doc-prose">
+    <p class="doc-dim"><strong>The board at the top of this page defaults to PLASMA on, CRT
+      off</strong> — every switch on it is documented in <a href="guide-screen.html#board">SCREEN &amp; BOARD</a>. Plasma is
+      what this panel is; CRT simulates a different display technology, and its blanking gaps are the
+      one thing a plasma screen conspicuously does not have. Turn it on to compare — the choice
+      persists. <code>.ac-afterglow</code> rides the CRT switch, so it is off by default too.</p>
+    <p class="doc-dim">Three screen simulations layer on top, driven from two switches —
+      <code>.ac-afterglow</code> rides with <code>.ac-crt</code>, because persistence is a property
+      of the same glass the scanlines are on, and a tube that scans without holding is not a tube
+      anybody has watched. Each class still works alone if you wire it yourself:
+      <code>.ac-bloom</code> (the panel — hotter glow tokens for every descendant, a soft
+      center-weighted bleed breathing on a 9s mains cycle, and the cell mesh with its shimmer),
+      <code>.ac-crt</code> (the tube — scanline texture, edge vignette, one-cell line drift per 11s,
+      a 5.5s mains flicker, and a retrace band sweeping down every 13s) and
+      <code>.ac-afterglow</code> (plasma persistence — its own chapter,
+      <a href="guide-persistence.html">PERSISTENCE</a>).
+      All three are tuned near the threshold of perception: if you can point at
+      the effect, it is too strong. The motion describes energized hardware, not a UI transition —
+      state changes stay instant — and everything stops under <code>prefers-reduced-motion</code>.
+      <code>.ac-scanlines</code> is the static, motion-free texture for cards and print.</p>
+    <p class="doc-dim">The classes compose; <strong>the switches do not</strong>. Nothing in the CSS
+      stops a frame carrying <code>.ac-bloom</code> and <code>.ac-crt</code> at once — the code
+      sample further down shows exactly that, because it is the composition reference. The board
+      above refuses it: turning one on turns the other off, since a panel with gas gaps and a
+      scanning beam in the same enclosure is not a panel. Both off is allowed and means a flat lit
+      surface. <a href="guide-screen.html#board">SCREEN &amp; BOARD</a> has the rest of that.</p>
+    <p class="doc-dim">The flicker is the one number worth stating exactly, because the honest
+      version of it cannot be drawn at all: a tube refreshing at 60Hz, watched on a display
+      refreshing at 60Hz, has no headroom to show a 60Hz modulation — that is Nyquist, not a browser
+      limitation. What is renderable is the slow beat underneath it, so the scanline layer dips
+      3.5% at its deepest on a 5.5s cycle, which moves the panel's own luminance by well under 1%.
+      The depth is scaled by the phosphor: P11 and P4 are fully dark between frames and take the
+      whole budget, P7 and P39 take 9% of it, and a gas declares no flicker at all and renders
+      identically to a panel that never had this rule. It is a budget rather than a taste setting —
+      WCAG 2.3.1 governs the ceiling, and 0.18Hz sits more than an order of magnitude below the
+      3–8Hz band it is written about.</p>
     </div>
 
-    <div class="ac-grid ac-grid--console ac-grow">
-
-      <!-- Operating column. Reading order is the operator's workflow. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-functions" role="tabpanel" aria-labelledby="tab-functions">
-        <div class="ac-panel">
-          <span class="ac-panel__title">Show Information</span>
-          <div class="doc-fields">
-            <label class="ac-field">
-              <span class="ac-field__label">Trailer:</span>
-              <input class="ac-input" type="text" value="GOLDENEYE" placeholder="NONE LOADED">
-            </label>
-            <label class="ac-field">
-              <span class="ac-field__label">Title:</span>
-              <input class="ac-input" type="text" value="HEAT">
-            </label>
-          </div>
-        </div>
-
-        <div class="ac-statusbar" role="status">
-          <span id="status">STATUS:IDLE</span>
-          <span>PRESETS COMPLETED</span>
-        </div>
-
-        <div class="ac-statusbar ac-statusbar--line">
-          <span id="showtime">SHOW TIME 0000:00 (MM:SS)</span>
-          <span id="date">DATE 07/25/26</span>
-          <span id="time">TIME 00:00:00</span>
-        </div>
-
-        <!-- --wrap matters: three pads at the 130px min-width floor plus gaps
-             need 430px, so below that STOP must drop to a second row rather
-             than be clipped by the frame's overflow:hidden. -->
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="RUN" aria-pressed="false">Run</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="JOG" aria-pressed="false">Jog</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="STOP" aria-pressed="true">Stop</button>
-        </div>
-
-        <div class="ac-banner" id="banner" role="alert">Remote Mode</div>
-
-        <div class="ac-row ac-row--wrap ac-push" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg">Manual</button>
-          <button type="button" class="ac-btn ac-btn--lg">Auto Load</button>
-          <span class="ac-spacer"></span>
-          <button type="button" class="ac-btn ac-btn--lg">Change Show</button>
-        </div>
-      </div>
-
-      <!-- Alarms view. Same column slot; the tablist swaps them. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-alarms" role="tabpanel" aria-labelledby="tab-alarms" hidden>
-        <div class="ac-panel">
-          <span class="ac-panel__title">Alarm Log</span>
-          <div class="ac-table-scroll">
-            <table class="ac-table doc-alarms">
-              <thead>
-                <tr><th>TIME</th><th>CODE</th><th>DESCRIPTION</th><th>STATE</th></tr>
-              </thead>
-              <tbody>
-                <tr class="ac-table__row--active ac-blink" id="alarm-active">
-                  <td>22:28:41</td><td>E-114</td><td>DOUSER NOT CONFIRMED</td><td data-state>ACTIVE</td>
-                </tr>
-                <tr><td>22:14:02</td><td>W-062</td><td>LAMP CURRENT LOW 148A</td><td>CLEARED</td></tr>
-                <tr><td>21:58:37</td><td>W-041</td><td>REEL UNIT SLACK</td><td>CLEARED</td></tr>
-                <tr><td>21:02:19</td><td>I-008</td><td>PRESET BANK LOADED</td><td>LOGGED</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg" id="ack">Acknowledge</button>
-          <span class="ac-spacer"></span>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--dim">Print Log</button>
-        </div>
-      </div>
-
-      <!-- Instrument column. Dim frames so read-only data recedes. -->
-      <div class="ac-stack" style="--gap: 18px">
-        <div class="ac-panel ac-panel--dim">
-          <span class="ac-panel__title">Interlocks</span>
-          <fieldset class="doc-bits">
-            <!-- The panel title is the visible label; this names the group for
-                 assistive tech without drawing a second heading. -->
-            <legend class="ac-sr-only">Interlocks</legend>
-            <label class="ac-check"><input type="checkbox"><span>Spare</span></label>
-            <label class="ac-check"><input type="checkbox"><span>Remote Start Bit</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>In Show Position</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>Reel Unit Ready</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>System Ready</span></label>
-          </fieldset>
-        </div>
-
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Lamp Values</div>
-          <div class="doc-lamp">
-            <div class="ac-readout"><div class="ac-readout__value">41.0<span class="ac-readout__unit">V</span></div></div>
-            <div class="ac-readout"><div class="ac-readout__value">154<span class="ac-readout__unit">A</span></div></div>
-          </div>
-        </div>
-
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Frame Count</div>
-          <div class="ac-readout"><div class="ac-readout__value" id="frames">255315</div></div>
-        </div>
-
-        <button type="button" class="ac-btn" id="reset">Reset Frame Count</button>
-
-        <div class="ac-row ac-row--end ac-push">
-          <button type="button" class="ac-btn ac-btn--lg" data-ac-dialog-open="exit-dialog">Exit Show</button>
-        </div>
-      </div>
-
+    <h3 style="margin:28px 0 12px">THE SCREEN DOOR</h3>
+    <div class="doc-prose">
+    <p class="doc-dim"><strong>A screen door is not a scanline, and the difference is the whole
+      point of <code>.ac-bloom</code>.</strong> A cell here lights at the crossing of a row wire and
+      a column wire, boxed in on four sides by barrier ribs that carry no discharge and emit nothing
+      — so a lit pixel is a neon dot trapped in a square aperture, and what you see with your eye
+      close to the glass is a fine mesh in <em>both</em> axes. The dark horizontal blanking gaps
+      between raster lines belong to <code>.ac-crt</code> and to the tube it simulates. There is no
+      scan in a plasma panel, so there is nothing to blank. The ribs are drawn in pure black rather
+      than a tint, which is what makes the grid appear only where the panel is lit: over the unlit
+      screen a black veil has nothing to take away. On top of it sits the shimmer — the sustain
+      voltage is AC, so the gas is struck and re-struck rather than held, and a sub-pixel buzz on
+      two detuned cycles is the visible residue of that. Both stop under
+      <code>prefers-reduced-motion</code>; the mesh itself does not, because it is the shape of the
+      hardware rather than an effect playing over it.</p>
+    <p class="doc-dim">All three go on the outermost frame, and the frame is the whole screen —
+      <strong>including the menu bar</strong>. A nav that floats above the simulations is a nav that
+      is not part of the panel, so <code>.ac-nav--sticky</code> sits inside the frame at z-index 20
+      and every overlay paints above it, from 40 up. That is also why <code>.ac-screen</code> clips
+      with <code>overflow: clip</code> rather than <code>hidden</code>: <code>hidden</code> would
+      make the frame a scroll container, and a sticky bar inside one sticks to nothing.</p>
     </div>
-  </div>
+    <div class="doc-grid3" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">GLOW — ENERGIZED</span>
+        <span style="font-size:44px;color:var(--ink-bright);text-shadow:var(--glow-text)">255315</span>
+        <span class="doc-faint doc-small">--glow-text on live values, --glow-box on filled and focused elements.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">GLOW — SECONDARY DRIVE</span>
+        <span style="font-size:44px;color:var(--ink-dim);text-shadow:var(--glow-text-dim)">255315</span>
+        <span class="doc-faint doc-small">The same value at <code>--ink-dim</code>. Dim is a DRIVE LEVEL, not an off state — <code>--emit-70</code> is a cell driven at 70%, so it scatters 70% as much. The tiers are arithmetic, not taste: each stop's luminance is already fixed by the contrast ratio it was solved to, so 1.00 / 0.70 / 0.41 fall straight out of 7.0 / 5.2 / 3.4 : 1. Radius never scales — how far light spreads is a property of the glass, not of the drive.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">NO GLOW — INERT</span>
+        <button class="ac-btn" disabled style="font-size:32px">255315</button>
+        <span class="doc-faint doc-small">A <em>disabled</em> control, which is the only thing that genuinely does not glow — the cell is not being driven at all, and a halo would be a lie about the hardware. That is law 1's actual claim, and it is the half the drive tiers must never quietly absorb. <code>npm run check</code> fails the build if an ink level is set without restating the halo that belongs to it.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
+        <span class="ac-blink" style="font-size:var(--type-title)">✳✳ CHECK DOUSER ✳✳</span>
+        <span class="doc-faint doc-small">steps(1) hard on/off, 1.1s. Never a fade — until <code>.ac-afterglow</code> is on, which softens the OFF edge only. The ON edge stays instant either way.</span></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">THE THREE SIMULATIONS, SIDE BY SIDE</h3>
+    <p class="doc-dim doc-small">Each tile is its own frame. Use the PLASMA and CRT switches on the
+      board at the top of the page to compare these against the live page — the difference should be
+      almost too small to name. CRT takes the afterglow with it, and both reach the menu bar, which
+      is inside the frame rather than floating above it.</p>
+    <div class="doc-grid2" style="margin-top:16px">
+      <div class="doc-sim-tile">
+        <span class="doc-cap">FLAT — NO SIMULATION</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">The baseline. Everything still reads.</span>
+      </div>
+      <div class="doc-sim-tile ac-bloom">
+        <span class="ac-mesh"></span>
+        <span class="doc-cap">.AC-BLOOM — THE PANEL</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">Hotter glow tokens, a soft bleed, and the cell mesh. Put your eye close.</span>
+      </div>
+      <div class="doc-sim-tile ac-crt">
+        <span class="ac-retrace"></span>
+        <span class="doc-cap">.AC-CRT — THE TUBE</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">Scanlines, vignette, drift, flicker, retrace.</span>
+      </div>
+      <div class="doc-sim-tile ac-afterglow">
+        <span class="ac-persist"></span>
+        <span class="doc-cap">.AC-AFTERGLOW — PERSISTENCE</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">Residual patches only, here — a static tile has nothing to decay.</span>
+      </div>
+      <div class="doc-sim-tile ac-scanlines">
+        <span class="doc-cap">.AC-SCANLINES — STATIC TEXTURE</span>
+        <span style="font-size:var(--type-display);color:var(--ink-bright);text-shadow:var(--glow-text)">154<span class="ac-readout__unit">A</span></span>
+        <span class="doc-faint doc-small">No motion at all. For print, cards and thumbnails.</span>
+      </div>
+    </div>
+    <code class="doc-code">&lt;div class="ac-screen ac-bloom ac-crt ac-afterglow"&gt;&lt;span class="ac-mesh"&gt;&lt;/span&gt;&lt;span class="ac-retrace"&gt;&lt;/span&gt;&lt;span class="ac-persist"&gt;&lt;/span&gt; … &lt;/div&gt;</code>
+    <p class="doc-when">Nesting a simulation inside another one. Once per screen, on the outermost frame
+      — the tiles above are the exception that proves it, and they are documentation, not UI.</p>
+
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BLOCK CURSOR</span><span class="ac-cursor" style="font-size:var(--type-body)">TITLE:HEAT</span>
+        <code class="doc-code">class="ac-cursor"</code></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">GLYPHS — THE ONLY ICON SET</span>
+        <span style="font-size:var(--type-title);text-shadow:var(--glow-text)">✳✳ &nbsp; █ ▮ ▯ &nbsp; ▲ ▼ ◄ ► &nbsp; ┌─┐ └─┘</span>
+        <span class="doc-faint doc-small">Typeset in the terminal font. Never an SVG, never an emoji.</span></div>
+    </div>
+  </section>
+
+  <nav class="doc-pager" aria-label="Chapter">
+    <a class="doc-pager__link" href="guide-type.html">◄ Previous: Type & Geometry</a>
+    <a class="doc-pager__link" href="guide-persistence.html">Next: Persistence ►</a>
+  </nav>
+
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:var(--glow-text-dim)">GO TO CONSOLE ►</a>
+  </footer>
+
+</div>
 </div>
 
-<!-- Exiting is destructive and sits far from the motion keys, so it confirms. -->
-<dialog class="ac-dialog" id="exit-dialog">
-  <form method="dialog">
-    <h2 class="ac-dialog__title">Confirm Exit</h2>
-    <div class="ac-dialog__body">
-      EXIT SHOW WILL DROP THE DOUSER AND RELEASE REMOTE CONTROL.
-      FRAME COUNT IS RETAINED.
-    </div>
-    <div class="ac-dialog__actions">
-      <button type="submit" class="ac-btn" value="cancel">Cancel</button>
-      <button type="submit" class="ac-btn ac-btn--filled" value="exit">Exit Show</button>
-    </div>
-  </form>
-</dialog>
-
-<!-- The classic build, not the ES module: type="module" is blocked over file://
-     and this page must open by double-clicking it. -->
 <script src="../dist/amber-console.global.js"></script>
 <script src="../dist/amber-console.effects.global.js"></script>
-<script src="console.js"></script>
 </body>
 </html>

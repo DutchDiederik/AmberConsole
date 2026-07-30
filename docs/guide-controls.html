@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ORION-70 PROJECTION CONSOLE — Amber Console</title>
-<meta name="description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework: a fictional projector control panel built entirely from ac-* classes.">
+<title>CONTROLS — Amber Console</title>
+<meta name="description" content="Live components from the library: buttons, tabs, wells, bits, toggles, the keypad and the dialog.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -14,9 +14,9 @@
      Pages host. They are inert over file://, which costs nothing. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amber Console">
-<meta property="og:title" content="ORION-70 Projection Console — Amber Console">
-<meta property="og:description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework. Zero dependencies, one stylesheet.">
-<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/">
+<meta property="og:title" content="CONTROLS — Amber Console System Guide">
+<meta property="og:description" content="Live components from the library: buttons, tabs, wells, bits, toggles, the keypad and the dialog.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/guide-controls.html">
 <meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,26 +29,27 @@
 </head>
 <body>
 
-<!-- ORION-70 is invented for this design system: its name, wordmark and copy
-     are ours, and no manufacturer's branding, wordmark or logo appears in it.
-     See Provenance in README.md. -->
-<!-- The frame ships in the DEFAULT state, not the everything-on state: plasma on,
-     CRT off. Any class or overlay node that is off by default must be absent
-     here, or it paints for one frame on every load before initSims removes it.
-     amber-console.js mounts .ac-retrace and .ac-persist when CRT is switched on. -->
-<div class="ac-screen ac-bloom" data-ac-screen>
-  <span class="ac-mesh"></span>
+<!-- The nav lives INSIDE the frame. A menu bar floating above the simulations
+     is a menu bar that is not part of the screen — no bleed, no scanlines, no
+     vignette on it. .ac-screen uses overflow:clip precisely so a sticky bar can
+     sit inside the frame and still stick to the viewport.
 
-  <!-- @include _nav.html -->
-  <!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
+     The frame ships in the DEFAULT state, not the everything-on state: plasma on,
+     CRT off. Any class or overlay node that is off by default must be absent here,
+     or it paints for one frame on every load before initSims removes it. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+<span class="ac-mesh"></span>
+
+<!-- @include _nav.html -->
+<!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
 <nav class="ac-nav ac-nav--sticky">
   <span class="ac-nav__mark">Amber Console</span>
   <div class="ac-nav__links">
-    <a class="ac-nav__link" href="index.html" aria-current="page">Console</a>
+    <a class="ac-nav__link" href="index.html">Console</a>
     <a class="ac-nav__link" href="server.html">Server</a>
     <a class="ac-nav__link" href="radar.html">Radar</a>
     <a class="ac-nav__link" href="terminal.html">Terminal</a>
-    <a class="ac-nav__link" href="guide.html">System Guide</a>
+    <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
   </div>
   <span class="ac-nav__meta">
     <!-- The bar is the sticky half of the anti-confusion job: the board below
@@ -59,10 +60,10 @@
     <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
   </span>
 </nav>
-  <!-- @end -->
+<!-- @end -->
 
-  <!-- @include _board.html emitter="neon" -->
-  <!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- @include _board.html emitter="neon" -->
+<!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
 <!-- ============================================================ SETUP ==
      Four quarters. Four axes, and they are never the same axis:
 
@@ -347,154 +348,257 @@
     <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
   </div>
 </div>
-  <!-- @end -->
+<!-- @end -->
 
-<div class="ac-screen__body">
-    <div class="doc-console-head">
-      <div>
-        <div class="doc-wordmark">ORION-70</div>
-        <h1 id="title">SHOW LOCAL - STANDBY</h1>
+<div class="doc-wrap">
+
+<!-- @include _chapters.html -->
+<!-- GENERATED from docs/_chapters.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- The guide's own second level. The top bar names the four demos and the
+     guide; this names the guide's chapters, and it is deliberately NOT sticky —
+     the bar above it is the one thing that must survive scrolling, and two
+     stacked sticky strips eat a quarter of a laptop viewport.
+
+     Not .ac-tabs, though it looks like a row of soft keys: tabs swap a region
+     and these are page loads, which is the distinction the TABS specimen in the
+     CONTROLS chapter draws itself. Marked with aria-current by the build. -->
+<nav class="doc-chapters" aria-label="Guide chapters">
+  <a class="doc-chapter" href="guide.html">Overview</a>
+  <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
+  <a class="doc-chapter" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
+  <a class="doc-chapter" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
+  <a class="doc-chapter" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
+  <a class="doc-chapter" aria-current="page" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
+  <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
+  <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+</nav>
+<!-- @end -->
+
+  <header class="doc-head doc-head--chapter">
+    <div class="doc-kicker"><span class="doc-num">05</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>CONTROLS</h1>
+  </header>
+  <p class="doc-lede">Live components from the library. Hover to brighten, press to invert, tab to see the dashed focus ring.</p>
+
+  <section id="controls">
+    <p class="doc-dim">Live components from the library. Hover to brighten, press to invert, tab to see the
+      dashed focus ring.</p>
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:20px">
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — VARIANTS</span>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+          <button type="button" class="ac-btn">Run</button>
+          <button type="button" class="ac-btn ac-btn--filled">Manual</button>
+          <button type="button" class="ac-btn ac-btn--dim">Spare</button>
+          <button type="button" class="ac-btn" disabled>Locked</button>
+          <button type="button" class="ac-btn ac-blink">Ack Alarm</button>
+        </div>
+        <span class="doc-faint doc-small">Outline is default. Filled is inverse video — one primary per region. Dim is secondary. Disabled drops to faint and loses its glow.</span>
+        <code class="doc-code">class="ac-btn"  ac-btn--filled  ac-btn--dim  ac-btn--block  [disabled]
+&lt;!-- or drive it with ARIA: --&gt;  &lt;button class="ac-btn" aria-pressed="true"&gt;</code>
+        <p class="doc-when">More than one filled button in a region. Inverse video means "the machine is
+          doing this"; two of them means neither reads.</p>
       </div>
-      <div class="ac-tabs" role="tablist" data-ac="tabs">
-        <button type="button" class="ac-tab" role="tab" aria-selected="true" aria-controls="view-functions" id="tab-functions">Functions</button>
-        <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="view-alarms" id="tab-alarms">Alarms</button>
-      </div>
-    </div>
 
-    <div class="ac-grid ac-grid--console ac-grow">
-
-      <!-- Operating column. Reading order is the operator's workflow. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-functions" role="tabpanel" aria-labelledby="tab-functions">
-        <div class="ac-panel">
-          <span class="ac-panel__title">Show Information</span>
-          <div class="doc-fields">
-            <label class="ac-field">
-              <span class="ac-field__label">Trailer:</span>
-              <input class="ac-input" type="text" value="GOLDENEYE" placeholder="NONE LOADED">
-            </label>
-            <label class="ac-field">
-              <span class="ac-field__label">Title:</span>
-              <input class="ac-input" type="text" value="HEAT">
-            </label>
-          </div>
-        </div>
-
-        <div class="ac-statusbar" role="status">
-          <span id="status">STATUS:IDLE</span>
-          <span>PRESETS COMPLETED</span>
-        </div>
-
-        <div class="ac-statusbar ac-statusbar--line">
-          <span id="showtime">SHOW TIME 0000:00 (MM:SS)</span>
-          <span id="date">DATE 07/25/26</span>
-          <span id="time">TIME 00:00:00</span>
-        </div>
-
-        <!-- --wrap matters: three pads at the 130px min-width floor plus gaps
-             need 430px, so below that STOP must drop to a second row rather
-             than be clipped by the frame's overflow:hidden. -->
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="RUN" aria-pressed="false">Run</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="JOG" aria-pressed="false">Jog</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="STOP" aria-pressed="true">Stop</button>
-        </div>
-
-        <div class="ac-banner" id="banner" role="alert">Remote Mode</div>
-
-        <div class="ac-row ac-row--wrap ac-push" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg">Manual</button>
-          <button type="button" class="ac-btn ac-btn--lg">Auto Load</button>
-          <span class="ac-spacer"></span>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — SIZES</span>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <button type="button" class="ac-btn ac-btn--sm">Jog</button>
+          <button type="button" class="ac-btn">Auto Load</button>
           <button type="button" class="ac-btn ac-btn--lg">Change Show</button>
         </div>
+        <code class="doc-code">class="ac-btn ac-btn--sm"   ac-btn   ac-btn--lg</code>
+        <p class="doc-when"><code>--sm</code> on a touch panel: it computes to about 30px tall, under the
+          44px hit-target floor. Use it only in dense, mouse-driven tooling.</p>
       </div>
 
-      <!-- Alarms view. Same column slot; the tablist swaps them. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-alarms" role="tabpanel" aria-labelledby="tab-alarms" hidden>
-        <div class="ac-panel">
-          <span class="ac-panel__title">Alarm Log</span>
-          <div class="ac-table-scroll">
-            <table class="ac-table doc-alarms">
-              <thead>
-                <tr><th>TIME</th><th>CODE</th><th>DESCRIPTION</th><th>STATE</th></tr>
-              </thead>
-              <tbody>
-                <tr class="ac-table__row--active ac-blink" id="alarm-active">
-                  <td>22:28:41</td><td>E-114</td><td>DOUSER NOT CONFIRMED</td><td data-state>ACTIVE</td>
-                </tr>
-                <tr><td>22:14:02</td><td>W-062</td><td>LAMP CURRENT LOW 148A</td><td>CLEARED</td></tr>
-                <tr><td>21:58:37</td><td>W-041</td><td>REEL UNIT SLACK</td><td>CLEARED</td></tr>
-                <tr><td>21:02:19</td><td>I-008</td><td>PRESET BANK LOADED</td><td>LOGGED</td></tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — TOUCH PADS (LABEL TOP-LEFT, BODY EMPTY)</span>
+        <div class="ac-row ac-row--wrap" style="--gap:16px;width:100%">
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-btn--filled ac-grow">Run</button>
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow">Jog</button>
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow">Stop</button>
         </div>
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg" id="ack">Acknowledge</button>
-          <span class="ac-spacer"></span>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--dim">Print Log</button>
+        <span class="doc-faint doc-small">Sized for a gloved finger; the active mode is the filled one. Selection is state, not decoration.</span>
+        <code class="doc-code">class="ac-btn ac-btn--lg ac-btn--pad ac-grow"</code>
+        <p class="doc-when">A row of pads without <code>.ac-grow</code> (or <code>min-width:0</code>) —
+          the 130px min-width floor will overflow a narrow viewport.</p>
+      </div>
+
+      <!-- THE PAIR IS THE POINT OF THIS SPECIMEN. The switch in the board above
+           flips the whole page, which is the right control for a viewer and the
+           wrong one for documentation — you cannot compare two corners by looking
+           at one of them. So each row states its own corner explicitly and both
+           sit here at once, whichever way the board is standing: .ac-rounded on
+           the upper row, .ac-classic on the lower. -->
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BUTTON — CLASSIC VS ROUNDED</span>
+        <div class="ac-rounded ac-row ac-row--wrap" style="--gap:16px;width:100%;align-items:center">
+          <button type="button" class="ac-btn">Run</button>
+          <button type="button" class="ac-btn ac-btn--filled">Manual</button>
+          <button type="button" class="ac-btn" disabled>Locked</button>
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad" style="min-width:110px">Fn</button>
+          <label class="ac-toggle ac-toggle--input">
+            <span>Sustain</span><input type="checkbox" checked><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state"></span>
+          </label>
+        </div>
+        <div class="ac-classic ac-row ac-row--wrap" style="--gap:16px;width:100%;align-items:center">
+          <button type="button" class="ac-btn">Run</button>
+          <button type="button" class="ac-btn ac-btn--filled">Manual</button>
+          <button type="button" class="ac-btn" disabled>Locked</button>
+          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad" style="min-width:110px">Fn</button>
+          <label class="ac-toggle ac-toggle--input">
+            <span>Sustain</span><input type="checkbox" checked><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state"></span>
+          </label>
+        </div>
+        <span class="doc-faint doc-small">Same five controls: upper row <code>.ac-rounded</code>, lower row
+          <code>.ac-classic</code> — which is the default, so the lower row is what a page looks like untouched.
+          <strong>The four corners are not cut the same.</strong> These keys were drawn as solid objects lit from
+          the top left, so the far corner is barely cut and the near one is cut hardest — 2 / 4 / 8 / 4 px running
+          down the diagonal. Cut all four alike and the key reads as an octagon instead of an object. The extrusion
+          is offset along that same diagonal, which is why the bottom and right edges carry a heavy band and the top
+          and left stay a single stroke: one claim about where the light is, made twice.</span>
+        <span class="doc-faint doc-small">A filled key is IN — the band flips to the top and left, because the near
+          face of a sunken key is the upper one. The key does not move: a transform reads correctly but contributes
+          to scrollable overflow, and a latched key flush against its container pushed 4px past it. A box-shadow
+          costs nothing either way, so the light moves and the geometry does not.
+          <code>Locked</code> keeps neither edge nor halo: inert hardware does not glow. Labels park top-left
+          wherever a key is taller than its text, which is the classic face — a label plus room for a value.
+          <code>Fn</code> is <code>.ac-btn--pad</code>, the 96px touch pad, and it composes with either corner.
+          Keypad digits are exempt and stay centered; one character has no label/value split to serve.</span>
+        <code class="doc-code">&lt;!-- classic is the default; these are the ways to say otherwise --&gt;
+&lt;div class="ac-rounded"&gt; … &lt;/div&gt;     &lt;!-- one region back to the arc --&gt;
+&lt;div class="ac-classic"&gt; … &lt;/div&gt;     &lt;!-- one region back to the cut --&gt;
+&lt;html data-ac-style-classic="off"&gt;     &lt;!-- the whole page; what the demo switch writes --&gt;</code>
+        <p class="doc-when">Both corner styles in one region. They are two readings of the same hardware, and
+          mixing them says the panel was assembled from two of them. Scope either class to a whole frame, or set
+          the flag on the root — this specimen is the documented exception.</p>
+        <p class="doc-faint doc-small">Firefox and older Safari have no <code>corner-shape</code>, so they quantize
+          the radius to a hard 2px instead of cutting a chamfer. Deliberate: that is the same statement in a
+          property every engine has had for fifteen years, so both positions of the switch mean something
+          everywhere. The extrusion and the top-left label are identical on both paths.</p>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">TABS — SOFT KEYS, TITLE CASE</span>
+        <div class="ac-tabs" role="tablist" data-ac="tabs">
+          <button type="button" class="ac-tab" role="tab" aria-selected="true">Functions</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false">Alarms</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false">Presets</button>
+        </div>
+        <span class="doc-faint doc-small">Arrow keys, Home and End move between them when the optional JS module is loaded.</span>
+        <code class="doc-code">&lt;div class="ac-tabs" role="tablist" data-ac="tabs"&gt;
+  &lt;button class="ac-tab" role="tab" aria-selected="true" aria-controls="panel-1"&gt;Functions&lt;/button&gt;
+&lt;/div&gt;</code>
+        <p class="doc-when">Navigation between pages — that is <code>.ac-nav</code>. Tabs swap a region,
+          not a screen.</p>
+      </div>
+
+      <div class="doc-grid2">
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">INPUT + SELECT — RECESSED WELLS</span>
+          <label class="ac-field ac-field--block"><span class="ac-field__label">Title:</span><input class="ac-input ac-input--block" type="text" value="HEAT"></label>
+          <label class="ac-field ac-field--block"><span class="ac-field__label">Trailer:</span><input class="ac-input ac-input--block" type="text" placeholder="NONE LOADED"></label>
+          <label class="ac-field ac-field--block"><span class="ac-field__label">Mode</span>
+            <span class="ac-select ac-select--block"><select class="ac-input"><option>AUTO</option><option>MANUAL</option><option>REMOTE</option></select></span>
+          </label>
+          <label class="ac-field ac-field--block ac-field--invalid"><span class="ac-field__label">Reel:</span><input class="ac-input ac-input--block" type="text" value="OUT OF RANGE" aria-invalid="true"></label>
+          <span class="doc-faint doc-small">Invalid is blink plus inverse video. There is no red border, because there is no red.</span>
+          <code class="doc-code">&lt;label class="ac-field"&gt;
+  &lt;span class="ac-field__label"&gt;Title:&lt;/span&gt;
+  &lt;input class="ac-input" type="text"&gt;
+&lt;/label&gt;
+&lt;span class="ac-select"&gt;&lt;select class="ac-input"&gt;…&lt;/select&gt;&lt;/span&gt;</code>
+        </div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">CHECKBOX — STATUS BITS (NO CHECK GLYPH)</span>
+          <label class="ac-check"><input type="checkbox"><span>Spare</span></label>
+          <label class="ac-check"><input type="checkbox"><span>Remote Start Bit</span></label>
+          <label class="ac-check"><input type="checkbox" checked><span>In Show Position</span></label>
+          <label class="ac-check"><input type="checkbox" checked><span>Reel Unit Ready</span></label>
+          <label class="ac-check ac-check--disabled"><input type="checkbox" disabled><span>Locked Out</span></label>
+          <span class="doc-faint doc-small">A set bit fills solid, exactly like a hardware indicator lamp.</span>
+          <code class="doc-code">&lt;label class="ac-check"&gt;&lt;input type="checkbox"&gt;&lt;span&gt;Spare&lt;/span&gt;&lt;/label&gt;</code>
+          <p class="doc-when">A single yes/no setting the operator flips — that reads better as an
+            <code>.ac-toggle</code>, which states ON or OFF in words.</p>
         </div>
       </div>
 
-      <!-- Instrument column. Dim frames so read-only data recedes. -->
-      <div class="ac-stack" style="--gap: 18px">
-        <div class="ac-panel ac-panel--dim">
-          <span class="ac-panel__title">Interlocks</span>
-          <fieldset class="doc-bits">
-            <!-- The panel title is the visible label; this names the group for
-                 assistive tech without drawing a second heading. -->
-            <legend class="ac-sr-only">Interlocks</legend>
-            <label class="ac-check"><input type="checkbox"><span>Spare</span></label>
-            <label class="ac-check"><input type="checkbox"><span>Remote Start Bit</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>In Show Position</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>Reel Unit Ready</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>System Ready</span></label>
-          </fieldset>
+      <div class="doc-grid2">
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">RADIO — EXCLUSIVE MODES</span>
+          <label class="ac-radio"><input type="radio" name="doc-mode" checked><span>Auto</span></label>
+          <label class="ac-radio"><input type="radio" name="doc-mode"><span>Manual</span></label>
+          <label class="ac-radio"><input type="radio" name="doc-mode"><span>Remote</span></label>
+          <code class="doc-code">&lt;label class="ac-radio"&gt;&lt;input type="radio" name="mode"&gt;&lt;span&gt;Auto&lt;/span&gt;&lt;/label&gt;</code>
+          <p class="doc-when">More than about five options — that is an <code>.ac-select</code>.</p>
         </div>
-
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Lamp Values</div>
-          <div class="doc-lamp">
-            <div class="ac-readout"><div class="ac-readout__value">41.0<span class="ac-readout__unit">V</span></div></div>
-            <div class="ac-readout"><div class="ac-readout__value">154<span class="ac-readout__unit">A</span></div></div>
-          </div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">TOGGLE — HARD SNAP, ON/OFF READOUT</span>
+          <button type="button" class="ac-toggle" data-ac="toggle" aria-pressed="true"><span>Lamp</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button>
+          <label class="ac-toggle ac-toggle--input"><span>Douser</span><input type="checkbox"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state"></span></label>
+          <button type="button" class="ac-toggle" disabled><span>Spare</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span></button>
+          <span class="doc-faint doc-small">The thumb jumps; it does not slide. Text state is mandatory — a switch position alone is ambiguous on a monochrome panel. The middle one is the CSS-only variant: no JavaScript at all.</span>
+          <code class="doc-code">&lt;button class="ac-toggle" data-ac="toggle" aria-pressed="false"&gt;…&lt;/button&gt;
+&lt;label class="ac-toggle ac-toggle--input"&gt;…&lt;input type="checkbox"&gt;…&lt;/label&gt;</code>
         </div>
+      </div>
 
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Frame Count</div>
-          <div class="ac-readout"><div class="ac-readout__value" id="frames">255315</div></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">KEYPAD — NUMERIC ENTRY FOR GLOVED HANDS</span>
+        <div class="ac-keypad">
+          <button type="button" class="ac-btn ac-keypad__key">7</button>
+          <button type="button" class="ac-btn ac-keypad__key">8</button>
+          <button type="button" class="ac-btn ac-keypad__key">9</button>
+          <button type="button" class="ac-btn ac-keypad__key">4</button>
+          <button type="button" class="ac-btn ac-keypad__key">5</button>
+          <button type="button" class="ac-btn ac-keypad__key">6</button>
+          <button type="button" class="ac-btn ac-keypad__key">1</button>
+          <button type="button" class="ac-btn ac-keypad__key">2</button>
+          <button type="button" class="ac-btn ac-keypad__key">3</button>
+          <button type="button" class="ac-btn ac-keypad__key ac-keypad__key--fn">Clr</button>
+          <button type="button" class="ac-btn ac-keypad__key">0</button>
+          <button type="button" class="ac-btn ac-keypad__key ac-keypad__key--fn ac-btn--filled">Ent</button>
         </div>
+        <code class="doc-code">&lt;div class="ac-keypad"&gt;&lt;button class="ac-btn ac-keypad__key"&gt;7&lt;/button&gt;…&lt;/div&gt;</code>
+        <p class="doc-when">Any screen with a keyboard attached. This exists because there is no keyboard
+          in a projection booth.</p>
+      </div>
 
-        <button type="button" class="ac-btn" id="reset">Reset Frame Count</button>
-
-        <div class="ac-row ac-row--end ac-push">
-          <button type="button" class="ac-btn ac-btn--lg" data-ac-dialog-open="exit-dialog">Exit Show</button>
-        </div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">DIALOG — IT APPEARS; IT DOES NOT FADE IN</span>
+        <button type="button" class="ac-btn" data-ac-dialog-open="guide-dialog">Open Dialog</button>
+        <span class="doc-faint doc-small">Flat backdrop, no blur, no scale. Built on native <code>&lt;dialog&gt;</code>, so Escape and focus trapping come from the browser.</span>
+        <code class="doc-code">&lt;dialog class="ac-dialog"&gt;&lt;form method="dialog"&gt;
+  &lt;h2 class="ac-dialog__title"&gt;Confirm&lt;/h2&gt;
+  &lt;div class="ac-dialog__body"&gt;…&lt;/div&gt;
+  &lt;div class="ac-dialog__actions"&gt;…&lt;/div&gt;
+&lt;/form&gt;&lt;/dialog&gt;</code>
+        <p class="doc-when">Anything the operator must see machine state behind. A modal on a control
+          surface hides the panel; use an <code>.ac-banner</code> instead.</p>
       </div>
 
     </div>
-  </div>
+  </section>
+
+  <nav class="doc-pager" aria-label="Chapter">
+    <a class="doc-pager__link" href="guide-persistence.html">◄ Previous: Persistence</a>
+    <a class="doc-pager__link" href="guide-display.html">Next: Display ►</a>
+  </nav>
+
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:var(--glow-text-dim)">GO TO CONSOLE ►</a>
+  </footer>
+
+</div>
 </div>
 
-<!-- Exiting is destructive and sits far from the motion keys, so it confirms. -->
-<dialog class="ac-dialog" id="exit-dialog">
+<dialog class="ac-dialog" id="guide-dialog">
   <form method="dialog">
-    <h2 class="ac-dialog__title">Confirm Exit</h2>
+    <h2 class="ac-dialog__title">Confirm</h2>
     <div class="ac-dialog__body">
-      EXIT SHOW WILL DROP THE DOUSER AND RELEASE REMOTE CONTROL.
-      FRAME COUNT IS RETAINED.
+      THE BACKDROP IS FLAT BLACK AT 72%. NO BLUR, NO SCALE, NO FADE —
+      A REDRAWN SCREEN HAS NO IN-BETWEEN FRAMES.
     </div>
     <div class="ac-dialog__actions">
       <button type="submit" class="ac-btn" value="cancel">Cancel</button>
-      <button type="submit" class="ac-btn ac-btn--filled" value="exit">Exit Show</button>
+      <button type="submit" class="ac-btn ac-btn--filled" value="ok">Acknowledge</button>
     </div>
   </form>
 </dialog>
 
-<!-- The classic build, not the ES module: type="module" is blocked over file://
-     and this page must open by double-clicking it. -->
 <script src="../dist/amber-console.global.js"></script>
 <script src="../dist/amber-console.effects.global.js"></script>
-<script src="console.js"></script>
 </body>
 </html>

@@ -951,9 +951,9 @@
    trails.
 
    This is a blurred, additive copy of the backdrop, faded in with scroll speed
-   and drained when the scroll stops — amber-console.js drives --ac-smear from
-   the actual per-frame delta. Two details are load-bearing: it is `fixed`, so
-   the cost is one viewport rather than one document (the guide page is 15,000px
+   and drained when the scroll stops — amber-console.effects.js drives --ac-smear
+   from the actual per-frame delta. Two details are load-bearing: it is `fixed`, so
+   the cost is one viewport rather than one document (the guide page is 26,000px
    tall), and it filters the BACKDROP rather than blurring the content itself,
    so the text you are reading stays sharp while its afterimage does not. */
 /* The image itself loses focus. This is the part you actually see, and it has to
@@ -987,7 +987,7 @@
 
 /* …and the panel blooms while it cannot keep up: a blurred, additive copy of
    the backdrop, fixed to the viewport so the cost is one screen rather than one
-   document — the guide page is 15,000px tall. */
+   document — the guide page is 26,000px tall. */
 .ac-afterglow > .ac-persist::after {
   content: "";
   position: fixed; inset: 0;
@@ -999,7 +999,8 @@
 }
 /* Nothing to composite when still — and a permanently live backdrop-filter over
    the viewport is exactly the kind of thing that costs a frame budget for free.
-   The attribute is set by amber-console.js only while the smear is above zero. */
+   The attribute is set by amber-console.effects.js only while the smear is
+   above zero. */
 .ac-afterglow:not([data-ac-scrolling]) > .ac-persist::after { display: none; }
 
 /* (2) GHOSTS — a copy of what was just there, parked at the rect it occupied
@@ -1124,7 +1125,7 @@ html:has(.ac-afterglow)::view-transition-group(root) {
 /* --- THE GLASS IS THE VIEWPORT, NOT THE DOCUMENT ---
 
    Every overlay above is positioned against the frame, and on a full-screen
-   frame the frame is the whole document — 15,105px on the system guide. That is
+   frame the frame is the whole document — 26,500px on the system guide. That is
    wrong twice over.
 
    Physically: the bleed, the scanline mask, the vignette and the retrace are all

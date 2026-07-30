@@ -76,8 +76,18 @@ const CHECKS = [
     exempt: /src[/\\]base[/\\](print|a11y)\.css$/,
     /* Selector plus declaration block, or an inline style attribute. The
        SELECTOR is captured because the rule below needs to know whether the
-       thing being styled is inert, and only the selector can say so. */
-    re: /([^{}]*)\{([^{}]*)\}|style="[^"]*"/g,
+       thing being styled is inert, and only the selector can say so.
+
+       THE STYLE ATTRIBUTE COMES FIRST AND THE ORDER IS LOAD-BEARING. Alternation
+       is ordered, and `[^{}]*` is greedy across everything that is not a brace —
+       so with the block pattern first, any style="" sitting between two braces
+       anywhere in the file is swallowed by the block alternative and never
+       inspected. That is not hypothetical: splitting the guide into chapters
+       moved the braces around and a stranded --ink-dim specimen that had been
+       invisible to this gate for its whole life became visible in the same
+       commit. Six inline styles across docs/ were unreachable. Put the narrow,
+       unambiguous pattern first and there is nothing to be shadowed. */
+    re: /style="[^"]*"|([^{}]*)\{([^{}]*)\}/g,
     filter: (m) => {
       const sel = (m[1] ?? "").replace(/\/\*[\s\S]*?\*\//g, "");
       const body = (m[2] ?? m[0]).replace(/\/\*[\s\S]*?\*\//g, "");

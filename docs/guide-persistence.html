@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ORION-70 PROJECTION CONSOLE — Amber Console</title>
-<meta name="description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework: a fictional projector control panel built entirely from ac-* classes.">
+<title>AFTERGLOW & PERSISTENCE — Amber Console</title>
+<meta name="description" content="Eight separate phenomena, five of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -14,9 +14,9 @@
      Pages host. They are inert over file://, which costs nothing. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amber Console">
-<meta property="og:title" content="ORION-70 Projection Console — Amber Console">
-<meta property="og:description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework. Zero dependencies, one stylesheet.">
-<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/">
+<meta property="og:title" content="AFTERGLOW & PERSISTENCE — Amber Console System Guide">
+<meta property="og:description" content="Eight separate phenomena, five of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/guide-persistence.html">
 <meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,26 +29,27 @@
 </head>
 <body>
 
-<!-- ORION-70 is invented for this design system: its name, wordmark and copy
-     are ours, and no manufacturer's branding, wordmark or logo appears in it.
-     See Provenance in README.md. -->
-<!-- The frame ships in the DEFAULT state, not the everything-on state: plasma on,
-     CRT off. Any class or overlay node that is off by default must be absent
-     here, or it paints for one frame on every load before initSims removes it.
-     amber-console.js mounts .ac-retrace and .ac-persist when CRT is switched on. -->
-<div class="ac-screen ac-bloom" data-ac-screen>
-  <span class="ac-mesh"></span>
+<!-- The nav lives INSIDE the frame. A menu bar floating above the simulations
+     is a menu bar that is not part of the screen — no bleed, no scanlines, no
+     vignette on it. .ac-screen uses overflow:clip precisely so a sticky bar can
+     sit inside the frame and still stick to the viewport.
 
-  <!-- @include _nav.html -->
-  <!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
+     The frame ships in the DEFAULT state, not the everything-on state: plasma on,
+     CRT off. Any class or overlay node that is off by default must be absent here,
+     or it paints for one frame on every load before initSims removes it. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+<span class="ac-mesh"></span>
+
+<!-- @include _nav.html -->
+<!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
 <nav class="ac-nav ac-nav--sticky">
   <span class="ac-nav__mark">Amber Console</span>
   <div class="ac-nav__links">
-    <a class="ac-nav__link" href="index.html" aria-current="page">Console</a>
+    <a class="ac-nav__link" href="index.html">Console</a>
     <a class="ac-nav__link" href="server.html">Server</a>
     <a class="ac-nav__link" href="radar.html">Radar</a>
     <a class="ac-nav__link" href="terminal.html">Terminal</a>
-    <a class="ac-nav__link" href="guide.html">System Guide</a>
+    <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
   </div>
   <span class="ac-nav__meta">
     <!-- The bar is the sticky half of the anti-confusion job: the board below
@@ -59,10 +60,10 @@
     <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
   </span>
 </nav>
-  <!-- @end -->
+<!-- @end -->
 
-  <!-- @include _board.html emitter="neon" -->
-  <!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- @include _board.html emitter="neon" -->
+<!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
 <!-- ============================================================ SETUP ==
      Four quarters. Four axes, and they are never the same axis:
 
@@ -347,154 +348,227 @@
     <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
   </div>
 </div>
-  <!-- @end -->
+<!-- @end -->
 
-<div class="ac-screen__body">
-    <div class="doc-console-head">
-      <div>
-        <div class="doc-wordmark">ORION-70</div>
-        <h1 id="title">SHOW LOCAL - STANDBY</h1>
-      </div>
-      <div class="ac-tabs" role="tablist" data-ac="tabs">
-        <button type="button" class="ac-tab" role="tab" aria-selected="true" aria-controls="view-functions" id="tab-functions">Functions</button>
-        <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="view-alarms" id="tab-alarms">Alarms</button>
-      </div>
+<div class="doc-wrap">
+
+<!-- @include _chapters.html -->
+<!-- GENERATED from docs/_chapters.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- The guide's own second level. The top bar names the four demos and the
+     guide; this names the guide's chapters, and it is deliberately NOT sticky —
+     the bar above it is the one thing that must survive scrolling, and two
+     stacked sticky strips eat a quarter of a laptop viewport.
+
+     Not .ac-tabs, though it looks like a row of soft keys: tabs swap a region
+     and these are page loads, which is the distinction the TABS specimen in the
+     CONTROLS chapter draws itself. Marked with aria-current by the build. -->
+<nav class="doc-chapters" aria-label="Guide chapters">
+  <a class="doc-chapter" href="guide.html">Overview</a>
+  <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
+  <a class="doc-chapter" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
+  <a class="doc-chapter" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
+  <a class="doc-chapter" aria-current="page" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
+  <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
+  <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
+  <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+</nav>
+<!-- @end -->
+
+  <header class="doc-head doc-head--chapter">
+    <div class="doc-kicker"><span class="doc-num">04</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>AFTERGLOW &amp; PERSISTENCE</h1>
+  </header>
+  <p class="doc-lede">Nothing on either technology goes dark on the next refresh, and they do not go dark for the same reason. Persistence is eight separate phenomena — five of them pure CSS.</p>
+
+  <section id="persistence">
+    <h3 style="margin:32px 0 12px">AFTERGLOW AND PERSISTENCE</h3>
+    <div class="doc-prose">
+    <p class="doc-dim">Nothing on either technology goes dark on the next refresh, and they do not
+      go dark for the same reason. A gas gap that stops being driven leaves excited and metastable
+      atoms behind, and that population keeps emitting while it relaxes and recombines — an
+      afterglow that is a property of the gas and of no coating at all. A phosphor is the opposite
+      case: the persistence <em>is</em> the coating, it is what the compound was chosen for, and it
+      ranges over four orders of magnitude between the parts on the board above. Most of the light
+      is gone early either way, then a tail whose length is the whole difference between them.
+      <code>.ac-afterglow</code> is that relaxation, and it is several separate things because
+      persistence is eight separate phenomena. <strong>Five of them are pure CSS, and three are
+      not</strong> — and the three are not withheld, they are genuinely not expressible. Nothing in
+      the cascade remembers the string a readout held one frame ago; scroll <em>velocity</em> cannot
+      be derived from a scroll timeline, which exposes position only; and
+      <code>startViewTransition</code> is the one API that hands you a picture of the screen you just
+      replaced. Those three live in <code>amber-console.effects.js</code>, which is optional and
+      separate from <code>amber-console.js</code> — the stylesheet alone still decays, de-energizes,
+      throbs and sweeps.</p>
+    <p class="doc-dim"><strong>How long it lasts belongs to the emitter, not to this file.</strong>
+      A palette that knows its own decay declares it, and every timing below is derived from that one
+      number — so the panel does not have a persistence setting, it has whatever persistence the
+      hardware in it had. Which is also why <em>persistence and flicker are the same number read in
+      two directions</em>: a screen redraws every frame, and what is still lit when the next frame
+      arrives is the smear while what is missing is the flicker. A screen cannot be steady and
+      smear-free at once. P11 is fully dark between frames — no persistence, maximum flicker, which
+      is why it was fitted to tubes meant to be <em>photographed</em> rather than watched. P39 is
+      still at 91% — no flicker at any refresh rate, paid for in smear, which is why it went on
+      radar. Both come off one decay constant and cannot disagree.</p>
     </div>
 
-    <div class="ac-grid ac-grid--console ac-grow">
-
-      <!-- Operating column. Reading order is the operator's workflow. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-functions" role="tabpanel" aria-labelledby="tab-functions">
-        <div class="ac-panel">
-          <span class="ac-panel__title">Show Information</span>
-          <div class="doc-fields">
-            <label class="ac-field">
-              <span class="ac-field__label">Trailer:</span>
-              <input class="ac-input" type="text" value="GOLDENEYE" placeholder="NONE LOADED">
-            </label>
-            <label class="ac-field">
-              <span class="ac-field__label">Title:</span>
-              <input class="ac-input" type="text" value="HEAT">
-            </label>
-          </div>
-        </div>
-
-        <div class="ac-statusbar" role="status">
-          <span id="status">STATUS:IDLE</span>
-          <span>PRESETS COMPLETED</span>
-        </div>
-
-        <div class="ac-statusbar ac-statusbar--line">
-          <span id="showtime">SHOW TIME 0000:00 (MM:SS)</span>
-          <span id="date">DATE 07/25/26</span>
-          <span id="time">TIME 00:00:00</span>
-        </div>
-
-        <!-- --wrap matters: three pads at the 130px min-width floor plus gaps
-             need 430px, so below that STOP must drop to a second row rather
-             than be clipped by the frame's overflow:hidden. -->
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="RUN" aria-pressed="false">Run</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="JOG" aria-pressed="false">Jog</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="STOP" aria-pressed="true">Stop</button>
-        </div>
-
-        <div class="ac-banner" id="banner" role="alert">Remote Mode</div>
-
-        <div class="ac-row ac-row--wrap ac-push" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg">Manual</button>
-          <button type="button" class="ac-btn ac-btn--lg">Auto Load</button>
-          <span class="ac-spacer"></span>
-          <button type="button" class="ac-btn ac-btn--lg">Change Show</button>
-        </div>
-      </div>
-
-      <!-- Alarms view. Same column slot; the tablist swaps them. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-alarms" role="tabpanel" aria-labelledby="tab-alarms" hidden>
-        <div class="ac-panel">
-          <span class="ac-panel__title">Alarm Log</span>
-          <div class="ac-table-scroll">
-            <table class="ac-table doc-alarms">
-              <thead>
-                <tr><th>TIME</th><th>CODE</th><th>DESCRIPTION</th><th>STATE</th></tr>
-              </thead>
-              <tbody>
-                <tr class="ac-table__row--active ac-blink" id="alarm-active">
-                  <td>22:28:41</td><td>E-114</td><td>DOUSER NOT CONFIRMED</td><td data-state>ACTIVE</td>
-                </tr>
-                <tr><td>22:14:02</td><td>W-062</td><td>LAMP CURRENT LOW 148A</td><td>CLEARED</td></tr>
-                <tr><td>21:58:37</td><td>W-041</td><td>REEL UNIT SLACK</td><td>CLEARED</td></tr>
-                <tr><td>21:02:19</td><td>I-008</td><td>PRESET BANK LOADED</td><td>LOGGED</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg" id="ack">Acknowledge</button>
-          <span class="ac-spacer"></span>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--dim">Print Log</button>
-        </div>
-      </div>
-
-      <!-- Instrument column. Dim frames so read-only data recedes. -->
-      <div class="ac-stack" style="--gap: 18px">
-        <div class="ac-panel ac-panel--dim">
-          <span class="ac-panel__title">Interlocks</span>
-          <fieldset class="doc-bits">
-            <!-- The panel title is the visible label; this names the group for
-                 assistive tech without drawing a second heading. -->
-            <legend class="ac-sr-only">Interlocks</legend>
-            <label class="ac-check"><input type="checkbox"><span>Spare</span></label>
-            <label class="ac-check"><input type="checkbox"><span>Remote Start Bit</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>In Show Position</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>Reel Unit Ready</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>System Ready</span></label>
-          </fieldset>
-        </div>
-
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Lamp Values</div>
-          <div class="doc-lamp">
-            <div class="ac-readout"><div class="ac-readout__value">41.0<span class="ac-readout__unit">V</span></div></div>
-            <div class="ac-readout"><div class="ac-readout__value">154<span class="ac-readout__unit">A</span></div></div>
-          </div>
-        </div>
-
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Frame Count</div>
-          <div class="ac-readout"><div class="ac-readout__value" id="frames">255315</div></div>
-        </div>
-
-        <button type="button" class="ac-btn" id="reset">Reset Frame Count</button>
-
-        <div class="ac-row ac-row--end ac-push">
-          <button type="button" class="ac-btn ac-btn--lg" data-ac-dialog-open="exit-dialog">Exit Show</button>
-        </div>
-      </div>
-
+    <h3 style="margin:32px 0 12px">WHAT A LONG PHOSPHOR COSTS</h3>
+    <div class="doc-prose">
+    <p class="doc-dim">Two consequences worth knowing before the switches surprise you. The long
+      phosphors are <strong>capped where you wait on them and uncapped where you do not</strong>:
+      P7's tail is three seconds, which is correct and would be an unusable dialog close, so anything
+      that has to actually leave is clamped to 250ms and the ghosts run the full three. And a
+      long-persistence phosphor does not decay exponentially — it follows a power law, a fast knee
+      over a very long tail, which no single easing curve expresses. Those palettes ship a
+      <code>linear()</code> sampled from the decay model itself.</p>
+    <p class="doc-dim"><strong>P7 is the one that is worth turning on.</strong> It is two coatings
+      rather than one: the beam writes into a blue layer that decays in microseconds, and that
+      layer's own photons pump a yellow-green layer behind it that holds for seconds. So the ink is
+      blue and the halo is green — text you are reading is being re-struck sixty times a second, and
+      text that stops being written leaves only the glow behind. It is the only palette here whose
+      halo is a different spectrum from its ink, which inverts a rule the rest of the system relies
+      on, and it is the reason a radar sweep is still legible when the beam comes round again.</p>
     </div>
-  </div>
+    <div class="doc-grid3" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">1 · DECAY-OUT — CSS</span>
+        <span class="doc-faint doc-small">Anything that disappears drains instead of switching off —
+          a tab panel, a closing dialog, an acknowledged alarm. Pure CSS, and the one part that
+          carries the effect on its own. The transition is declared on the hidden state only, so
+          hiding decays and showing snaps back instantly. Nothing here ever fades <em>in</em>.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">2 · GHOSTING — effects.js</span>
+        <span class="doc-faint doc-small">Text rewritten in place leaves the previous value behind
+          for a beat. Watch the clock and the frame counter on the console page. This is the one part
+          CSS cannot do — nothing in the cascade remembers the old string — so a MutationObserver in
+          <code>amber-console.effects.js</code> parks a copy at the rect it occupied.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">3 · RESIDUAL PATCHES — CSS</span>
+        <span class="doc-faint doc-small">The glass never sits perfectly uniform; charge relaxes
+          unevenly. Four overlapping pools at 3% over the amber, drifting on a 47s cycle. You do not
+          notice it directly — you notice when it stops.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">4 · THE BLINK OFF-EDGE — CSS</span>
+        <span class="doc-faint doc-small">A blinking alarm is the thing on the panel that stops being
+          driven most often — once a second, forever — so it is the last place the decay should be
+          missing. <code>.ac-blink</code> stays <code>steps(1)</code> by default; with persistence on,
+          only the <em>ON</em> edge stays hard. Instant up, curve down.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">5 · DE-ENERGIZING — CSS</span>
+        <span class="doc-faint doc-small">The commonest light-off event on a control panel is not a
+          node disappearing, it is a lamp going out: a pressed button releasing, a tab deselecting,
+          an interlock unchecking. <strong>Split by what each property describes:</strong> the
+          structure — background, border, color — releases fast so the control reads as off
+          immediately, while the <em>halo</em> decays on the full uncapped tail, because the halo is
+          the scattered light that persists. Under P39 a released button glows for a second and a
+          half. Hover is excluded on purpose — a wake behind the cursor reads as lag.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">6 · SCROLL SMEAR — effects.js</span>
+        <span class="doc-faint doc-small">Scrolling hands every cell on the panel a new value at
+          once, which is the largest light-off event there is, and the image trails. Scaled by real
+          scroll <em>velocity</em>, which is why it cannot be CSS: a scroll timeline exposes
+          position, and velocity is not derivable from it. Scroll this page briskly.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">7 · PAGE PERSISTENCE — CSS</span>
+        <span class="doc-faint doc-small">The only place a <em>real framebuffer snapshot</em> is
+          available with no script at all. Everything above decays an element — something the cascade
+          can name. A phosphor decays whatever was drawn, including the parts of the screen no
+          element owns. Navigate to the console and back under P39 and the old page drains behind the
+          new one, per pixel. Needs one line —
+          <code>@view-transition { navigation: auto }</code> — in your own stylesheet, because it is
+          a document-level switch and linking a stylesheet must not rewrite how your site
+          navigates.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">8 · A LIT AREA SHRINKING — CSS + effects.js</span>
+        <span class="doc-faint doc-small">A bargraph does none of the seven things above: the element
+          stays, its text is elsewhere, its color never moves. What changes is its <em>width</em>, so
+          the strip it vacates was lit a moment ago and is now simply not drawn. On a two-second
+          phosphor that was the most visible wrong thing on the panel — everything around the bar
+          trailed and the bar itself snapped. A second bar now lags behind the live one on
+          <code>--ac-persist-tail</code>, and the asymmetry needs no rule of its own: on a fall the
+          ghost is <em>wider</em> and its trailing strip drains, and on a rise it is
+          <em>narrower</em>, so it hides underneath and nothing fades in. Watch a load bar on the
+          server dashboard under P39.</span></div>
+    </div>
+    <p class="doc-dim" style="margin-top:16px">The eighth is the one place the two tiers do different
+      things rather than one filling a gap the other leaves, and the difference is real. A bar falling
+      <em>gradually</em> stops driving each cell at a slightly different moment, so the honest result
+      is a taper behind a receding edge — which is what the CSS draws, and what a drifting value
+      actually does. A bar that drops <em>suddenly</em> stops every vacated cell at once and should
+      fade uniformly instead. CSS cannot hold the old width, so it cannot tell those apart;
+      <code>effects.js</code> recovers the old geometry and parks a proper uniform ghost for that
+      case — which is also how the radar's A-scope and echoes get theirs, since it watches for any
+      lit area that shrank rather than for anything named.</p>
+    <div class="doc-grid2" style="margin-top:16px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
+        <span class="ac-blink" style="background:var(--fill);color:var(--on-fill);padding:4px 14px;text-shadow:none">✳ LAMP FAULT ✳</span>
+        <span class="doc-faint doc-small">Toggle CRT on the board above and watch this one. Off, it
+          snaps between full and 10%. On, it holds, then drains over an ~88ms window of the 1.1s
+          cycle — deliberately near the floor of what registers as a decay at all.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">EVERY BLINK SITE FOLLOWS</span>
+        <span class="doc-faint doc-small">One rule swaps the <em>animation-name</em> rather than the
+          shorthand, so <code>.ac-blink</code>, <code>.ac-cursor</code>, an invalid
+          <code>.ac-input</code> and an over-range <code>.ac-meter--alarm</code> bar all keep their own
+          cycle length and pick up the same curve. The de-energizing rules use the same trick as
+          decay-out: the transition is declared on the UNLIT half, so going out drains and coming
+          on is instant.</span></div>
+    </div>
+    <code class="doc-code">&lt;div class="ac-screen ac-afterglow"&gt;&lt;span class="ac-persist"&gt;&lt;/span&gt; … &lt;/div&gt;</code>
+
+    <h3 style="margin:32px 0 12px">THE PPI SWEEP</h3>
+    <div class="doc-prose">
+    <p class="doc-dim">The one widget where persistence <em>is</em> the whole thing, and the one
+      place a decaying trail is achievable in pure CSS. The obvious way to draw a radar wake is to
+      stamp a mark every frame and fade each one, which is a per-pixel framebuffer problem and needs
+      a canvas. But a PPI trail is not a history of marks — it is one continuous falloff behind a
+      rotating line, and a <code>conic-gradient</code> already is that falloff. Rotate it and the
+      decay comes for free, on the GPU, in one element, with no script at all.</p>
+    <p class="doc-dim">The angular stops are the phosphor's decay curve read in degrees rather than
+      milliseconds, which is a substitution rather than a pun: the beam turns at a constant rate, so
+      angle behind the beam <em>is</em> time since that bearing was painted. Same curve, same
+      fast-knee-long-tail shape, different axis. The rotation period comes off
+      <code>--ac-persist-tail</code>, so the sweep returns about as the trail finishes draining —
+      which is precisely the trade P7 and P39 were bought to make.</p>
+    </div>
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">PPI — NO SCRIPT</span>
+        <div class="ac-sweep" role="img" aria-label="Search radar sweep, no contacts"><span class="ac-sweep__beam"></span></div>
+        <span class="doc-faint doc-small">Switch the display to P7 and the leading edge turns blue
+          against a yellow-green wake — that is <code>--gas-flash</code> against
+          <code>--gas-1</code>, the two coatings doing exactly what they did on the real tube. Every
+          other emitter has one coating, so its leading edge is simply the brighter end of its own
+          trail. The line itself is a constant-width arm rather than the first few degrees of the
+          gradient, which would be a wedge and would thin to nothing near the middle; the center
+          is bright because all 360 bearings cross it and it takes the whole revolution's
+          dose.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">WHY IT SLOWS DOWN</span>
+        <span class="doc-faint doc-small">Under P39 the sweep takes 3s and under P7 4.5s, because
+          both are scaled from the tail. Neon would scale to 0.16s, which is not a radar but a
+          strobe, so the period has a floor. A face whose trail has not drained by the time the beam
+          returns never reads as dark, and stops looking like a radar at all — it looks like a
+          spinning pie chart.</span></div>
+    </div>
+    <code class="doc-code">&lt;div class="ac-sweep" role="img" aria-label="Search radar"&gt;&lt;span class="ac-sweep__beam"&gt;&lt;/span&gt;&lt;/div&gt;</code>
+    <p class="doc-when">Assuming a removed node ghosts itself. The observer only sees text change;
+      a node that stops existing has no rect left to pin a ghost to, so ghost it
+      <em>before</em> you remove it — <code>AmberConsoleEffects.afterglow(row)</code>, then
+      <code>row.remove()</code>. Retune the decay with the three tokens it is built from, none of
+      which is a duration you set directly — each is the palette's own
+      <code>--ac-persist</code> under a different cap. <code>--ac-decay</code> is capped at 250ms and
+      belongs to things that must actually leave; <code>--ac-decay-fast</code> is capped at 60ms and
+      belongs to de-energizing controls and hover release, because it fires on every control the
+      pointer crosses; <code>--ac-persist-tail</code> is uncapped and belongs to the ghosts and the
+      residual patches, which is where a long phosphor is allowed to be long. Rewritten text is its
+      own case at 400ms, enough to keep one generation legible and not two.
+      <code>--ac-decay-ease</code> is the curve.</p>
+
+  </section>
+
+  <nav class="doc-pager" aria-label="Chapter">
+    <a class="doc-pager__link" href="guide-effects.html">◄ Previous: Effects</a>
+    <a class="doc-pager__link" href="guide-controls.html">Next: Controls ►</a>
+  </nav>
+
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:var(--glow-text-dim)">GO TO CONSOLE ►</a>
+  </footer>
+
+</div>
 </div>
 
-<!-- Exiting is destructive and sits far from the motion keys, so it confirms. -->
-<dialog class="ac-dialog" id="exit-dialog">
-  <form method="dialog">
-    <h2 class="ac-dialog__title">Confirm Exit</h2>
-    <div class="ac-dialog__body">
-      EXIT SHOW WILL DROP THE DOUSER AND RELEASE REMOTE CONTROL.
-      FRAME COUNT IS RETAINED.
-    </div>
-    <div class="ac-dialog__actions">
-      <button type="submit" class="ac-btn" value="cancel">Cancel</button>
-      <button type="submit" class="ac-btn ac-btn--filled" value="exit">Exit Show</button>
-    </div>
-  </form>
-</dialog>
-
-<!-- The classic build, not the ES module: type="module" is blocked over file://
-     and this page must open by double-clicking it. -->
 <script src="../dist/amber-console.global.js"></script>
 <script src="../dist/amber-console.effects.global.js"></script>
-<script src="console.js"></script>
 </body>
 </html>

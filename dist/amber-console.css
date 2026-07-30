@@ -1769,9 +1769,9 @@
    trails.
 
    This is a blurred, additive copy of the backdrop, faded in with scroll speed
-   and drained when the scroll stops — amber-console.js drives --ac-smear from
-   the actual per-frame delta. Two details are load-bearing: it is `fixed`, so
-   the cost is one viewport rather than one document (the guide page is 15,000px
+   and drained when the scroll stops — amber-console.effects.js drives --ac-smear
+   from the actual per-frame delta. Two details are load-bearing: it is `fixed`, so
+   the cost is one viewport rather than one document (the guide page is 26,000px
    tall), and it filters the BACKDROP rather than blurring the content itself,
    so the text you are reading stays sharp while its afterimage does not. */
 /* The image itself loses focus. This is the part you actually see, and it has to
@@ -1805,7 +1805,7 @@
 
 /* …and the panel blooms while it cannot keep up: a blurred, additive copy of
    the backdrop, fixed to the viewport so the cost is one screen rather than one
-   document — the guide page is 15,000px tall. */
+   document — the guide page is 26,000px tall. */
 .ac-afterglow > .ac-persist::after {
   content: "";
   position: fixed; inset: 0;
@@ -1817,7 +1817,8 @@
 }
 /* Nothing to composite when still — and a permanently live backdrop-filter over
    the viewport is exactly the kind of thing that costs a frame budget for free.
-   The attribute is set by amber-console.js only while the smear is above zero. */
+   The attribute is set by amber-console.effects.js only while the smear is
+   above zero. */
 .ac-afterglow:not([data-ac-scrolling]) > .ac-persist::after { display: none; }
 
 /* (2) GHOSTS — a copy of what was just there, parked at the rect it occupied
@@ -1942,7 +1943,7 @@ html:has(.ac-afterglow)::view-transition-group(root) {
 /* --- THE GLASS IS THE VIEWPORT, NOT THE DOCUMENT ---
 
    Every overlay above is positioned against the frame, and on a full-screen
-   frame the frame is the whole document — 15,105px on the system guide. That is
+   frame the frame is the whole document — 26,500px on the system guide. That is
    wrong twice over.
 
    Physically: the bleed, the scanline mask, the vignette and the retrace are all
@@ -3960,29 +3961,81 @@ textarea.ac-input {
 
 /* THE BEAM AND ITS WAKE.
 
-   Stops read outward from the leading edge: the flash, then the knee, then the
-   long shallow tail — the same fast-knee-long-tail shape the sampled linear()
-   easings carry, because it is the same decay.
+   THE STOPS RUN BACKWARDS, AND THE ROTATION DOES NOT. Both a conic-gradient and
+   rotate() go clockwise, so a point at screen bearing θ shows gradient angle
+   θ − A, where A is the current rotation. Writing the flash at 0deg therefore
+   puts the whole falloff at θ ∈ [A, A+arc] — clockwise AHEAD of the beam, in the
+   direction it is travelling toward, which is the bug this file shipped with for
+   its whole life. Light lands behind a beam, not in front of it.
 
-   200deg is where the tail reaches zero, so a little over half the face is lit
-   at any moment. Past that the previous revolution's light would still be
-   arriving and the face never reads as dark, which is the failure mode that
-   makes a sweep look like a spinning pie chart rather than a radar. */
+   So the flash goes at 360deg and the tail counts DOWN from there, and the fix
+   is not to reverse the rotation: bearings on a PPI increase clockwise, and the
+   bearing scale, the EBL, the guard sector and every contact arm on the radar
+   page are built on that. The contacts are also the proof — each one delays its
+   strike so that it fires when A equals its own bearing, then drains where the
+   beam has already been. The wedge now drains with them instead of against them.
+
+   ALPHAS ARE THE PALETTE'S OWN DECAY LAW READ IN DEGREES. --ac-decay-ease in
+   tokens/colors.css is sampled from the Becquerel law I = 1/(1 + t/t0)^1.4, and
+   back-solving its linear() stops gives t0 = 0.032 × the tail. Angle behind the
+   beam is time since that bearing was painted, so the same curve lands on the
+   same shape here — through a ^0.75 perceptual compression, which is what the
+   hand-picked stops this replaces were already doing by eye.
+
+   --AC-SWEEP-ARC IS ARITHMETIC RATHER THAN TASTE, and it is a fallback rather
+   than a declaration for the same reason --ac-sweep-period and --ac-sweep-size
+   are: a property set on the element cannot be reached from a page, and the
+   radar page sets two of those three. The period below is the tail × 1.5, so on
+   every phosphor above that floor the tail occupies tail ÷ period × 360 =
+   240deg of the face. The remaining 10deg is a taper to nothing — the curve is
+   a power law, it is still near 2/255 where it runs out, and cutting it off
+   there leaves a banded edge where the wake should have gone dark. An emitter
+   BELOW the floor wants this smaller: neon drains in 0.16s against a 2.5s
+   revolution, which is 23deg — a thin spinning line, not a wake. Deriving it
+   here would want calc(var(--ac-persist-tail) / var(--ac-sweep-period) * 360deg)
+   and division that type-checks a time against a time, which is younger than
+   this file's floor. So it stays a knob, and the 250deg in the stops below is
+   what that expression evaluates to.
+
+   THE COLOR MARCH IS THE P7 CASCADE. --gas-flash holds for the first degree and
+   a half — about 19ms at 4.5s a revolution, a frame or two, which is what the
+   blue ZnS:Ag layer is worth — then hands to --gas-4 at the hottest point of the
+   yellow-green (Zn,Cd)S:Cu response and drains down through --gas-1 and --gas-2
+   to --gas-3. Every stop keeps the var(--gas-flash, var(--gas-1)) fallback, so a
+   single-coating emitter gets a brighter leading edge and no cascade, which is
+   correct for it. */
 .ac-sweep__beam {
   position: absolute;
   inset: 0;
   pointer-events: none;
   mix-blend-mode: screen;
   border-radius: 50%;
+
+  /* Each stop is one reading off that curve, at the fraction of the arc named
+     in the multiplier. THE STOPS ARE CLOSE TOGETHER AT THE KNEE because the
+     curve is convex and a gradient interpolates straight: sampled sparsely, the
+     straight line between two stops runs ABOVE the curve it is meant to be, and
+     the first forty degrees fill in as a flat bright slab with an edge on it
+     instead of draining. Sampling the knee finely and the tail coarsely is the
+     same trade the linear() easings in tokens/colors.css make, for the same
+     reason. */
   background: conic-gradient(
     from 0deg,
-    rgba(var(--gas-flash, var(--gas-1)), 0.9) 0deg,
-    rgba(var(--gas-1), 0.5) 4deg,
-    rgba(var(--gas-2), 0.26) 18deg,
-    rgba(var(--gas-2), 0.13) 45deg,
-    rgba(var(--gas-3), 0.06) 95deg,
-    rgba(var(--gas-3), 0.02) 150deg,
-    transparent 200deg
+    rgba(var(--gas-3), 0) calc(360deg - var(--ac-sweep-arc, 250deg)),
+    rgba(var(--gas-3), 0.008) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.9),
+    rgba(var(--gas-3), 0.024) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.8),
+    rgba(var(--gas-3), 0.038) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.6),
+    rgba(var(--gas-3), 0.059) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.38),
+    rgba(var(--gas-3), 0.085) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.26),
+    rgba(var(--gas-2), 0.12) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.18),
+    rgba(var(--gas-2), 0.18) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.11),
+    rgba(var(--gas-2), 0.25) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.072),
+    rgba(var(--gas-1), 0.33) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.05),
+    rgba(var(--gas-1), 0.4) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.036),
+    rgba(var(--gas-1), 0.49) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.024),
+    rgba(var(--gas-4), 0.58) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.016),
+    rgba(var(--gas-flash, var(--gas-1)), 0.75) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.006),
+    rgba(var(--gas-flash, var(--gas-1)), 0.9) 360deg
   );
   /* THE PERIOD IS THE PHOSPHOR'S, WITH A FLOOR, and the floor is the point.
      A sweep wants to come round about as the trail finishes draining — that is
@@ -3993,6 +4046,66 @@ textarea.ac-input {
   animation: ac-sweep-rotate
     var(--ac-sweep-period, max(2.5s, calc(var(--ac-persist-tail, 2s) * 1.5)))
     linear infinite;
+}
+
+/* THE ORIGIN, WHICH IS THE ONE PLACE A RADIAL FALLOFF IS EARNED. Everywhere else
+   on the face the wake is as bright at the rim as at half range, because every
+   bearing is painted for the same length of time however far out you stand. The
+   center is not: all 360 bearings cross it, so it takes the whole revolution's
+   dose and saturates toward the flash color. That is the bright spot on the
+   middle of every scope photograph ever taken.
+
+   It is radially symmetric, so rotating with the beam costs nothing and buys the
+   right thing — it lives inside the beam's screen group where the light belongs,
+   and it goes out with the beam on standby, which is correct: a set that is not
+   transmitting is not writing a center either.
+
+   closest-side pins the gradient's 100% to the radius rather than to the corner,
+   so these percentages are RANGES. */
+.ac-sweep__beam::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle closest-side at 50% 50%,
+    rgba(var(--gas-flash, var(--gas-1)), 0.3) 0 1.5%,
+    rgba(var(--gas-4), 0.2) 3.5%,
+    rgba(var(--gas-1), 0.08) 7%,
+    rgba(var(--gas-1), 0) 13%
+  );
+}
+
+/* THE WRITING LINE, AND IT IS AN ARM RATHER THAN AN ANGLE. A few degrees of the
+   gradient is a WEDGE: 1.8px wide at the rim of a 260px face and under half a
+   pixel at quarter range, so the beam thins out and aliases away exactly where
+   the picture is densest. A CRT spot is a constant width at every radius, so the
+   line is drawn the way every mark on the radar page is drawn — a span pinned at
+   the center, given a height in percent, rotated to a bearing.
+
+   It gets that bearing for free: it is a child of the rotating element, and
+   `from 0deg` starts the conic at twelve o'clock, so the bar and the gradient's
+   leading edge are the same bearing by construction rather than by two numbers
+   being kept in step.
+
+   The horizontal ramp is the spot's finite width. Not a filter: blur(), which
+   would put a second raster layer inside one that turns continuously. The
+   brightness does not fall off outward because the radial deflection is linear
+   and the writing speed is therefore constant. */
+.ac-sweep__beam::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: var(--ac-sweep-line, 3px);
+  height: 50%;
+  margin-left: calc(var(--ac-sweep-line, 3px) / -2);
+  background: linear-gradient(
+    to right,
+    rgba(var(--gas-flash, var(--gas-1)), 0),
+    rgba(var(--gas-flash, var(--gas-1)), 0.95) 50%,
+    rgba(var(--gas-flash, var(--gas-1)), 0)
+  );
 }
 
 @keyframes ac-sweep-rotate {

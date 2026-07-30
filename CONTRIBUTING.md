@@ -79,10 +79,32 @@ belong here. Every new component needs:
 
 - its own file in `src/components/`, added to the `@import` list in `src/amber-console.css`
 - a header comment stating what it is, the minimum markup, and **when not to use it**
-- a specimen in `docs/guide.html` §06 or §07 with a copyable class string and that same caveat
+- a specimen in `docs/guide-controls.html` or `docs/guide-display.html` with a copyable class string
+  and that same caveat
 - a row in the README class reference
 - correct behavior under `prefers-reduced-motion`, `forced-colors: active` and `@media print`
 - a 44×44 minimum hit area if it is interactive, and a `:focus-visible` ring
+
+## The docs pages are partly generated
+
+`docs/` has twelve pages and all of them carry the same menu bar and the same setup board. Those
+live in `docs/_nav.html`, `docs/_board.html` and `docs/_chapters.html`, and `npm run build` expands
+them in place between markers:
+
+```html
+<!-- @include _board.html emitter="p7" -->
+…generated — do not edit…
+<!-- @end -->
+```
+
+**Edit the partial, not the expansion** — the next build overwrites it. The expansion is committed
+so `docs/` still opens over `file://` with no build having been run, and so a diff shows what
+actually changed on the page.
+
+The board takes one argument, the emitter the page loads with. Everything that follows from it —
+which catalog row is `checked`, whether the JS Effects switch has anything to do, which technology
+note is visible — is derived at build time from `src/tokens/colors.css`, so there is no second place
+for it to disagree.
 
 ## Accessibility is not optional
 

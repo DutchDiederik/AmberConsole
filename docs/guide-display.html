@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ORION-70 PROJECTION CONSOLE — Amber Console</title>
-<meta name="description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework: a fictional projector control panel built entirely from ac-* classes.">
+<title>DISPLAY — Amber Console</title>
+<meta name="description" content="The machine's own voice: frames, strips, readouts, meters and the single loudest element the system permits.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -14,9 +14,9 @@
      Pages host. They are inert over file://, which costs nothing. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amber Console">
-<meta property="og:title" content="ORION-70 Projection Console — Amber Console">
-<meta property="og:description" content="Live demo of Amber Console, a monochrome amber-terminal CSS framework. Zero dependencies, one stylesheet.">
-<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/">
+<meta property="og:title" content="DISPLAY — Amber Console System Guide">
+<meta property="og:description" content="The machine's own voice: frames, strips, readouts, meters and the single loudest element the system permits.">
+<meta property="og:url" content="https://dutchdiederik.github.io/amber-console/docs/guide-display.html">
 <meta property="og:image" content="https://dutchdiederik.github.io/amber-console/docs/social-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,26 +29,27 @@
 </head>
 <body>
 
-<!-- ORION-70 is invented for this design system: its name, wordmark and copy
-     are ours, and no manufacturer's branding, wordmark or logo appears in it.
-     See Provenance in README.md. -->
-<!-- The frame ships in the DEFAULT state, not the everything-on state: plasma on,
-     CRT off. Any class or overlay node that is off by default must be absent
-     here, or it paints for one frame on every load before initSims removes it.
-     amber-console.js mounts .ac-retrace and .ac-persist when CRT is switched on. -->
-<div class="ac-screen ac-bloom" data-ac-screen>
-  <span class="ac-mesh"></span>
+<!-- The nav lives INSIDE the frame. A menu bar floating above the simulations
+     is a menu bar that is not part of the screen — no bleed, no scanlines, no
+     vignette on it. .ac-screen uses overflow:clip precisely so a sticky bar can
+     sit inside the frame and still stick to the viewport.
 
-  <!-- @include _nav.html -->
-  <!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
+     The frame ships in the DEFAULT state, not the everything-on state: plasma on,
+     CRT off. Any class or overlay node that is off by default must be absent here,
+     or it paints for one frame on every load before initSims removes it. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+<span class="ac-mesh"></span>
+
+<!-- @include _nav.html -->
+<!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
 <nav class="ac-nav ac-nav--sticky">
   <span class="ac-nav__mark">Amber Console</span>
   <div class="ac-nav__links">
-    <a class="ac-nav__link" href="index.html" aria-current="page">Console</a>
+    <a class="ac-nav__link" href="index.html">Console</a>
     <a class="ac-nav__link" href="server.html">Server</a>
     <a class="ac-nav__link" href="radar.html">Radar</a>
     <a class="ac-nav__link" href="terminal.html">Terminal</a>
-    <a class="ac-nav__link" href="guide.html">System Guide</a>
+    <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
   </div>
   <span class="ac-nav__meta">
     <!-- The bar is the sticky half of the anti-confusion job: the board below
@@ -59,10 +60,10 @@
     <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
   </span>
 </nav>
-  <!-- @end -->
+<!-- @end -->
 
-  <!-- @include _board.html emitter="neon" -->
-  <!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- @include _board.html emitter="neon" -->
+<!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
 <!-- ============================================================ SETUP ==
      Four quarters. Four axes, and they are never the same axis:
 
@@ -347,154 +348,184 @@
     <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
   </div>
 </div>
-  <!-- @end -->
+<!-- @end -->
 
-<div class="ac-screen__body">
-    <div class="doc-console-head">
-      <div>
-        <div class="doc-wordmark">ORION-70</div>
-        <h1 id="title">SHOW LOCAL - STANDBY</h1>
+<div class="doc-wrap">
+
+<!-- @include _chapters.html -->
+<!-- GENERATED from docs/_chapters.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- The guide's own second level. The top bar names the four demos and the
+     guide; this names the guide's chapters, and it is deliberately NOT sticky —
+     the bar above it is the one thing that must survive scrolling, and two
+     stacked sticky strips eat a quarter of a laptop viewport.
+
+     Not .ac-tabs, though it looks like a row of soft keys: tabs swap a region
+     and these are page loads, which is the distinction the TABS specimen in the
+     CONTROLS chapter draws itself. Marked with aria-current by the build. -->
+<nav class="doc-chapters" aria-label="Guide chapters">
+  <a class="doc-chapter" href="guide.html">Overview</a>
+  <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
+  <a class="doc-chapter" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
+  <a class="doc-chapter" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
+  <a class="doc-chapter" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
+  <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
+  <a class="doc-chapter" aria-current="page" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
+  <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+</nav>
+<!-- @end -->
+
+  <header class="doc-head doc-head--chapter">
+    <div class="doc-kicker"><span class="doc-num">06</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>DISPLAY</h1>
+  </header>
+  <p class="doc-lede">The machine's own voice: frames, strips, readouts, and the single loudest element the system permits.</p>
+
+  <section id="display">
+    <p class="doc-dim">The machine's own voice: frames, strips, readouts, and the single loudest element
+      the system permits.</p>
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:20px">
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">STATUSBAR — INVERSE (MACHINE VOICE) AND LINE (DATA ROW)</span>
+        <div style="width:100%;display:flex;flex-direction:column;gap:10px">
+          <div class="ac-statusbar" role="status"><span>STATUS:AUTO MODE</span><span>PRESETS COMPLETED</span></div>
+          <div class="ac-statusbar ac-statusbar--line"><span>SHOW TIME 0000:00 (MM:SS)</span><span>DATE 07/23/26</span><span>TIME 22:28:45</span></div>
+        </div>
+        <code class="doc-code">class="ac-statusbar"  ac-statusbar--line   role="status"</code>
+        <p class="doc-when">Prose. A status bar holds <code>KEY:VALUE</code> strings, not sentences.</p>
       </div>
-      <div class="ac-tabs" role="tablist" data-ac="tabs">
-        <button type="button" class="ac-tab" role="tab" aria-selected="true" aria-controls="view-functions" id="tab-functions">Functions</button>
-        <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="view-alarms" id="tab-alarms">Alarms</button>
-      </div>
-    </div>
 
-    <div class="ac-grid ac-grid--console ac-grow">
-
-      <!-- Operating column. Reading order is the operator's workflow. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-functions" role="tabpanel" aria-labelledby="tab-functions">
-        <div class="ac-panel">
-          <span class="ac-panel__title">Show Information</span>
-          <div class="doc-fields">
-            <label class="ac-field">
-              <span class="ac-field__label">Trailer:</span>
-              <input class="ac-input" type="text" value="GOLDENEYE" placeholder="NONE LOADED">
-            </label>
-            <label class="ac-field">
-              <span class="ac-field__label">Title:</span>
-              <input class="ac-input" type="text" value="HEAT">
-            </label>
+      <div class="doc-grid3">
+        <div class="doc-demo doc-demo--col doc-span2"><span class="doc-cap">PANEL — LEGEND CHIP BREAKS THE BORDER</span>
+          <div class="ac-panel" style="width:100%"><span class="ac-panel__title">Show Information</span>
+            <div style="color:var(--ink-dim);font-size:var(--type-small);text-shadow:var(--glow-text-dim)">TRAILER:</div>
+            <div>TITLE:HEAT</div>
           </div>
+          <code class="doc-code">&lt;div class="ac-panel"&gt;&lt;span class="ac-panel__title"&gt;Show Information&lt;/span&gt;…&lt;/div&gt;</code>
+          <p class="doc-when">A panel over a non-<code>--screen</code> background, unless you also set
+            <code>--ac-panel-title-bg</code> — the chip paints its own background to mask the border.</p>
         </div>
-
-        <div class="ac-statusbar" role="status">
-          <span id="status">STATUS:IDLE</span>
-          <span>PRESETS COMPLETED</span>
-        </div>
-
-        <div class="ac-statusbar ac-statusbar--line">
-          <span id="showtime">SHOW TIME 0000:00 (MM:SS)</span>
-          <span id="date">DATE 07/25/26</span>
-          <span id="time">TIME 00:00:00</span>
-        </div>
-
-        <!-- --wrap matters: three pads at the 130px min-width floor plus gaps
-             need 430px, so below that STOP must drop to a second row rather
-             than be clipped by the frame's overflow:hidden. -->
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="RUN" aria-pressed="false">Run</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="JOG" aria-pressed="false">Jog</button>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="STOP" aria-pressed="true">Stop</button>
-        </div>
-
-        <div class="ac-banner" id="banner" role="alert">Remote Mode</div>
-
-        <div class="ac-row ac-row--wrap ac-push" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg">Manual</button>
-          <button type="button" class="ac-btn ac-btn--lg">Auto Load</button>
-          <span class="ac-spacer"></span>
-          <button type="button" class="ac-btn ac-btn--lg">Change Show</button>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">PANEL — INVERSE BAR TITLE</span>
+          <div class="ac-panel ac-panel--bar" style="width:100%"><div class="ac-panel__barTitle">Frame Count</div>
+            <div class="ac-readout"><div class="ac-readout__value">255315</div></div>
+          </div>
+          <code class="doc-code">class="ac-panel ac-panel--bar"</code>
         </div>
       </div>
 
-      <!-- Alarms view. Same column slot; the tablist swaps them. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-alarms" role="tabpanel" aria-labelledby="tab-alarms" hidden>
-        <div class="ac-panel">
-          <span class="ac-panel__title">Alarm Log</span>
-          <div class="ac-table-scroll">
-            <table class="ac-table doc-alarms">
-              <thead>
-                <tr><th>TIME</th><th>CODE</th><th>DESCRIPTION</th><th>STATE</th></tr>
-              </thead>
+      <div class="doc-grid3">
+        <div class="doc-demo doc-demo--col doc-span2"><span class="doc-cap">READOUT — INSTRUMENT VALUE</span>
+          <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap">
+            <div class="ac-readout"><div class="ac-readout__label">Lamp Volts</div><div class="ac-readout__value">41.0<span class="ac-readout__unit">V</span></div></div>
+            <div class="ac-readout"><div class="ac-readout__label">Lamp Amps</div><div class="ac-readout__value">154<span class="ac-readout__unit">A</span></div></div>
+            <div class="ac-readout ac-readout--lg"><div class="ac-readout__label ac-readout__label--plain">Frames</div><div class="ac-readout__value">255315</div></div>
+          </div>
+          <code class="doc-code">&lt;div class="ac-readout"&gt;
+  &lt;div class="ac-readout__label"&gt;Lamp Volts&lt;/div&gt;
+  &lt;div class="ac-readout__value"&gt;41.0&lt;span class="ac-readout__unit"&gt;V&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;</code>
+          <p class="doc-when">Text. A readout is for a number that changes.</p>
+        </div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">BADGE — MICRO TAGS, PIXEL FACE</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="ac-badge">CH 04</span><span class="ac-badge ac-badge--filled">Armed</span><span class="ac-badge ac-badge--dim">Spare</span>
+          </div>
+          <code class="doc-code">class="ac-badge"  ac-badge--filled  ac-badge--dim</code>
+          <p class="doc-when">Anything the operator must read at a glance — 8px is a label, not a message.</p>
+        </div>
+      </div>
+
+      <div class="doc-grid3">
+        <div class="doc-demo doc-demo--col doc-span2"><span class="doc-cap">TABLE — THE DATA GRID THIS GENRE LIVES ON</span>
+          <div class="ac-table-scroll" style="width:100%">
+            <table class="ac-table ac-table--zebra">
+              <thead><tr><th>TIME</th><th>CODE</th><th>DESCRIPTION</th><th class="ac-table__num">FRAME</th><th>STATE</th></tr></thead>
               <tbody>
-                <tr class="ac-table__row--active ac-blink" id="alarm-active">
-                  <td>22:28:41</td><td>E-114</td><td>DOUSER NOT CONFIRMED</td><td data-state>ACTIVE</td>
-                </tr>
-                <tr><td>22:14:02</td><td>W-062</td><td>LAMP CURRENT LOW 148A</td><td>CLEARED</td></tr>
-                <tr><td>21:58:37</td><td>W-041</td><td>REEL UNIT SLACK</td><td>CLEARED</td></tr>
-                <tr><td>21:02:19</td><td>I-008</td><td>PRESET BANK LOADED</td><td>LOGGED</td></tr>
+                <tr class="ac-table__row--active"><td>22:28:41</td><td>E-114</td><td>DOUSER NOT CONFIRMED</td><td class="ac-table__num">255315</td><td>ACTIVE</td></tr>
+                <tr><td>22:14:02</td><td>W-062</td><td>LAMP CURRENT LOW 148A</td><td class="ac-table__num">234880</td><td>CLEARED</td></tr>
+                <tr><td>21:58:37</td><td>W-041</td><td>REEL UNIT SLACK</td><td class="ac-table__num">212104</td><td>CLEARED</td></tr>
               </tbody>
             </table>
           </div>
+          <code class="doc-code">class="ac-table ac-table--zebra ac-table--dense"   &lt;td class="ac-table__num"&gt;
+&lt;tr class="ac-table__row--active ac-blink"&gt;</code>
+          <p class="doc-when">A fixed set of named readings — that is <code>.ac-list</code>.</p>
         </div>
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
-          <button type="button" class="ac-btn ac-btn--lg" id="ack">Acknowledge</button>
-          <span class="ac-spacer"></span>
-          <button type="button" class="ac-btn ac-btn--lg ac-btn--dim">Print Log</button>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">LIST — KEYED LOG WITH LEADER DOTS</span>
+          <dl class="ac-list" style="width:100%">
+            <div class="ac-list__item"><dt class="ac-list__key">Lamp Hours</dt><span class="ac-list__fill"></span><dd class="ac-list__value">1284</dd></div>
+            <div class="ac-list__item"><dt class="ac-list__key">Reel</dt><span class="ac-list__fill"></span><dd class="ac-list__value">04 / 06</dd></div>
+            <div class="ac-list__item"><dt class="ac-list__key">Format</dt><span class="ac-list__fill"></span><dd class="ac-list__value">70MM</dd></div>
+          </dl>
+          <code class="doc-code">&lt;dl class="ac-list"&gt;&lt;div class="ac-list__item"&gt;
+  &lt;dt class="ac-list__key"&gt;Reel&lt;/dt&gt;&lt;span class="ac-list__fill"&gt;&lt;/span&gt;
+  &lt;dd class="ac-list__value"&gt;04 / 06&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;</code>
+          <p class="doc-when">Sortable or multi-column data. That is a table.</p>
         </div>
       </div>
 
-      <!-- Instrument column. Dim frames so read-only data recedes. -->
-      <div class="ac-stack" style="--gap: 18px">
-        <div class="ac-panel ac-panel--dim">
-          <span class="ac-panel__title">Interlocks</span>
-          <fieldset class="doc-bits">
-            <!-- The panel title is the visible label; this names the group for
-                 assistive tech without drawing a second heading. -->
-            <legend class="ac-sr-only">Interlocks</legend>
-            <label class="ac-check"><input type="checkbox"><span>Spare</span></label>
-            <label class="ac-check"><input type="checkbox"><span>Remote Start Bit</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>In Show Position</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>Reel Unit Ready</span></label>
-            <label class="ac-check"><input type="checkbox" checked><span>System Ready</span></label>
-          </fieldset>
-        </div>
-
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Lamp Values</div>
-          <div class="doc-lamp">
-            <div class="ac-readout"><div class="ac-readout__value">41.0<span class="ac-readout__unit">V</span></div></div>
-            <div class="ac-readout"><div class="ac-readout__value">154<span class="ac-readout__unit">A</span></div></div>
+      <div class="doc-grid2">
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">METER — STEPPED BARGRAPH, NEVER A SMOOTH FILL</span>
+          <div class="ac-meter" style="width:100%">
+            <div class="ac-meter__track" style="--ac-meter-value:72" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="Lamp current"><div class="ac-meter__bar"></div></div>
+            <div class="ac-meter__scale"><span>0</span><span>50</span><span>100</span></div>
           </div>
+          <div class="ac-meter ac-meter--dim" style="width:100%">
+            <div class="ac-meter__track" style="--ac-meter-value:28"><div class="ac-meter__bar"></div></div>
+          </div>
+          <code class="doc-code">&lt;div class="ac-meter__track" style="--ac-meter-value: 72"&gt;
+  &lt;div class="ac-meter__bar"&gt;&lt;/div&gt;&lt;/div&gt;</code>
+          <p class="doc-when">A single precise reading. A number the operator can write down beats a bar
+            they have to estimate — use an <code>.ac-readout</code>.</p>
         </div>
-
-        <div class="ac-panel ac-panel--bar">
-          <div class="ac-panel__barTitle">Frame Count</div>
-          <div class="ac-readout"><div class="ac-readout__value" id="frames">255315</div></div>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">SPINNER — A CHARACTER, NOT A CIRCLE</span>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="ac-spinner" role="status" aria-label="Working"></span>
+            <span>LOADING PRESET BANK</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="ac-spinner ac-spinner--lg ac-spinner--dim"></span>
+            <span class="doc-faint">steps(4), 0.8s</span>
+          </div>
+          <code class="doc-code">&lt;span class="ac-spinner" role="status" aria-label="Working"&gt;&lt;/span&gt;</code>
+          <p class="doc-when">Anything whose duration you know. A machine that can measure progress should
+            show an <code>.ac-meter</code>; a spinner admits it cannot.</p>
         </div>
+      </div>
 
-        <button type="button" class="ac-btn" id="reset">Reset Frame Count</button>
-
-        <div class="ac-row ac-row--end ac-push">
-          <button type="button" class="ac-btn ac-btn--lg" data-ac-dialog-open="exit-dialog">Exit Show</button>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BANNER — ONE PER SCREEN, THE LOUDEST ELEMENT</span>
+        <div style="width:100%;display:flex;flex-direction:column;gap:12px">
+          <div class="ac-banner">Remote Mode</div>
+          <div class="ac-banner ac-banner--filled ac-blink" role="alert">Lamp Fault</div>
         </div>
+        <span class="doc-faint doc-small">✳✳ glyphs are added by the component. Blink is reserved for a live, unacknowledged condition — and it is always paired with inverse video and the glyphs, so it still reads as an alarm when blink is switched off.</span>
+        <code class="doc-code">&lt;div class="ac-banner ac-banner--filled ac-blink" role="alert"&gt;Lamp Fault&lt;/div&gt;</code>
+        <p class="doc-when">Two banners on one screen. The second one makes the first one furniture.</p>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">PANEL — DIM FRAME (RECEDES)</span>
+        <div class="ac-panel ac-panel--dim" style="width:100%"><span class="ac-panel__title">Interlocks</span>
+          <span class="doc-faint doc-small">SECONDARY REGION — READ-ONLY INSTRUMENTATION</span>
+        </div>
+        <code class="doc-code">class="ac-panel ac-panel--dim"</code>
       </div>
 
     </div>
-  </div>
+  </section>
+
+  <nav class="doc-pager" aria-label="Chapter">
+    <a class="doc-pager__link" href="guide-controls.html">◄ Previous: Controls</a>
+    <a class="doc-pager__link" href="guide-screen.html">Next: Screen & Board ►</a>
+  </nav>
+
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:var(--glow-text-dim)">GO TO CONSOLE ►</a>
+  </footer>
+
+</div>
 </div>
 
-<!-- Exiting is destructive and sits far from the motion keys, so it confirms. -->
-<dialog class="ac-dialog" id="exit-dialog">
-  <form method="dialog">
-    <h2 class="ac-dialog__title">Confirm Exit</h2>
-    <div class="ac-dialog__body">
-      EXIT SHOW WILL DROP THE DOUSER AND RELEASE REMOTE CONTROL.
-      FRAME COUNT IS RETAINED.
-    </div>
-    <div class="ac-dialog__actions">
-      <button type="submit" class="ac-btn" value="cancel">Cancel</button>
-      <button type="submit" class="ac-btn ac-btn--filled" value="exit">Exit Show</button>
-    </div>
-  </form>
-</dialog>
-
-<!-- The classic build, not the ES module: type="module" is blocked over file://
-     and this page must open by double-clicking it. -->
 <script src="../dist/amber-console.global.js"></script>
 <script src="../dist/amber-console.effects.global.js"></script>
-<script src="console.js"></script>
 </body>
 </html>

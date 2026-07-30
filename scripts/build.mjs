@@ -16,7 +16,7 @@
  *   dist/amber-console.layer.css  the bundle wrapped in @layer amber-console
  *   dist/amber-console.js         copy of the optional behavior module
  */
-import { readFile, writeFile, mkdir, copyFile } from "node:fs/promises";
+import { readFile, writeFile, mkdir, copyFile, readdir } from "node:fs/promises";
 import { watch } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -235,6 +235,182 @@ function toGlobal(source, file, globalName, exports) {
   );
 }
 
+/* -------------------------------------------------------------- partials -- */
+
+/**
+ * DOCS PARTIALS, EXPANDED IN PLACE.
+ *
+ * The setup board is 242 lines and it is on every page in docs/. At five pages
+ * that was already a maintenance bill nobody was paying attention to — one stale
+ * comment in it had to be fixed in three files separately, and it was found by
+ * grep rather than by reading. At twelve pages it stops being tenable.
+ *
+ * IN PLACE, BETWEEN MARKERS, rather than a src/ -> out/ pipeline. Two things are
+ * worth more here than the tidiness of generated output living somewhere else:
+ * docs/ stays directly openable over file:// with no build having been run, and
+ * a diff still shows what actually changed on the page. The expansion is
+ * idempotent — running the build twice produces the same bytes — so the marker
+ * and its body can both live in git the way dist/ already does.
+ *
+ *   <!-- @include _board.html emitter="p7" -->
+ *   …generated, do not edit…
+ *   <!-- @end -->
+ *
+ * EDIT THE PARTIAL, NEVER THE EXPANSION. The next build overwrites it.
+ */
+const DOCS = path.join(ROOT, "docs");
+
+const INCLUDE_RE =
+  /([ \t]*)<!--\s*@include\s+(\S+\.html)([^>]*?)-->\r?\n[\s\S]*?<!--\s*@end\s*-->/g;
+
+/** `emitter="p7"` -> { emitter: "p7" } */
+function includeArgs(text) {
+  return Object.fromEntries([...text.matchAll(/(\w+)="([^"]*)"/g)].map((m) => [m[1], m[2]]));
+}
+
+/** Fail loudly: a partial whose anchor moved must not expand to silence. */
+function must(hit, what, file) {
+  if (!hit) throw new Error(`build: ${file} — could not find ${what}`);
+  return hit;
+}
+
+/**
+ * How long each CRT phosphor holds, read from the palettes rather than restated.
+ *
+ * The board ships in the state the page actually loads in, and two of its
+ * controls depend on the emitter: the JS Effects switch is inert unless the
+ * effects module can contribute something, which needs a CRT phosphor whose tail
+ * clears ENGINE_FLOOR_MS. Deriving that here rather than taking it as a second
+ * include argument means the two can never disagree — there is only one fact.
+ */
+function persistByEmitter(colorsCss) {
+  const out = {};
+  const re = /\[data-ac-tech="(\w+)"\]\[data-ac-emitter="(\w+)"\][^{]*\{([\s\S]*?)\n\}/g;
+  for (const m of colorsCss.matchAll(re)) {
+    const ms = /--ac-persist:\s*([\d.]+)ms/.exec(m[3]);
+    if (ms) out[`${m[1]}/${m[2]}`] = Number(ms[1]);
+  }
+  return out;
+}
+
+/** Mirrors ENGINE_FLOOR_MS in src/amber-console.js. */
+const ENGINE_FLOOR_MS = 5;
+
+/**
+ * Put the board in the state this page loads in.
+ *
+ * Everything here is a one-frame-of-flash problem rather than a correctness one
+ * — amber-console.js settles all of it on load. That is exactly why it drifted:
+ * the radar and terminal pages shipped the PLASMA technology note visible under
+ * a phosphor default, and nothing ever looked wrong for long enough to notice.
+ */
+function expandBoard(html, args, persist, file) {
+  const emitter = must(args.emitter, "an emitter= argument", file);
+
+  /* The catalog row is the only place tech and emitter are stated together, so
+     it is where the technology for this emitter comes from too. */
+  let tech = "";
+  let seen = false;
+  html = html.replace(/<input type="radio" name="ac-display"( checked)?([\s\S]*?)>/g, (all, _c, attrs) => {
+    const mine = new RegExp(`data-ac-emitter="${emitter}"`).test(attrs);
+    if (mine) {
+      seen = true;
+      tech = /data-ac-tech="(\w+)"/.exec(attrs)?.[1] ?? "";
+    }
+    return `<input type="radio" name="ac-display"${mine ? " checked" : ""}${attrs}>`;
+  });
+  if (!seen) throw new Error(`build: ${file} — emitter="${emitter}" is not in the catalog`);
+
+  /* Live at load only where the module has something to do. */
+  const live = tech === "crt" && (persist[`crt/${emitter}`] ?? 0) >= ENGINE_FLOOR_MS;
+
+  const engine = must(
+    /<button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true"( disabled)?>/.exec(html),
+    "the JS Effects switch",
+    file
+  );
+  html = html.replace(
+    engine[0],
+    `<button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true"${live ? "" : " disabled"}>`
+  );
+
+  must(/<p( hidden)? class="doc-displays__note" data-ac-engine-note>/.exec(html), "the engine note", file);
+  html = html.replace(
+    /<p( hidden)? class="doc-displays__note" data-ac-engine-note>/,
+    `<p${live ? " hidden" : ""} class="doc-displays__note" data-ac-engine-note>`
+  );
+
+  /* The technology note, and the exact-pair note where one exists. */
+  html = html.replace(/<p class="doc-info" data-ac-display-info="([\w/]+)"( hidden)?>/g, (all, key) => {
+    const shown = key === tech || key === `${tech}/${emitter}`;
+    return `<p class="doc-info" data-ac-display-info="${key}"${shown ? "" : " hidden"}>`;
+  });
+
+  return html;
+}
+
+/** Mark the link that points at the page it is on. */
+function expandNav(html, file) {
+  const page = path.basename(file);
+  /* Every chapter of the guide is still "System Guide" up in the top bar. */
+  const self = /^guide-/.test(page) ? "guide.html" : page;
+  return html.replace(/<a class="ac-nav__link" href="([^"]+)"( aria-current="page")?>/g, (all, href) =>
+    `<a class="ac-nav__link" href="${href}"${href === self ? ' aria-current="page"' : ""}>`
+  );
+}
+
+/** Same job for the guide's own chapter strip, where the match is exact. */
+function expandChapters(html, file) {
+  const page = path.basename(file);
+  return html.replace(/<a class="doc-chapter"( aria-current="page")?( href="[^"]+")>/g, (all, _c, href) =>
+    `<a class="doc-chapter"${href === ` href="${page}"` ? ' aria-current="page"' : ""}${href}>`
+  );
+}
+
+async function expandDocs() {
+  const all = await readdir(DOCS);
+  const pages = all.filter((f) => f.endsWith(".html") && !f.startsWith("_"));
+  const persist = persistByEmitter(await readFile(path.join(SRC, "tokens", "colors.css"), "utf8"));
+
+  /* Underscore-prefixed files in docs/ are partials and are never served. */
+  const cache = new Map();
+  for (const f of all.filter((f) => f.startsWith("_") && f.endsWith(".html"))) {
+    cache.set(f, await readFile(path.join(DOCS, f), "utf8"));
+  }
+  let touched = 0;
+
+  for (const page of pages) {
+    const file = path.join(DOCS, page);
+    const before = await readFile(file, "utf8");
+    const parts = [];
+
+    let after = before.replace(INCLUDE_RE, (all, indent, name, argText) => {
+      const args = includeArgs(argText);
+      let body = cache.get(name);
+      if (body === undefined) throw new Error(`build: ${page} — no such partial ${name}`);
+
+      if (name === "_board.html") body = expandBoard(body, args, persist, page);
+      if (name === "_nav.html") body = expandNav(body, page);
+      if (name === "_chapters.html") body = expandChapters(body, page);
+
+      parts.push(name);
+      const argsOut = argText.trim() ? ` ${argText.trim()}` : "";
+      return (
+        `${indent}<!-- @include ${name}${argsOut} -->\n` +
+        `${indent}<!-- GENERATED from docs/${name} by scripts/build.mjs — edit the partial, not this. -->\n` +
+        body.replace(/\r?\n$/, "") +
+        `\n${indent}<!-- @end -->`
+      );
+    });
+
+    if (after !== before) {
+      await writeFile(file, after);
+      touched++;
+    }
+  }
+  return { pages: pages.length, touched };
+}
+
 /* ------------------------------------------------------------------- main -- */
 
 async function build() {
@@ -286,13 +462,16 @@ async function build() {
     );
   }
 
+  const docs = await expandDocs();
+
   const kb = (n) => `${(n / 1024).toFixed(1)}kb`;
   console.log(
     `  amber-console.css            ${kb(css.length)}\n` +
       `  amber-console.min.css        ${kb(min.length)}\n` +
       `  amber-console.layer.css      ${kb(body.length + 400)}\n` +
       `  amber-console.layer.min.css  ${kb(layerMin.length)}\n` +
-      `  ${sources.length} sources, ${lines.length} lines, ${Date.now() - started}ms`
+      `  ${sources.length} sources, ${lines.length} lines, ${Date.now() - started}ms\n` +
+      `  docs: ${docs.pages} pages, ${docs.touched} rewritten`
   );
 }
 
