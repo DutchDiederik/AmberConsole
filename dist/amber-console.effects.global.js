@@ -581,7 +581,7 @@ function makeScrollSmear(frame) {
  * ELEMENT — something the cascade can name. A phosphor decays whatever was
  * drawn, including the parts of the screen no element owns.
  * `document.startViewTransition` snapshots the old frame as an image, and
- * tokens/effects.css drains that image on the emitter's own sampled curve while
+ * sim/afterglow.css drains that image on the emitter’s own sampled curve while
  * the new frame appears instantly underneath it. Instant up, curve down, applied
  * to the whole screen at once.
  *

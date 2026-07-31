@@ -47,8 +47,10 @@ without a build step. Rebuild before you commit or the demos will be stale.
 These are enforced by `scripts/check-prohibitions.mjs`, which fails the build:
 
 - **No second hue.** No red, no green, no "success" color. Danger is blink plus inverse video.
-  Literal hex is allowed only in `tokens/colors.css`, `tokens/effects.css` and `base/print.css`.
-- **No `transition` in `src/components/`.** State changes are instant — a redrawn screen has no
+  Literal hex is allowed only in `tokens/colors.css`, `base/print.css`, and the two `sim/` files that
+  use `#000` inside a `mask-image` (where the value is alpha, not a color).
+- **No `transition` anywhere in `src/` except `sim/afterglow.css`, `sim/frame.css`, `base/a11y.css`
+  and `base/print.css`.** State changes are instant — a redrawn screen has no
   in-between frames. The only motion in the system is the `steps(1)` blink, the block cursor, and the
   two hardware simulations.
 - **No icon set, no emoji, no SVG, no imagery.** Ornament is typographic: `✳ █ ▮ ▯ ▲ ▼ ◄ ►` and

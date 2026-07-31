@@ -24,6 +24,31 @@
 @import "tokens/spacing.css";
 @import "tokens/effects.css";
 
+/* Blink is law-2 emphasis rather than a simulation — every display technology
+   here blinks — and components/ depends on it, so it is base and not sim. */
+@import "base/blink.css";
+
+/* --- The screen simulations ---
+
+   THE ORDER IN THIS BLOCK IS LOAD-BEARING and is not alphabetical.
+   sim/screen.css declares the z-index budget the other four spend, so it comes
+   first; sim/frame.css holds the rules that must run AFTER all three hardware
+   files — the shared stacking normalisation, the viewport anchoring, and the
+   prefers-reduced-motion block that switches every one of them off — so it comes
+   last. Move either and the simulations start painting through each other.
+
+   The three in between are independent and any of them can simply be deleted.
+   That is the point of the split: afterglow alone is 476 lines and a backdrop-
+   filter over the viewport, and a consumer who wants the look without the
+   persistence engine could not previously drop it. Selectors left behind in
+   screen.css and frame.css for a file you removed match nothing and cost
+   nothing. --- */
+@import "sim/screen.css";
+@import "sim/plasma.css";
+@import "sim/crt.css";
+@import "sim/afterglow.css";
+@import "sim/frame.css";
+
 /* --- Base --- */
 @import "base/reset.css";
 @import "base/layout.css";

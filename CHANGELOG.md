@@ -6,6 +6,30 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Changed — `tokens/effects.css` is seven files, and the simulations are droppable
+
+- **The 1,004-line file was four things wearing one name:** the glow token system, blink, two hardware
+  simulations and a persistence engine. It is now `tokens/effects.css` (glow tokens and where the halo
+  is applied), `base/blink.css`, and `sim/{screen,plasma,crt,afterglow,frame}.css`.
+- **`sim/plasma.css`, `sim/crt.css` and `sim/afterglow.css` can each simply be deleted.** That was the
+  point: `afterglow` alone is 476 lines, a viewport-sized `backdrop-filter` and a registered
+  `@property`, and dropping it takes the bundle from 51.1kb to 45.0kb minified. The entry file has
+  always advertised "you can drop any single component you do not need"; the largest and most
+  expensive part of the framework was the one part you could not.
+- **`sim/screen.css` and `sim/frame.css` are ordering-critical and not droppable.** The first declares
+  the z-index budget the other files spend; the second holds what must run *after* all three — the
+  stacking normalisation, the viewport anchoring, and the `prefers-reduced-motion` block that switches
+  them all off. Selectors either one leaves behind for a simulation you removed match nothing.
+- **Blink is `base/` rather than `sim/`**, because `components/input.css` and `components/meter.css`
+  are blink sites and must keep their alarm when the simulations are dropped.
+- **The split made two prohibition exemptions narrower rather than wider.** The `transition` exemption
+  used to cover the whole file — tokens, both simulations and the persistence engine — to license the
+  handful of decays in one of them; it now names `sim/afterglow.css` and `sim/frame.css` only, so a
+  `transition` added to the glow tokens or to either hardware simulation fails the build the way it
+  always should have. The hex exemption dropped the token file entirely.
+- Bundle output is byte-identical: the cuts are contiguous and nothing was reordered, so cascade order
+  is provably unchanged.
+
 ### Changed — the halo tokens are `--halo-*`; `--gas-*` is deprecated
 
 - **`--gas-1…4`, `--gas-scatter`, `--gas-spread` and `--gas-flash` are now `--halo-*`.** The old name

@@ -1,0 +1,58 @@
+/* ===========================================================================
+   CRT — the tube itself: scanline texture, vignette, line drift, the retrace
+   sweep and the mains flicker. Independent of the other two simulations.
+   =========================================================================== */
+
+
+/* --- CRT --- */
+.ac-crt { position: relative; }
+/* Scanline texture + vignette, drifting one cell every 11s */
+.ac-crt::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 50;
+  pointer-events: none;
+  background:
+    radial-gradient(135% 125% at 50% 50%, transparent 58%, rgba(0,0,0,0.34) 100%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0 1px, transparent 1px 3px);
+  animation: ac-crt-drift 11s linear infinite, ac-crt-hum 5.5s ease-in-out infinite;
+}
+@keyframes ac-crt-drift {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 0, 0 -3px; }
+}
+/* MAINS FLICKER, SCALED BY THE PHOSPHOR — and the first thing to say is what
+   this is NOT, because the obvious reading of it is wrong.
+
+   THE ACTUAL FLICKER OF A CRT CANNOT BE RENDERED HERE, EVER — a 60Hz modulation
+   watched on a 60Hz display is sampling a signal at its own frequency. That is
+   Nyquist, not a browser limitation. What IS renderable is the perceptual
+   signature, so the FREQUENCY is fixed and slow and only the AMPLITUDE answers
+   to the hardware, via --ac-flicker:
+
+     P11, P31, P4   1.000  fully dark between frames. Maximum unsteadiness.
+     P1, P3         ~0.79  medium persistence, visibly less settled.
+     P7, P39        0.091  the long phosphors — rock steady at any refresh rate,
+                           paid for in smear. Both halves, from one number.
+
+   THE 0.035 IS A WCAG 2.3.1 BUDGET, NOT A TASTE SETTING, and the margins are
+   large on purpose. Raising it spends them; redo the arithmetic first, exactly
+   as the --ac-mesh-wire note above demands — RATIONALE.md § The two flash
+   budgets. At --ac-flicker: 1 the stops resolve to 0.965 and 0.985, so a gas
+   palette renders identically to before this took a variable. */
+@keyframes ac-crt-hum {
+  0%, 100% { opacity: 1; }
+  31%      { opacity: calc(1 - 0.035 * var(--ac-flicker, 1)); }
+  32%      { opacity: 1.0; }
+  68%      { opacity: calc(1 - 0.015 * var(--ac-flicker, 1)); }
+}
+/* Vertical retrace band — a slow, almost invisible lightening sweep */
+.ac-crt > .ac-retrace {
+  position: absolute; left: 0; right: 0; top: 0; height: 26%;
+  z-index: 45; pointer-events: none; mix-blend-mode: screen; opacity: 0.32;
+  background: linear-gradient(180deg, transparent 0%, rgba(var(--halo-1), 0.028) 50%, rgba(var(--halo-4), 0.05) 66%, transparent 100%);
+  animation: ac-retrace 13s linear infinite;
+}
+@keyframes ac-retrace {
+  0%   { transform: translateY(-110%); }
+  100% { transform: translateY(500%); }
+}

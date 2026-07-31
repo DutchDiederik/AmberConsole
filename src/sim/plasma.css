@@ -1,0 +1,125 @@
+/* ===========================================================================
+   PLASMA — the panel itself: the bloom, the cell mesh, and the shimmer of an
+   AC sustain. Independent of sim/crt.css and sim/afterglow.css; delete this
+   file and .ac-bloom simply stops doing anything.
+   =========================================================================== */
+
+
+/* --- PLASMA --- */
+.ac-bloom {
+  position: relative;
+  /* Same split as the base tokens: the 2px core is the lit cell, everything
+     wider is scattered light and answers to --halo-scatter / --halo-spread. This
+     is where the difference between the gases actually shows, because the bloom
+     is where the halo is big enough to see. */
+  /* EVERY TIER IS RESTATED HERE, not just the full one. The bloom redefines the
+     glow tokens on the frame, which is a closer ancestor than :root and so wins
+     for every descendant — so a tier left undeclared here would keep its :root
+     value and a dim label would end up glowing HARDER on a plasma panel than the
+     bright text beside it. The bloom changes how much light the glass throws,
+     not how hard the cell behind it is driven. */
+  --glow-text:
+    0 0 2px rgba(var(--halo-4), 0.75),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1))),
+    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1))),
+    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1)));
+  --glow-text-dim:
+    0 0 2px rgba(var(--halo-4), calc(0.75 * var(--drive-dim))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1) * var(--drive-dim))),
+    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1) * var(--drive-dim))),
+    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-dim)));
+  --glow-text-faint:
+    0 0 2px rgba(var(--halo-4), calc(0.75 * var(--drive-faint))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-faint)));
+
+  --glow-box:
+    0 0 calc(11px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.4 * var(--halo-scatter, 1))),
+    0 0 calc(34px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.16 * var(--halo-scatter, 1))),
+    inset 0 0 14px rgba(var(--halo-1), 0.1);
+  --glow-box-dim:
+    0 0 calc(11px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.4 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(34px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.16 * var(--halo-scatter, 1) * var(--drive-faint))),
+    inset 0 0 14px rgba(var(--halo-1), calc(0.1 * var(--drive-faint)));
+}
+.ac-bloom::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 40;
+  pointer-events: none;
+  backdrop-filter: blur(3.5px) brightness(1.22) saturate(1.08);
+  -webkit-backdrop-filter: blur(3.5px) brightness(1.22) saturate(1.08);
+  mix-blend-mode: screen;
+  opacity: 0.34;
+  mask-image: radial-gradient(125% 125% at 50% 48%, #000 50%, rgba(0,0,0,0.4) 100%);
+  -webkit-mask-image: radial-gradient(125% 125% at 50% 48%, #000 50%, rgba(0,0,0,0.4) 100%);
+  animation: ac-bloom-breathe 9s ease-in-out infinite;
+}
+/* Mains-hum breathing — barely perceptible, just enough to feel alive */
+@keyframes ac-bloom-breathe {
+  0%, 100% { opacity: 0.31; }
+  50%      { opacity: 0.37; }
+}
+
+/* THE SCREEN DOOR — a crossed mesh, not a stack of horizontal lines. A cell
+   lights at the intersection of two wires, boxed in by barrier ribs that emit
+   nothing; the horizontal blanking gaps belong to .ac-crt and the tube it
+   simulates. There is no scan here, so there is nothing to blank.
+
+   THE RIBS ARE PURE BLACK RATHER THAN TINTED, and that is the whole trick: over
+   the near-black unlit panel black alpha has nothing to take away, so the grid
+   appears only where the panel is lit — for free.
+
+   z-index 48 puts it ABOVE the bleed, which is upside down physically and is a
+   deliberate performance trade. It is A CHILD NODE, not .ac-bloom::after,
+   because .ac-crt::after already owns that pseudo-element for the scanlines and
+   would silently replace a mesh declared there. Both explained in
+   RATIONALE.md § The screen door. */
+.ac-bloom > .ac-mesh {
+  position: absolute; inset: 0; z-index: 48;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg,  rgba(0,0,0,var(--ac-mesh-wire)) 0 1px, transparent 1px var(--ac-mesh-pitch)),
+    repeating-linear-gradient(90deg, rgba(0,0,0,var(--ac-mesh-wire)) 0 1px, transparent 1px var(--ac-mesh-pitch));
+  animation:
+    ac-mesh-buzz 0.29s steps(1, end) infinite,
+    ac-mesh-hum 0.37s ease-in-out infinite;
+}
+
+/* THE PLASMA SHIMMER — the residue of an AC sustain, which reads as the panel
+   being energized rather than merely bright.
+
+   TWO ANIMATIONS, DETUNED, and the periods are load-bearing: 0.29 and 0.37 are
+   coprime, so the pair does not repeat for 10.7s, and neither divides into
+   ac-crt-hum (5.5s), ac-bloom-breathe (9s), ac-crt-drift (11s) or ac-retrace
+   (13s). RETUNE THEM AND ALL FOUR RELATIONSHIPS MUST SURVIVE, or the panel finds
+   a beat and starts throbbing.
+
+   Both rest at their zero frame — translate 0, opacity 1. The screenshot harness
+   freezes animation, so whatever sits at 0% is what gets baselined. */
+
+/* Sub-pixel vibration of the mesh. steps(1, end) so each position is held and
+   then jumped, never interpolated — a wire that eases between two places is a
+   wobble. The 0.35px ceiling keeps the wires sharp; past about half a pixel the
+   resampling turns the mesh gray and the screen door is gone. */
+@keyframes ac-mesh-buzz {
+  0%   { transform: translate3d(0, 0, 0); }
+  14%  { transform: translate3d(0.28px, -0.16px, 0); }
+  28%  { transform: translate3d(-0.19px, 0.31px, 0); }
+  43%  { transform: translate3d(0.33px, 0.22px, 0); }
+  57%  { transform: translate3d(-0.3px, -0.27px, 0); }
+  71%  { transform: translate3d(0.15px, 0.34px, 0); }
+  86%  { transform: translate3d(-0.34px, 0.11px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+/* …and the discharge itself is not perfectly even. A 1.8% swing on a layer whose
+   own mean darkening is 5% moves panel luminance by about 0.09%, three orders
+   below the WCAG 2.3.1 general flash threshold (>3/sec at >=10% relative
+   luminance over >25% of the field). That is a ceiling, not a starting point. */
+@keyframes ac-mesh-hum {
+  0%, 100% { opacity: 1; }
+  23%      { opacity: 0.988; }
+  47%      { opacity: 1; }
+  61%      { opacity: 0.982; }
+  79%      { opacity: 0.994; }
+}

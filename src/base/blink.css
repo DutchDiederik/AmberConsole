@@ -1,0 +1,69 @@
+/* ===========================================================================
+   Blink — law-2 emphasis, and the one animation that is NOT a simulation.
+
+   Every display technology in this framework blinks, so switching it off says
+   nothing about which hardware is being simulated. That is why it is base/ and
+   not sim/: components/input.css and components/meter.css are blink sites and
+   would lose their alarm if a consumer dropped the simulations.
+
+   The decay variants of these keyframes live with the persistence engine, in
+   sim/afterglow.css, because that is what softens the OFF edge.
+   =========================================================================== */
+
+
+/* BLINK IS DRIVEN BY TWO INHERITED TOKENS, NOT BY A SELECTOR LIST.
+   ---------------------------------------------------------------------------
+   Every blink site reads the same pair, and every environment that wants to
+   change blink sets the pair ONCE instead of restating where the blink sites
+   are. Custom properties inherit, so a declaration on the root or on the frame
+   reaches all of them without a specificity fight — which is what the four
+   mirrored copies of this list used to be paying for.
+
+     --ac-blink-name   which keyframe, or `none` to stop blinking
+     --ac-blink-ease   its timing function
+
+     --ac-blink-force  the same two, but reserved for the ROOT. Read FIRST at
+     --ac-blink-force-ease   every site, and never declared on .ac-afterglow, so
+                       an environment override cannot lose to the simulation
+                       simply for being further from the element. That inversion
+                       is exactly what the doubled `[data-ac-style-blink="off"]
+                       .ac-afterglow ...` selectors existed to defeat.
+
+   ADDING A BLINK SITE is now one declaration pair on the site itself. Nothing
+   else in this file, and nothing in print.css or a11y.css, has to learn it.
+
+   The two defaults are declared in the :root block at the top of this file. */
+
+/* Hard on/off blink — no fades on a plasma panel */
+@keyframes ac-blink { 0%, 54% { opacity: 1; } 55%, 100% { opacity: 0.1; } }
+.ac-blink {
+  animation-name: var(--ac-blink-force, var(--ac-blink-name));
+  animation-duration: 1.1s;
+  animation-timing-function: var(--ac-blink-force-ease, var(--ac-blink-ease));
+  animation-iteration-count: infinite;
+}
+
+/* Block cursor — same pair, its own 1s cycle. */
+.ac-cursor::after {
+  content: "█";
+  margin-left: 2px;
+  animation-name: var(--ac-blink-force, var(--ac-blink-name));
+  animation-duration: 1s;
+  animation-timing-function: var(--ac-blink-force-ease, var(--ac-blink-ease));
+  animation-iteration-count: infinite;
+}
+
+/* A STYLE FLAG, NOT A SIMULATION. Every display technology here blinks, so
+   turning it off says nothing about which one is being simulated.
+
+   Off settles LIT, not dark: the keyframe's dark half is 0.1 opacity, and a
+   blink stopped there is an element that has silently vanished. Once blink is
+   off, the inverse fill and the ✳✳ glyphs are what carry an alarm.
+
+   ONE DECLARATION, on the root, where the flag already is. It uses the -force
+   pair rather than --ac-blink-name so that switching the CRT simulation on —
+   which declares --ac-blink-name on the nearer .ac-afterglow frame — cannot
+   quietly restart a blink the user has turned off. */
+[data-ac-style-blink="off"] {
+  --ac-blink-force: none;
+}

@@ -1,0 +1,47 @@
+/* ===========================================================================
+   Screen — what all three simulations agree on, and it must be imported
+   BEFORE them: it declares the z-index budget the other files spend.
+   =========================================================================== */
+
+
+/* ---------------------------------------------------------------------------
+   Three independent screen simulations, all applied to the outermost frame:
+
+   .ac-bloom      PLASMA — the panel itself. Amplifies the glow tokens for every
+                  descendant, lays a soft bleed layer over it, and rules it into
+                  the cell matrix the gas actually sits in.
+   .ac-crt        CRT — the tube itself: scanline texture, vignette, slow line
+                  drift, retrace sweep, faint mains flicker.
+   .ac-afterglow  PERSISTENCE — the panel does not go dark instantly. Anything
+                  that disappears decays, live text leaves a ghost of the value
+                  it just replaced, the glass holds faint uneven patches, and the
+                  image smears while you scroll.
+
+   Three classes, but the demos drive them from two switches: .ac-afterglow rides
+   with .ac-crt, because persistence is a property of the same glass the
+   scanlines are on. Each still works alone if you wire it yourself. All stop
+   under prefers-reduced-motion.
+
+   THE STACK — stated here in one place, because a sticky bar carrying its own
+   z-index will otherwise punch straight through the simulations:
+
+     1   frame content
+     20  sticky chrome — .ac-nav--sticky, and anything else that outranks content
+     40  .ac-bloom::before   plasma bleed
+     45  .ac-retrace         CRT retrace band
+     45  .ac-persist         afterglow ghosts and residual patches
+     48  .ac-mesh            plasma cell mesh
+     50  .ac-crt::after      scanlines and vignette
+
+   Everything from 40 up is above the sticky bar on purpose: a screen simulation
+   that stops at the edge of the menu bar is not simulating a screen.
+   --------------------------------------------------------------------------- */
+
+/* Static scanline texture only (no motion) — for print, thumbnails, cards */
+.ac-scanlines { position: relative; }
+.ac-scanlines::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 6;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.17) 0 1px, transparent 1px 3px);
+}

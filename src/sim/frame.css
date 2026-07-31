@@ -1,0 +1,110 @@
+/* ===========================================================================
+   Frame — the rules that must run AFTER all three simulations, which is the
+   whole reason this is a file rather than a section of one of them:
+
+     - the shared stacking normalisation (content above the overlays)
+     - the viewport anchoring: the glass does not scroll, so on a full-screen
+       frame the overlays are fixed rather than document-absolute
+     - prefers-reduced-motion, which switches all three off at once
+
+   Selectors here naming a simulation you have deleted match nothing and cost
+   nothing, so this file is safe to keep whichever of the three you ship.
+   =========================================================================== */
+
+
+.ac-bloom > *, .ac-crt > *, .ac-afterglow > * { position: relative; z-index: 1; }
+.ac-crt > .ac-retrace, .ac-bloom > .ac-retrace { z-index: 45; }
+.ac-bloom > .ac-mesh, .ac-crt > .ac-mesh { z-index: 48; }
+
+/* --- THE GLASS IS THE VIEWPORT, NOT THE DOCUMENT ---
+
+   Anchoring these overlays to a document-height frame is wrong physically (glass
+   does not scroll, so a vignette would darken the top of the PAGE rather than the
+   edges of the SCREEN) and practically (a document-height backdrop-filter
+   rasterizes in tiles, and the seams band). Fixing them to the viewport fixes the
+   look, the physics and the cost at once.
+
+   SCOPED TO .ac-screen ON PURPOSE: .ac-bloom and .ac-crt also go on small tiles,
+   which must stay local to the tile. .ac-persist stays document-absolute —
+   ghosts are pinned to a document coordinate.
+   See RATIONALE.md § The glass is the viewport, not the document. */
+.ac-screen.ac-bloom::before,
+.ac-screen.ac-crt::after,
+.ac-screen.ac-afterglow > .ac-persist::before {
+  position: fixed;
+  inset: 0;
+}
+.ac-screen.ac-crt > .ac-retrace {
+  position: fixed;
+}
+.ac-screen.ac-bloom > .ac-mesh {
+  position: fixed;
+  inset: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Everything this block switches off that has a token, switched off in one
+     place. No selector lists and no specificity restatement — see the blink
+     header at the top of this file.
+
+       blink        every blink site at once.
+       smear        smearing the whole viewport in response to scrolling is the
+                    single most motion-sick-making thing in here.
+       afterimage   no animation of its own — it reads --ac-lit, and the
+                    transition blanket below already stops that from moving — but
+                    what is left is a STATIC extra halo around every lit control,
+                    which is not motion and is also not something anybody opted
+                    into. */
+  :root {
+    --ac-blink-force: none;
+    --ac-smear-filter: none;
+    --ac-afterimage-display: none;
+  }
+
+  .ac-bloom::before, .ac-crt::after,
+  .ac-persist::before { animation: none; }
+  .ac-retrace { display: none; }
+
+  /* .ac-mesh is the one overlay here that keeps rendering. Note it is in an
+     animation rule and NOT in the display rule beside .ac-retrace: the screen
+     door is not an effect playing over the panel, it is the shape of the panel,
+     and hiding it would change what the hardware IS in response to a motion
+     preference. Only the buzz is motion.
+
+     Restated with the child combinator rather than folded into the bare list
+     above, and that is the third time this file has had to say it: a media query
+     adds no specificity, so `.ac-mesh` (0,1,0) loses to the `.ac-bloom > .ac-mesh`
+     (0,2,0) that declares the animation, and the buzz goes on running for exactly
+     the users who asked it not to. It has to be matched at its own weight. */
+  .ac-bloom > .ac-mesh,
+  .ac-crt > .ac-mesh { animation: none; }
+
+  /* Every decay in the simulation is a descendant rule under .ac-afterglow, so
+     each one outranks a plain reset here and has to be caught. Restating the
+     selector list one by one is how the blink override slipped through twice —
+     a blanket is the only version that also covers the next rule added. */
+  .ac-afterglow *,
+  .ac-afterglow *::before,
+  .ac-afterglow *::after { transition: none !important; }
+
+  /* The smear's additive bloom is a node of its own rather than one of the
+     filtered children, so --ac-smear-filter above does not reach it. */
+  .ac-afterglow > .ac-persist::after { display: none; }
+
+  /* The lagging bar would already be harmless — the blanket above stops its width
+     from transitioning, so it sits exactly under the live bar and cannot be seen.
+     It goes anyway rather than painting a gradient nobody will ever look at. */
+  .ac-afterglow .ac-meter__track::before { display: none; }
+
+  /* A whole page dissolving into the next one is the largest moving image in the
+     system. Both halves are cut, not just the old one — leaving the NEW page's
+     animation suppressed while the OLD one still ran would be worse than either. */
+  html:has(.ac-afterglow)::view-transition-old(root),
+  html:has(.ac-afterglow)::view-transition-new(root) { animation: none; }
+
+  /* Persistence is motion by definition: a decaying ghost is a moving image.
+     There is nothing to soften here, so the whole thing goes. */
+  .ac-ghost { display: none; }
+  .ac-afterglow [hidden],
+  .ac-afterglow dialog:not([open]) { transition: none; filter: none; }
+}

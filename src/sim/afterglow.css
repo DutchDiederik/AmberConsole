@@ -1,0 +1,488 @@
+/* ===========================================================================
+   AFTERGLOW — the persistence engine, and by a wide margin the most expensive
+   thing in the framework: 476 lines, a viewport-sized backdrop-filter, and a
+   registered @property. It is also the most droppable — nothing else needs it.
+
+   THE ONE FILE ALLOWED TO HOLD A `transition`, together with sim/frame.css.
+   scripts/check-prohibitions.mjs names them both explicitly, and it names only
+   them: a screen redrawn at the refresh has no in-between frames, but the decay
+   of a phosphor genuinely is a timed change. See RATIONALE.md § Persistence is
+   three phenomena.
+   =========================================================================== */
+
+/* --- PLASMA AFTERGLOW ---
+
+   Three things, because "persistence" is three different phenomena and only one
+   of them is expressible without JavaScript:
+
+     1. DECAY-OUT. Anything that disappears relaxes instead of switching off.
+        Pure CSS, below. This is the one that carries the effect on its own.
+     2. GHOSTING. Text that is rewritten leaves the previous value behind for a
+        beat. Needs the old value, which only JS has — amber-console.js mounts
+        those into .ac-persist. The effect degrades to (1) and (3) without it.
+     3. RESIDUAL PATCHES. The glass never sits perfectly uniform; charge relaxes
+        unevenly and slowly. Pure CSS, on .ac-persist::before.
+
+   Note the direction: this decays OUT and never in. Nothing here fades a thing
+   into existence. A cell lights on the next refresh — instantly — and it is only
+   the switching OFF that hardware cannot do sharply. That asymmetry is the whole
+   reason this file may hold a `transition` at all while src/components/ may not;
+   see the header of stylelint.config.mjs. */
+.ac-afterglow {
+  position: relative;
+  /* Persistence softens the blink's OFF edge — see (4) below. Declared here as
+     an inherited pair so it reaches every blink site without naming one. */
+  --ac-blink-name: var(--ac-blink-anim, ac-blink-decay);
+  --ac-blink-ease: linear;
+}
+
+/* (1) DECAY-OUT.
+
+   The transition lives on the DESTINATION state, which is the whole trick:
+   transition properties are read from the after-change style, so declaring them
+   only on the hidden half means hiding decays and showing snaps back instantly.
+
+   `display` is transitioned with allow-discrete so `display: none` is deferred
+   to the end of the decay rather than cutting it off on the first frame. The
+   blur is the gap losing definition as it drains — a discharge dies soft, not
+   sharp. */
+.ac-afterglow [hidden],
+.ac-afterglow dialog:not([open]) {
+  opacity: 0;
+  filter: blur(0.4px) brightness(1.16);
+  transition:
+    opacity var(--ac-decay) var(--ac-decay-ease),
+    filter var(--ac-decay) var(--ac-decay-ease),
+    display var(--ac-decay) allow-discrete,
+    overlay var(--ac-decay) allow-discrete;
+}
+
+/* (2) + (3) The persistence layer. One child element hosts all of it, so a frame
+   needs exactly one extra node — same contract as .ac-crt and .ac-retrace.
+
+   `screen` is the physically right blend: emitted light adds, it never
+   occludes, so a ghost can only ever brighten what is under it. Note it is set
+   on each child rather than on this element, and that is not a style choice —
+   mix-blend-mode makes an element a BACKDROP ROOT, and a backdrop root resets
+   what `backdrop-filter` inside it can see. Put the blend here and the scroll
+   smear below samples an empty backdrop and silently does nothing. */
+.ac-afterglow > .ac-persist {
+  position: absolute; inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* (3) RESIDUAL PATCHES — four slow, overlapping pools of charge that never
+   quite line up, so the panel is never evenly lit. At 3% over the amber this is
+   below the threshold of noticing directly; you only see it when it stops.
+
+   The drift is background-position over an oversized background rather than a
+   transform on an oversized box, deliberately: a box larger than its parent adds
+   scrollable overflow, and the frame is exactly where a stray 288px of it would
+   go unnoticed. A background cannot overflow anything. */
+.ac-afterglow > .ac-persist::before {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(38% 30% at 22% 28%, rgba(var(--halo-1), 0.032), transparent 70%),
+    radial-gradient(46% 34% at 78% 62%, rgba(var(--halo-2), 0.026), transparent 72%),
+    radial-gradient(30% 44% at 58% 12%, rgba(var(--halo-4), 0.022), transparent 68%),
+    radial-gradient(52% 40% at 34% 84%, rgba(var(--halo-3), 0.028), transparent 74%);
+  background-size: 150% 150%;
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  animation: ac-persist-drift 47s ease-in-out infinite;
+}
+@keyframes ac-persist-drift {
+  0%, 100% { background-position: 22% 34%; opacity: 0.85; }
+  33%      { background-position: 36% 20%; opacity: 1; }
+  66%      { background-position: 14% 46%; opacity: 0.9; }
+}
+
+/* (4) THE BLINK OFF-EDGE.
+
+   A blinking alarm is the most visible thing on the panel that stops being
+   driven, over and over, once a second — so it is the last place the decay
+   should be missing. .ac-blink is steps(1) by default and snaps both ways; with
+   persistence on, only the ON edge stays hard. A cell lights on the next
+   refresh and then relaxes, so: instant up, curve down.
+
+   Retuning the TOKEN PAIR on the frame rather than naming the blink sites is
+   what lets one rule cover every one of them — the cursor runs a 1s cycle and
+   the rest run 1.1s, and each keeps its own duration. Keyframe stops cannot read
+   a custom property, so the window below is a percentage of whatever cycle it
+   lands in rather than a duration: 54%->62% is ~88ms at 1.1s and ~80ms on the
+   cursor's 1s. Retuning --ac-decay does not move it; the stops are the handle.
+
+   --ac-blink-anim comes from the PALETTE — a long phosphor points it at the
+   throb curve below — so this file still never names one. The pair is declared
+   on .ac-afterglow itself, where the frame's `position: relative` is. */
+/* The stops are spread wider than a literal decay curve would be. A true
+   exponential loses most of its light in the first ~80ms, which is close enough
+   to the flicker-fusion threshold that the eye files it as a hard switch — the
+   decay measures correctly and still looks instant. This holds, then drains over
+   the 54%->62% window — ~88ms of the 1.1s cycle — which sits right at the
+   threshold described above: the alarm still reads as a hard blink, with the edge
+   taken off it rather than a visible fade. The opacity ramp carries it;
+   the blur only stops the edge staying razor-sharp on the way down. The ON edge
+   is still a single-frame snap. */
+@keyframes ac-blink-decay {
+  0%, 54%   { opacity: 1; filter: blur(0); }
+  56%       { opacity: 0.72; filter: blur(0.08px); }
+  58%       { opacity: 0.48; filter: blur(0.16px); }
+  60%       { opacity: 0.30; filter: blur(0.22px); }
+  61%       { opacity: 0.17; filter: blur(0.27px); }
+  62%, 100% { opacity: 0.1; filter: blur(0.3px); }
+}
+
+/* THE SAME EDGE ON A LONG PHOSPHOR, which is a different edge entirely.
+   The window above is ~88ms of a 1.1s cycle — right for a gas gap and for the
+   medium phosphors, and wrong by more than an order of magnitude for P7 and P39,
+   whose light is still visible seconds after the drive stops. An alarm on a P39
+   screen does not blink so much as pulse: it never reaches the dark half at all,
+   because the next ON edge arrives while the previous one is still draining.
+
+   Selected by the PALETTE, not by this file, on the same indirection
+   --ac-ghost-anim already uses: keyframe offsets cannot read a custom property,
+   so the shape has to be a second keyframe rather than a retuned one, and
+   scripts/derive-gas.mjs points the long-class emitters at it. Everything else
+   falls through the var() fallback above and is untouched.
+
+   Note where it bottoms out: 0.34, not 0.1. That IS the effect — the floor of a
+   long phosphor's blink is lifted because the cell never fully relaxes between
+   strikes, and the alarm reads as a throb rather than a chop. */
+@keyframes ac-blink-decay-long {
+  0%, 54%   { opacity: 1; filter: blur(0); }
+  60%       { opacity: 0.88; filter: blur(0.10px); }
+  68%       { opacity: 0.72; filter: blur(0.18px); }
+  78%       { opacity: 0.57; filter: blur(0.26px); }
+  88%       { opacity: 0.44; filter: blur(0.34px); }
+  100%      { opacity: 0.34; filter: blur(0.4px); }
+}
+
+/* (5) DE-ENERGIZING — a lit cell that goes unlit.
+
+   The single most common light-off event on a control panel is not a node
+   disappearing, it is a lamp going out: a pressed button releasing, a tab
+   deselecting, an interlock unchecking. Those elements never hide, so the
+   decay-out rule above never saw them, and they were snapping off in one frame
+   while everything around them relaxed.
+
+   Same mechanism as decay-out, same direction rule: the transition is declared
+   on the UNLIT state, so de-energizing decays and energizing is instant.
+
+   On --ac-decay-fast rather than --ac-decay, and that is the difference between
+   subtle and distracting. Hover lands here too — moving off a control is a
+   de-energization — which means this fires on every control the pointer crosses,
+   not just on the ones you press. At the full decay a sweep across a dense panel
+   leaves a wake behind the cursor. At the fast one it reads as the glow simply
+   taking a moment to let go.
+
+   These live here rather than in the component files on purpose: components stay
+   free of `transition`, which is what scripts/check-prohibitions.mjs enforces. */
+.ac-afterglow .ac-btn,
+.ac-afterglow .ac-tab,
+.ac-afterglow .ac-nav__link,
+.ac-afterglow .ac-badge,
+.ac-afterglow .ac-banner,
+.ac-afterglow .ac-check input,
+.ac-afterglow .ac-radio input,
+.ac-afterglow .ac-toggle__track,
+.ac-afterglow .ac-toggle__thumb,
+/* The bar was missing from this list entirely, which is why an alarm clearing
+   used to snap. Its WIDTH is deliberately not transitioned — that is the live
+   edge and it must stay instant; only its color and halo relax. The vacated
+   region is (5c)'s job. */
+.ac-afterglow .ac-meter__bar,
+.ac-afterglow .ac-table__row--active td {
+  transition:
+    background-color var(--ac-decay-fast) var(--ac-decay-ease),
+    border-color var(--ac-decay-fast) var(--ac-decay-ease),
+    color var(--ac-decay-fast) var(--ac-decay-ease),
+    box-shadow var(--ac-decay-fast) var(--ac-decay-ease),
+    text-shadow var(--ac-decay-fast) var(--ac-decay-ease),
+    --ac-lit var(--ac-persist-tail) var(--ac-decay-ease);
+}
+
+/* (5b) THE AFTERIMAGE — the part a long phosphor actually shows you.
+   ------------------------------------------------------------------
+   The two halves are split by what they describe, which is also the physical
+   split: a control's GEOMETRY snaps on --ac-decay-fast, because a button must
+   read as released the instant you let go, and the LIGHT it was emitting decays
+   on --ac-persist-tail, uncapped.
+
+   A REGISTERED NUMBER RATHER THAN A box-shadow TRANSITION, so the components
+   keep their own shadows and one variable drives the afterimage's alpha and its
+   halo radius together. HOVER IS DELIBERATELY NOT IN THE LIT LIST — at a 2s tail
+   it leaves a wake of glowing boxes behind the cursor. Both in
+   RATIONALE.md § The afterimage. */
+/* INHERITS, AND IT HAS TO: the afterimage is a ::after, and a pseudo-element
+   does not read its originator's non-inherited properties. With `inherits:
+   false` the halo resolved to alpha 0 at every drive level, which looks exactly
+   like the effect being off. */
+@property --ac-lit {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* The lit states. Instant on: no transition is declared here, so --ac-lit jumps
+   to 1 and only the release is timed by the rule above. */
+.ac-afterglow .ac-btn--filled,
+.ac-afterglow .ac-btn[aria-pressed="true"],
+.ac-afterglow .ac-tab--active,
+.ac-afterglow .ac-tab[aria-selected="true"],
+.ac-afterglow .ac-nav__link[aria-current="page"],
+.ac-afterglow .ac-badge--filled,
+.ac-afterglow .ac-banner--filled,
+.ac-afterglow .ac-check input:checked,
+.ac-afterglow .ac-radio input:checked,
+.ac-afterglow .ac-toggle--on .ac-toggle__thumb,
+.ac-afterglow .ac-toggle[aria-pressed="true"] .ac-toggle__thumb,
+.ac-afterglow .ac-table__row--active td {
+  --ac-lit: 1;
+}
+
+/* THE AFTERIMAGE LAYER ITSELF, and it is a short list for a mechanical reason.
+   An element has exactly one ::after, and four components have already spent
+   theirs: .ac-toggle (thumb), .ac-banner (the ✳✳ ornaments, both pseudos),
+   .ac-select (the ▼) and .ac-spinner. Declaring one here would silently replace
+   those — the same trap .ac-crt::after and .ac-bloom::after already document.
+   .ac-check and .ac-radio light the <input> itself, and a replaced element
+   renders no pseudo-element at all.
+
+   Those all still de-energize; they just do it through --ac-lit driving nothing
+   but their own halo above, rather than through a shape-accurate afterimage.
+   The five below are the ones where the lit area is a solid block big enough for
+   the difference to matter, and where ::after was free. */
+.ac-afterglow .ac-btn::after,
+.ac-afterglow .ac-tab::after,
+.ac-afterglow .ac-nav__link::after,
+.ac-afterglow .ac-badge::after,
+.ac-afterglow .ac-table__row--active td::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* The whole layer's on/off switch, as an inherited token rather than a
+     selector list. `block` is what an absolutely-positioned ::after already
+     computes to, so stating it changes nothing — it just gives print.css,
+     a11y.css and the reduced-motion block below one declaration to write
+     instead of five selectors each. */
+  display: var(--ac-afterimage-display, block);
+  /* NO mix-blend-mode HERE, though the ghosts and patches both use it: a blended
+     element forces its own compositing group, which regressed TEXT ANTIALIASING
+     on every button and tab on the page. It is also unnecessary over a
+     near-black panel. NO BACKGROUND EITHER — --ac-lit sits at 1 for as long as
+     the control is lit, so a fill would paint over its inverse-video text
+     permanently and spend the --on-fill contrast ratio contrast.mjs gates.
+     Both in RATIONALE.md § The afterimage. */
+  box-shadow: 0 0 calc(18px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.26 * var(--ac-lit)));
+}
+.ac-afterglow .ac-btn,
+.ac-afterglow .ac-tab,
+.ac-afterglow .ac-nav__link,
+.ac-afterglow .ac-badge,
+.ac-afterglow .ac-table__row--active td {
+  position: relative;
+}
+
+/* Lighting up is instant — a cell energizes on the next refresh. Declared on the
+   lit half so it wins only in that direction. */
+.ac-afterglow .ac-btn--filled,
+.ac-afterglow .ac-btn[aria-pressed="true"],
+.ac-afterglow .ac-btn:hover,
+.ac-afterglow .ac-tab--active,
+.ac-afterglow .ac-tab[aria-selected="true"],
+.ac-afterglow .ac-tab:hover,
+.ac-afterglow .ac-nav__link[aria-current="page"],
+.ac-afterglow .ac-nav__link:hover,
+.ac-afterglow .ac-badge--filled,
+.ac-afterglow .ac-banner--filled,
+.ac-afterglow .ac-check input:checked,
+.ac-afterglow .ac-radio input:checked,
+.ac-afterglow .ac-toggle--on .ac-toggle__thumb,
+.ac-afterglow .ac-toggle[aria-pressed="true"] .ac-toggle__thumb {
+  transition: none;
+}
+
+/* (5c) A LIT AREA THAT SHRINKS — the bargraph, and a phenomenon none of the
+   decays above covers.
+   ---------------------------------------------------------------------------
+   A meter's element stays, its text is elsewhere and its color never moves; what
+   changes is its WIDTH, so the region it vacates was lit a moment ago and is now
+   simply not drawn, with nothing timing the difference.
+
+   THE GHOST IS A SECOND BAR THAT LAGS, and the asymmetry falls out of paint
+   order rather than needing a rule of its own — which is what makes this cheap.
+   Both bars read the same --ac-meter-value; the live one snaps to it and this
+   one takes --ac-persist-tail to get there. On a DECREASE the ghost is briefly
+   wider, and the strip between them is the vacated region draining. On an
+   INCREASE it sits under the live bar, invisible. Instant up, curve down, free.
+
+   This is the half that works with no JavaScript at all, and it models a bar
+   falling GRADUALLY — a taper behind a receding edge. A bar that drops SUDDENLY
+   should fade uniformly instead; CSS cannot hold the old width to tell those
+   apart, so amber-console.effects.js covers that case. See RATIONALE.md § The
+   lagging bar.
+
+   The mask keeps it reading as light rather than as a wipe: the trailing end is
+   soft, so the strip fades along its length instead of ending on an edge.
+
+   HERE RATHER THAN IN components/meter.css because this is a `transition` and
+   scripts/check-prohibitions.mjs forbids those under src/components/. Only the
+   `position: relative` that puts the live bar on top belongs to the component. */
+.ac-afterglow .ac-meter__track::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--ac-meter-value, 0) * 1%);
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--fill) 0 8px,
+    transparent 8px 12px
+  );
+  opacity: 0.5;
+  mask-image: linear-gradient(90deg, #000 0 55%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0 55%, transparent 100%);
+  transition: width var(--ac-persist-tail) var(--ac-decay-ease);
+}
+
+/* (6) SCROLL SMEAR.
+
+   Scrolling is the largest light-off event there is: every cell on the panel is
+   handed a new value at once. Real gas cannot keep up, and the image
+   trails.
+
+   This is a blurred, additive copy of the backdrop, faded in with scroll speed
+   and drained when the scroll stops — amber-console.effects.js drives --ac-smear
+   from the actual per-frame delta. Two details are load-bearing: it is `fixed`, so
+   the cost is one viewport rather than one document (the guide page is 26,000px
+   tall), and it filters the BACKDROP rather than blurring the content itself,
+   so the text you are reading stays sharp while its afterimage does not. */
+/* The image itself loses focus, and this HAS to be a filter on the CONTENT — an
+   additive copy of the backdrop cannot do it, however hard it is blurred.
+
+   THE :not() LIST IS THE GLASS, NOT THE IMAGE. Only the frame's real children
+   are filtered; the scanline mask, vignette and cell mesh do not go out of focus
+   when the picture moves. .ac-nav--sticky is excluded from the other direction:
+   it is pinned to the viewport, so its pixels are NOT being handed a new value.
+
+   (Keep this list identical to the copies in print.css and a11y.css.)
+
+   The blur is isotropic and a real smear is not; the directional form costs
+   every page an inline SVG node, which is not worth the axis. See
+   RATIONALE.md § Scroll smear. */
+.ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh, .ac-nav--sticky) {
+  /* The whole filter is the token, not a scale inside it, so an environment that
+     wants no smear gets a literal `none` rather than a blur(0px) — which would
+     still be a filter, and a filter creates a containing block for fixed
+     descendants. One declaration replaces this selector in print.css, a11y.css
+     and the reduced-motion block. */
+  filter: var(--ac-smear-filter, blur(calc(var(--ac-smear, 0) * 1.8px)));
+}
+
+/* …and the panel blooms while it cannot keep up: a blurred, additive copy of
+   the backdrop, fixed to the viewport so the cost is one screen rather than one
+   document — the guide page is 26,000px tall. */
+.ac-afterglow > .ac-persist::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--ac-smear, 0) * 0.45);
+  mix-blend-mode: screen;
+  backdrop-filter: blur(calc(var(--ac-smear, 0) * 4px)) brightness(1.12);
+  -webkit-backdrop-filter: blur(calc(var(--ac-smear, 0) * 4px)) brightness(1.12);
+}
+/* Nothing to composite when still — and a permanently live backdrop-filter over
+   the viewport is exactly the kind of thing that costs a frame budget for free.
+   The attribute is set by amber-console.effects.js only while the smear is
+   above zero. */
+.ac-afterglow:not([data-ac-scrolling]) > .ac-persist::after { display: none; }
+
+/* (2) GHOSTS — a copy of what was just there, parked at the rect it occupied
+   and left to drain. Mounted and removed by amber-console.js; nothing in the
+   DOM when the effect is off or the module is absent. */
+.ac-afterglow .ac-ghost {
+  position: absolute;
+  margin: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  /* Invisible until the animation drives it. A ghost is only ever legible mid-
+     decay, so if animations are off — a screenshot harness, a print, a browser
+     that never ran the keyframes — the right thing to show is nothing at all,
+     not an opaque duplicate of live text sitting on top of it. */
+  opacity: 0;
+  /* ON --ac-persist-tail, THE UNCAPPED ONE — a ghost is pure decoration, so this
+     is where the long phosphors run at their real length.
+
+     animation-NAME comes from the palette, defaulting to the single-hue curve.
+     A two-layer phosphor declares --ac-ghost-anim in its own block and gets the
+     cascade below instead; this file never names a palette to do it. */
+  animation: var(--ac-ghost-anim, ac-ghost-decay) var(--ac-persist-tail) var(--ac-decay-ease) forwards;
+}
+/* Continuously-rewritten text — a clock, a frame counter. Capped at 400ms even
+   under a long phosphor, and the cap is arithmetic rather than taste: a field
+   rewriting once a second under P7's 3000ms tail would stack three generations
+   of ghost on top of each other, and the third one is not persistence, it is a
+   pile. 400ms keeps at most one generation legible at a time. */
+.ac-afterglow .ac-ghost--fast {
+  animation-duration: min(var(--ac-persist-tail), 400ms);
+}
+@keyframes ac-ghost-decay {
+  from { opacity: 0.38; filter: blur(0); }
+  to   { opacity: 0; filter: blur(0.8px); }
+}
+
+/* THE CASCADE — P7, and anything else with two coatings. A ghost here shows not
+   one color fading but TWO in sequence: the flash, then the afterglow.
+
+   4% is the crossover, hardcoded because keyframe offsets cannot read a custom
+   property; --ac-persist-fast carries the true figure. The color is ANIMATED
+   rather than set, so it beats the inline `color` amber-console.js copies onto
+   the clone. Palettes with one coating never reach this keyframe.
+   See RATIONALE.md § Ghosts. */
+@keyframes ac-ghost-cascade {
+  0%   { opacity: 0.46; color: rgb(var(--halo-flash)); filter: blur(0); }
+  4%   { opacity: 0.38; color: rgb(var(--halo-1)); filter: blur(0.1px); }
+  100% { opacity: 0; color: rgb(var(--halo-1)); filter: blur(0.8px); }
+}
+
+/* (7) THE PAGE ITSELF DECAYS — cross-document persistence, and the only place in
+   this system where a REAL framebuffer snapshot is available without JavaScript.
+
+   Everything else here decays an ELEMENT. A phosphor decays whatever was DRAWN,
+   including the middle of a glyph; the View Transition API is the one primitive
+   that hands us that. The direction rule survives intact — the OLD snapshot
+   decays on the emitter's curve, the NEW page gets `animation: none` and is
+   simply THERE on the first frame.
+
+   THE AT-RULE IS NOT SHIPPED, DELIBERATELY — THE ONE OPT-IN IN THE FRAMEWORK.
+   `@view-transition { navigation: auto; }` is a document-level switch that
+   cannot be scoped, and linking a stylesheet must not rewrite how a site
+   navigates. Add that one line yourself and the rules below take it from there;
+   docs/docs.css does exactly that.
+
+   CAPPED AT 900ms SEPARATELY from --ac-persist-tail: the overlay sits above the
+   document while it runs, so P7's 3000ms tail would mean three seconds of a page
+   that cannot be clicked. See RATIONALE.md § The page itself decays. */
+html:has(.ac-afterglow)::view-transition-old(root) {
+  animation: ac-page-decay min(var(--ac-persist-tail), 900ms) var(--ac-decay-ease) forwards;
+  mix-blend-mode: screen;
+}
+html:has(.ac-afterglow)::view-transition-new(root) {
+  animation: none;
+  opacity: 1;
+}
+html:has(.ac-afterglow)::view-transition-group(root) {
+  animation-duration: min(var(--ac-persist-tail), 900ms);
+}
+::view-transition {
+  pointer-events: none;
+}
+@keyframes ac-page-decay {
+  from { opacity: 0.85; filter: blur(0); }
+  to   { opacity: 0; filter: blur(1.1px); }
+}

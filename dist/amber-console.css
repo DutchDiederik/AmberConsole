@@ -827,8 +827,8 @@
   --ac-mesh-pitch: 3px;
   --ac-mesh-wire: 0.075;
 
-  /* Blink, as an inherited pair rather than a selector list — see the header
-     above the keyframe below for what reads these and what overrides them. */
+  /* Blink, as an inherited pair rather than a selector list. base/blink.css
+     holds the keyframe, the sites that read these, and the full contract. */
   --ac-blink-name: ac-blink;
   --ac-blink-ease: steps(1);
 }
@@ -866,6 +866,23 @@
 .ac-root {
   text-shadow: var(--glow-text);
 }
+
+
+/* Blink is law-2 emphasis rather than a simulation — every display technology
+   here blinks — and components/ depends on it, so it is base and not sim. */
+/* >>> src/amber-console.css -> base/blink.css */
+/* ===========================================================================
+   Blink — law-2 emphasis, and the one animation that is NOT a simulation.
+
+   Every display technology in this framework blinks, so switching it off says
+   nothing about which hardware is being simulated. That is why it is base/ and
+   not sim/: components/input.css and components/meter.css are blink sites and
+   would lose their alarm if a consumer dropped the simulations.
+
+   The decay variants of these keyframes live with the persistence engine, in
+   sim/afterglow.css, because that is what softens the OFF edge.
+   =========================================================================== */
+
 
 /* BLINK IS DRIVEN BY TWO INHERITED TOKENS, NOT BY A SELECTOR LIST.
    ---------------------------------------------------------------------------
@@ -924,6 +941,29 @@
   --ac-blink-force: none;
 }
 
+
+/* --- The screen simulations ---
+
+   THE ORDER IN THIS BLOCK IS LOAD-BEARING and is not alphabetical.
+   sim/screen.css declares the z-index budget the other four spend, so it comes
+   first; sim/frame.css holds the rules that must run AFTER all three hardware
+   files — the shared stacking normalisation, the viewport anchoring, and the
+   prefers-reduced-motion block that switches every one of them off — so it comes
+   last. Move either and the simulations start painting through each other.
+
+   The three in between are independent and any of them can simply be deleted.
+   That is the point of the split: afterglow alone is 476 lines and a backdrop-
+   filter over the viewport, and a consumer who wants the look without the
+   persistence engine could not previously drop it. Selectors left behind in
+   screen.css and frame.css for a file you removed match nothing and cost
+   nothing. --- */
+/* >>> src/amber-console.css -> sim/screen.css */
+/* ===========================================================================
+   Screen — what all three simulations agree on, and it must be imported
+   BEFORE them: it declares the z-index budget the other files spend.
+   =========================================================================== */
+
+
 /* ---------------------------------------------------------------------------
    Three independent screen simulations, all applied to the outermost frame:
 
@@ -965,6 +1005,14 @@
   pointer-events: none;
   background: repeating-linear-gradient(0deg, rgba(0,0,0,0.17) 0 1px, transparent 1px 3px);
 }
+
+/* >>> src/amber-console.css -> sim/plasma.css */
+/* ===========================================================================
+   PLASMA — the panel itself: the bloom, the cell mesh, and the shimmer of an
+   AC sustain. Independent of sim/crt.css and sim/afterglow.css; delete this
+   file and .ac-bloom simply stops doing anything.
+   =========================================================================== */
+
 
 /* --- PLASMA --- */
 .ac-bloom {
@@ -1085,6 +1133,13 @@
   79%      { opacity: 0.994; }
 }
 
+/* >>> src/amber-console.css -> sim/crt.css */
+/* ===========================================================================
+   CRT — the tube itself: scanline texture, vignette, line drift, the retrace
+   sweep and the mains flicker. Independent of the other two simulations.
+   =========================================================================== */
+
+
 /* --- CRT --- */
 .ac-crt { position: relative; }
 /* Scanline texture + vignette, drifting one cell every 11s */
@@ -1137,6 +1192,20 @@
   0%   { transform: translateY(-110%); }
   100% { transform: translateY(500%); }
 }
+
+/* >>> src/amber-console.css -> sim/afterglow.css */
+/* ===========================================================================
+   AFTERGLOW — the persistence engine, and by a wide margin the most expensive
+   thing in the framework: 476 lines, a viewport-sized backdrop-filter, and a
+   registered @property. It is also the most droppable — nothing else needs it.
+
+   THE ONE FILE ALLOWED TO HOLD A `transition`, together with sim/frame.css.
+   scripts/check-prohibitions.mjs names them both explicitly, and it names only
+   them: a screen redrawn at the refresh has no in-between frames, but the decay
+   of a phosphor genuinely is a timed change. See RATIONALE.md § Persistence is
+   three phenomena.
+   =========================================================================== */
+
 /* --- PLASMA AFTERGLOW ---
 
    Three things, because "persistence" is three different phenomena and only one
@@ -1613,6 +1682,21 @@ html:has(.ac-afterglow)::view-transition-group(root) {
   from { opacity: 0.85; filter: blur(0); }
   to   { opacity: 0; filter: blur(1.1px); }
 }
+
+/* >>> src/amber-console.css -> sim/frame.css */
+/* ===========================================================================
+   Frame — the rules that must run AFTER all three simulations, which is the
+   whole reason this is a file rather than a section of one of them:
+
+     - the shared stacking normalisation (content above the overlays)
+     - the viewport anchoring: the glass does not scroll, so on a full-screen
+       frame the overlays are fixed rather than document-absolute
+     - prefers-reduced-motion, which switches all three off at once
+
+   Selectors here naming a simulation you have deleted match nothing and cost
+   nothing, so this file is safe to keep whichever of the three you ship.
+   =========================================================================== */
+
 
 .ac-bloom > *, .ac-crt > *, .ac-afterglow > * { position: relative; z-index: 1; }
 .ac-crt > .ac-retrace, .ac-bloom > .ac-retrace { z-index: 45; }
@@ -2510,9 +2594,10 @@ textarea.ac-input {
   text-shadow: none;
   border-color: var(--stroke);
   caret-color: var(--on-fill);
-  /* A blink site: reads the pair from tokens/effects.css, which is also what
-     switches it off for the blink flag, reduced motion, print and forced
-     colors. Nothing outside this rule needs to know this element blinks. */
+  /* A blink site: reads the pair declared in tokens/effects.css and explained in
+     base/blink.css, which is also what switches it off for the blink flag,
+     reduced motion, print and forced colors. Nothing outside this rule needs to
+     know this element blinks. */
   animation-name: var(--ac-blink-force, var(--ac-blink-name));
   animation-duration: 1.1s;
   animation-timing-function: var(--ac-blink-force-ease, var(--ac-blink-ease));
@@ -3380,7 +3465,7 @@ textarea.ac-input {
 }
 
 .ac-meter__bar {
-  /* POSITIONED SO IT PAINTS ABOVE ITS OWN GHOST. tokens/effects.css hangs a
+  /* POSITIONED SO IT PAINTS ABOVE ITS OWN GHOST. sim/afterglow.css hangs a
      lagging copy of this bar on .ac-meter__track::before, and an unpositioned
      block child paints BELOW any positioned pseudo-element — so without this the
      draining ghost would cover the live bar instead of trailing behind it. With
@@ -3424,9 +3509,10 @@ textarea.ac-input {
   border-color: var(--stroke);
 }
 .ac-meter--alarm .ac-meter__bar {
-  /* A blink site: reads the pair from tokens/effects.css, which is also what
-     switches it off for the blink flag, reduced motion, print and forced
-     colors. Nothing outside this rule needs to know this element blinks. */
+  /* A blink site: reads the pair declared in tokens/effects.css and explained in
+     base/blink.css, which is also what switches it off for the blink flag,
+     reduced motion, print and forced colors. Nothing outside this rule needs to
+     know this element blinks. */
   animation-name: var(--ac-blink-force, var(--ac-blink-name));
   animation-duration: 1.1s;
   animation-timing-function: var(--ac-blink-force-ease, var(--ac-blink-ease));
@@ -4084,7 +4170,7 @@ textarea.ac-input {
   }
 
   /* Blanket, for the same reason as the reduced-motion block in
-     tokens/effects.css: every decay is a descendant rule under .ac-afterglow and
+     sim/frame.css: every decay is a descendant rule under .ac-afterglow and
      outranks a plain reset, so catching them by name means missing the next one. */
   .ac-afterglow *,
   .ac-afterglow *::before,
@@ -4222,9 +4308,10 @@ textarea.ac-input {
    The 2px rules stay — they are the layout. Glow, bloom, scanlines and every
    animation go, because they describe energized hardware and paper is not.
 
-   This is the one file besides tokens/colors.css and tokens/effects.css that is
-   allowed to contain literal hex colors; scripts/check-prohibitions.mjs
-   enforces that.
+   Literal hex is allowed here, in tokens/colors.css, and in the two sim/ files
+   that use #000 inside a mask-image — where the value is alpha rather than a
+   color. scripts/check-prohibitions.mjs enforces that list, and splitting
+   effects.css let it get shorter: the glow tokens no longer contain a hex.
    =========================================================================== */
 
 @media print {
@@ -4249,7 +4336,7 @@ textarea.ac-input {
     --glow-text: none;
     --glow-box: none;
 
-    /* Every blink site at once — see the blink header in tokens/effects.css.
+    /* Every blink site at once — see the blink header in base/blink.css.
        -force rather than -name so the CRT simulation, which declares -name on a
        nearer ancestor, cannot reinstate a blink on paper. */
     --ac-blink-force: none;
@@ -4310,7 +4397,7 @@ textarea.ac-input {
   }
 
   /* Blanket, for the same reason as the reduced-motion block in
-     tokens/effects.css: every decay is a descendant rule under .ac-afterglow and
+     sim/frame.css: every decay is a descendant rule under .ac-afterglow and
      outranks a plain reset, so catching them by name means missing the next one. */
   .ac-afterglow *,
   .ac-afterglow *::before,

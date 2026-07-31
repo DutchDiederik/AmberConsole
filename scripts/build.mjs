@@ -555,7 +555,7 @@ if (args.includes("--watch")) {
     console.log("  watching src/ …");
   } catch (err) {
     if (err.code !== "ERR_FEATURE_UNAVAILABLE_ON_PLATFORM") throw err;
-    for (const dir of ["", "tokens", "base", "components"]) {
+    for (const dir of ["", "tokens", "base", "components", "sim"]) {
       watch(path.join(SRC, dir), rebuild);
     }
     console.log("  watching src/ … (flat: recursive watch needs Node 20+ on Linux)");

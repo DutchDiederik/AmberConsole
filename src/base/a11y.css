@@ -86,7 +86,7 @@
   }
 
   /* Blanket, for the same reason as the reduced-motion block in
-     tokens/effects.css: every decay is a descendant rule under .ac-afterglow and
+     sim/frame.css: every decay is a descendant rule under .ac-afterglow and
      outranks a plain reset, so catching them by name means missing the next one. */
   .ac-afterglow *,
   .ac-afterglow *::before,

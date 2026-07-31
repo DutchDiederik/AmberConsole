@@ -21,9 +21,12 @@ const CHECKS = [
     id: "second-hue",
     what: "hex color outside the color tokens",
     files: /\.css$/,
-    /* colors.css defines the palette; effects.css and print.css are documented
-       exceptions (glow rgba values, and the black-on-white print palette). */
-    exempt: /src[/\\]tokens[/\\]colors\.css$|src[/\\]tokens[/\\]effects\.css$|src[/\\]base[/\\]print\.css$/,
+    /* colors.css defines the palette; print.css is the black-on-white one. The
+       two sim files each carry a `#000` inside a mask-image gradient, where the
+       color is not a color at all — a mask reads only alpha, and the ribs and the
+       smear taper would look identical in any hue. Splitting effects.css let
+       this list get SHORTER: the token file no longer contains a hex at all. */
+    exempt: /src[/\\]tokens[/\\]colors\.css$|src[/\\]base[/\\]print\.css$|src[/\\]sim[/\\](plasma|afterglow)\.css$/,
     re: /#[0-9a-fA-F]{3,8}\b/g,
   },
   {
@@ -37,14 +40,21 @@ const CHECKS = [
        the longhands, which the stylelint version's `/^transition/` did too but
        which the old regex here did not — so nothing is lost by dropping that.
 
-       The three exemptions are the panel's PHYSICS rather than its UI: the decay
-       of a phosphor is a timed change and is the one thing here that genuinely
-       is not instant. See the header of tokens/effects.css. */
+       The exemptions are the panel's PHYSICS rather than its UI: the decay of a
+       phosphor is a timed change and is the one thing here that genuinely is not
+       instant. See the header of sim/afterglow.css.
+
+       SPLITTING effects.css MADE THIS LIST MORE HONEST rather than longer. The
+       exemption used to cover the whole 1,000-line file — tokens, both hardware
+       simulations and the persistence engine — to license the handful of decays
+       in one of them. It now names only the two files that actually decay, so a
+       `transition` added to the glow tokens or to either hardware simulation
+       fails the build the way it always should have. */
     id: "transition",
     what: "transition on a state change — a screen has no in-between frames",
     files: /\.css$/,
     only: /src[/\\]/,
-    exempt: /src[/\\]tokens[/\\]effects\.css$|src[/\\]base[/\\](a11y|print)\.css$/,
+    exempt: /src[/\\]base[/\\](a11y|print)\.css$|src[/\\]sim[/\\](afterglow|frame)\.css$/,
     re: /\btransition(-[a-z]+)?\s*:/g,
   },
   {
