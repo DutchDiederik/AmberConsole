@@ -34,12 +34,14 @@
 
 /* --- The screen simulations ---
 
-   THE ORDER IN THIS BLOCK IS LOAD-BEARING and is not alphabetical.
-   sim/screen.css declares the z-index budget the other four spend, so it comes
-   first; sim/frame.css holds the rules that must run AFTER all three hardware
-   files — the shared stacking normalisation, the viewport anchoring, and the
-   prefers-reduced-motion block that switches every one of them off — so it comes
-   last. Move either and the simulations start painting through each other.
+   ONE ORDERING RULE, AND ONLY ONE: sim/frame.css must come LAST. It holds the
+   shared stacking normalisation, the viewport anchoring and the
+   prefers-reduced-motion block, all of which override the three hardware files.
+   Move it earlier and the simulations paint through each other.
+
+   Everything above it can be reordered freely. sim/screen.css is first because
+   the z-index table it documents reads best before the files that spend it —
+   that is a reading order, not a cascade requirement.
 
    The three in between are independent and any of them can simply be deleted.
    That is the point of the split: afterglow alone is 476 lines and a backdrop-

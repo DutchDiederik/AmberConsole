@@ -1,6 +1,13 @@
 /* ===========================================================================
-   Screen — what all three simulations agree on, and it must be imported
-   BEFORE them: it declares the z-index budget the other files spend.
+   Screen — the z-index contract the three simulations share, plus the one
+   static texture that is not a simulation at all.
+
+   ITS POSITION IS NOT LOAD-BEARING, and an earlier version of this header
+   claimed otherwise. The z-index budget below is DOCUMENTATION — a comment, not
+   a rule — and the only two rules in this file style `.ac-scanlines`, a static
+   texture nothing else in sim/ touches. Reorder this file freely.
+
+   sim/frame.css is the one that genuinely must stay last.
    =========================================================================== */
 
 
