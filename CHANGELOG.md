@@ -6,6 +6,51 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Changed — the halo tokens are `--halo-*`; `--gas-*` is deprecated
+
+- **`--gas-1…4`, `--gas-scatter`, `--gas-spread` and `--gas-flash` are now `--halo-*`.** The old name
+  asserted a hardware that most palettes are not: seven of the eleven are phosphors on a tube, and
+  there is no gas anywhere in them. This is the same bug as `--amber-*` naming a hue, and the same bug
+  as the deprecated `data-ac-gas` attribute, one level down — the halo is the light scattered in the
+  glass whatever produced it, so it is named for what it is rather than for what makes it on four of
+  the eleven screens.
+- **`--gas-*` survives as a read alias, removed in 3.0.** `--gas-1` resolves to `--halo-1` under
+  whichever palette is active, so code that *reads* the old name off the computed style keeps getting
+  an answer. Code that *overrides* it must migrate: the framework reads `--halo-*`, so setting
+  `--gas-*` has no effect. (The same has always been true of `--amber-*`; the note in
+  `tokens/colors.css` claimed otherwise and has been corrected.)
+- **`--gas-flash` is deliberately not aliased.** Only P7 ever declared it, and an alias would be an
+  invalid declaration on the other ten palettes.
+- Renderer output is unchanged — this is a rename plus aliases, verified against 548 computed-style
+  probes and the full visual-regression suite.
+
+### Changed — one owner per law, and the two gate sets now match
+
+- **The ban on `transition` lives only in `scripts/check-prohibitions.mjs` now.** `stylelint.config.mjs`
+  carried a second, overlapping copy with its own exemption list in an `overrides` block; two gates for
+  one law meant two lists to keep in agreement. The surviving gate is the stricter of the two: it
+  covers all of `src/` rather than only `src/components/`, and it catches the longhands.
+- **`npm test` runs `npm run lint`, and CI runs the palette-derivation check.** The two sets had
+  drifted — CI linted but never re-derived the palettes, and `npm test` re-derived them but never
+  linted, so a hand-edited palette could reach `main`. Both now run lint, prohibitions, derivations,
+  contrast and build.
+
+### Fixed — blink, the afterimage and the scroll smear are switched by tokens, not by selector lists
+
+- **A blinking element no longer has to be named in five places.** Every blink site reads
+  `--ac-blink-name` / `--ac-blink-ease`, and every environment that changes blink — the style flag,
+  `prefers-reduced-motion`, print, forced colors — sets that pair once instead of restating which
+  elements blink. `--ac-blink-force` is the root-only override that outranks the CRT simulation's own
+  curve, which is what the doubled `[data-ac-style-blink="off"] .ac-afterglow …` selectors used to do
+  by specificity. Adding a blink site is now one declaration pair on the site itself.
+- **An `aria-invalid` input outside `.ac-field--invalid` kept its animation in print.** `print.css`
+  listed the class form of the selector and not the attribute form — exactly the drift that mirrored
+  lists cause. The token reaches every site uniformly.
+- **The afterimage and scroll-smear lists collapse the same way**, onto `--ac-afterimage-display` and
+  `--ac-smear-filter`. The smear switches its whole `filter` value rather than a scale inside it, so
+  suppressing it yields a literal `none` — a `blur(0px)` is still a filter, and a filter creates a
+  containing block for fixed descendants.
+
 ### Fixed — the PPI wake was on the wrong side of the beam, and the beam had no line
 
 - **`.ac-sweep__beam` painted its falloff in FRONT of the sweep.** A `conic-gradient` runs clockwise

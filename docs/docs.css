@@ -1000,7 +1000,7 @@
   width: 2px;
   margin-left: -1px;
   transform: rotate(calc(var(--brg, 0) * 1deg));
-  background: rgba(var(--gas-1), 0.45);
+  background: rgba(var(--halo-1), 0.45);
 }
 
 /* Electronic bearing line — dashed, because it is drawn by the set rather than
@@ -1011,7 +1011,7 @@
   transform: rotate(calc(var(--brg, 0) * 1deg));
   background: repeating-linear-gradient(
     to bottom,
-    rgba(var(--gas-2), 0.5) 0 9px,
+    rgba(var(--halo-2), 0.5) 0 9px,
     transparent 9px 16px
   );
 }
@@ -1026,7 +1026,7 @@
   width: calc(var(--rng, 0.5) * 100%);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
-  border: var(--border-w) dashed rgba(var(--gas-2), 0.45);
+  border: var(--border-w) dashed rgba(var(--halo-2), 0.45);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -1039,7 +1039,7 @@
   inset: 0;
   border-radius: 50%;
   pointer-events: none;
-  background: conic-gradient(from 40deg, rgba(var(--gas-4), 0.12) 0 40deg, transparent 40deg);
+  background: conic-gradient(from 40deg, rgba(var(--halo-4), 0.12) 0 40deg, transparent 40deg);
   -webkit-mask: radial-gradient(circle closest-side at 50% 50%, transparent 0 55%, black 55%);
   mask: radial-gradient(circle closest-side at 50% 50%, transparent 0 55%, black 55%);
 }
@@ -1047,7 +1047,7 @@
 /* A CONTACT, WHICH IS THE POINT OF THE WHOLE PAGE.
    The beam crosses this bearing once per revolution and re-strikes it. On P7
    that strike lands in the blue layer and the yellow-green one behind it takes
-   over within a frame — so the keyframes below cross from --gas-flash to the
+   over within a frame — so the keyframes below cross from --halo-flash to the
    afterglow ramp, exactly as ac-ghost-cascade does in tokens/effects.css, and
    for the same reason. The drain runs on --ac-decay-ease, which is the palette's
    own sampled Becquerel curve rather than anything chosen here. */
@@ -1065,7 +1065,7 @@
   height: calc(var(--sz, 8) * 0.6px);
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background-color: rgb(var(--gas-flash, var(--gas-1)));
+  background-color: rgb(var(--halo-flash, var(--halo-1)));
   animation: doc-echo-strike var(--ac-sweep-period) var(--ac-decay-ease) infinite;
   /* Negative by one full period so the face is already in steady state on the
      first frame instead of lighting up bearing by bearing on load. */
@@ -1075,15 +1075,15 @@
 @keyframes doc-echo-strike {
   0% {
     opacity: 1;
-    background-color: rgb(var(--gas-flash, var(--gas-1)));
+    background-color: rgb(var(--halo-flash, var(--halo-1)));
   }
   4% {
     opacity: 0.92;
-    background-color: rgb(var(--gas-1));
+    background-color: rgb(var(--halo-1));
   }
   100% {
     opacity: var(--doc-trail-floor, 0);
-    background-color: rgb(var(--gas-3));
+    background-color: rgb(var(--halo-3));
   }
 }
 
@@ -1103,7 +1103,7 @@
   width: calc(var(--sz, 8) * 1px + 16px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
-  border: var(--border-w) solid rgba(var(--gas-4), 0.6);
+  border: var(--border-w) solid rgba(var(--halo-4), 0.6);
   border-radius: 50%;
 }
 
@@ -1128,22 +1128,22 @@
   flex: 1 1 0;
   min-width: 2px;
   height: calc(var(--h, 4) * 1%);
-  background-color: rgb(var(--gas-1));
+  background-color: rgb(var(--halo-1));
   animation: doc-ascope-drain var(--ac-sweep-period) var(--ac-decay-ease) infinite;
 }
 
 @keyframes doc-ascope-drain {
   0% {
     opacity: 1;
-    background-color: rgb(var(--gas-flash, var(--gas-1)));
+    background-color: rgb(var(--halo-flash, var(--halo-1)));
   }
   4% {
     opacity: 0.92;
-    background-color: rgb(var(--gas-1));
+    background-color: rgb(var(--halo-1));
   }
   100% {
     opacity: var(--doc-trail-floor, 0);
-    background-color: rgb(var(--gas-3));
+    background-color: rgb(var(--halo-3));
   }
 }
 

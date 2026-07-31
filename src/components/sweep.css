@@ -19,11 +19,11 @@
    at a constant rate, so angle behind the beam IS time since that bearing was
    painted. Same curve, same shape, different axis.
 
-   THE LEADING EDGE IS --gas-flash WHERE THERE IS ONE. On P7 the beam writes in
+   THE LEADING EDGE IS --halo-flash WHERE THERE IS ONE. On P7 the beam writes in
    blue and the screen holds in yellow-green, so the first few degrees are the
    flash and everything behind is the afterglow — the cascade rendered exactly as
    the hardware does it, and the reason P7 was fitted to radar in the first
-   place. Every other emitter falls back to --gas-1 and the leading edge is
+   place. Every other emitter falls back to --halo-1 and the leading edge is
    simply a brighter version of the trail, which is also correct for them.
 
    No `transition` anywhere in this file: scripts/check-prohibitions.mjs forbids
@@ -42,11 +42,11 @@
     /* Range rings. Drawn as hard-stopped radial gradients rather than as nested
        elements, so the whole graticule costs no extra nodes. */
     radial-gradient(circle at 50% 50%,
-      transparent 0 24%, rgba(var(--gas-3), 0.16) 24% 24.6%, transparent 24.6%),
+      transparent 0 24%, rgba(var(--halo-3), 0.16) 24% 24.6%, transparent 24.6%),
     radial-gradient(circle at 50% 50%,
-      transparent 0 49%, rgba(var(--gas-3), 0.16) 49% 49.6%, transparent 49.6%),
+      transparent 0 49%, rgba(var(--halo-3), 0.16) 49% 49.6%, transparent 49.6%),
     radial-gradient(circle at 50% 50%,
-      transparent 0 74%, rgba(var(--gas-3), 0.13) 74% 74.6%, transparent 74.6%),
+      transparent 0 74%, rgba(var(--halo-3), 0.13) 74% 74.6%, transparent 74.6%),
     /* The unlit screen behind them. */
     radial-gradient(circle at 50% 50%, var(--screen-raised), var(--screen-well));
 }
@@ -58,8 +58,8 @@
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(to right, transparent calc(50% - 1px), rgba(var(--gas-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
-    linear-gradient(to bottom, transparent calc(50% - 1px), rgba(var(--gas-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+    linear-gradient(to right, transparent calc(50% - 1px), rgba(var(--halo-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(to bottom, transparent calc(50% - 1px), rgba(var(--halo-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
 }
 
 /* THE BEAM AND ITS WAKE.
@@ -100,11 +100,11 @@
    this file's floor. So it stays a knob, and the 250deg in the stops below is
    what that expression evaluates to.
 
-   THE COLOR MARCH IS THE P7 CASCADE. --gas-flash holds for the first degree and
+   THE COLOR MARCH IS THE P7 CASCADE. --halo-flash holds for the first degree and
    a half — about 19ms at 4.5s a revolution, a frame or two, which is what the
-   blue ZnS:Ag layer is worth — then hands to --gas-4 at the hottest point of the
-   yellow-green (Zn,Cd)S:Cu response and drains down through --gas-1 and --gas-2
-   to --gas-3. Every stop keeps the var(--gas-flash, var(--gas-1)) fallback, so a
+   blue ZnS:Ag layer is worth — then hands to --halo-4 at the hottest point of the
+   yellow-green (Zn,Cd)S:Cu response and drains down through --halo-1 and --halo-2
+   to --halo-3. Every stop keeps the var(--halo-flash, var(--halo-1)) fallback, so a
    single-coating emitter gets a brighter leading edge and no cascade, which is
    correct for it. */
 .ac-sweep__beam {
@@ -124,21 +124,21 @@
      reason. */
   background: conic-gradient(
     from 0deg,
-    rgba(var(--gas-3), 0) calc(360deg - var(--ac-sweep-arc, 250deg)),
-    rgba(var(--gas-3), 0.008) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.9),
-    rgba(var(--gas-3), 0.024) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.8),
-    rgba(var(--gas-3), 0.038) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.6),
-    rgba(var(--gas-3), 0.059) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.38),
-    rgba(var(--gas-3), 0.085) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.26),
-    rgba(var(--gas-2), 0.12) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.18),
-    rgba(var(--gas-2), 0.18) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.11),
-    rgba(var(--gas-2), 0.25) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.072),
-    rgba(var(--gas-1), 0.33) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.05),
-    rgba(var(--gas-1), 0.4) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.036),
-    rgba(var(--gas-1), 0.49) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.024),
-    rgba(var(--gas-4), 0.58) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.016),
-    rgba(var(--gas-flash, var(--gas-1)), 0.75) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.006),
-    rgba(var(--gas-flash, var(--gas-1)), 0.9) 360deg
+    rgba(var(--halo-3), 0) calc(360deg - var(--ac-sweep-arc, 250deg)),
+    rgba(var(--halo-3), 0.008) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.9),
+    rgba(var(--halo-3), 0.024) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.8),
+    rgba(var(--halo-3), 0.038) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.6),
+    rgba(var(--halo-3), 0.059) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.38),
+    rgba(var(--halo-3), 0.085) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.26),
+    rgba(var(--halo-2), 0.12) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.18),
+    rgba(var(--halo-2), 0.18) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.11),
+    rgba(var(--halo-2), 0.25) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.072),
+    rgba(var(--halo-1), 0.33) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.05),
+    rgba(var(--halo-1), 0.4) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.036),
+    rgba(var(--halo-1), 0.49) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.024),
+    rgba(var(--halo-4), 0.58) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.016),
+    rgba(var(--halo-flash, var(--halo-1)), 0.75) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.006),
+    rgba(var(--halo-flash, var(--halo-1)), 0.9) 360deg
   );
   /* THE PERIOD IS THE PHOSPHOR'S, WITH A FLOOR, and the floor is the point.
      A sweep wants to come round about as the trail finishes draining — that is
@@ -172,10 +172,10 @@
   border-radius: 50%;
   background: radial-gradient(
     circle closest-side at 50% 50%,
-    rgba(var(--gas-flash, var(--gas-1)), 0.3) 0 1.5%,
-    rgba(var(--gas-4), 0.2) 3.5%,
-    rgba(var(--gas-1), 0.08) 7%,
-    rgba(var(--gas-1), 0) 13%
+    rgba(var(--halo-flash, var(--halo-1)), 0.3) 0 1.5%,
+    rgba(var(--halo-4), 0.2) 3.5%,
+    rgba(var(--halo-1), 0.08) 7%,
+    rgba(var(--halo-1), 0) 13%
   );
 }
 
@@ -205,9 +205,9 @@
   margin-left: calc(var(--ac-sweep-line, 3px) / -2);
   background: linear-gradient(
     to right,
-    rgba(var(--gas-flash, var(--gas-1)), 0),
-    rgba(var(--gas-flash, var(--gas-1)), 0.95) 50%,
-    rgba(var(--gas-flash, var(--gas-1)), 0)
+    rgba(var(--halo-flash, var(--halo-1)), 0),
+    rgba(var(--halo-flash, var(--halo-1)), 0.95) 50%,
+    rgba(var(--halo-flash, var(--halo-1)), 0)
   );
 }
 

@@ -123,7 +123,7 @@
  * P1/P39 and P7/P11 share a ramp on purpose — same compound, different decay.
  *
  * WHAT EVERY BLOCK MUST DEFINE: the five --emit-* stops, the three surfaces,
- * --on-fill, the four --gas-* glow triples, and --gas-scatter / --gas-spread.
+ * --on-fill, the four --halo-* glow triples, and --halo-scatter / --halo-spread.
  * Every other color token is an alias or is built from those, so adding a
  * palette means adding one block and nothing else.
  *
@@ -177,19 +177,19 @@
 
   /* THE GLOW SOURCE — four points on the discharge hue, as bare "r, g, b"
      triples so tokens/effects.css can build every halo with its own alphas:
-     rgba(var(--gas-1), 0.4). That indirection is why the palettes switch
+     rgba(var(--halo-1), 0.4). That indirection is why the palettes switch
      cleanly; hardcoding a halo puts an amber corona around neon text.
 
-     --gas-scatter is how much light reaches the halo, with NEON AT 1.00 BY
+     --halo-scatter is how much light reaches the halo, with NEON AT 1.00 BY
      DEFINITION — every other palette's figure is stated against it — and
-     --gas-spread is its square root. See RATIONALE.md § Scattering. */
-  --gas-scatter: 1;
-  --gas-spread: 1;
+     --halo-spread is its square root. See RATIONALE.md § Scattering. */
+  --halo-scatter: 1;
+  --halo-spread: 1;
 
-  --gas-1: 255, 120, 30; /* core halo */
-  --gas-2: 255, 109, 12; /* mid */
-  --gas-3: 255, 102, 0;  /* deep / outermost */
-  --gas-4: 255, 140, 64; /* pale — hot cores and the retrace band */
+  --halo-1: 255, 120, 30; /* core halo */
+  --halo-2: 255, 109, 12; /* mid */
+  --halo-3: 255, 102, 0;  /* deep / outermost */
+  --halo-4: 255, 140, 64; /* pale — hot cores and the retrace band */
 }
 
 /* --- CRT / P3 — the amber phosphor, and the source design system's ramp. Same
@@ -209,17 +209,17 @@
   --emit-30:  #4a2f08; /* trace / ghost        —  1.62:1, decorative */
   --on-fill:   #1a0e00;
 
-  --gas-1: 255, 174, 30;
-  --gas-2: 255, 150, 12;
-  --gas-3: 255, 120, 0;
-  --gas-4: 255, 186, 64;
+  --halo-1: 255, 174, 30;
+  --halo-2: 255, 150, 12;
+  --halo-3: 255, 120, 0;
+  --halo-4: 255, 186, 64;
 
   /* Derived from the band model, replacing a placeholder held at neon's 1.00
      that was wrong by 23%. The RAMP above stays hand-built (emit: false in
      scripts/data/emitters.json); only the halo width was ever a placeholder.
      See RATIONALE.md § Scattering. */
-  --gas-scatter: 1.23;
-  --gas-spread: 1.11;
+  --halo-scatter: 1.23;
+  --halo-spread: 1.11;
 
   /* Persistence: 25ms to 10% (medium). 22% still lit at the next frame.
      --ac-flicker is the same quantity read the other way; the WCAG amplitude
@@ -255,14 +255,14 @@
   --emit-30:  #502a34;
   --on-fill:  #201216;
 
-  --gas-1: 255, 158, 183;
-  --gas-2: 255, 153, 180;
-  --gas-3: 255, 150, 178;
-  --gas-4: 255, 170, 191;
+  --halo-1: 255, 158, 183;
+  --halo-2: 255, 153, 180;
+  --halo-3: 255, 150, 178;
+  --halo-4: 255, 170, 191;
 
   /* Rayleigh: this gas throws 26% more light into the halo than neon. */
-  --gas-scatter: 1.26;
-  --gas-spread: 1.12;
+  --halo-scatter: 1.26;
+  --halo-spread: 1.12;
 }
 
 /* --- PLASMA / ARGON — pale violet-lavender.
@@ -289,14 +289,14 @@
   --emit-30:  #4b1088;
   --on-fill:  #1b112c;
 
-  --gas-1: 186, 149, 255;
-  --gas-2: 182, 143, 255;
-  --gas-3: 180, 138, 255;
-  --gas-4: 194, 164, 255;
+  --halo-1: 186, 149, 255;
+  --halo-2: 182, 143, 255;
+  --halo-3: 180, 138, 255;
+  --halo-4: 194, 164, 255;
 
   /* Rayleigh: this gas throws 49% more light into the halo than neon. */
-  --gas-scatter: 1.49;
-  --gas-spread: 1.22;
+  --halo-scatter: 1.49;
+  --halo-spread: 1.22;
 }
 
 /* --- PLASMA / KRYPTON — pale violet-white.
@@ -322,14 +322,14 @@
   --emit-30:  #442e45;
   --on-fill:  #1b141b;
 
-  --gas-1: 251, 185, 252;
-  --gas-2: 241, 173, 242;
-  --gas-3: 229, 162, 230;
-  --gas-4: 254, 201, 255;
+  --halo-1: 251, 185, 252;
+  --halo-2: 241, 173, 242;
+  --halo-3: 229, 162, 230;
+  --halo-4: 254, 201, 255;
 
   /* Rayleigh: this gas throws 31% more light into the halo than neon. */
-  --gas-scatter: 1.31;
-  --gas-spread: 1.14;
+  --halo-scatter: 1.31;
+  --halo-spread: 1.14;
 }
 
 /* --- CRT / P1 — willemite green.
@@ -356,14 +356,14 @@
   --emit-30:  #003f1c;
   --on-fill:  #001a08;
 
-  --gas-1: 0, 237, 125;
-  --gas-2: 0, 225, 118;
-  --gas-3: 0, 212, 111;
-  --gas-4: 46, 255, 140;
+  --halo-1: 0, 237, 125;
+  --halo-2: 0, 225, 118;
+  --halo-3: 0, 212, 111;
+  --halo-4: 46, 255, 140;
 
   /* Rayleigh: this phosphor throws 63% more light into the halo than neon. */
-  --gas-scatter: 1.63;
-  --gas-spread: 1.28;
+  --halo-scatter: 1.63;
+  --halo-spread: 1.28;
 
   /* Persistence: 24ms to 10% (medium).
      20% still lit when the next frame arrives.
@@ -401,14 +401,14 @@
   --emit-30:  #2b373e;
   --on-fill:  #121618;
 
-  --gas-1: 176, 211, 234;
-  --gas-2: 165, 201, 223;
-  --gas-3: 153, 189, 211;
-  --gas-4: 197, 228, 248;
+  --halo-1: 176, 211, 234;
+  --halo-2: 165, 201, 223;
+  --halo-3: 153, 189, 211;
+  --halo-4: 197, 228, 248;
 
   /* Rayleigh: this phosphor throws 55% more light into the halo than neon. */
-  --gas-scatter: 1.55;
-  --gas-spread: 1.24;
+  --halo-scatter: 1.55;
+  --halo-spread: 1.24;
 
   /* Persistence: 0.06ms to 10% (medium-short).
      Fully dark between frames — flicker at maximum, no persistence to see.
@@ -433,7 +433,7 @@
      own --screen; --on-fill lands at 6.35:1 on --emit-90.
 
      TWO EMITTERS, IN SEQUENCE. --emit-* is the ZnS:Ag FLASH (x=0.1384 y=0.1502),
-     which is what the beam writes. --gas-* is the (Zn,Cd)S:Cu AFTERGLOW
+     which is what the beam writes. --halo-* is the (Zn,Cd)S:Cu AFTERGLOW
      (x=0.3553 y=0.5373), which is what the screen holds after it. The halo
      therefore does NOT track the ink here, which inverts the rule stated at the
      top of tokens/effects.css and is the reason P7 exists as a part number. --- */
@@ -449,21 +449,21 @@
   --emit-30:  #00385d;
   --on-fill:  #03182a;
 
-  --gas-1: 156, 226, 72;
-  --gas-2: 145, 215, 54;
-  --gas-3: 135, 203, 40;
-  --gas-4: 176, 242, 107;
+  --halo-1: 156, 226, 72;
+  --halo-2: 145, 215, 54;
+  --halo-3: 135, 203, 40;
+  --halo-4: 176, 242, 107;
 
   /* Rayleigh: this phosphor throws 47% more light into the halo than neon. */
-  --gas-scatter: 1.47;
-  --gas-spread: 1.21;
+  --halo-scatter: 1.47;
+  --halo-spread: 1.21;
 
-  /* THE FLASH, as a halo triple. --gas-* above is the AFTERGLOW, which is what
+  /* THE FLASH, as a halo triple. --halo-* above is the AFTERGLOW, which is what
      this screen holds; this is the layer the beam actually writes, and the ghost
      keyframe starts here before crossing to the afterglow within one frame.
      --ac-ghost-anim is how this palette tells tokens/effects.css it decays
      through two hues rather than one, without effects.css naming it. */
-  --gas-flash: 175, 209, 255;
+  --halo-flash: 175, 209, 255;
   --ac-ghost-anim: ac-ghost-cascade;
 
   /* Persistence: 400ms to 10%, visible tail to 3000ms (long).
@@ -508,14 +508,14 @@
   --emit-30:  #00385d;
   --on-fill:  #03182a;
 
-  --gas-1: 87, 174, 255;
-  --gas-2: 70, 170, 255;
-  --gas-3: 56, 167, 255;
-  --gas-4: 119, 184, 255;
+  --halo-1: 87, 174, 255;
+  --halo-2: 70, 170, 255;
+  --halo-3: 56, 167, 255;
+  --halo-4: 119, 184, 255;
 
   /* Rayleigh: this phosphor throws 104% more light into the halo than neon. */
-  --gas-scatter: 2.04;
-  --gas-spread: 1.43;
+  --halo-scatter: 2.04;
+  --halo-spread: 1.43;
 
   /* Persistence: 0.035ms to 10% (medium-short).
      Fully dark between frames — flicker at maximum, no persistence to see.
@@ -550,14 +550,14 @@
   --emit-30:  #003e27;
   --on-fill:  #001b0e;
 
-  --gas-1: 0, 235, 160;
-  --gas-2: 0, 223, 151;
-  --gas-3: 0, 210, 142;
-  --gas-4: 0, 254, 173;
+  --halo-1: 0, 235, 160;
+  --halo-2: 0, 223, 151;
+  --halo-3: 0, 210, 142;
+  --halo-4: 0, 254, 173;
 
   /* Rayleigh: this phosphor throws 67% more light into the halo than neon. */
-  --gas-scatter: 1.67;
-  --gas-spread: 1.29;
+  --halo-scatter: 1.67;
+  --halo-spread: 1.29;
 
   /* Persistence: 0.038ms to 10% (medium-short).
      Fully dark between frames — flicker at maximum, no persistence to see.
@@ -592,14 +592,14 @@
   --emit-30:  #003f1b;
   --on-fill:  #001a07;
 
-  --gas-1: 0, 237, 121;
-  --gas-2: 0, 225, 115;
-  --gas-3: 0, 212, 108;
-  --gas-4: 49, 255, 137;
+  --halo-1: 0, 237, 121;
+  --halo-2: 0, 225, 115;
+  --halo-3: 0, 212, 108;
+  --halo-4: 49, 255, 137;
 
   /* Rayleigh: this phosphor throws 62% more light into the halo than neon. */
-  --gas-scatter: 1.62;
-  --gas-spread: 1.27;
+  --halo-scatter: 1.62;
+  --halo-spread: 1.27;
 
   /* Persistence: 400ms to 10%, visible tail to 2000ms (long).
      91% still lit when the next frame arrives.
@@ -637,17 +637,39 @@
 
   /* No red, no green. Alarm/danger = inverse video + blink, never a new hue. */
 
-  /* DEPRECATED, removed in 3.0 — the ramp is --emit-* now. Kept so a consumer
-     reading or overriding the old names keeps working while they migrate.
+  /* DEPRECATED, removed in 3.0. Two renames, both for the same reason: the old
+     name asserted a HARDWARE that most palettes are not.
 
-     They resolve per palette for free: --emit-90 is redefined
-     in every block above, so --amber-90 follows whichever palette is active
-     without this list needing to know any of them exist. */
+       --amber-*  named a hue, and the hue was only ever historically right —
+                  under the default palette the color is neon, not amber.
+       --gas-*    named a gas, and seven of the eleven palettes are phosphors on
+                  a tube. The halo is not made of gas on any of them. This is the
+                  same bug as data-ac-gas above, one level down.
+
+     THESE ARE READ ALIASES ONLY, and that is worth stating plainly because the
+     note here used to claim otherwise. Nothing in the framework reads --amber-*
+     or --gas-*, so SETTING one has no effect — the framework reads --emit-* and
+     --halo-*. They exist so a consumer who reads the old names off the computed
+     style keeps getting an answer while they migrate; a consumer who OVERRIDES
+     must move to the new name.
+
+     They resolve per palette for free: --emit-90 and --halo-1 are redefined in
+     every block above, so the aliases follow whichever palette is active without
+     this list needing to know any of them exist. */
   --amber-100: var(--emit-100);
   --amber-90: var(--emit-90);
   --amber-70: var(--emit-70);
   --amber-50: var(--emit-50);
   --amber-30: var(--emit-30);
+
+  --gas-1: var(--halo-1);
+  --gas-2: var(--halo-2);
+  --gas-3: var(--halo-3);
+  --gas-4: var(--halo-4);
+  --gas-scatter: var(--halo-scatter);
+  --gas-spread: var(--halo-spread);
+  /* Not aliased: --gas-flash. Only P7 ever declared it, and a var() with no
+     value would make this declaration invalid on the other ten palettes. */
 }
 
 /* >>> src/amber-console.css -> tokens/typography.css */
@@ -687,13 +709,13 @@
 
 /* >>> src/amber-console.css -> tokens/effects.css */
 :root {
-  /* NOTHING IN THIS FILE NAMES A COLOR. Every rgba() is built from the --gas-N
+  /* NOTHING IN THIS FILE NAMES A COLOR. Every rgba() is built from the --halo-N
      triples in tokens/colors.css, which is what makes the display switch the
      panel and its glow together. Hardcode one and it keeps an amber corona
      around neon text. (On P7 the halo is a DIFFERENT spectrum from the ink, and
      that is correct rather than a bug — RATIONALE.md § P7.)
 
-     The wide layers scale by --gas-scatter / --gas-spread, per palette, both
+     The wide layers scale by --halo-scatter / --halo-spread, per palette, both
      falling back to 1. THE 2px LAYER IS NOT SCALED: it is the glyph's own lit
      edge, not scattered light. RADIUS NEVER SCALES WITH DRIVE — only alpha.
 
@@ -718,29 +740,29 @@
   --drive-faint: 0.41;
 
   --glow-text:
-    0 0 2px rgba(var(--gas-1), 0.6),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1))),
-    0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1)));
+    0 0 2px rgba(var(--halo-1), 0.6),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.26 * var(--halo-scatter, 1))),
+    0 0 calc(24px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1)));
   --glow-text-dim:
-    0 0 2px rgba(var(--gas-1), calc(0.6 * var(--drive-dim))),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1) * var(--drive-dim))),
-    0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-dim)));
+    0 0 2px rgba(var(--halo-1), calc(0.6 * var(--drive-dim))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.26 * var(--halo-scatter, 1) * var(--drive-dim))),
+    0 0 calc(24px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-dim)));
   --glow-text-faint:
-    0 0 2px rgba(var(--gas-1), calc(0.6 * var(--drive-faint))),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1) * var(--drive-faint))),
-    0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-faint)));
+    0 0 2px rgba(var(--halo-1), calc(0.6 * var(--drive-faint))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.26 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(24px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-faint)));
 
   --glow-box:
-    0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1))),
-    inset 0 0 10px rgba(var(--gas-1), 0.07);
+    0 0 calc(8px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.32 * var(--halo-scatter, 1))),
+    inset 0 0 10px rgba(var(--halo-1), 0.07);
   --glow-box-dim:
-    0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1) * var(--drive-faint))),
-    inset 0 0 10px rgba(var(--gas-1), calc(0.07 * var(--drive-faint)));
+    0 0 calc(8px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.32 * var(--halo-scatter, 1) * var(--drive-faint))),
+    inset 0 0 10px rgba(var(--halo-1), calc(0.07 * var(--drive-faint)));
 
   /* THE EXTRUDED KEY EDGE — the one shadow here that is NOT a halo, so it takes
-     neither --gas-spread nor --gas-scatter: those describe light scattering
+     neither --halo-spread nor --halo-scatter: those describe light scattering
      through glass, and this is geometry. It stays the same size when the palette
-     changes, while its color still follows --gas-1.
+     changes, while its color still follows --halo-1.
 
      TWO LAYERS BECAUSE IT IS AN EDGE, NOT A GHOST: a bright 2px lip against the
      stroke, then 3px more at lower drive falling away from it. The alphas are
@@ -750,8 +772,8 @@
      Consumed by components/classic.css and nothing else. Override to blunt or
      kill the extrusion wholesale; print does exactly that. */
   --edge-3d:
-    2px 2px 0 rgba(var(--gas-1), 0.92),
-    5px 5px 0 rgba(var(--gas-1), 0.6);
+    2px 2px 0 rgba(var(--halo-1), 0.92),
+    5px 5px 0 rgba(var(--halo-1), 0.6);
 
   /* THE SAME EDGE FROM THE OTHER SIDE — a key pressed IN. The band moves to the
      top and left because the near face of a sunken key is the upper one.
@@ -760,8 +782,8 @@
      contribute to scrollable overflow, so every latched key flush against its
      container pushed 4px past it. See RATIONALE.md § The extruded key edge. */
   --edge-3d-in:
-    -2px -2px 0 rgba(var(--gas-1), 0.92),
-    -5px -5px 0 rgba(var(--gas-1), 0.6);
+    -2px -2px 0 rgba(var(--halo-1), 0.92),
+    -5px -5px 0 rgba(var(--halo-1), 0.6);
 
   /* PERSISTENCE IS A PROPERTY OF THE EMITTER, not of this file. A palette that
      knows its own decay declares --ac-persist, --ac-flicker and a sampled
@@ -950,7 +972,7 @@
 .ac-bloom {
   position: relative;
   /* Same split as the base tokens: the 2px core is the lit cell, everything
-     wider is scattered light and answers to --gas-scatter / --gas-spread. This
+     wider is scattered light and answers to --halo-scatter / --halo-spread. This
      is where the difference between the gases actually shows, because the bloom
      is where the halo is big enough to see. */
   /* EVERY TIER IS RESTATED HERE, not just the full one. The bloom redefines the
@@ -960,29 +982,29 @@
      bright text beside it. The bloom changes how much light the glass throws,
      not how hard the cell behind it is driven. */
   --glow-text:
-    0 0 2px rgba(var(--gas-4), 0.75),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1))),
-    0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1))),
-    0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1)));
+    0 0 2px rgba(var(--halo-4), 0.75),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1))),
+    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1))),
+    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1)));
   --glow-text-dim:
-    0 0 2px rgba(var(--gas-4), calc(0.75 * var(--drive-dim))),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1) * var(--drive-dim))),
-    0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1) * var(--drive-dim))),
-    0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-dim)));
+    0 0 2px rgba(var(--halo-4), calc(0.75 * var(--drive-dim))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1) * var(--drive-dim))),
+    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1) * var(--drive-dim))),
+    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-dim)));
   --glow-text-faint:
-    0 0 2px rgba(var(--gas-4), calc(0.75 * var(--drive-faint))),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1) * var(--drive-faint))),
-    0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1) * var(--drive-faint))),
-    0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-faint)));
+    0 0 2px rgba(var(--halo-4), calc(0.75 * var(--drive-faint))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-faint)));
 
   --glow-box:
-    0 0 calc(11px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.4 * var(--gas-scatter, 1))),
-    0 0 calc(34px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.16 * var(--gas-scatter, 1))),
-    inset 0 0 14px rgba(var(--gas-1), 0.1);
+    0 0 calc(11px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.4 * var(--halo-scatter, 1))),
+    0 0 calc(34px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.16 * var(--halo-scatter, 1))),
+    inset 0 0 14px rgba(var(--halo-1), 0.1);
   --glow-box-dim:
-    0 0 calc(11px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.4 * var(--gas-scatter, 1) * var(--drive-faint))),
-    0 0 calc(34px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.16 * var(--gas-scatter, 1) * var(--drive-faint))),
-    inset 0 0 14px rgba(var(--gas-1), calc(0.1 * var(--drive-faint)));
+    0 0 calc(11px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.4 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(34px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.16 * var(--halo-scatter, 1) * var(--drive-faint))),
+    inset 0 0 14px rgba(var(--halo-1), calc(0.1 * var(--drive-faint)));
 }
 .ac-bloom::before {
   content: "";
@@ -1110,7 +1132,7 @@
 .ac-crt > .ac-retrace {
   position: absolute; left: 0; right: 0; top: 0; height: 26%;
   z-index: 45; pointer-events: none; mix-blend-mode: screen; opacity: 0.32;
-  background: linear-gradient(180deg, transparent 0%, rgba(var(--gas-1), 0.028) 50%, rgba(var(--gas-4), 0.05) 66%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(var(--halo-1), 0.028) 50%, rgba(var(--halo-4), 0.05) 66%, transparent 100%);
   animation: ac-retrace 13s linear infinite;
 }
 @keyframes ac-retrace {
@@ -1192,10 +1214,10 @@
   content: "";
   position: absolute; inset: 0;
   background:
-    radial-gradient(38% 30% at 22% 28%, rgba(var(--gas-1), 0.032), transparent 70%),
-    radial-gradient(46% 34% at 78% 62%, rgba(var(--gas-2), 0.026), transparent 72%),
-    radial-gradient(30% 44% at 58% 12%, rgba(var(--gas-4), 0.022), transparent 68%),
-    radial-gradient(52% 40% at 34% 84%, rgba(var(--gas-3), 0.028), transparent 74%);
+    radial-gradient(38% 30% at 22% 28%, rgba(var(--halo-1), 0.032), transparent 70%),
+    radial-gradient(46% 34% at 78% 62%, rgba(var(--halo-2), 0.026), transparent 72%),
+    radial-gradient(30% 44% at 58% 12%, rgba(var(--halo-4), 0.022), transparent 68%),
+    radial-gradient(52% 40% at 34% 84%, rgba(var(--halo-3), 0.028), transparent 74%);
   background-size: 150% 150%;
   background-repeat: no-repeat;
   mix-blend-mode: screen;
@@ -1385,7 +1407,7 @@
      the control is lit, so a fill would paint over its inverse-video text
      permanently and spend the --on-fill contrast ratio contrast.mjs gates.
      Both in RATIONALE.md § The afterimage. */
-  box-shadow: 0 0 calc(18px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.26 * var(--ac-lit)));
+  box-shadow: 0 0 calc(18px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.26 * var(--ac-lit)));
 }
 .ac-afterglow .ac-btn,
 .ac-afterglow .ac-tab,
@@ -1552,9 +1574,9 @@
    the clone. Palettes with one coating never reach this keyframe.
    See RATIONALE.md § Ghosts. */
 @keyframes ac-ghost-cascade {
-  0%   { opacity: 0.46; color: rgb(var(--gas-flash)); filter: blur(0); }
-  4%   { opacity: 0.38; color: rgb(var(--gas-1)); filter: blur(0.1px); }
-  100% { opacity: 0; color: rgb(var(--gas-1)); filter: blur(0.8px); }
+  0%   { opacity: 0.46; color: rgb(var(--halo-flash)); filter: blur(0); }
+  4%   { opacity: 0.38; color: rgb(var(--halo-1)); filter: blur(0.1px); }
+  100% { opacity: 0; color: rgb(var(--halo-1)); filter: blur(0.8px); }
 }
 
 /* (7) THE PAGE ITSELF DECAYS — cross-document persistence, and the only place in
@@ -3552,11 +3574,11 @@ textarea.ac-input {
    at a constant rate, so angle behind the beam IS time since that bearing was
    painted. Same curve, same shape, different axis.
 
-   THE LEADING EDGE IS --gas-flash WHERE THERE IS ONE. On P7 the beam writes in
+   THE LEADING EDGE IS --halo-flash WHERE THERE IS ONE. On P7 the beam writes in
    blue and the screen holds in yellow-green, so the first few degrees are the
    flash and everything behind is the afterglow — the cascade rendered exactly as
    the hardware does it, and the reason P7 was fitted to radar in the first
-   place. Every other emitter falls back to --gas-1 and the leading edge is
+   place. Every other emitter falls back to --halo-1 and the leading edge is
    simply a brighter version of the trail, which is also correct for them.
 
    No `transition` anywhere in this file: scripts/check-prohibitions.mjs forbids
@@ -3575,11 +3597,11 @@ textarea.ac-input {
     /* Range rings. Drawn as hard-stopped radial gradients rather than as nested
        elements, so the whole graticule costs no extra nodes. */
     radial-gradient(circle at 50% 50%,
-      transparent 0 24%, rgba(var(--gas-3), 0.16) 24% 24.6%, transparent 24.6%),
+      transparent 0 24%, rgba(var(--halo-3), 0.16) 24% 24.6%, transparent 24.6%),
     radial-gradient(circle at 50% 50%,
-      transparent 0 49%, rgba(var(--gas-3), 0.16) 49% 49.6%, transparent 49.6%),
+      transparent 0 49%, rgba(var(--halo-3), 0.16) 49% 49.6%, transparent 49.6%),
     radial-gradient(circle at 50% 50%,
-      transparent 0 74%, rgba(var(--gas-3), 0.13) 74% 74.6%, transparent 74.6%),
+      transparent 0 74%, rgba(var(--halo-3), 0.13) 74% 74.6%, transparent 74.6%),
     /* The unlit screen behind them. */
     radial-gradient(circle at 50% 50%, var(--screen-raised), var(--screen-well));
 }
@@ -3591,8 +3613,8 @@ textarea.ac-input {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(to right, transparent calc(50% - 1px), rgba(var(--gas-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
-    linear-gradient(to bottom, transparent calc(50% - 1px), rgba(var(--gas-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+    linear-gradient(to right, transparent calc(50% - 1px), rgba(var(--halo-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(to bottom, transparent calc(50% - 1px), rgba(var(--halo-3), 0.15) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
 }
 
 /* THE BEAM AND ITS WAKE.
@@ -3633,11 +3655,11 @@ textarea.ac-input {
    this file's floor. So it stays a knob, and the 250deg in the stops below is
    what that expression evaluates to.
 
-   THE COLOR MARCH IS THE P7 CASCADE. --gas-flash holds for the first degree and
+   THE COLOR MARCH IS THE P7 CASCADE. --halo-flash holds for the first degree and
    a half — about 19ms at 4.5s a revolution, a frame or two, which is what the
-   blue ZnS:Ag layer is worth — then hands to --gas-4 at the hottest point of the
-   yellow-green (Zn,Cd)S:Cu response and drains down through --gas-1 and --gas-2
-   to --gas-3. Every stop keeps the var(--gas-flash, var(--gas-1)) fallback, so a
+   blue ZnS:Ag layer is worth — then hands to --halo-4 at the hottest point of the
+   yellow-green (Zn,Cd)S:Cu response and drains down through --halo-1 and --halo-2
+   to --halo-3. Every stop keeps the var(--halo-flash, var(--halo-1)) fallback, so a
    single-coating emitter gets a brighter leading edge and no cascade, which is
    correct for it. */
 .ac-sweep__beam {
@@ -3657,21 +3679,21 @@ textarea.ac-input {
      reason. */
   background: conic-gradient(
     from 0deg,
-    rgba(var(--gas-3), 0) calc(360deg - var(--ac-sweep-arc, 250deg)),
-    rgba(var(--gas-3), 0.008) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.9),
-    rgba(var(--gas-3), 0.024) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.8),
-    rgba(var(--gas-3), 0.038) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.6),
-    rgba(var(--gas-3), 0.059) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.38),
-    rgba(var(--gas-3), 0.085) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.26),
-    rgba(var(--gas-2), 0.12) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.18),
-    rgba(var(--gas-2), 0.18) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.11),
-    rgba(var(--gas-2), 0.25) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.072),
-    rgba(var(--gas-1), 0.33) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.05),
-    rgba(var(--gas-1), 0.4) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.036),
-    rgba(var(--gas-1), 0.49) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.024),
-    rgba(var(--gas-4), 0.58) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.016),
-    rgba(var(--gas-flash, var(--gas-1)), 0.75) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.006),
-    rgba(var(--gas-flash, var(--gas-1)), 0.9) 360deg
+    rgba(var(--halo-3), 0) calc(360deg - var(--ac-sweep-arc, 250deg)),
+    rgba(var(--halo-3), 0.008) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.9),
+    rgba(var(--halo-3), 0.024) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.8),
+    rgba(var(--halo-3), 0.038) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.6),
+    rgba(var(--halo-3), 0.059) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.38),
+    rgba(var(--halo-3), 0.085) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.26),
+    rgba(var(--halo-2), 0.12) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.18),
+    rgba(var(--halo-2), 0.18) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.11),
+    rgba(var(--halo-2), 0.25) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.072),
+    rgba(var(--halo-1), 0.33) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.05),
+    rgba(var(--halo-1), 0.4) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.036),
+    rgba(var(--halo-1), 0.49) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.024),
+    rgba(var(--halo-4), 0.58) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.016),
+    rgba(var(--halo-flash, var(--halo-1)), 0.75) calc(360deg - var(--ac-sweep-arc, 250deg) * 0.006),
+    rgba(var(--halo-flash, var(--halo-1)), 0.9) 360deg
   );
   /* THE PERIOD IS THE PHOSPHOR'S, WITH A FLOOR, and the floor is the point.
      A sweep wants to come round about as the trail finishes draining — that is
@@ -3705,10 +3727,10 @@ textarea.ac-input {
   border-radius: 50%;
   background: radial-gradient(
     circle closest-side at 50% 50%,
-    rgba(var(--gas-flash, var(--gas-1)), 0.3) 0 1.5%,
-    rgba(var(--gas-4), 0.2) 3.5%,
-    rgba(var(--gas-1), 0.08) 7%,
-    rgba(var(--gas-1), 0) 13%
+    rgba(var(--halo-flash, var(--halo-1)), 0.3) 0 1.5%,
+    rgba(var(--halo-4), 0.2) 3.5%,
+    rgba(var(--halo-1), 0.08) 7%,
+    rgba(var(--halo-1), 0) 13%
   );
 }
 
@@ -3738,9 +3760,9 @@ textarea.ac-input {
   margin-left: calc(var(--ac-sweep-line, 3px) / -2);
   background: linear-gradient(
     to right,
-    rgba(var(--gas-flash, var(--gas-1)), 0),
-    rgba(var(--gas-flash, var(--gas-1)), 0.95) 50%,
-    rgba(var(--gas-flash, var(--gas-1)), 0)
+    rgba(var(--halo-flash, var(--halo-1)), 0),
+    rgba(var(--halo-flash, var(--halo-1)), 0.95) 50%,
+    rgba(var(--halo-flash, var(--halo-1)), 0)
   );
 }
 
@@ -4011,7 +4033,7 @@ textarea.ac-input {
   .ac-retrace,
   .ac-persist,
   .ac-mesh,
-  /* The radar wake is a gradient in --gas-N, which forced colors has no way to
+  /* The radar wake is a gradient in --halo-N, which forced colors has no way to
      map and no reason to keep. It is also the last blended element left in this
      mode, and one `mix-blend-mode` anywhere promotes the stacking context and
      costs subpixel text antialiasing page-wide — see the matching note in
@@ -4030,7 +4052,7 @@ textarea.ac-input {
 
   /* Same argument for the de-energizing afterimage. The UA forces shadows off
      for anything still at forced-color-adjust: auto, but this halo is built from
-     --gas-N rather than from a forced system color, and the elements it sits on
+     --halo-N rather than from a forced system color, and the elements it sits on
      are exactly the ones this file opts OUT of forced colors further down —
      which hands them their box-shadow back.
 

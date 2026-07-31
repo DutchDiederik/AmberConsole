@@ -22,7 +22,7 @@
  * P1/P39 and P7/P11 share a ramp on purpose — same compound, different decay.
  *
  * WHAT EVERY BLOCK MUST DEFINE: the five --emit-* stops, the three surfaces,
- * --on-fill, the four --gas-* glow triples, and --gas-scatter / --gas-spread.
+ * --on-fill, the four --halo-* glow triples, and --halo-scatter / --halo-spread.
  * Every other color token is an alias or is built from those, so adding a
  * palette means adding one block and nothing else.
  *
@@ -76,19 +76,19 @@
 
   /* THE GLOW SOURCE — four points on the discharge hue, as bare "r, g, b"
      triples so tokens/effects.css can build every halo with its own alphas:
-     rgba(var(--gas-1), 0.4). That indirection is why the palettes switch
+     rgba(var(--halo-1), 0.4). That indirection is why the palettes switch
      cleanly; hardcoding a halo puts an amber corona around neon text.
 
-     --gas-scatter is how much light reaches the halo, with NEON AT 1.00 BY
+     --halo-scatter is how much light reaches the halo, with NEON AT 1.00 BY
      DEFINITION — every other palette's figure is stated against it — and
-     --gas-spread is its square root. See RATIONALE.md § Scattering. */
-  --gas-scatter: 1;
-  --gas-spread: 1;
+     --halo-spread is its square root. See RATIONALE.md § Scattering. */
+  --halo-scatter: 1;
+  --halo-spread: 1;
 
-  --gas-1: 255, 120, 30; /* core halo */
-  --gas-2: 255, 109, 12; /* mid */
-  --gas-3: 255, 102, 0;  /* deep / outermost */
-  --gas-4: 255, 140, 64; /* pale — hot cores and the retrace band */
+  --halo-1: 255, 120, 30; /* core halo */
+  --halo-2: 255, 109, 12; /* mid */
+  --halo-3: 255, 102, 0;  /* deep / outermost */
+  --halo-4: 255, 140, 64; /* pale — hot cores and the retrace band */
 }
 
 /* --- CRT / P3 — the amber phosphor, and the source design system's ramp. Same
@@ -108,17 +108,17 @@
   --emit-30:  #4a2f08; /* trace / ghost        —  1.62:1, decorative */
   --on-fill:   #1a0e00;
 
-  --gas-1: 255, 174, 30;
-  --gas-2: 255, 150, 12;
-  --gas-3: 255, 120, 0;
-  --gas-4: 255, 186, 64;
+  --halo-1: 255, 174, 30;
+  --halo-2: 255, 150, 12;
+  --halo-3: 255, 120, 0;
+  --halo-4: 255, 186, 64;
 
   /* Derived from the band model, replacing a placeholder held at neon's 1.00
      that was wrong by 23%. The RAMP above stays hand-built (emit: false in
      scripts/data/emitters.json); only the halo width was ever a placeholder.
      See RATIONALE.md § Scattering. */
-  --gas-scatter: 1.23;
-  --gas-spread: 1.11;
+  --halo-scatter: 1.23;
+  --halo-spread: 1.11;
 
   /* Persistence: 25ms to 10% (medium). 22% still lit at the next frame.
      --ac-flicker is the same quantity read the other way; the WCAG amplitude
@@ -154,14 +154,14 @@
   --emit-30:  #502a34;
   --on-fill:  #201216;
 
-  --gas-1: 255, 158, 183;
-  --gas-2: 255, 153, 180;
-  --gas-3: 255, 150, 178;
-  --gas-4: 255, 170, 191;
+  --halo-1: 255, 158, 183;
+  --halo-2: 255, 153, 180;
+  --halo-3: 255, 150, 178;
+  --halo-4: 255, 170, 191;
 
   /* Rayleigh: this gas throws 26% more light into the halo than neon. */
-  --gas-scatter: 1.26;
-  --gas-spread: 1.12;
+  --halo-scatter: 1.26;
+  --halo-spread: 1.12;
 }
 
 /* --- PLASMA / ARGON — pale violet-lavender.
@@ -188,14 +188,14 @@
   --emit-30:  #4b1088;
   --on-fill:  #1b112c;
 
-  --gas-1: 186, 149, 255;
-  --gas-2: 182, 143, 255;
-  --gas-3: 180, 138, 255;
-  --gas-4: 194, 164, 255;
+  --halo-1: 186, 149, 255;
+  --halo-2: 182, 143, 255;
+  --halo-3: 180, 138, 255;
+  --halo-4: 194, 164, 255;
 
   /* Rayleigh: this gas throws 49% more light into the halo than neon. */
-  --gas-scatter: 1.49;
-  --gas-spread: 1.22;
+  --halo-scatter: 1.49;
+  --halo-spread: 1.22;
 }
 
 /* --- PLASMA / KRYPTON — pale violet-white.
@@ -221,14 +221,14 @@
   --emit-30:  #442e45;
   --on-fill:  #1b141b;
 
-  --gas-1: 251, 185, 252;
-  --gas-2: 241, 173, 242;
-  --gas-3: 229, 162, 230;
-  --gas-4: 254, 201, 255;
+  --halo-1: 251, 185, 252;
+  --halo-2: 241, 173, 242;
+  --halo-3: 229, 162, 230;
+  --halo-4: 254, 201, 255;
 
   /* Rayleigh: this gas throws 31% more light into the halo than neon. */
-  --gas-scatter: 1.31;
-  --gas-spread: 1.14;
+  --halo-scatter: 1.31;
+  --halo-spread: 1.14;
 }
 
 /* --- CRT / P1 — willemite green.
@@ -255,14 +255,14 @@
   --emit-30:  #003f1c;
   --on-fill:  #001a08;
 
-  --gas-1: 0, 237, 125;
-  --gas-2: 0, 225, 118;
-  --gas-3: 0, 212, 111;
-  --gas-4: 46, 255, 140;
+  --halo-1: 0, 237, 125;
+  --halo-2: 0, 225, 118;
+  --halo-3: 0, 212, 111;
+  --halo-4: 46, 255, 140;
 
   /* Rayleigh: this phosphor throws 63% more light into the halo than neon. */
-  --gas-scatter: 1.63;
-  --gas-spread: 1.28;
+  --halo-scatter: 1.63;
+  --halo-spread: 1.28;
 
   /* Persistence: 24ms to 10% (medium).
      20% still lit when the next frame arrives.
@@ -300,14 +300,14 @@
   --emit-30:  #2b373e;
   --on-fill:  #121618;
 
-  --gas-1: 176, 211, 234;
-  --gas-2: 165, 201, 223;
-  --gas-3: 153, 189, 211;
-  --gas-4: 197, 228, 248;
+  --halo-1: 176, 211, 234;
+  --halo-2: 165, 201, 223;
+  --halo-3: 153, 189, 211;
+  --halo-4: 197, 228, 248;
 
   /* Rayleigh: this phosphor throws 55% more light into the halo than neon. */
-  --gas-scatter: 1.55;
-  --gas-spread: 1.24;
+  --halo-scatter: 1.55;
+  --halo-spread: 1.24;
 
   /* Persistence: 0.06ms to 10% (medium-short).
      Fully dark between frames — flicker at maximum, no persistence to see.
@@ -332,7 +332,7 @@
      own --screen; --on-fill lands at 6.35:1 on --emit-90.
 
      TWO EMITTERS, IN SEQUENCE. --emit-* is the ZnS:Ag FLASH (x=0.1384 y=0.1502),
-     which is what the beam writes. --gas-* is the (Zn,Cd)S:Cu AFTERGLOW
+     which is what the beam writes. --halo-* is the (Zn,Cd)S:Cu AFTERGLOW
      (x=0.3553 y=0.5373), which is what the screen holds after it. The halo
      therefore does NOT track the ink here, which inverts the rule stated at the
      top of tokens/effects.css and is the reason P7 exists as a part number. --- */
@@ -348,21 +348,21 @@
   --emit-30:  #00385d;
   --on-fill:  #03182a;
 
-  --gas-1: 156, 226, 72;
-  --gas-2: 145, 215, 54;
-  --gas-3: 135, 203, 40;
-  --gas-4: 176, 242, 107;
+  --halo-1: 156, 226, 72;
+  --halo-2: 145, 215, 54;
+  --halo-3: 135, 203, 40;
+  --halo-4: 176, 242, 107;
 
   /* Rayleigh: this phosphor throws 47% more light into the halo than neon. */
-  --gas-scatter: 1.47;
-  --gas-spread: 1.21;
+  --halo-scatter: 1.47;
+  --halo-spread: 1.21;
 
-  /* THE FLASH, as a halo triple. --gas-* above is the AFTERGLOW, which is what
+  /* THE FLASH, as a halo triple. --halo-* above is the AFTERGLOW, which is what
      this screen holds; this is the layer the beam actually writes, and the ghost
      keyframe starts here before crossing to the afterglow within one frame.
      --ac-ghost-anim is how this palette tells tokens/effects.css it decays
      through two hues rather than one, without effects.css naming it. */
-  --gas-flash: 175, 209, 255;
+  --halo-flash: 175, 209, 255;
   --ac-ghost-anim: ac-ghost-cascade;
 
   /* Persistence: 400ms to 10%, visible tail to 3000ms (long).
@@ -407,14 +407,14 @@
   --emit-30:  #00385d;
   --on-fill:  #03182a;
 
-  --gas-1: 87, 174, 255;
-  --gas-2: 70, 170, 255;
-  --gas-3: 56, 167, 255;
-  --gas-4: 119, 184, 255;
+  --halo-1: 87, 174, 255;
+  --halo-2: 70, 170, 255;
+  --halo-3: 56, 167, 255;
+  --halo-4: 119, 184, 255;
 
   /* Rayleigh: this phosphor throws 104% more light into the halo than neon. */
-  --gas-scatter: 2.04;
-  --gas-spread: 1.43;
+  --halo-scatter: 2.04;
+  --halo-spread: 1.43;
 
   /* Persistence: 0.035ms to 10% (medium-short).
      Fully dark between frames — flicker at maximum, no persistence to see.
@@ -449,14 +449,14 @@
   --emit-30:  #003e27;
   --on-fill:  #001b0e;
 
-  --gas-1: 0, 235, 160;
-  --gas-2: 0, 223, 151;
-  --gas-3: 0, 210, 142;
-  --gas-4: 0, 254, 173;
+  --halo-1: 0, 235, 160;
+  --halo-2: 0, 223, 151;
+  --halo-3: 0, 210, 142;
+  --halo-4: 0, 254, 173;
 
   /* Rayleigh: this phosphor throws 67% more light into the halo than neon. */
-  --gas-scatter: 1.67;
-  --gas-spread: 1.29;
+  --halo-scatter: 1.67;
+  --halo-spread: 1.29;
 
   /* Persistence: 0.038ms to 10% (medium-short).
      Fully dark between frames — flicker at maximum, no persistence to see.
@@ -491,14 +491,14 @@
   --emit-30:  #003f1b;
   --on-fill:  #001a07;
 
-  --gas-1: 0, 237, 121;
-  --gas-2: 0, 225, 115;
-  --gas-3: 0, 212, 108;
-  --gas-4: 49, 255, 137;
+  --halo-1: 0, 237, 121;
+  --halo-2: 0, 225, 115;
+  --halo-3: 0, 212, 108;
+  --halo-4: 49, 255, 137;
 
   /* Rayleigh: this phosphor throws 62% more light into the halo than neon. */
-  --gas-scatter: 1.62;
-  --gas-spread: 1.27;
+  --halo-scatter: 1.62;
+  --halo-spread: 1.27;
 
   /* Persistence: 400ms to 10%, visible tail to 2000ms (long).
      91% still lit when the next frame arrives.
@@ -536,15 +536,37 @@
 
   /* No red, no green. Alarm/danger = inverse video + blink, never a new hue. */
 
-  /* DEPRECATED, removed in 3.0 — the ramp is --emit-* now. Kept so a consumer
-     reading or overriding the old names keeps working while they migrate.
+  /* DEPRECATED, removed in 3.0. Two renames, both for the same reason: the old
+     name asserted a HARDWARE that most palettes are not.
 
-     They resolve per palette for free: --emit-90 is redefined
-     in every block above, so --amber-90 follows whichever palette is active
-     without this list needing to know any of them exist. */
+       --amber-*  named a hue, and the hue was only ever historically right —
+                  under the default palette the color is neon, not amber.
+       --gas-*    named a gas, and seven of the eleven palettes are phosphors on
+                  a tube. The halo is not made of gas on any of them. This is the
+                  same bug as data-ac-gas above, one level down.
+
+     THESE ARE READ ALIASES ONLY, and that is worth stating plainly because the
+     note here used to claim otherwise. Nothing in the framework reads --amber-*
+     or --gas-*, so SETTING one has no effect — the framework reads --emit-* and
+     --halo-*. They exist so a consumer who reads the old names off the computed
+     style keeps getting an answer while they migrate; a consumer who OVERRIDES
+     must move to the new name.
+
+     They resolve per palette for free: --emit-90 and --halo-1 are redefined in
+     every block above, so the aliases follow whichever palette is active without
+     this list needing to know any of them exist. */
   --amber-100: var(--emit-100);
   --amber-90: var(--emit-90);
   --amber-70: var(--emit-70);
   --amber-50: var(--emit-50);
   --amber-30: var(--emit-30);
+
+  --gas-1: var(--halo-1);
+  --gas-2: var(--halo-2);
+  --gas-3: var(--halo-3);
+  --gas-4: var(--halo-4);
+  --gas-scatter: var(--halo-scatter);
+  --gas-spread: var(--halo-spread);
+  /* Not aliased: --gas-flash. Only P7 ever declared it, and a var() with no
+     value would make this declaration invalid on the other ten palettes. */
 }

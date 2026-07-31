@@ -283,7 +283,7 @@ be steady and smear-free at once, and every historical fitting decision falls ou
 is fully dark between frames (no persistence, maximum flicker, which is why it was a phosphor for
 screens meant to be *photographed*), and P39 is still at 91% (no flicker at any refresh rate, paid
 for in smear, which is why it went on radar). The derivation computes both from one decay constant
-for exactly that reason — the same way `--gas-spread` is the square root of `--gas-scatter` and
+for exactly that reason — the same way `--halo-spread` is the square root of `--halo-scatter` and
 cannot disagree with it.
 
 Palettes that know their own decay declare it, and the timing tokens are **derived from that**:
@@ -525,14 +525,14 @@ drops `--emit-50` to 2.79:1 and silently fails the 3:1 non-text gate. `npm run c
 one and fails under another is a build failure.
 
 Adding an emitter — or a whole technology — means adding one block to `src/tokens/colors.css` and
-nothing else: the five discharge stops, three surfaces, `--on-fill`, the four `--gas-N` glow
+nothing else: the five discharge stops, three surfaces, `--on-fill`, the four `--halo-N` glow
 triples, and the two scattering scalars. Everything else in the system is an alias or is built from
 those.
 
 **The gases do not all glow the same, and that is physics rather than styling.** Rayleigh scattering
 goes as λ⁻⁴, so a violet gas throws far more of itself sideways into the glass than a red one does.
-`--gas-scatter` is that ratio against neon — helium 1.26, krypton 1.31, argon 1.49 — and
-`--gas-spread` is its square root, since multiple scattering widens the halo as it brightens it.
+`--halo-scatter` is that ratio against neon — helium 1.26, krypton 1.31, argon 1.49 — and
+`--halo-spread` is its square root, since multiple scattering widens the halo as it brightens it.
 `effects.css` applies them to the outer glow layers only: the innermost 2px is the glyph's own lit
 edge, not scattered light. A palette that declares neither falls back to 1 and renders exactly as
 before.
@@ -625,9 +625,9 @@ Override any of these; see [what you may safely change](#theming).
 --emit-30         #5b2500      #502a34        #4b1088       #442e45         #4a2f08   trace, ghost
 --on-fill         #1e0c00      #201216        #1b112c       #1b141b         #1a0e00
 
---gas-1 … --gas-4 bare "r, g, b" triples the glow is built from
---gas-scatter     how much of this emitter reaches the halo, vs neon at 1.00
---gas-spread      sqrt of it; scales the halo radii
+--halo-1 … --halo-4 bare "r, g, b" triples the glow is built from
+--halo-scatter     how much of this emitter reaches the halo, vs neon at 1.00
+--halo-spread      sqrt of it; scales the halo radii
 
 --ink --ink-bright --ink-dim --ink-faint --ink-trace
 --fill --fill-bright

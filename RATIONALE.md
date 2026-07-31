@@ -106,11 +106,11 @@ survive, deprecated, removed in 3.0.
 name was the bug — "amber" was never a gas, it is a CRT phosphor, and calling it
 one is exactly the confusion the two attributes exist to prevent.
 
-### Scattering — why `--gas-scatter` differs per palette
+### Scattering — why `--halo-scatter` differs per palette
 
 Rayleigh scattering goes as λ⁻⁴, so a violet gas throws far more of itself
 sideways into the glass than neon's orange-red does. Neon is 1.00 by definition —
-every other palette's figure is stated against it — and `--gas-spread` is its
+every other palette's figure is stated against it — and `--halo-spread` is its
 square root, because multiple scattering widens the halo as it brightens it.
 
 P3's figure was a placeholder held at neon's 1.00, with a note predicting that a
@@ -141,7 +141,7 @@ one physical quantity read in two directions — what is left of a frame when th
 next one arrives *is* the persistence, and what is missing *is* the flicker — so a
 phosphor cannot have much of one without little of the other.
 `scripts/derive-gas.mjs` computes both from one decay constant for exactly that
-reason, the same way `--gas-spread` is the square root of `--gas-scatter`.
+reason, the same way `--halo-spread` is the square root of `--halo-scatter`.
 
 **The four gases deliberately declare none of them.** Gas afterglow is real, but
 no decay figure for these panels is cited, and inventing one to fill the column
@@ -155,7 +155,7 @@ Adding a *cited* decay to a gas is what would opt it in.
 P7 is a blue ZnS:Ag layer facing the beam over a yellow-green (Zn,Cd)S:Cu layer
 behind it. The beam writes in blue, the blue layer's own photons pump the layer
 underneath, and what the **screen holds** is yellow-green. So `--emit-*` is the
-flash (x=0.1384 y=0.1502) and `--gas-*` is the afterglow (x=0.3553 y=0.5373).
+flash (x=0.1384 y=0.1502) and `--halo-*` is the afterglow (x=0.3553 y=0.5373).
 
 Blue text inside a green halo is not a mismatch — it is the only thing that
 palette can honestly look like, and it is the reason P7 exists as a part number.
@@ -185,7 +185,7 @@ Note the token families **do not line up**, and the names actively mislead:
 level, never by whether the token has "dim" in its name.
 
 **Radius does not scale — only alpha.** How far light spreads through the glass is
-a property of the glass and the wavelength (`--gas-spread`), not of how hard the
+a property of the glass and the wavelength (`--halo-spread`), not of how hard the
 cell behind it is driven. Scaling radius too would say a dim cell's light travels
 less far, which is not a thing that happens. The 2px layer is not scaled at all:
 it is the glyph's own lit edge, not scattered light.
@@ -245,10 +245,10 @@ inherited; only `text-shadow: none` does. That is why suppression is written as
 ### The extruded key edge
 
 The one shadow in the file that is **not** a halo, so it takes neither
-`--gas-spread` nor `--gas-scatter`: those describe light scattering through glass,
+`--halo-spread` nor `--halo-scatter`: those describe light scattering through glass,
 and this is geometry. A panel that drew a drop shadow drew it in **cells**, and a
 cell is the same size on krypton as on neon — the extrusion must stay put when the
-gas changes, while its colour follows `--gas-1` so it cannot end up the only amber
+gas changes, while its colour follows `--halo-1` so it cannot end up the only amber
 thing on a green screen.
 
 **It is an edge, not a ghost**, which is what the two layers are for. An outer

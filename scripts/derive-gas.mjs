@@ -77,8 +77,8 @@ function spectrumOf(spec) {
  *   P39  tau ~ 174ms  residual 0.91   no visible flicker at any refresh rate,
  *                                     paid for in smear. Fitted to radar.
  *
- * So both tokens come off `to10` and cannot disagree, exactly as --gas-spread is
- * the square root of --gas-scatter and cannot disagree with it.
+ * So both tokens come off `to10` and cannot disagree, exactly as --halo-spread is
+ * the square root of --halo-scatter and cannot disagree with it.
  *
  * `to10` is time to 10% of peak, which is what data sheets quote. For a simple
  * exponential that is tau*ln(10); for the long-persistence power-law phosphors
@@ -238,7 +238,7 @@ const GLOW_SLACK = 0.05;
  * eight of eleven palettes.
  *
  * What IS luminance-dependent is the SECOND half of the walk: the part that
- * fixes a channel overflowing 1. That is why --gas-1 at Y=0.62 came out visibly
+ * fixes a channel overflowing 1. That is why --halo-1 at Y=0.62 came out visibly
  * paler than --emit-90 at Y=0.32 even though both start from the same
  * chromaticity — and that difference, not the absolute saturation, is the defect
  * somebody actually sees. A halo is scattered light from the stroke; it must
@@ -318,7 +318,7 @@ function derive(name, emitter) {
      photons the cell emits, so it tracks the discharge hue exactly" — and that
      is true of every emitter in this file except one. P7 is two coatings: the
      beam writes in ZnS:Ag blue and the screen HOLDS in (Zn,Cd)S:Cu yellow-green,
-     so its --emit-* ramp and its --gas-* halo are two different spectra and
+     so its --emit-* ramp and its --halo-* halo are two different spectra and
      that is the entire point of the part number.
      Everything else falls through with haloLines === lines and is unaffected. */
   const haloLines = emitter.afterglow ? spectrumOf(emitter.afterglow) : lines;
@@ -383,7 +383,7 @@ function derive(name, emitter) {
        the accidental kind and get solved away. */
     const [gx, gy] = toward([hx, hy], tint);
     /* The budget covers the INVOLUNTARY walk only. The tint is already applied
-       above and is exempt — charging it would make --gas-4 dim itself to
+       above and is exempt — charging it would make --halo-4 dim itself to
        compensate for a whitening it was asked for, which is the opposite of the
        intent. So the residual mix from the tinted point is what is compared. */
     const solved = solveGlow(gx, gy, Y, haloBudget);
@@ -438,7 +438,7 @@ function derive(name, emitter) {
      and effects.css falls back to the single-hue keyframe for everything else.
      Any future two-layer phosphor works with no edit to the CSS.
 
-     --gas-flash is the FLASH chromaticity at --gas-1's luminance and tint, so
+     --halo-flash is the FLASH chromaticity at --halo-1's luminance and tint, so
      the ghost's opening frame sits on exactly the same point of the ramp its
      closing frames do and only the hue moves between them. */
   if (emitter.afterglow) {
@@ -472,19 +472,19 @@ function toCSS(d, emitter) {
      they wonder why the blue text has a green glow. */
   const cascade = d.cascade
     ? `\n\n     TWO EMITTERS, IN SEQUENCE. --emit-* is the ZnS:Ag FLASH (x=${d.x.toFixed(4)} y=${d.y.toFixed(4)}),
-     which is what the beam writes. --gas-* is the (Zn,Cd)S:Cu AFTERGLOW
+     which is what the beam writes. --halo-* is the (Zn,Cd)S:Cu AFTERGLOW
      (x=${d.hx.toFixed(4)} y=${d.hy.toFixed(4)}), which is what the screen holds after it. The halo
      therefore does NOT track the ink here, which inverts the rule stated at the
      top of tokens/effects.css and is the reason P7 exists as a part number.`
     : "";
 
   const flash = t["gas-flash"]
-    ? `\n\n  /* THE FLASH, as a halo triple. --gas-* above is the AFTERGLOW, which is what
+    ? `\n\n  /* THE FLASH, as a halo triple. --halo-* above is the AFTERGLOW, which is what
      this screen holds; this is the layer the beam actually writes, and the ghost
      keyframe starts here before crossing to the afterglow within one frame.
      --ac-ghost-anim is how this palette tells tokens/effects.css it decays
      through two hues rather than one, without effects.css naming it. */
-  --gas-flash: ${t["gas-flash"]};
+  --halo-flash: ${t["gas-flash"]};
   --ac-ghost-anim: ${t["ac-ghost-anim"]};`
     : "";
 
@@ -548,14 +548,14 @@ function toCSS(d, emitter) {
   --emit-30:  ${t["emit-30"]};
   --on-fill:  ${t["on-fill"]};
 
-  --gas-1: ${t["gas-1"]};
-  --gas-2: ${t["gas-2"]};
-  --gas-3: ${t["gas-3"]};
-  --gas-4: ${t["gas-4"]};
+  --halo-1: ${t["gas-1"]};
+  --halo-2: ${t["gas-2"]};
+  --halo-3: ${t["gas-3"]};
+  --halo-4: ${t["gas-4"]};
 
   /* Rayleigh: this ${noun} throws ${d.scatter >= 1 ? `${((d.scatter - 1) * 100).toFixed(0)}% more` : `${((1 - d.scatter) * 100).toFixed(0)}% less`} light into the halo than neon. */
-  --gas-scatter: ${t["gas-scatter"]};
-  --gas-spread: ${t["gas-spread"]};${flash}${persist}
+  --halo-scatter: ${t["gas-scatter"]};
+  --halo-spread: ${t["gas-spread"]};${flash}${persist}
 }`;
 }
 
@@ -691,7 +691,7 @@ if (args.includes("--check")) {
 
   /* The summary reports EVERY emitter, including the reference-only ones, and
      that is not just for completeness. P3's palette is hand-built and not
-     emitted, but its --gas-scatter is derived here and has to be readable
+     emitted, but its --halo-scatter is derived here and has to be readable
      somewhere in order to be copied into the hand-built block — otherwise the
      one number this pass fixes for P3 is computed and then thrown away. */
   console.error(all.map(({ d, e }) =>

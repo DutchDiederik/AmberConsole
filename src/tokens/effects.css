@@ -1,11 +1,11 @@
 :root {
-  /* NOTHING IN THIS FILE NAMES A COLOR. Every rgba() is built from the --gas-N
+  /* NOTHING IN THIS FILE NAMES A COLOR. Every rgba() is built from the --halo-N
      triples in tokens/colors.css, which is what makes the display switch the
      panel and its glow together. Hardcode one and it keeps an amber corona
      around neon text. (On P7 the halo is a DIFFERENT spectrum from the ink, and
      that is correct rather than a bug — RATIONALE.md § P7.)
 
-     The wide layers scale by --gas-scatter / --gas-spread, per palette, both
+     The wide layers scale by --halo-scatter / --halo-spread, per palette, both
      falling back to 1. THE 2px LAYER IS NOT SCALED: it is the glyph's own lit
      edge, not scattered light. RADIUS NEVER SCALES WITH DRIVE — only alpha.
 
@@ -30,29 +30,29 @@
   --drive-faint: 0.41;
 
   --glow-text:
-    0 0 2px rgba(var(--gas-1), 0.6),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1))),
-    0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1)));
+    0 0 2px rgba(var(--halo-1), 0.6),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.26 * var(--halo-scatter, 1))),
+    0 0 calc(24px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1)));
   --glow-text-dim:
-    0 0 2px rgba(var(--gas-1), calc(0.6 * var(--drive-dim))),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1) * var(--drive-dim))),
-    0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-dim)));
+    0 0 2px rgba(var(--halo-1), calc(0.6 * var(--drive-dim))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.26 * var(--halo-scatter, 1) * var(--drive-dim))),
+    0 0 calc(24px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-dim)));
   --glow-text-faint:
-    0 0 2px rgba(var(--gas-1), calc(0.6 * var(--drive-faint))),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.26 * var(--gas-scatter, 1) * var(--drive-faint))),
-    0 0 calc(24px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-faint)));
+    0 0 2px rgba(var(--halo-1), calc(0.6 * var(--drive-faint))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.26 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(24px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-faint)));
 
   --glow-box:
-    0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1))),
-    inset 0 0 10px rgba(var(--gas-1), 0.07);
+    0 0 calc(8px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.32 * var(--halo-scatter, 1))),
+    inset 0 0 10px rgba(var(--halo-1), 0.07);
   --glow-box-dim:
-    0 0 calc(8px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.32 * var(--gas-scatter, 1) * var(--drive-faint))),
-    inset 0 0 10px rgba(var(--gas-1), calc(0.07 * var(--drive-faint)));
+    0 0 calc(8px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.32 * var(--halo-scatter, 1) * var(--drive-faint))),
+    inset 0 0 10px rgba(var(--halo-1), calc(0.07 * var(--drive-faint)));
 
   /* THE EXTRUDED KEY EDGE — the one shadow here that is NOT a halo, so it takes
-     neither --gas-spread nor --gas-scatter: those describe light scattering
+     neither --halo-spread nor --halo-scatter: those describe light scattering
      through glass, and this is geometry. It stays the same size when the palette
-     changes, while its color still follows --gas-1.
+     changes, while its color still follows --halo-1.
 
      TWO LAYERS BECAUSE IT IS AN EDGE, NOT A GHOST: a bright 2px lip against the
      stroke, then 3px more at lower drive falling away from it. The alphas are
@@ -62,8 +62,8 @@
      Consumed by components/classic.css and nothing else. Override to blunt or
      kill the extrusion wholesale; print does exactly that. */
   --edge-3d:
-    2px 2px 0 rgba(var(--gas-1), 0.92),
-    5px 5px 0 rgba(var(--gas-1), 0.6);
+    2px 2px 0 rgba(var(--halo-1), 0.92),
+    5px 5px 0 rgba(var(--halo-1), 0.6);
 
   /* THE SAME EDGE FROM THE OTHER SIDE — a key pressed IN. The band moves to the
      top and left because the near face of a sunken key is the upper one.
@@ -72,8 +72,8 @@
      contribute to scrollable overflow, so every latched key flush against its
      container pushed 4px past it. See RATIONALE.md § The extruded key edge. */
   --edge-3d-in:
-    -2px -2px 0 rgba(var(--gas-1), 0.92),
-    -5px -5px 0 rgba(var(--gas-1), 0.6);
+    -2px -2px 0 rgba(var(--halo-1), 0.92),
+    -5px -5px 0 rgba(var(--halo-1), 0.6);
 
   /* PERSISTENCE IS A PROPERTY OF THE EMITTER, not of this file. A palette that
      knows its own decay declares --ac-persist, --ac-flicker and a sampled
@@ -262,7 +262,7 @@
 .ac-bloom {
   position: relative;
   /* Same split as the base tokens: the 2px core is the lit cell, everything
-     wider is scattered light and answers to --gas-scatter / --gas-spread. This
+     wider is scattered light and answers to --halo-scatter / --halo-spread. This
      is where the difference between the gases actually shows, because the bloom
      is where the halo is big enough to see. */
   /* EVERY TIER IS RESTATED HERE, not just the full one. The bloom redefines the
@@ -272,29 +272,29 @@
      bright text beside it. The bloom changes how much light the glass throws,
      not how hard the cell behind it is driven. */
   --glow-text:
-    0 0 2px rgba(var(--gas-4), 0.75),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1))),
-    0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1))),
-    0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1)));
+    0 0 2px rgba(var(--halo-4), 0.75),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1))),
+    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1))),
+    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1)));
   --glow-text-dim:
-    0 0 2px rgba(var(--gas-4), calc(0.75 * var(--drive-dim))),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1) * var(--drive-dim))),
-    0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1) * var(--drive-dim))),
-    0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-dim)));
+    0 0 2px rgba(var(--halo-4), calc(0.75 * var(--drive-dim))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1) * var(--drive-dim))),
+    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1) * var(--drive-dim))),
+    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-dim)));
   --glow-text-faint:
-    0 0 2px rgba(var(--gas-4), calc(0.75 * var(--drive-faint))),
-    0 0 calc(9px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.4 * var(--gas-scatter, 1) * var(--drive-faint))),
-    0 0 calc(26px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.2 * var(--gas-scatter, 1) * var(--drive-faint))),
-    0 0 calc(56px * var(--gas-spread, 1)) rgba(var(--gas-3), calc(0.1 * var(--gas-scatter, 1) * var(--drive-faint)));
+    0 0 2px rgba(var(--halo-4), calc(0.75 * var(--drive-faint))),
+    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-faint)));
 
   --glow-box:
-    0 0 calc(11px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.4 * var(--gas-scatter, 1))),
-    0 0 calc(34px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.16 * var(--gas-scatter, 1))),
-    inset 0 0 14px rgba(var(--gas-1), 0.1);
+    0 0 calc(11px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.4 * var(--halo-scatter, 1))),
+    0 0 calc(34px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.16 * var(--halo-scatter, 1))),
+    inset 0 0 14px rgba(var(--halo-1), 0.1);
   --glow-box-dim:
-    0 0 calc(11px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.4 * var(--gas-scatter, 1) * var(--drive-faint))),
-    0 0 calc(34px * var(--gas-spread, 1)) rgba(var(--gas-2), calc(0.16 * var(--gas-scatter, 1) * var(--drive-faint))),
-    inset 0 0 14px rgba(var(--gas-1), calc(0.1 * var(--drive-faint)));
+    0 0 calc(11px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.4 * var(--halo-scatter, 1) * var(--drive-faint))),
+    0 0 calc(34px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.16 * var(--halo-scatter, 1) * var(--drive-faint))),
+    inset 0 0 14px rgba(var(--halo-1), calc(0.1 * var(--drive-faint)));
 }
 .ac-bloom::before {
   content: "";
@@ -422,7 +422,7 @@
 .ac-crt > .ac-retrace {
   position: absolute; left: 0; right: 0; top: 0; height: 26%;
   z-index: 45; pointer-events: none; mix-blend-mode: screen; opacity: 0.32;
-  background: linear-gradient(180deg, transparent 0%, rgba(var(--gas-1), 0.028) 50%, rgba(var(--gas-4), 0.05) 66%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(var(--halo-1), 0.028) 50%, rgba(var(--halo-4), 0.05) 66%, transparent 100%);
   animation: ac-retrace 13s linear infinite;
 }
 @keyframes ac-retrace {
@@ -504,10 +504,10 @@
   content: "";
   position: absolute; inset: 0;
   background:
-    radial-gradient(38% 30% at 22% 28%, rgba(var(--gas-1), 0.032), transparent 70%),
-    radial-gradient(46% 34% at 78% 62%, rgba(var(--gas-2), 0.026), transparent 72%),
-    radial-gradient(30% 44% at 58% 12%, rgba(var(--gas-4), 0.022), transparent 68%),
-    radial-gradient(52% 40% at 34% 84%, rgba(var(--gas-3), 0.028), transparent 74%);
+    radial-gradient(38% 30% at 22% 28%, rgba(var(--halo-1), 0.032), transparent 70%),
+    radial-gradient(46% 34% at 78% 62%, rgba(var(--halo-2), 0.026), transparent 72%),
+    radial-gradient(30% 44% at 58% 12%, rgba(var(--halo-4), 0.022), transparent 68%),
+    radial-gradient(52% 40% at 34% 84%, rgba(var(--halo-3), 0.028), transparent 74%);
   background-size: 150% 150%;
   background-repeat: no-repeat;
   mix-blend-mode: screen;
@@ -697,7 +697,7 @@
      the control is lit, so a fill would paint over its inverse-video text
      permanently and spend the --on-fill contrast ratio contrast.mjs gates.
      Both in RATIONALE.md § The afterimage. */
-  box-shadow: 0 0 calc(18px * var(--gas-spread, 1)) rgba(var(--gas-1), calc(0.26 * var(--ac-lit)));
+  box-shadow: 0 0 calc(18px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.26 * var(--ac-lit)));
 }
 .ac-afterglow .ac-btn,
 .ac-afterglow .ac-tab,
@@ -864,9 +864,9 @@
    the clone. Palettes with one coating never reach this keyframe.
    See RATIONALE.md § Ghosts. */
 @keyframes ac-ghost-cascade {
-  0%   { opacity: 0.46; color: rgb(var(--gas-flash)); filter: blur(0); }
-  4%   { opacity: 0.38; color: rgb(var(--gas-1)); filter: blur(0.1px); }
-  100% { opacity: 0; color: rgb(var(--gas-1)); filter: blur(0.8px); }
+  0%   { opacity: 0.46; color: rgb(var(--halo-flash)); filter: blur(0); }
+  4%   { opacity: 0.38; color: rgb(var(--halo-1)); filter: blur(0.1px); }
+  100% { opacity: 0; color: rgb(var(--halo-1)); filter: blur(0.8px); }
 }
 
 /* (7) THE PAGE ITSELF DECAYS — cross-document persistence, and the only place in
