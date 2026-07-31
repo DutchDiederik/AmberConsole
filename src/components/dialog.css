@@ -28,13 +28,13 @@
   box-sizing: border-box;
   max-width: min(90vw, 560px);
   padding: 0;
-  border: var(--border-w) solid var(--stroke);
-  border-radius: var(--radius);
-  background: var(--screen);
-  color: var(--ink);
-  text-shadow: var(--glow-text);
-  font-family: var(--font-terminal);
-  box-shadow: var(--glow-box);
+  border: var(--ac-border-w) solid var(--ac-stroke);
+  border-radius: var(--ac-radius);
+  background: var(--ac-screen);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  font-family: var(--ac-font-terminal);
+  box-shadow: var(--ac-glow-box);
   overflow: hidden;
 }
 
@@ -48,28 +48,28 @@
   margin: 0;
   padding: 4px 16px;
   text-align: center;
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .ac-dialog__body {
-  padding: var(--space-4);
-  font-size: var(--type-body);
-  line-height: var(--leading);
+  padding: var(--ac-space-4);
+  font-size: var(--ac-type-body);
+  line-height: var(--ac-leading);
 }
 
 .ac-dialog__actions {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--ac-space-4);
   justify-content: flex-end;
   flex-wrap: wrap;
-  padding: 0 var(--space-4) var(--space-4);
+  padding: 0 var(--ac-space-4) var(--ac-space-4);
 }
 
 .ac-dialog--wide {

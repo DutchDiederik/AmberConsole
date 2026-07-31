@@ -80,7 +80,7 @@ const CHECKS = [
   },
   {
     /* GLOW IS THE SIGNAL OF ENERGIZATION. A disabled control that glows is a lie
-       about the hardware, so --ink-dim and --ink-faint must switch the halo off.
+       about the hardware, so --ac-ink-dim and --ac-ink-faint must switch the halo off.
        Since tokens/effects.css applies the glow at the frame and lets it
        INHERIT, that is not automatic: a rule that dims the color inherits the
        halo it was given unless it says otherwise. This is the half of the rule
@@ -95,7 +95,7 @@ const CHECKS = [
        and those are exactly as able to strand an element at the wrong halo as a
        stylesheet is — seven of them did. */
     files: /\.(css|html)$/,
-    /* print.css blanks --glow-text wholesale, and a11y.css runs where the UA has
+    /* print.css blanks --ac-glow-text wholesale, and a11y.css runs where the UA has
        already forced shadows off; both set these colors legitimately. */
     exempt: /src[/\\]base[/\\](print|a11y)\.css$/,
     /* Selector plus declaration block, or an inline style attribute. The
@@ -107,7 +107,7 @@ const CHECKS = [
        so with the block pattern first, any style="" sitting between two braces
        anywhere in the file is swallowed by the block alternative and never
        inspected. That is not hypothetical: splitting the guide into chapters
-       moved the braces around and a stranded --ink-dim specimen that had been
+       moved the braces around and a stranded --ac-ink-dim specimen that had been
        invisible to this gate for its whole life became visible in the same
        commit. Six inline styles across docs/ were unreachable. Put the narrow,
        unambiguous pattern first and there is nothing to be shadowed. */
@@ -120,8 +120,14 @@ const CHECKS = [
          `color` and every swatch chip in the guide — which sets a border and no
          text at all — is reported as stranded. */
       const B = String.raw`(^|[;{"\s])`;
-      const lit = new RegExp(`${B}color\\s*:\\s*var\\(--(ink|ink-bright|ink-dim|ink-faint)\\)`).test(body);
-      const unlit = new RegExp(`${B}color\\s*:\\s*var\\(--on-fill\\)`).test(body);
+      /* The --ac- prefix is matched explicitly rather than made optional: the
+         unprefixed names are deprecated read-aliases that nothing in the
+         framework consumes, so a rule setting one is not setting an ink level at
+         all. This regex is also why the prefixing had to be checked rather than
+         trusted — the pattern sat inside a `var\(--(...)` group, so the rename
+         swept past it and the gate would have gone quietly blind. */
+      const lit = new RegExp(`${B}color\\s*:\\s*var\\(--ac-(ink|ink-bright|ink-dim|ink-faint)\\)`).test(body);
+      const unlit = new RegExp(`${B}color\\s*:\\s*var\\(--ac-on-fill\\)`).test(body);
       if (!lit && !unlit) return false;
 
       /* The closing quote has to be excluded or an inline style's
@@ -131,7 +137,7 @@ const CHECKS = [
       /* HALF ONE, unchanged: an ink level set with no halo stated either way.
          Inheritance does NOT cover a rule that brightens its own color inside
          dim prose — it inherits the dim's suppression and stays flat, which is
-         how eighty-two inline <code> spans sat at --ink-bright with no halo. */
+         how eighty-two inline <code> spans sat at --ac-ink-bright with no halo. */
       if (!shadow) return true;
 
       const isNone = /^\s*none\s*$/.test(shadow[1]);
@@ -140,7 +146,7 @@ const CHECKS = [
          shadow was enough to pass before, so the drive tiers could have been
          wired backwards and the gate would have shrugged.
 
-         GLOW FOLLOWS THE DRIVE LEVEL. --ink-dim is emit-70 and --ink-faint is
+         GLOW FOLLOWS THE DRIVE LEVEL. --ac-ink-dim is emit-70 and --ac-ink-faint is
          emit-50 — both lit cells, both scattering, just less. The only things
          that may go flat are genuinely INERT: a disabled control, and the unlit
          text inside an inverse-video block. A disabled control that glows is a
@@ -165,7 +171,7 @@ const CHECKS = [
     files: /\.css$/,
     re: /font-family\s*:\s*([^;}]+)/g,
     filter: (m) =>
-      !/VT323|Silkscreen|inherit|var\(--font-(terminal|micro)\)|Courier New|ui-monospace|monospace/i.test(
+      !/VT323|Silkscreen|inherit|var\(--ac-font-(terminal|micro)\)|Courier New|ui-monospace|monospace/i.test(
         m[1]
       ),
   },

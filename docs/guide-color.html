@@ -264,7 +264,7 @@
     </div>
 
     <!-- ----------------------------------------- 1/4 · state, the note -- -->
-    <div class="ac-stack" style="--gap: 24px">
+    <div class="ac-stack" style="--ac-gap: 24px">
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">State</span>
         <dl class="ac-list ac-list--dense">
@@ -404,17 +404,17 @@
       outside sRGB. That maps to 19°, which is a DC neon tube; a pulsed sustain enriches the 585.2nm line and
       walks it up. 19–31° is the defensible band and 24° is its middle.</p>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="neon" style="gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFA86D</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #FF6B08</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #DD5800</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #AB4500</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #5B2500</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFA86D</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-90)"></div><span class="doc-mono">--EMIT-90 · #FF6B08</span><span class="doc-faint doc-small">PRIMARY — <code>--ac-ink</code>, <code>--ac-fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-70)"></div><span class="doc-mono">--EMIT-70 · #DD5800</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-50)"></div><span class="doc-mono">--EMIT-50 · #AB4500</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-30)"></div><span class="doc-mono">--EMIT-30 · #5B2500</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
     </div>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="neon" style="margin-top:16px;gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #100600</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #1B0C02</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1E0C00</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN · #100600</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-raised);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #1B0C02</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-well);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-on-fill);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--ON-FILL · #1E0C00</span></div>
     </div>
 
     <h3 style="margin:32px 0 12px">CRT / P3 · 38° · THE PHOSPHOR</h3>
@@ -423,17 +423,17 @@
       a <em>different</em> display technology — but it is what most people mean by "amber terminal", it is the
       ramp the source design system was drawn against, and it pairs naturally with <code>.ac-crt</code>.</p>
     <div class="doc-demo" data-ac-tech="crt" data-ac-emitter="p3" style="gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFD052</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #FFAE1E</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #CD8817</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #8D5B10</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #4A2F08</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFD052</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-90)"></div><span class="doc-mono">--EMIT-90 · #FFAE1E</span><span class="doc-faint doc-small">PRIMARY — <code>--ac-ink</code>, <code>--ac-fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-70)"></div><span class="doc-mono">--EMIT-70 · #CD8817</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-50)"></div><span class="doc-mono">--EMIT-50 · #8D5B10</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-30)"></div><span class="doc-mono">--EMIT-30 · #4A2F08</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
     </div>
     <div class="doc-demo" data-ac-tech="crt" data-ac-emitter="p3" style="margin-top:16px;gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0D0700</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #170E02</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1A0E00</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN · #0D0700</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-raised);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #170E02</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-well);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060200</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-on-fill);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--ON-FILL · #1A0E00</span></div>
     </div>
 
 
@@ -443,17 +443,17 @@
       587.6nm carries the luminance while 447.1nm and 667.8nm pull the result off the blackbody locus toward
       purple. Integrates to x=0.3944 y=0.2986: a near-white with a pink cast, which is what a helium tube is.</p>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="helium" style="gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFA2B9</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #DC7D96</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #BC6A80</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #925163</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #502A34</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-100)"></div><span class="doc-mono">--EMIT-100 · #FFA2B9</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-90)"></div><span class="doc-mono">--EMIT-90 · #DC7D96</span><span class="doc-faint doc-small">PRIMARY — <code>--ac-ink</code>, <code>--ac-fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-70)"></div><span class="doc-mono">--EMIT-70 · #BC6A80</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-50)"></div><span class="doc-mono">--EMIT-50 · #925163</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-30)"></div><span class="doc-mono">--EMIT-30 · #502A34</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
     </div>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="helium" style="margin-top:16px;gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0E0809</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #1B1214</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060404</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #201216</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN · #0E0809</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-raised);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #1B1214</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-well);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #060404</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-on-fill);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--ON-FILL · #201216</span></div>
     </div>
 
     <h3 style="margin:32px 0 12px">PLASMA / ARGON · PALE VIOLET-LAVENDER</h3>
@@ -462,17 +462,17 @@
       is the 415–475nm group, a hundred times weaker on the meter and a hundred times better placed for the eye.
       x=0.2163 y=0.1047, desaturated 35% toward D65 to fit sRGB: paler here than in the tube.</p>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="argon" style="gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #C9B0FF</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #AF81FF</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #9F5DFF</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #8925F1</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #4B1088</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-100)"></div><span class="doc-mono">--EMIT-100 · #C9B0FF</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-90)"></div><span class="doc-mono">--EMIT-90 · #AF81FF</span><span class="doc-faint doc-small">PRIMARY — <code>--ac-ink</code>, <code>--ac-fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-70)"></div><span class="doc-mono">--EMIT-70 · #9F5DFF</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-50)"></div><span class="doc-mono">--EMIT-50 · #8925F1</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-30)"></div><span class="doc-mono">--EMIT-30 · #4B1088</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
     </div>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="argon" style="margin-top:16px;gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0B0812</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #171222</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #050309</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1B112C</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN · #0B0812</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-raised);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #171222</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-well);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #050309</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-on-fill);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--ON-FILL · #1B112C</span></div>
     </div>
 
     <h3 style="margin:32px 0 12px">PLASMA / KRYPTON · PALE VIOLET-WHITE</h3>
@@ -480,26 +480,26 @@
       integrates close to white — x=0.3153 y=0.2551 — which is why the panel reads violet rather than any one of
       those lines. The strongest visible krypton line is 587.1nm, not the 557.0nm that is often quoted.</p>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="krypton" style="gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-100)"></div><span class="doc-mono">--EMIT-100 · #EAA5EB</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-90)"></div><span class="doc-mono">--EMIT-90 · #BF86C0</span><span class="doc-faint doc-small">PRIMARY — <code>--ink</code>, <code>--fill</code></span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-70)"></div><span class="doc-mono">--EMIT-70 · #A372A3</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-50)"></div><span class="doc-mono">--EMIT-50 · #7F587F</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--emit-30)"></div><span class="doc-mono">--EMIT-30 · #442E45</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-100)"></div><span class="doc-mono">--EMIT-100 · #EAA5EB</span><span class="doc-faint doc-small">HOT HIGHLIGHT, FOCUS</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-90)"></div><span class="doc-mono">--EMIT-90 · #BF86C0</span><span class="doc-faint doc-small">PRIMARY — <code>--ac-ink</code>, <code>--ac-fill</code></span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-70)"></div><span class="doc-mono">--EMIT-70 · #A372A3</span><span class="doc-faint doc-small">SECONDARY TEXT</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-50)"></div><span class="doc-mono">--EMIT-50 · #7F587F</span><span class="doc-faint doc-small">DIM, DISABLED</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-emit-30)"></div><span class="doc-mono">--EMIT-30 · #442E45</span><span class="doc-faint doc-small">TRACE, GHOST RULES</span></div>
     </div>
     <div class="doc-demo" data-ac-tech="plasma" data-ac-emitter="krypton" style="margin-top:16px;gap:12px">
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN · #0B080B</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-raised);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #181318</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--screen-well);border-color:var(--ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #050405</span></div>
-      <div class="doc-swatch"><div class="doc-chip" style="background:var(--on-fill);border-color:var(--ink-faint)"></div><span class="doc-mono">--ON-FILL · #1B141B</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN · #0B080B</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-raised);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-RAISED · #181318</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-screen-well);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--SCREEN-WELL · #050405</span></div>
+      <div class="doc-swatch"><div class="doc-chip" style="background:var(--ac-on-fill);border-color:var(--ac-ink-faint)"></div><span class="doc-mono">--ON-FILL · #1B141B</span></div>
     </div>
 
     <div class="doc-prose" style="margin-top:18px">
-    <p class="doc-dim doc-small">The ramp is <code>--emit-100</code> through
-      <code>--emit-30</code>. It used to be <code>--amber-*</code>, which named a hue rather than a ramp and was
+    <p class="doc-dim doc-small">The ramp is <code>--ac-emit-100</code> through
+      <code>--ac-emit-30</code>. It used to be <code>--amber-*</code>, which named a hue rather than a ramp and was
       already only historically true — under NEON the color is not amber. With a lavender and a pink in the
       file it stopped being defensible at all. <code>--amber-*</code> survives as a deprecated alias and goes in
       3.0. Adding an emitter, or a whole technology, means adding one block to <code>colors.css</code>: five
-      stops, three surfaces, <code>--on-fill</code>, the four <code>--halo-N</code> triples the glow is built
+      stops, three surfaces, <code>--ac-on-fill</code>, the four <code>--ac-halo-N</code> triples the glow is built
       from — and for the gases that block is generated by <code>scripts/derive-gas.mjs</code>, not typed.</p>
     <p class="doc-dim doc-small">The older <code>data-ac-gas="neon"</code> and
       <code>data-ac-gas="amber"</code> still work and go in 3.0. The name was the bug: AMBER was never a gas,
@@ -511,18 +511,18 @@
     <table class="doc-table">
       <thead><tr><th>TOKEN</th><th>MAPS TO</th><th>USE</th></tr></thead>
       <tbody>
-        <tr><td class="doc-tok">--ink / --ink-bright</td><td class="doc-tok">emit-90 / 100</td><td>Body text; bright for live values and hover.</td></tr>
-        <tr><td class="doc-tok">--ink-dim / --ink-faint</td><td class="doc-tok">emit-70 / 50</td><td>Labels and legends; faint for disabled. Neither glows — and neither does inverse video.</td></tr>
-        <tr><td class="doc-tok">--fill / --on-fill</td><td class="doc-tok">emit-90 / per palette</td><td>Inverse-video surfaces and the dark text on them.</td></tr>
-        <tr><td class="doc-tok">--stroke / --stroke-dim</td><td class="doc-tok">emit-90 / 50</td><td>All borders, always 2px. Dim for secondary frames.</td></tr>
+        <tr><td class="doc-tok">--ac-ink / --ac-ink-bright</td><td class="doc-tok">emit-90 / 100</td><td>Body text; bright for live values and hover.</td></tr>
+        <tr><td class="doc-tok">--ac-ink-dim / --ac-ink-faint</td><td class="doc-tok">emit-70 / 50</td><td>Labels and legends; faint for disabled. Neither glows — and neither does inverse video.</td></tr>
+        <tr><td class="doc-tok">--ac-fill / --ac-on-fill</td><td class="doc-tok">emit-90 / per palette</td><td>Inverse-video surfaces and the dark text on them.</td></tr>
+        <tr><td class="doc-tok">--ac-stroke / --ac-stroke-dim</td><td class="doc-tok">emit-90 / 50</td><td>All borders, always 2px. Dim for secondary frames.</td></tr>
       </tbody>
     </table>
     </div>
     <div class="doc-demo doc-demo--col" style="margin-top:24px">
       <span class="doc-cap">THE THREE EMPHASIS LEVELS — NO FOURTH EXISTS</span>
-      <span style="text-shadow:var(--glow-text)">STATUS:AUTO MODE&nbsp;&nbsp;PRESETS COMPLETED</span>
-      <span style="background:var(--fill);color:var(--on-fill);padding:4px 14px;box-shadow:var(--glow-box);text-shadow:none">STATUS:AUTO MODE&nbsp;&nbsp;PRESETS COMPLETED</span>
-      <span class="ac-blink" style="background:var(--fill);color:var(--on-fill);padding:4px 14px;text-shadow:none">✳ LAMP FAULT ✳</span>
+      <span style="text-shadow:var(--ac-glow-text)">STATUS:AUTO MODE&nbsp;&nbsp;PRESETS COMPLETED</span>
+      <span style="background:var(--ac-fill);color:var(--ac-on-fill);padding:4px 14px;box-shadow:var(--ac-glow-box);text-shadow:none">STATUS:AUTO MODE&nbsp;&nbsp;PRESETS COMPLETED</span>
+      <span class="ac-blink" style="background:var(--ac-fill);color:var(--ac-on-fill);padding:4px 14px;text-shadow:none">✳ LAMP FAULT ✳</span>
     </div>
   </section>
 
@@ -533,7 +533,7 @@
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
-    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:var(--glow-text-dim)">GO TO CONSOLE ►</a>
+    <a class="doc-mono" href="index.html" style="color:var(--ac-ink-dim);text-shadow:var(--ac-glow-text-dim)">GO TO CONSOLE ►</a>
   </footer>
 
 </div>

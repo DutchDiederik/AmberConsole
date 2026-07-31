@@ -27,15 +27,15 @@
 .ac-toggle {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--ac-space-3);
   min-height: 44px;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   line-height: 1;
-  color: var(--ink);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
   text-transform: uppercase;
-  letter-spacing: var(--tracking-body);
+  letter-spacing: var(--ac-tracking-body);
   background: none;
   border: none;
   padding: 0;
@@ -47,9 +47,13 @@
   width: 64px;
   height: 28px;
   flex: none;
-  border: var(--border-w) solid var(--stroke);
-  box-shadow: var(--glow-box);
-  border-radius: var(--radius-sm);
+  border: var(--ac-border-w) solid var(--ac-stroke);
+  /* The switch housing is extruded like a key — see the note in button.css for
+     why the edge is declared on the component rather than in classic.css. The
+     disabled rules below deliberately drop it: a housing that is not driven is
+     still drawn, but it no longer stands off the glass. */
+  box-shadow: var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent);
+  border-radius: var(--ac-radius-sm);
 }
 
 .ac-toggle__thumb {
@@ -58,7 +62,7 @@
   left: 3px;
   width: 26px;
   height: 18px;
-  background: var(--ink-faint);
+  background: var(--ac-ink-faint);
 }
 
 /* The three ON hooks, stated once: the modifier class, the ARIA state, and the
@@ -69,40 +73,40 @@
 .ac-toggle--input input:checked ~ .ac-toggle__track .ac-toggle__thumb {
   left: auto;
   right: 3px;
-  background: var(--fill);
-  box-shadow: var(--glow-box);
+  background: var(--ac-fill);
+  box-shadow: var(--ac-glow-box);
 }
 
 .ac-toggle__state {
   min-width: 2.2em;
   text-align: left;
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 
 .ac-toggle--on .ac-toggle__state,
 .ac-toggle[aria-pressed="true"] .ac-toggle__state,
 .ac-toggle--input input:checked ~ .ac-toggle__state {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-toggle:disabled {
-  color: var(--ink-faint);
+  color: var(--ac-ink-faint);
   text-shadow: none;
   cursor: default;
 }
 .ac-toggle:disabled .ac-toggle__track {
-  border-color: var(--stroke-dim);
-  box-shadow: var(--glow-box-dim);
+  border-color: var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
 }
 .ac-toggle:disabled .ac-toggle__thumb {
-  background: var(--ink-trace);
+  background: var(--ac-ink-trace);
   box-shadow: none;
 }
 
 .ac-toggle:focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }
 
@@ -129,15 +133,15 @@
 }
 
 .ac-toggle--input input:disabled ~ .ac-toggle__track {
-  border-color: var(--stroke-dim);
+  border-color: var(--ac-stroke-dim);
   box-shadow: none;
 }
 .ac-toggle--input input:disabled ~ .ac-toggle__track .ac-toggle__thumb {
-  background: var(--ink-trace);
+  background: var(--ac-ink-trace);
   box-shadow: none;
 }
 
 .ac-toggle--input input:focus-visible ~ .ac-toggle__track {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }

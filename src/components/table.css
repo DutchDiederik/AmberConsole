@@ -1,7 +1,7 @@
 /* ===========================================================================
    Table — the data grid this UI genre lives on.
 
-   Inverse-video <thead> in Silkscreen micro caps, --ink-trace row separators,
+   Inverse-video <thead> in Silkscreen micro caps, --ac-ink-trace row separators,
    zero rounding. Numeric columns get .ac-table__num for tabular alignment.
 
    __row--active is the live row: inverse video. Add .ac-blink for an
@@ -15,19 +15,19 @@
 .ac-table {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--font-terminal);
-  font-size: var(--type-small);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
 }
 
 .ac-table th {
   text-align: left;
   font-weight: 400;
   text-transform: uppercase;
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  background: var(--fill);
-  color: var(--on-fill);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
   padding: 6px 12px;
   white-space: nowrap;
@@ -35,9 +35,9 @@
 
 .ac-table td {
   padding: 6px 12px;
-  color: var(--ink);
-  text-shadow: var(--glow-text);
-  border-bottom: var(--border-w) solid var(--ink-trace);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  border-bottom: var(--ac-border-w) solid var(--ac-ink-trace);
   text-transform: uppercase;
 }
 
@@ -46,13 +46,13 @@
 }
 
 .ac-table__row--active td {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
 }
 
 .ac-table--zebra tbody tr:nth-child(even) td {
-  background: var(--screen-raised);
+  background: var(--ac-screen-raised);
 }
 
 .ac-table--dense td,

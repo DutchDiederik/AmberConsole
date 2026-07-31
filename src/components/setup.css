@@ -33,10 +33,10 @@
 
 .ac-setup {
   box-sizing: border-box;
-  border-bottom: var(--border-w) solid var(--stroke);
-  box-shadow: var(--glow-box);
-  background: var(--screen);
-  padding: var(--space-8) var(--space-6) var(--space-6);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke);
+  box-shadow: var(--ac-glow-box);
+  background: var(--ac-screen);
+  padding: var(--ac-space-8) var(--ac-space-6) var(--ac-space-6);
 }
 
 /* Quarters — and THREE COLUMNS IS NOT ONE OF THE STOPS, which is why this is
@@ -52,7 +52,7 @@
 .ac-setup__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-6);
+  gap: var(--ac-space-6);
   align-items: start;
 }
 
@@ -68,14 +68,14 @@
   }
 }
 
-/* The board's own background is --screen, so the legend chips that mask the
+/* The board's own background is --ac-screen, so the legend chips that mask the
    panel border behind themselves already match. Stated rather than assumed:
    drop the board on a raised surface and this is the one line to override. */
 .ac-setup .ac-panel {
-  --ac-panel-title-bg: var(--screen);
+  --ac-panel-title-bg: var(--ac-screen);
 }
 
-/* Every region on the board is drawn in --stroke, INCLUDING the read-only ones.
+/* Every region on the board is drawn in --ac-stroke, INCLUDING the read-only ones.
    .ac-panel--dim normally dims its frame as well as its contents, which is right
    for a panel standing on its own — but here four regions sit edge to edge in
    one grid, and one frame drawn a step darker than the three beside it does not
@@ -86,27 +86,27 @@
    dim contents still say read-only, and those are the parts an operator is
    actually reading. Only the frame is normalized. */
 .ac-setup .ac-panel--dim {
-  border-color: var(--stroke);
+  border-color: var(--ac-stroke);
 }
 
 .ac-setup__foot {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-4);
-  margin-top: var(--space-6);
-  padding-top: var(--space-4);
-  border-top: var(--border-w) solid var(--stroke-dim);
-  box-shadow: var(--glow-box-dim);
+  gap: var(--ac-space-4);
+  margin-top: var(--ac-space-6);
+  padding-top: var(--ac-space-4);
+  border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
 }
 
 @media (max-width: 720px) {
   .ac-setup {
-    padding: var(--space-8) var(--space-4) var(--space-4);
+    padding: var(--ac-space-8) var(--ac-space-4) var(--ac-space-4);
   }
   /* One column here, and the regions are tall. Open the gap up so two stacked
      panels do not read as one region with a rule through it. */
   .ac-setup__grid {
-    gap: var(--space-8);
+    gap: var(--ac-space-8);
   }
 }

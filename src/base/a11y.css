@@ -21,7 +21,7 @@
    forced-color-adjust: none must also restate its shadows.
 
    The inverse-video list is the whole set of components that fill with
-   var(--fill). Grep for it before adding a component: a state that reads as
+   var(--ac-fill). Grep for it before adding a component: a state that reads as
    "the machine is speaking" and flattens to an outline here has lost its
    meaning, not just its styling.
    =========================================================================== */
@@ -33,7 +33,7 @@
   .ac-retrace,
   .ac-persist,
   .ac-mesh,
-  /* The radar wake is a gradient in --halo-N, which forced colors has no way to
+  /* The radar wake is a gradient in --ac-halo-N, which forced colors has no way to
      map and no reason to keep. It is also the last blended element left in this
      mode, and one `mix-blend-mode` anywhere promotes the stacking context and
      costs subpixel text antialiasing page-wide — see the matching note in
@@ -52,7 +52,7 @@
 
   /* Same argument for the de-energizing afterimage. The UA forces shadows off
      for anything still at forced-color-adjust: auto, but this halo is built from
-     --halo-N rather than from a forced system color, and the elements it sits on
+     --ac-halo-N rather than from a forced system color, and the elements it sits on
      are exactly the ones this file opts OUT of forced colors further down —
      which hands them their box-shadow back.
 

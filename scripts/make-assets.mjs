@@ -11,7 +11,7 @@
  *   docs/social-card.png        1200x630 og:image / twitter:card
  *
  * WHY THIS IS GENERATED RATHER THAN DRAWN. The mark is the letter A set in
- * VT323 and lit with --glow-text over --screen — the same three tokens the rest
+ * VT323 and lit with --ac-glow-text over --ac-screen — the same three tokens the rest
  * of the system uses. Hand-exporting it from a drawing tool would freeze a copy
  * of a palette that `data-ac-gas` can change and that scripts/contrast.mjs
  * gates. Rendering it through dist/amber-console.css means retuning the gas
@@ -60,16 +60,16 @@ const cssHref = "../dist/amber-console.css";
 const icon = (px) => `
 <link rel="stylesheet" href="${cssHref}">
 <style>
-  html, body { margin: 0; background: var(--screen); }
+  html, body { margin: 0; background: var(--ac-screen); }
   .tile {
     width: ${px}px; height: ${px}px;
     display: grid; place-items: center;
-    background: var(--screen);
-    font-family: var(--font-terminal);
+    background: var(--ac-screen);
+    font-family: var(--ac-font-terminal);
     font-size: ${Math.round(px * 0.86)}px;
     line-height: 1;
-    color: var(--ink-bright);
-    text-shadow: var(--glow-text);
+    color: var(--ac-ink-bright);
+    text-shadow: var(--ac-glow-text);
     padding-bottom: ${Math.round(px * 0.06)}px;
     box-sizing: border-box;
   }
@@ -79,17 +79,17 @@ const icon = (px) => `
 /* The card is the console demo, LETTERBOXED to 1.91:1 rather than cropped.
    Filling the frame means center-cropping a 16:10 capture, which slices through
    the footer row and reads as a broken screenshot rather than a bold one. The
-   bars are --screen, so on this design they read as the bezel the glass sits in
+   bars are --ac-screen, so on this design they read as the bezel the glass sits in
    — the one case where letterboxing is on-genre instead of apologetic.
    Scaled from the 1440-wide capture the README already uses. */
 const card = (shot) => `
 <link rel="stylesheet" href="${cssHref}">
 <style>
-  html, body { margin: 0; background: var(--screen); }
+  html, body { margin: 0; background: var(--ac-screen); }
   .card {
     width: 1200px; height: 630px;
     display: grid; place-items: center;
-    background: var(--screen);
+    background: var(--ac-screen);
     overflow: hidden;
   }
   .card img {

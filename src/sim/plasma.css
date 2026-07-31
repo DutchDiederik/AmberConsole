@@ -9,7 +9,7 @@
 .ac-bloom {
   position: relative;
   /* Same split as the base tokens: the 2px core is the lit cell, everything
-     wider is scattered light and answers to --halo-scatter / --halo-spread. This
+     wider is scattered light and answers to --ac-halo-scatter / --ac-halo-spread. This
      is where the difference between the gases actually shows, because the bloom
      is where the halo is big enough to see. */
   /* EVERY TIER IS RESTATED HERE, not just the full one. The bloom redefines the
@@ -18,30 +18,30 @@
      value and a dim label would end up glowing HARDER on a plasma panel than the
      bright text beside it. The bloom changes how much light the glass throws,
      not how hard the cell behind it is driven. */
-  --glow-text:
-    0 0 2px rgba(var(--halo-4), 0.75),
-    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1))),
-    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1))),
-    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1)));
-  --glow-text-dim:
-    0 0 2px rgba(var(--halo-4), calc(0.75 * var(--drive-dim))),
-    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1) * var(--drive-dim))),
-    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1) * var(--drive-dim))),
-    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-dim)));
-  --glow-text-faint:
-    0 0 2px rgba(var(--halo-4), calc(0.75 * var(--drive-faint))),
-    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.4 * var(--halo-scatter, 1) * var(--drive-faint))),
-    0 0 calc(26px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.2 * var(--halo-scatter, 1) * var(--drive-faint))),
-    0 0 calc(56px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-faint)));
+  --ac-glow-text:
+    0 0 2px rgba(var(--ac-halo-4), 0.75),
+    0 0 calc(9px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-2), calc(0.4 * var(--ac-halo-scatter, 1))),
+    0 0 calc(26px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-3), calc(0.2 * var(--ac-halo-scatter, 1))),
+    0 0 calc(56px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-3), calc(0.1 * var(--ac-halo-scatter, 1)));
+  --ac-glow-text-dim:
+    0 0 2px rgba(var(--ac-halo-4), calc(0.75 * var(--ac-drive-dim))),
+    0 0 calc(9px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-2), calc(0.4 * var(--ac-halo-scatter, 1) * var(--ac-drive-dim))),
+    0 0 calc(26px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-3), calc(0.2 * var(--ac-halo-scatter, 1) * var(--ac-drive-dim))),
+    0 0 calc(56px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-3), calc(0.1 * var(--ac-halo-scatter, 1) * var(--ac-drive-dim)));
+  --ac-glow-text-faint:
+    0 0 2px rgba(var(--ac-halo-4), calc(0.75 * var(--ac-drive-faint))),
+    0 0 calc(9px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-2), calc(0.4 * var(--ac-halo-scatter, 1) * var(--ac-drive-faint))),
+    0 0 calc(26px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-3), calc(0.2 * var(--ac-halo-scatter, 1) * var(--ac-drive-faint))),
+    0 0 calc(56px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-3), calc(0.1 * var(--ac-halo-scatter, 1) * var(--ac-drive-faint)));
 
-  --glow-box:
-    0 0 calc(11px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.4 * var(--halo-scatter, 1))),
-    0 0 calc(34px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.16 * var(--halo-scatter, 1))),
-    inset 0 0 14px rgba(var(--halo-1), 0.1);
-  --glow-box-dim:
-    0 0 calc(11px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.4 * var(--halo-scatter, 1) * var(--drive-faint))),
-    0 0 calc(34px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.16 * var(--halo-scatter, 1) * var(--drive-faint))),
-    inset 0 0 14px rgba(var(--halo-1), calc(0.1 * var(--drive-faint)));
+  --ac-glow-box:
+    0 0 calc(11px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-1), calc(0.4 * var(--ac-halo-scatter, 1))),
+    0 0 calc(34px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-2), calc(0.16 * var(--ac-halo-scatter, 1))),
+    inset 0 0 14px rgba(var(--ac-halo-1), 0.1);
+  --ac-glow-box-dim:
+    0 0 calc(11px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-1), calc(0.4 * var(--ac-halo-scatter, 1) * var(--ac-drive-faint))),
+    0 0 calc(34px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-2), calc(0.16 * var(--ac-halo-scatter, 1) * var(--ac-drive-faint))),
+    inset 0 0 14px rgba(var(--ac-halo-1), calc(0.1 * var(--ac-drive-faint)));
 }
 .ac-bloom::before {
   content: "";

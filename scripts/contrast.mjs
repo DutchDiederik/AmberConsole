@@ -102,18 +102,18 @@ const ratio = (a, b) => {
    information a user has to read. Decorative and disabled pairs are exempt by
    WCAG 1.4.3 itself, but we still report their numbers. */
 const PAIRS = [
-  ["--ink", "--screen", "Body text on the panel", true, "body"],
-  ["--ink-bright", "--screen", "Live values, hover, input text", true, "body"],
-  ["--ink-dim", "--screen", "Field labels, legends, secondary text", true, "body"],
-  ["--ink-faint", "--screen", "Disabled text — decorative only", false, "disabled"],
-  ["--ink-trace", "--screen", "Row separators, leader dots — non-text", false, "decorative"],
-  ["--on-fill", "--fill", "Inverse video: dark text on amber", true, "body"],
-  ["--on-fill", "--fill-bright", "Inverse video, hover state", true, "body"],
-  ["--ink-bright", "--screen-well", "Input text in a recessed well", true, "body"],
-  ["--ink-faint", "--screen-well", "Placeholder text", false, "placeholder"],
-  ["--ink", "--screen-raised", "Body text on a zebra table row", true, "body"],
-  ["--stroke", "--screen", "2px borders — non-text, needs 3:1", true, "ui"],
-  ["--stroke-dim", "--screen", "Dim borders — non-text, needs 3:1", true, "ui"],
+  ["--ac-ink", "--ac-screen", "Body text on the panel", true, "body"],
+  ["--ac-ink-bright", "--ac-screen", "Live values, hover, input text", true, "body"],
+  ["--ac-ink-dim", "--ac-screen", "Field labels, legends, secondary text", true, "body"],
+  ["--ac-ink-faint", "--ac-screen", "Disabled text — decorative only", false, "disabled"],
+  ["--ac-ink-trace", "--ac-screen", "Row separators, leader dots — non-text", false, "decorative"],
+  ["--ac-on-fill", "--ac-fill", "Inverse video: dark text on amber", true, "body"],
+  ["--ac-on-fill", "--ac-fill-bright", "Inverse video, hover state", true, "body"],
+  ["--ac-ink-bright", "--ac-screen-well", "Input text in a recessed well", true, "body"],
+  ["--ac-ink-faint", "--ac-screen-well", "Placeholder text", false, "placeholder"],
+  ["--ac-ink", "--ac-screen-raised", "Body text on a zebra table row", true, "body"],
+  ["--ac-stroke", "--ac-screen", "2px borders — non-text, needs 3:1", true, "ui"],
+  ["--ac-stroke-dim", "--ac-screen", "Dim borders — non-text, needs 3:1", true, "ui"],
 ];
 
 const palettes = await loadTokens();

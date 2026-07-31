@@ -33,20 +33,20 @@
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  color: var(--ink);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
   font-size: 14px;
-  font-family: var(--font-terminal);
+  font-family: var(--ac-font-terminal);
 }
 
 /* The dropdown list is painted by the OS; this is as far as we can reach. */
 .ac-select .ac-input option {
-  background: var(--screen);
-  color: var(--ink);
-  text-shadow: var(--glow-text);
+  background: var(--ac-screen);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-select:has(.ac-input:disabled)::after {
-  color: var(--ink-faint);
+  color: var(--ac-ink-faint);
   text-shadow: none;
 }

@@ -77,8 +77,8 @@ function spectrumOf(spec) {
  *   P39  tau ~ 174ms  residual 0.91   no visible flicker at any refresh rate,
  *                                     paid for in smear. Fitted to radar.
  *
- * So both tokens come off `to10` and cannot disagree, exactly as --halo-spread is
- * the square root of --halo-scatter and cannot disagree with it.
+ * So both tokens come off `to10` and cannot disagree, exactly as --ac-halo-spread is
+ * the square root of --ac-halo-scatter and cannot disagree with it.
  *
  * `to10` is time to 10% of peak, which is what data sheets quote. For a simple
  * exponential that is tau*ln(10); for the long-persistence power-law phosphors
@@ -155,11 +155,11 @@ function decayEasing(decay, durationMs, stops = 10) {
 }
 
 /**
- * The five discharge stops, as contrast ratios against that palette's --screen.
+ * The five discharge stops, as contrast ratios against that palette's --ac-screen.
  *
  * These are the ratios the shipped neon palette was solved to, and they are the
- * contract: --ink at 7:1 and --ink-dim at 5.2:1 clear WCAG 1.4.3's 4.5:1 for
- * text, --ink-faint at 3.4:1 clears 1.4.11's 3:1 for the borders that use it,
+ * contract: --ac-ink at 7:1 and --ac-ink-dim at 5.2:1 clear WCAG 1.4.3's 4.5:1 for
+ * text, --ac-ink-faint at 3.4:1 clears 1.4.11's 3:1 for the borders that use it,
  * and --*-30 is decorative. Solve to the ratio, never re-tint to taste —
  * rotating hue at constant lightness is what silently drops a stop under the
  * gate, and it is why this file exists.
@@ -238,8 +238,8 @@ const GLOW_SLACK = 0.05;
  * eight of eleven palettes.
  *
  * What IS luminance-dependent is the SECOND half of the walk: the part that
- * fixes a channel overflowing 1. That is why --halo-1 at Y=0.62 came out visibly
- * paler than --emit-90 at Y=0.32 even though both start from the same
+ * fixes a channel overflowing 1. That is why --ac-halo-1 at Y=0.62 came out visibly
+ * paler than --ac-emit-90 at Y=0.32 even though both start from the same
  * chromaticity — and that difference, not the absolute saturation, is the defect
  * somebody actually sees. A halo is scattered light from the stroke; it must
  * read as the same color as the stroke. Whether that shared color is as
@@ -318,7 +318,7 @@ function derive(name, emitter) {
      photons the cell emits, so it tracks the discharge hue exactly" — and that
      is true of every emitter in this file except one. P7 is two coatings: the
      beam writes in ZnS:Ag blue and the screen HOLDS in (Zn,Cd)S:Cu yellow-green,
-     so its --emit-* ramp and its --halo-* halo are two different spectra and
+     so its --ac-emit-* ramp and its --ac-halo-* halo are two different spectra and
      that is the entire point of the part number.
      Everything else falls through with haloLines === lines and is unaffected. */
   const haloLines = emitter.afterglow ? spectrumOf(emitter.afterglow) : lines;
@@ -341,7 +341,7 @@ function derive(name, emitter) {
      spectrum is actually in the halo — the afterglow layer where there is one. */
   out.rawScatter = scatter(haloLines);
 
-  /* Surfaces first — every ratio below is measured against --screen. */
+  /* Surfaces first — every ratio below is measured against --ac-screen. */
   for (const [token, Y, tint] of SURFACES) {
     const [sx, sy] = toward([x, y], tint);
     out.tokens[token] = hexOf(fitToGamut(sx, sy, Y).rgb);
@@ -354,8 +354,8 @@ function derive(name, emitter) {
     if (stop === "90") out.desat = fit.mixed;
   }
 
-  /* --on-fill is the dark text inside an inverse-video block, so it is solved
-     against --fill (which is emit-90), not against the panel. 4.5:1 is the
+  /* --ac-on-fill is the dark text inside an inverse-video block, so it is solved
+     against --ac-fill (which is emit-90), not against the panel. 4.5:1 is the
      floor; we take the darkest tint of the gas that clears it comfortably. */
   const fillY = luminance(linearOfHex(out.tokens["emit-90"]));
   for (let t = 0; t <= 1; t += 0.002) {
@@ -383,7 +383,7 @@ function derive(name, emitter) {
        the accidental kind and get solved away. */
     const [gx, gy] = toward([hx, hy], tint);
     /* The budget covers the INVOLUNTARY walk only. The tint is already applied
-       above and is exempt — charging it would make --halo-4 dim itself to
+       above and is exempt — charging it would make --ac-halo-4 dim itself to
        compensate for a whitening it was asked for, which is the opposite of the
        intent. So the residual mix from the tinted point is what is compared. */
     const solved = solveGlow(gx, gy, Y, haloBudget);
@@ -438,7 +438,7 @@ function derive(name, emitter) {
      and effects.css falls back to the single-hue keyframe for everything else.
      Any future two-layer phosphor works with no edit to the CSS.
 
-     --halo-flash is the FLASH chromaticity at --halo-1's luminance and tint, so
+     --ac-halo-flash is the FLASH chromaticity at --ac-halo-1's luminance and tint, so
      the ghost's opening frame sits on exactly the same point of the ramp its
      closing frames do and only the hue moves between them. */
   if (emitter.afterglow) {
@@ -471,20 +471,20 @@ function toCSS(d, emitter) {
      than only in emitters.json, because this is the file somebody reads when
      they wonder why the blue text has a green glow. */
   const cascade = d.cascade
-    ? `\n\n     TWO EMITTERS, IN SEQUENCE. --emit-* is the ZnS:Ag FLASH (x=${d.x.toFixed(4)} y=${d.y.toFixed(4)}),
-     which is what the beam writes. --halo-* is the (Zn,Cd)S:Cu AFTERGLOW
+    ? `\n\n     TWO EMITTERS, IN SEQUENCE. --ac-emit-* is the ZnS:Ag FLASH (x=${d.x.toFixed(4)} y=${d.y.toFixed(4)}),
+     which is what the beam writes. --ac-halo-* is the (Zn,Cd)S:Cu AFTERGLOW
      (x=${d.hx.toFixed(4)} y=${d.hy.toFixed(4)}), which is what the screen holds after it. The halo
      therefore does NOT track the ink here, which inverts the rule stated at the
      top of tokens/effects.css and is the reason P7 exists as a part number.`
     : "";
 
   const flash = t["gas-flash"]
-    ? `\n\n  /* THE FLASH, as a halo triple. --halo-* above is the AFTERGLOW, which is what
+    ? `\n\n  /* THE FLASH, as a halo triple. --ac-halo-* above is the AFTERGLOW, which is what
      this screen holds; this is the layer the beam actually writes, and the ghost
      keyframe starts here before crossing to the afterglow within one frame.
      --ac-ghost-anim is how this palette tells tokens/effects.css it decays
      through two hues rather than one, without effects.css naming it. */
-  --halo-flash: ${t["gas-flash"]};
+  --ac-halo-flash: ${t["gas-flash"]};
   --ac-ghost-anim: ${t["ac-ghost-anim"]};`
     : "";
 
@@ -532,30 +532,30 @@ function toCSS(d, emitter) {
 
      ${spectrum}: x=${d.x.toFixed(4)} y=${d.y.toFixed(4)}.
      ${d.desat > 0.005
-       ? `Outside sRGB at the luminance --emit-90 needs, so it is\n     desaturated ${(d.desat * 100).toFixed(0)}% toward D65 — the ${noun} is paler here than it is in the tube.`
+       ? `Outside sRGB at the luminance --ac-emit-90 needs, so it is\n     desaturated ${(d.desat * 100).toFixed(0)}% toward D65 — the ${noun} is paler here than it is in the tube.`
        : `Inside sRGB as measured; no gamut mapping needed.`}
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at ${d.onFillRatio.toFixed(2)}:1 on --emit-90.${cascade} --- */
+     own --ac-screen; --ac-on-fill lands at ${d.onFillRatio.toFixed(2)}:1 on --ac-emit-90.${cascade} --- */
 [data-ac-tech="${d.tech}"][data-ac-emitter="${d.name}"] {
-  --screen: ${t["screen"]};
-  --screen-raised: ${t["screen-raised"]};
-  --screen-well: ${t["screen-well"]};
+  --ac-screen: ${t["screen"]};
+  --ac-screen-raised: ${t["screen-raised"]};
+  --ac-screen-well: ${t["screen-well"]};
 
-  --emit-100: ${t["emit-100"]};
-  --emit-90:  ${t["emit-90"]};
-  --emit-70:  ${t["emit-70"]};
-  --emit-50:  ${t["emit-50"]};
-  --emit-30:  ${t["emit-30"]};
-  --on-fill:  ${t["on-fill"]};
+  --ac-emit-100: ${t["emit-100"]};
+  --ac-emit-90:  ${t["emit-90"]};
+  --ac-emit-70:  ${t["emit-70"]};
+  --ac-emit-50:  ${t["emit-50"]};
+  --ac-emit-30:  ${t["emit-30"]};
+  --ac-on-fill:  ${t["on-fill"]};
 
-  --halo-1: ${t["gas-1"]};
-  --halo-2: ${t["gas-2"]};
-  --halo-3: ${t["gas-3"]};
-  --halo-4: ${t["gas-4"]};
+  --ac-halo-1: ${t["gas-1"]};
+  --ac-halo-2: ${t["gas-2"]};
+  --ac-halo-3: ${t["gas-3"]};
+  --ac-halo-4: ${t["gas-4"]};
 
   /* Rayleigh: this ${noun} throws ${d.scatter >= 1 ? `${((d.scatter - 1) * 100).toFixed(0)}% more` : `${((1 - d.scatter) * 100).toFixed(0)}% less`} light into the halo than neon. */
-  --halo-scatter: ${t["gas-scatter"]};
-  --halo-spread: ${t["gas-spread"]};${flash}${persist}
+  --ac-halo-scatter: ${t["gas-scatter"]};
+  --ac-halo-spread: ${t["gas-spread"]};${flash}${persist}
 }`;
 }
 
@@ -691,7 +691,7 @@ if (args.includes("--check")) {
 
   /* The summary reports EVERY emitter, including the reference-only ones, and
      that is not just for completeness. P3's palette is hand-built and not
-     emitted, but its --halo-scatter is derived here and has to be readable
+     emitted, but its --ac-halo-scatter is derived here and has to be readable
      somewhere in order to be copied into the hand-built block — otherwise the
      one number this pass fixes for P3 is computed and then thrown away. */
   console.error(all.map(({ d, e }) =>

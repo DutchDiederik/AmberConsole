@@ -45,9 +45,9 @@
      it is the first question anyone asks. A status dashboard normally says
      "healthy" in green and "down" in red. Law 1 allows exactly one hue, so there
      is no red and no green to say it with. Every state on this page is therefore
-     carried by three things the genre already had: INVERSE VIDEO (--fill against
-     --on-fill) for the live and the asserted, INK LEVEL (--ink-bright down to
-     --ink-faint) for how much attention a row deserves, and BLINK for the one
+     carried by three things the genre already had: INVERSE VIDEO (--ac-fill against
+     --ac-on-fill) for the live and the asserted, INK LEVEL (--ac-ink-bright down to
+     --ac-ink-faint) for how much attention a row deserves, and BLINK for the one
      unacknowledged thing. That is not a workaround. Monochrome panels ran power
      stations for thirty years on those three signals, and they are legible to a
      colorblind operator and to a black-and-white printout in a way a red pill on
@@ -279,7 +279,7 @@
     </div>
 
     <!-- ----------------------------------------- 1/4 · state, the note -- -->
-    <div class="ac-stack" style="--gap: 24px">
+    <div class="ac-stack" style="--ac-gap: 24px">
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">State</span>
         <dl class="ac-list ac-list--dense">
@@ -385,7 +385,7 @@
 
     <!-- The vitals strip sits OUTSIDE the tab panels, because it is the machine
          reporting on itself rather than one of the three views of it. Four
-         numbers, no units longer than two characters: at --type-display a
+         numbers, no units longer than two characters: at --ac-type-display a
          four-up row has about 85px per value on a phone, and anything wider
          would be clipped by the frame instead of wrapping. -->
     <div class="ac-panel ac-panel--bar">
@@ -414,10 +414,10 @@
     <div class="ac-grid ac-grid--console" id="view-overview" role="tabpanel" aria-labelledby="tab-overview">
 
       <!-- Operating column. Reading order is what an operator checks first. -->
-      <div class="ac-stack" style="--gap: 18px">
+      <div class="ac-stack" style="--ac-gap: 18px">
         <div class="ac-panel">
           <span class="ac-panel__title">Host Load</span>
-          <div class="ac-stack" style="--gap: 14px">
+          <div class="ac-stack" style="--ac-gap: 14px">
             <!-- A meter is the right instrument here and a readout is not: these
                  four are quantities an operator judges ("is it near the top?"),
                  not values anyone writes down. The exact percentage rides along
@@ -518,7 +518,7 @@
       </div>
 
       <!-- Instrument column. Dim frames so read-only data recedes. -->
-      <div class="ac-stack" style="--gap: 18px">
+      <div class="ac-stack" style="--ac-gap: 18px">
         <div class="ac-panel ac-panel--dim">
           <span class="ac-panel__title">Disks</span>
           <dl class="ac-list ac-list--dense">
@@ -581,7 +581,7 @@
          STARTING with a spinner while the machine admits it cannot say how long,
          then ACTIVE. The spinner is correct here for exactly that reason; the
          scrub on the storage tab knows its progress and gets a meter instead. -->
-    <div class="ac-stack" style="--gap: 18px" id="view-services" role="tabpanel" aria-labelledby="tab-services" hidden>
+    <div class="ac-stack" style="--ac-gap: 18px" id="view-services" role="tabpanel" aria-labelledby="tab-services" hidden>
       <div class="ac-panel">
         <span class="ac-panel__title">Containers</span>
         <div class="ac-table-scroll">
@@ -655,7 +655,7 @@
         </div>
       </div>
 
-      <div class="ac-row ac-row--wrap" style="--gap: 20px">
+      <div class="ac-row ac-row--wrap" style="--ac-gap: 20px">
         <button type="button" class="ac-btn" id="svc-all-on">Start All</button>
         <span class="ac-spacer"></span>
         <button type="button" class="ac-btn ac-btn--dim">Prune Unused Images</button>
@@ -664,10 +664,10 @@
 
     <!-- ========================================================== STORAGE == -->
     <div class="ac-grid ac-grid--console" id="view-storage" role="tabpanel" aria-labelledby="tab-storage" hidden>
-      <div class="ac-stack" style="--gap: 18px">
+      <div class="ac-stack" style="--ac-gap: 18px">
         <div class="ac-panel">
           <span class="ac-panel__title">Pools</span>
-          <div class="ac-stack" style="--gap: 18px">
+          <div class="ac-stack" style="--ac-gap: 18px">
             <div class="ac-meter ac-meter--lg">
               <div class="ac-meter__track" style="--ac-meter-value: 68" role="progressbar" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" aria-label="Tank pool">
                 <div class="ac-meter__bar"></div>
@@ -706,10 +706,10 @@
         </div>
       </div>
 
-      <div class="ac-stack" style="--gap: 18px">
+      <div class="ac-stack" style="--ac-gap: 18px">
         <div class="ac-panel ac-panel--bar">
           <div class="ac-panel__barTitle">Scrub</div>
-          <div class="ac-stack" style="--gap: 14px">
+          <div class="ac-stack" style="--ac-gap: 14px">
             <div class="ac-readout">
               <div class="ac-readout__value" id="s-pct">0<span class="ac-readout__unit">%</span></div>
               <div class="ac-readout__label ac-readout__label--plain" id="s-state">Last Run 19 Jul · 0 Errors</div>

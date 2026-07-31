@@ -20,29 +20,29 @@
 .ac-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--ac-space-1);
   margin: 0;
   padding: 0;
   list-style: none;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: var(--tracking-body);
+  letter-spacing: var(--ac-tracking-body);
   min-width: 0;
 }
 
 .ac-list__item {
   display: flex;
   align-items: baseline;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
   margin: 0;
   min-width: 0;
 }
 
 .ac-list__key {
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
   white-space: nowrap;
 }
 
@@ -50,35 +50,35 @@
    lands exactly on the row's text baseline. */
 .ac-list__fill {
   flex: 1;
-  min-width: var(--space-6);
+  min-width: var(--ac-space-6);
   align-self: baseline;
-  border-bottom: var(--border-w) dotted var(--ink-trace);
+  border-bottom: var(--ac-border-w) dotted var(--ac-ink-trace);
 }
 
 .ac-list__value {
   margin: 0;
-  color: var(--ink);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
 /* Values that are the point of the panel rather than context. */
 .ac-list--bright .ac-list__value {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-list--dense {
   gap: 0;
-  font-size: var(--type-small);
+  font-size: var(--ac-type-small);
 }
 
 .ac-list--dim .ac-list__key {
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 .ac-list--dim .ac-list__value {
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }

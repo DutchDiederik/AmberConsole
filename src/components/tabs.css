@@ -11,7 +11,7 @@
 
 .ac-tabs {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
   /* Three title-size soft keys need ~455px. Wrap to a second row rather than
      be clipped — same rule as .ac-nav, and for the same reason: a control panel
      shows you every key it has. */
@@ -19,45 +19,45 @@
 }
 
 .ac-tab {
-  font-family: var(--font-terminal);
-  font-size: var(--type-title);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-title);
   line-height: 1;
-  color: var(--ink);
+  color: var(--ac-ink);
   background: transparent;
   text-transform: none;
-  border: var(--border-w) solid var(--stroke);
-  box-shadow: var(--glow-box);
-  border-radius: var(--radius);
+  border: var(--ac-border-w) solid var(--ac-stroke);
+  box-shadow: var(--ac-glow-box);
+  border-radius: var(--ac-radius);
   /* The 20px bottom padding is dead space that makes a soft key read as a
      physical key. It is intentional. Do not snap it to the 4/8px grid. */
   padding: 8px 24px 20px;
   cursor: pointer;
-  text-shadow: var(--glow-text);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-tab:hover {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
-  border-color: var(--ink-bright);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+  border-color: var(--ac-ink-bright);
 }
 
 .ac-tab--active,
 .ac-tab[aria-selected="true"] {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
-  box-shadow: var(--glow-box);
+  box-shadow: var(--ac-glow-box);
 }
 
 .ac-tab:disabled {
-  color: var(--ink-faint);
-  border-color: var(--stroke-dim);
-  box-shadow: var(--glow-box-dim);
+  color: var(--ac-ink-faint);
+  border-color: var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
   text-shadow: none;
   cursor: default;
 }
 
 .ac-tab:focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }

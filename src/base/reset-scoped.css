@@ -18,13 +18,13 @@
 }
 
 .ac-root {
-  background: var(--screen);
-  color: var(--ink);
-  text-shadow: var(--glow-text);
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
-  line-height: var(--leading);
-  letter-spacing: var(--tracking-body);
+  background: var(--ac-screen);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
+  line-height: var(--ac-leading);
+  letter-spacing: var(--ac-tracking-body);
   -webkit-font-smoothing: none;
 }
 
@@ -38,19 +38,19 @@
 }
 
 .ac-root a {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 .ac-root a:hover {
-  color: var(--fill-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-fill-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-root ::selection {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
 }
 
@@ -67,6 +67,6 @@
 }
 
 .ac-root :focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }

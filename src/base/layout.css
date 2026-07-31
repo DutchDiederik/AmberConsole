@@ -18,7 +18,7 @@
      viewport-sized backdrop-filter (.ac-bloom::before) behind it. `100svh` is
      static and can never overflow. It leaves a gap when the bar retracts, and
      that gap is invisible: this element paints no background of its own, `body`
-     owns --screen, and the overlays are fixed to the real viewport regardless.
+     owns --ac-screen, and the overlays are fixed to the real viewport regardless.
      Declared after the 100vh fallback, which older engines keep. */
   min-height: 100vh;
   min-height: 100svh;
@@ -38,23 +38,23 @@
   flex: 1;
   flex-direction: column;
   /* 20px 24px — five and six half-cells. Override with --ac-screen-pad. */
-  padding: var(--ac-screen-pad, 20px var(--space-6));
-  gap: var(--space-4);
+  padding: var(--ac-screen-pad, 20px var(--ac-space-6));
+  gap: var(--ac-space-4);
   min-width: 0;
 }
 
-/* --- Stack / Row: one axis, gap driven by a --gap custom property --- */
+/* --- Stack / Row: one axis, gap driven by a --ac-gap custom property --- */
 .ac-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--gap, var(--space-4));
+  gap: var(--ac-gap, var(--ac-space-4));
   min-width: 0;
 }
 
 .ac-row {
   display: flex;
   flex-direction: row;
-  gap: var(--gap, var(--space-4));
+  gap: var(--ac-gap, var(--ac-space-4));
   min-width: 0;
 }
 .ac-row--wrap { flex-wrap: wrap; }
@@ -97,8 +97,8 @@
 /* --- Grid --- */
 .ac-grid {
   display: grid;
-  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
-  gap: var(--gap, var(--space-6));
+  grid-template-columns: repeat(var(--ac-cols, 1), minmax(0, 1fr));
+  gap: var(--ac-gap, var(--ac-space-6));
   min-width: 0;
 }
 

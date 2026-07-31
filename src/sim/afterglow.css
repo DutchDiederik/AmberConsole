@@ -85,10 +85,10 @@
   content: "";
   position: absolute; inset: 0;
   background:
-    radial-gradient(38% 30% at 22% 28%, rgba(var(--halo-1), 0.032), transparent 70%),
-    radial-gradient(46% 34% at 78% 62%, rgba(var(--halo-2), 0.026), transparent 72%),
-    radial-gradient(30% 44% at 58% 12%, rgba(var(--halo-4), 0.022), transparent 68%),
-    radial-gradient(52% 40% at 34% 84%, rgba(var(--halo-3), 0.028), transparent 74%);
+    radial-gradient(38% 30% at 22% 28%, rgba(var(--ac-halo-1), 0.032), transparent 70%),
+    radial-gradient(46% 34% at 78% 62%, rgba(var(--ac-halo-2), 0.026), transparent 72%),
+    radial-gradient(30% 44% at 58% 12%, rgba(var(--ac-halo-4), 0.022), transparent 68%),
+    radial-gradient(52% 40% at 34% 84%, rgba(var(--ac-halo-3), 0.028), transparent 74%);
   background-size: 150% 150%;
   background-repeat: no-repeat;
   mix-blend-mode: screen;
@@ -276,9 +276,9 @@
      on every button and tab on the page. It is also unnecessary over a
      near-black panel. NO BACKGROUND EITHER — --ac-lit sits at 1 for as long as
      the control is lit, so a fill would paint over its inverse-video text
-     permanently and spend the --on-fill contrast ratio contrast.mjs gates.
+     permanently and spend the --ac-on-fill contrast ratio contrast.mjs gates.
      Both in RATIONALE.md § The afterimage. */
-  box-shadow: 0 0 calc(18px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.26 * var(--ac-lit)));
+  box-shadow: 0 0 calc(18px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-1), calc(0.26 * var(--ac-lit)));
 }
 .ac-afterglow .ac-btn,
 .ac-afterglow .ac-tab,
@@ -341,7 +341,7 @@
   pointer-events: none;
   background: repeating-linear-gradient(
     90deg,
-    var(--fill) 0 8px,
+    var(--ac-fill) 0 8px,
     transparent 8px 12px
   );
   opacity: 0.5;
@@ -445,9 +445,9 @@
    the clone. Palettes with one coating never reach this keyframe.
    See RATIONALE.md § Ghosts. */
 @keyframes ac-ghost-cascade {
-  0%   { opacity: 0.46; color: rgb(var(--halo-flash)); filter: blur(0); }
-  4%   { opacity: 0.38; color: rgb(var(--halo-1)); filter: blur(0.1px); }
-  100% { opacity: 0; color: rgb(var(--halo-1)); filter: blur(0.8px); }
+  0%   { opacity: 0.46; color: rgb(var(--ac-halo-flash)); filter: blur(0); }
+  4%   { opacity: 0.38; color: rgb(var(--ac-halo-1)); filter: blur(0.1px); }
+  100% { opacity: 0; color: rgb(var(--ac-halo-1)); filter: blur(0.8px); }
 }
 
 /* (7) THE PAGE ITSELF DECAYS — cross-document persistence, and the only place in

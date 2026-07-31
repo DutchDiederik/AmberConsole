@@ -13,31 +13,31 @@
 .ac-statusbar {
   box-sizing: border-box;
   display: flex;
-  gap: var(--space-8);
+  gap: var(--ac-space-8);
   align-items: baseline;
   flex-wrap: wrap;
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: var(--tracking-body);
-  padding: 6px var(--space-4);
-  box-shadow: var(--glow-box);
+  letter-spacing: var(--ac-tracking-body);
+  padding: 6px var(--ac-space-4);
+  box-shadow: var(--ac-glow-box);
   min-width: 0;
 }
 
 .ac-statusbar--line {
   background: transparent;
-  color: var(--ink);
-  text-shadow: var(--glow-text);
-  border-top: var(--border-w) solid var(--stroke-dim);
-  border-bottom: var(--border-w) solid var(--stroke-dim);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
   /* The `none` that used to sit here canceled the filled bar's halo, which was
      right when a border could not carry one. Now it can: the rules are lit
      cells at emit-50, so they get that tier rather than nothing. Note the text
      above keeps full drive — only the STROKES stepped down. */
-  box-shadow: var(--glow-box-dim);
+  box-shadow: var(--ac-glow-box-dim);
 }

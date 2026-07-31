@@ -91,11 +91,11 @@ Regenerating neon would repaint every screen in the system to settle a question
 that is already settled.
 
 Luminance is not free-floating either. Each stop is solved to a contrast ratio
-against `--screen` (10.5 / 7.0 / 5.2 / 3.4), because rotating hue at constant
-lightness drops `--emit-50` to 2.79:1 and silently fails the 3:1 non-text gate.
+against `--ac-screen` (10.5 / 7.0 / 5.2 / 3.4), because rotating hue at constant
+lightness drops `--ac-emit-50` to 2.79:1 and silently fails the 3:1 non-text gate.
 Re-solve, never re-tint.
 
-### Why the ramp is `--emit-*` and not `--amber-*`
+### Why the ramp is `--ac-emit-*` and not `--amber-*`
 
 `--amber-*` named a hue rather than a ramp, and was already only historically
 true — under the default palette the colour is neon, not amber. With a lavender,
@@ -106,11 +106,11 @@ survive, deprecated, removed in 3.0.
 name was the bug — "amber" was never a gas, it is a CRT phosphor, and calling it
 one is exactly the confusion the two attributes exist to prevent.
 
-### Scattering — why `--halo-scatter` differs per palette
+### Scattering — why `--ac-halo-scatter` differs per palette
 
 Rayleigh scattering goes as λ⁻⁴, so a violet gas throws far more of itself
 sideways into the glass than neon's orange-red does. Neon is 1.00 by definition —
-every other palette's figure is stated against it — and `--halo-spread` is its
+every other palette's figure is stated against it — and `--ac-halo-spread` is its
 square root, because multiple scattering widens the halo as it brightens it.
 
 P3's figure was a placeholder held at neon's 1.00, with a note predicting that a
@@ -141,7 +141,7 @@ one physical quantity read in two directions — what is left of a frame when th
 next one arrives *is* the persistence, and what is missing *is* the flicker — so a
 phosphor cannot have much of one without little of the other.
 `scripts/derive-gas.mjs` computes both from one decay constant for exactly that
-reason, the same way `--halo-spread` is the square root of `--halo-scatter`.
+reason, the same way `--ac-halo-spread` is the square root of `--ac-halo-scatter`.
 
 **The four gases deliberately declare none of them.** Gas afterglow is real, but
 no decay figure for these panels is cited, and inventing one to fill the column
@@ -154,8 +154,8 @@ Adding a *cited* decay to a gas is what would opt it in.
 
 P7 is a blue ZnS:Ag layer facing the beam over a yellow-green (Zn,Cd)S:Cu layer
 behind it. The beam writes in blue, the blue layer's own photons pump the layer
-underneath, and what the **screen holds** is yellow-green. So `--emit-*` is the
-flash (x=0.1384 y=0.1502) and `--halo-*` is the afterglow (x=0.3553 y=0.5373).
+underneath, and what the **screen holds** is yellow-green. So `--ac-emit-*` is the
+flash (x=0.1384 y=0.1502) and `--ac-halo-*` is the afterglow (x=0.3553 y=0.5373).
 
 Blue text inside a green halo is not a mismatch — it is the only thing that
 palette can honestly look like, and it is the reason P7 exists as a part number.
@@ -172,20 +172,20 @@ between them fall out:
 
 | token | stop | ratio | Y | drive |
 |---|---|---|---|---|
-| `--ink`, `--stroke` | emit-90 | 7.00:1 | 0.3195 | 1.00 |
-| `--ink-dim` | emit-70 | 5.20:1 | 0.2245 | 0.70 |
-| `--ink-faint`, `--stroke-dim` | emit-50 | 3.40:1 | 0.1295 | 0.41 |
-| `--ink-trace` | emit-30 | 1.63:1 | 0.0360 | 0.11 → none |
+| `--ac-ink`, `--ac-stroke` | emit-90 | 7.00:1 | 0.3195 | 1.00 |
+| `--ac-ink-dim` | emit-70 | 5.20:1 | 0.2245 | 0.70 |
+| `--ac-ink-faint`, `--ac-stroke-dim` | emit-50 | 3.40:1 | 0.1295 | 0.41 |
+| `--ac-ink-trace` | emit-30 | 1.63:1 | 0.0360 | 0.11 → none |
 
-`--emit-30` landing at eleven percent is why the decorative rules stay flat: that
+`--ac-emit-30` landing at eleven percent is why the decorative rules stay flat: that
 is not a halo, it is a rounding error.
 
 Note the token families **do not line up**, and the names actively mislead:
-`--ink-dim` is emit-70 but `--stroke-dim` is emit-50. The tier is chosen by drive
+`--ac-ink-dim` is emit-70 but `--ac-stroke-dim` is emit-50. The tier is chosen by drive
 level, never by whether the token has "dim" in its name.
 
 **Radius does not scale — only alpha.** How far light spreads through the glass is
-a property of the glass and the wavelength (`--halo-spread`), not of how hard the
+a property of the glass and the wavelength (`--ac-halo-spread`), not of how hard the
 cell behind it is driven. Scaling radius too would say a dim cell's light travels
 less far, which is not a thing that happens. The 2px layer is not scaled at all:
 it is the glyph's own lit edge, not scattered light.
@@ -193,7 +193,7 @@ it is the glyph's own lit edge, not scattered light.
 ### Why the tiers are three tokens and not one multiplier
 
 The tidy version is a single `--ac-drive` that every alpha multiplies by, so a
-dim element sets the number and re-states `text-shadow: var(--glow-text)`. **It
+dim element sets the number and re-states `text-shadow: var(--ac-glow-text)`. **It
 does not work, and it fails silently.**
 
 A custom property's `var()` references are substituted when that property's own
@@ -208,7 +208,7 @@ So each tier is its own fully-resolved token. The multiplier stays visible in th
 checkable without making the value depend on where it is read.
 
 A separate box tier exists because the stroke is not always driven as hard as the
-ink: an `.ac-input` carries `--ink-bright` text inside a `--stroke-dim` box, and
+ink: an `.ac-input` carries `--ac-ink-bright` text inside a `--ac-stroke-dim` box, and
 `.ac-statusbar--line` is full-drive text between two dim rules — one element, two
 drive levels, which a single scale could not have expressed either.
 
@@ -228,7 +228,7 @@ nobody remembered.
 
 Two things must then suppress it, and both are enumerable:
 
-- `--ink-dim` / `--ink-faint` — glow is the signal of energization, so a disabled
+- `--ac-ink-dim` / `--ac-ink-faint` — glow is the signal of energization, so a disabled
   control that glows is a lie about the hardware.
 - inverse video — dark text on a lit block is the **unlit** part of the block.
   Unlit cells do not scatter.
@@ -237,18 +237,18 @@ Two things must then suppress it, and both are enumerable:
 drifts.
 
 `text-shadow` and custom properties interact in a way worth knowing:
-`var(--glow-text)` is resolved at the frame, and the resulting shadow list is what
-inherits. A descendant that sets its own `--glow-text` does not change what it
+`var(--ac-glow-text)` is resolved at the frame, and the resulting shadow list is what
+inherits. A descendant that sets its own `--ac-glow-text` does not change what it
 inherited; only `text-shadow: none` does. That is why suppression is written as
 `text-shadow: none` everywhere and never as a token override.
 
 ### The extruded key edge
 
 The one shadow in the file that is **not** a halo, so it takes neither
-`--halo-spread` nor `--halo-scatter`: those describe light scattering through glass,
+`--ac-halo-spread` nor `--ac-halo-scatter`: those describe light scattering through glass,
 and this is geometry. A panel that drew a drop shadow drew it in **cells**, and a
 cell is the same size on krypton as on neon — the extrusion must stay put when the
-gas changes, while its colour follows `--halo-1` so it cannot end up the only amber
+gas changes, while its colour follows `--ac-halo-1` so it cannot end up the only amber
 thing on a green screen.
 
 **It is an edge, not a ghost**, which is what the two layers are for. An outer
@@ -260,7 +260,7 @@ layer looked like a thick border; a blurred one looked like a modern card shadow
 which is the whole thing this is not.
 
 The alphas are set against the bloom rather than the screen. The band lands in
-exactly the region `--glow-box` is already lighting, and `.ac-bloom` amplifies that
+exactly the region `--ac-glow-box` is already lighting, and `.ac-bloom` amplifies that
 halo — anything under about 0.6 on the lip washed out into it and read as the
 stroke being slightly heavy.
 
@@ -320,7 +320,7 @@ dark horizontal blanking gaps between raster lines belong to `.ac-crt` and the t
 it simulates; there is no scan here, so there is nothing to blank.
 
 The ribs are pure black rather than tinted, and that is the whole trick: over the
-unlit panel (`--screen` is a near-black under every palette) black alpha has
+unlit panel (`--ac-screen` is a near-black under every palette) black alpha has
 nothing to take away and the mesh is simply not there, while over lit cells it
 occludes. The grid appears only where the panel is lit, which is exactly the
 behaviour of a real screen door and costs nothing to get.
@@ -670,7 +670,7 @@ Only the buzz is motion.
 `clip-path` and `mask-image` can cut any corner at all, including a genuine
 stair-step, and both were rejected for the same disqualifying reason: **they clip
 the element's entire painting, and the outer box-shadow is part of it.** Every
-control carries `--glow-box`, which is the discharge halo — glow is the signal of
+control carries `--ac-glow-box`, which is the discharge halo — glow is the signal of
 energization — so a clipped corner buys a stepped edge by deleting the glow off all
 four sides. `border-radius` and `corner-shape` change the shadow's shape instead of
 removing it. That constraint, not taste, is why the file is written in them.
@@ -694,7 +694,7 @@ extrusion is offset on, because they are two halves of one claim about where the
 light is.
 
 2 / 4 / 8 / 4 in TL TR BR BL order, and those are the system's own radius steps
-rather than new numbers. `--radius-sm` runs the same diagonal at half depth, so a
+rather than new numbers. `--ac-radius-sm` runs the same diagonal at half depth, so a
 well or a switch housing is cut like a key and reads as smaller.
 
 ### A key is extruded; a panel is a hole in the bezel
@@ -740,7 +740,7 @@ opt-out. That is true **only when `amber-console.js` is loaded** — `classic:
 `data-ac-style-classic="on"` attribute it selects on is written to `<html>` by
 `applyStyle()` at init.
 
-A CSS-only consumer never gets that attribute, so `--radius` resolves to the `8px`
+A CSS-only consumer never gets that attribute, so `--ac-radius` resolves to the `8px`
 in `tokens/spacing.css` and they get **rounded** corners — the look the documentation
 calls a departure from the panel.
 

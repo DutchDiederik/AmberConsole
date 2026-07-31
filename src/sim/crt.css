@@ -49,7 +49,7 @@
 .ac-crt > .ac-retrace {
   position: absolute; left: 0; right: 0; top: 0; height: 26%;
   z-index: 45; pointer-events: none; mix-blend-mode: screen; opacity: 0.32;
-  background: linear-gradient(180deg, transparent 0%, rgba(var(--halo-1), 0.028) 50%, rgba(var(--halo-4), 0.05) 66%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(var(--ac-halo-1), 0.028) 50%, rgba(var(--ac-halo-4), 0.05) 66%, transparent 100%);
   animation: ac-retrace 13s linear infinite;
 }
 @keyframes ac-retrace {

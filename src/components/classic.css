@@ -43,19 +43,19 @@
 [data-ac-style-classic="on"] {
   /* Fallback corner: quantize to the grid. 2px is the figure .ac-badge and
      .ac-banner have always used — they are already classic and need nothing. */
-  --radius: 2px;
-  --radius-sm: 2px;
+  --ac-radius: 2px;
+  --ac-radius-sm: 2px;
   --ac-corner: bevel;
-  --ac-edge: var(--edge-3d);
-  --ac-edge-press: var(--edge-3d-in);
+  --ac-edge: var(--ac-edge-3d);
+  --ac-edge-press: var(--ac-edge-3d-in);
 }
 
 .ac-rounded {
-  --radius: 8px;
-  --radius-sm: 4px;
+  --ac-radius: 8px;
+  --ac-radius-sm: 4px;
   --ac-corner: round;
   /* A shadow that paints nothing, rather than `none`: `none` is not a valid item
-     inside a comma-separated shadow list, so `var(--glow-box), none` would
+     inside a comma-separated shadow list, so `var(--ac-glow-box), none` would
      invalidate the whole declaration and take the halo down with it. */
   --ac-edge: 0 0 0 transparent;
   --ac-edge-press: 0 0 0 transparent;
@@ -66,22 +66,22 @@
      and NOT EVENLY: these keys are lit from the top left, so the far corner is
      barely cut and the near one is cut hardest. Cut all four the same and the key
      reads as an octagon. 2 / 4 / 8 / 4 in TL TR BR BL order, from the system's own
-     radius steps; --radius-sm runs the same diagonal at half depth.
+     radius steps; --ac-radius-sm runs the same diagonal at half depth.
      See RATIONALE.md § The four corners are not the same size. */
   .ac-classic,
   [data-ac-style-classic="on"] {
-    --radius: 2px 4px 8px 4px;
-    --radius-sm: 1px 2px 4px 2px;
+    --ac-radius: 2px 4px 8px 4px;
+    --ac-radius-sm: 1px 2px 4px 2px;
   }
 }
 
 /* --- (2) The corner. One rule, three scopes, value from the cascade. --- */
 
 /* THE LIST IS THE EIGHT PLACES A RADIUS IS DECLARED, and it was derived rather
-   than chosen: grep `border-radius: var(--radius` across components/ and this is
+   than chosen: grep `border-radius: var(--ac-radius` across components/ and this is
    what comes back. .ac-badge and .ac-banner are literal 2px, .ac-check is square,
    and .ac-radio and .ac-sweep are circles — a circle has no corner to cut, so none
-   of the five belong here. Add to this list when a new component takes a --radius,
+   of the five belong here. Add to this list when a new component takes a --ac-radius,
    or its corner will stay round while everything around it is cut. */
 @supports (corner-shape: bevel) {
   /* The scope half is folded into one :is() so the component list is written
@@ -111,28 +111,25 @@
    raster and reaches everything, but a drop shadow claims the thing stands off the
    glass, and that is true of a soft key and a switch housing and of nothing else
    on the board. Giving .ac-panel an edge too was tried and reads as a floating
-   card, which is a different design language from a control surface. */
-:is(.ac-classic, .ac-rounded):is(.ac-btn, .ac-toggle__track),
-:is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"]) :is(.ac-btn, .ac-toggle__track) {
-  box-shadow: var(--glow-box), var(--ac-edge, 0 0 0 transparent);
-}
+   card, which is a different design language from a control surface.
 
-/* A PRESSED KEY IS IN, AND THE LIGHT IS WHAT MOVES — the band flips to the top and
-   left, because the near face of a sunken key is the upper one. The key itself does
-   not budge: a `translate` here contributed to scrollable overflow and pushed every
-   flush-mounted latched key 4px past its container. See --edge-3d-in in
-   tokens/effects.css.
+   THE RULES THAT USED TO BE HERE ARE GONE, AND THIS FILE IS BETTER FOR IT.
+   Four scope-prefixed rules once lived at this point — the resting edge, the
+   pressed edge, a blank for disabled, and one for the toggle housing — each
+   repeating the same doubled `:is(scopes):is(X), :is(scopes) :is(X)` prefix.
+   They existed only to APPEND --ac-edge to a box-shadow the component had
+   already declared, and they did it by out-specifying the component, which is
+   what made a dim key glow at full drive.
 
-   No transition — a screen redrawn at the refresh has no in-between frames, the
-   same law as .ac-btn:active in button.css.
+   components/button.css and components/toggle.css now write
+   `var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent)` on each state
+   themselves, reading a token this file sets. Outside a corner scope --ac-edge
+   is undefined and paints nothing, so nothing needs to match a scope at all —
+   which is exactly what the scopes-set-only-tokens design at the top of this
+   file promised, and what these four rules were quietly breaking.
 
-   --filled AND aria-pressed BOTH, because this framework treats them as one state
-   everywhere else, so a latched key reads pressed for as long as it is latched. */
-:is(.ac-classic, .ac-rounded):is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]),
-:is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"])
-  :is(.ac-btn:active, .ac-btn--filled, .ac-btn[aria-pressed="true"]) {
-  box-shadow: var(--glow-box), var(--ac-edge-press, 0 0 0 transparent);
-}
+   Disabled needs no rule for the same reason: button.css already blanks the
+   shadow, and nothing outranks it any more. */
 
 /* --- (4) The face: label top-left. --- */
 
@@ -170,31 +167,25 @@
   text-align: inherit;
 }
 
-/* --- (5) Inert keeps nothing, and it has to be said again here. --- */
+/* --- (5) Inert keeps nothing, and it no longer has to be said twice. --- */
 
-/* button.css already blanks the halo on a disabled key — glow is the signal of
-   energization, so a dead control that glows is a lie about the hardware. But
-   `[data-ac-style-classic="on"] .ac-btn` weighs the same as `.ac-btn:disabled` and
-   lands later in the cascade, so rule (3) would quietly hand the halo back.
-   scripts/check-prohibitions.mjs cannot catch this one: it gates an ink level set
-   without its halo, and rule (3) sets no color.
+/* NOTHING HERE ANY MORE, DELIBERATELY.
 
-   One declaration covers it now that the press is a shadow rather than a
-   transform: blanking the shadow takes the halo, the resting band and the pressed
-   band together, so a dead key cannot be caught standing on an edge either. */
-:is(.ac-classic, .ac-rounded):is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]),
-:is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"])
-  :is(.ac-btn:disabled, .ac-btn[aria-disabled="true"]) {
-  box-shadow: none;
-}
+   Two rules used to sit at this point: one blanking the shadow on a disabled key,
+   one restoring the dimmed housing on a disabled toggle. Both existed purely to
+   win back ground the extrusion rules above had taken by out-specifying the
+   components — `[data-ac-style-classic="on"] .ac-btn` weighs the same as
+   `.ac-btn:disabled` and landed later, so a dead key was being handed its halo
+   back and needed it removed again.
 
-/* The switch housing dims rather than going dark: it is a box that is still drawn,
-   not a lamp that is out. Matches toggle.css. */
-:is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"])
-  .ac-toggle:disabled
-  .ac-toggle__track {
-  box-shadow: var(--glow-box-dim);
-}
+   With the edge declared on the components, `.ac-btn:disabled { box-shadow:
+   none }` in button.css is simply the last word, and `.ac-toggle:disabled
+   .ac-toggle__track` in toggle.css already carried --ac-glow-box-dim at a weight
+   nothing here contested. Both rules were restating what those files say.
+
+   scripts/check-prohibitions.mjs could never have caught the underlying bug —
+   it gates an ink level set without its halo, and the extrusion rules set no
+   color — which is the argument for not having written them that way. */
 
 /* --- (6) Print pays for shadow in ink. --- */
 
@@ -204,7 +195,7 @@
    is the same reason `--ac-edge` exists at all. */
 @media print {
   :root {
-    --edge-3d: 0 0 0 transparent;
-    --edge-3d-in: 0 0 0 transparent;
+    --ac-edge-3d: 0 0 0 transparent;
+    --ac-edge-3d-in: 0 0 0 transparent;
   }
 }

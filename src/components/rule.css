@@ -4,12 +4,12 @@
 
 .ac-hr {
   border: none;
-  border-top: var(--border-w) solid var(--stroke-dim);
-  box-shadow: var(--glow-box-dim);
-  margin: var(--space-4) 0;
+  border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
+  margin: var(--ac-space-4) 0;
 }
 
 /* Full-strength divider, for separating two regions rather than two rows. */
 .ac-hr--bright {
-  border-top-color: var(--stroke);
+  border-top-color: var(--ac-stroke);
 }

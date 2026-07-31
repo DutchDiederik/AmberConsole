@@ -6,24 +6,24 @@
      .ac-panel--bar +
      .ac-panel__barTitle  full-width inverse strip (the machine's own heading)
 
-   The legend chip paints --screen to mask the border behind it. On a panel
+   The legend chip paints --ac-screen to mask the border behind it. On a panel
    sitting over a different background, override --ac-panel-title-bg.
    =========================================================================== */
 
 .ac-panel {
   position: relative;
   box-sizing: border-box;
-  border: var(--border-w) solid var(--stroke);
-  box-shadow: var(--glow-box);
-  border-radius: var(--radius);
-  padding: var(--space-6) var(--space-4) var(--space-4);
+  border: var(--ac-border-w) solid var(--ac-stroke);
+  box-shadow: var(--ac-glow-box);
+  border-radius: var(--ac-radius);
+  padding: var(--ac-space-6) var(--ac-space-4) var(--ac-space-4);
   min-width: 0;
 }
 
 /* Read-only / secondary regions recede. */
 .ac-panel--dim {
-  border-color: var(--stroke-dim);
-  box-shadow: var(--glow-box-dim);
+  border-color: var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
 }
 
 .ac-panel__title {
@@ -31,19 +31,19 @@
   top: -10px;
   left: 12px;
   padding: 0 8px;
-  background: var(--ac-panel-title-bg, var(--screen));
-  font-family: var(--font-terminal);
-  font-size: var(--type-small);
+  background: var(--ac-panel-title-bg, var(--ac-screen));
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
   line-height: 1;
-  color: var(--ink);
+  color: var(--ac-ink);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  text-shadow: var(--glow-text);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-panel--dim .ac-panel__title {
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 
 .ac-panel--bar {
@@ -52,14 +52,14 @@
 }
 
 .ac-panel__barTitle {
-  margin: 0 calc(-1 * var(--space-4)) var(--space-3);
+  margin: 0 calc(-1 * var(--ac-space-4)) var(--ac-space-3);
   padding: 4px 16px;
   text-align: center;
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }

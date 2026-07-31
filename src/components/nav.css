@@ -13,12 +13,12 @@
   box-sizing: border-box;
   display: flex;
   align-items: stretch;
-  gap: var(--space-4);
+  gap: var(--ac-space-4);
   flex-wrap: wrap;
-  border-bottom: var(--border-w) solid var(--stroke);
-  box-shadow: var(--glow-box);
-  background: var(--screen);
-  padding: 0 var(--space-6);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke);
+  box-shadow: var(--ac-glow-box);
+  background: var(--ac-screen);
+  padding: 0 var(--ac-space-6);
 }
 
 .ac-nav--sticky {
@@ -33,62 +33,62 @@
   gap: 10px;
   padding: 10px 0;
   margin-right: auto;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   line-height: 1;
   letter-spacing: 0.22em;
-  color: var(--ink-bright);
+  color: var(--ac-ink-bright);
   text-transform: uppercase;
-  text-shadow: var(--glow-text);
+  text-shadow: var(--ac-glow-text);
 }
 
 /* A typeset block, not a logo. There is no logo — see law 6 in README.md. */
 .ac-nav__mark::before {
   content: "█";
   font-size: 16px;
-  color: var(--fill);
+  color: var(--ac-fill);
 }
 
 .ac-nav__links {
   display: flex;
   align-items: stretch;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
   flex-wrap: wrap;
 }
 
 .ac-nav__link {
   display: flex;
   align-items: center;
-  padding: 0 var(--space-4);
+  padding: 0 var(--ac-space-4);
   margin: 6px 0;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   line-height: 1;
-  color: var(--ink);
+  color: var(--ac-ink);
   text-decoration: none;
-  letter-spacing: var(--tracking-body);
-  border: var(--border-w) solid transparent;
-  border-radius: var(--radius-sm);
-  text-shadow: var(--glow-text);
+  letter-spacing: var(--ac-tracking-body);
+  border: var(--ac-border-w) solid transparent;
+  border-radius: var(--ac-radius-sm);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-nav__link:hover {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
-  border-color: var(--stroke);
-  box-shadow: var(--glow-box);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+  border-color: var(--ac-stroke);
+  box-shadow: var(--ac-glow-box);
 }
 
 .ac-nav__link[aria-current="page"],
 .ac-nav__link--active {
-  background: var(--fill);
-  color: var(--on-fill);
-  border-color: var(--fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
+  border-color: var(--ac-fill);
   text-shadow: none;
 }
 
 .ac-nav__link:focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }
 
@@ -96,17 +96,17 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-4);
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  gap: var(--ac-space-4);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 
 @media (max-width: 720px) {
   .ac-nav {
-    padding: 0 var(--space-4);
+    padding: 0 var(--ac-space-4);
   }
   /* Wrap to a second row rather than hiding anything behind a menu glyph. */
   .ac-nav__mark {

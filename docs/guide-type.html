@@ -264,7 +264,7 @@
     </div>
 
     <!-- ----------------------------------------- 1/4 · state, the note -- -->
-    <div class="ac-stack" style="--gap: 24px">
+    <div class="ac-stack" style="--ac-gap: 24px">
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">State</span>
         <dl class="ac-list ac-list--dense">
@@ -387,11 +387,11 @@
       everything at 18px and above. Silkscreen handles 8px bit labels where VT323 loses its grid.
       Below 18px, VT323 is unreadable: that is the floor, not a guideline.</p>
     <div class="doc-demo doc-demo--col" style="margin-top:20px;gap:14px">
-      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">DISPLAY · 44 / 0.1EM</span><span style="font-size:var(--type-display);letter-spacing:var(--tracking-display);color:var(--ink-bright);text-shadow:var(--glow-text)">SHOW LOCAL - AUTO</span></div>
-      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">TITLE · 30</span><span style="font-size:var(--type-title);text-shadow:var(--glow-text)">RESET FRAME COUNT</span></div>
-      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">BODY · 22</span><span style="font-size:var(--type-body)">SHOW TIME 0000:00 (MM:SS) DATE 07/23/26</span></div>
-      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">SMALL · 18</span><span style="font-size:var(--type-small);color:var(--ink-dim);text-shadow:var(--glow-text-dim)">SHOW INFORMATION ──────────────</span></div>
-      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">MICRO · 8 SILKSCREEN</span><span style="font-family:var(--font-micro);font-size:var(--type-micro);letter-spacing:var(--tracking-micro)">REMOTE START BIT · REEL UNIT READY · SYSTEM READY</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">DISPLAY · 44 / 0.1EM</span><span style="font-size:var(--ac-type-display);letter-spacing:var(--ac-tracking-display);color:var(--ac-ink-bright);text-shadow:var(--ac-glow-text)">SHOW LOCAL - AUTO</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">TITLE · 30</span><span style="font-size:var(--ac-type-title);text-shadow:var(--ac-glow-text)">RESET FRAME COUNT</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">BODY · 22</span><span style="font-size:var(--ac-type-body)">SHOW TIME 0000:00 (MM:SS) DATE 07/23/26</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">SMALL · 18</span><span style="font-size:var(--ac-type-small);color:var(--ac-ink-dim);text-shadow:var(--ac-glow-text-dim)">SHOW INFORMATION ──────────────</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap"><span class="doc-mono" style="width:130px">MICRO · 8 SILKSCREEN</span><span style="font-family:var(--ac-font-micro);font-size:var(--ac-type-micro);letter-spacing:var(--ac-tracking-micro)">REMOTE START BIT · REEL UNIT READY · SYSTEM READY</span></div>
     </div>
     <div class="doc-grid2" style="margin-top:24px">
       <div><h3>CASING</h3><p class="doc-dim doc-small">ALL CAPS for machine text,
@@ -399,7 +399,7 @@
         <code>Change Show</code> is a key a human presses.</p></div>
       <div><h3>SUBSTITUTION NOTE</h3><p class="doc-faint doc-small">The source
         hardware used a mask-ROM face with no digital release. VT323 and Silkscreen are era-correct
-        stand-ins. Supply a licensed bitmap face and only <code>--font-terminal</code> changes.</p></div>
+        stand-ins. Supply a licensed bitmap face and only <code>--ac-font-terminal</code> changes.</p></div>
     </div>
   </section>
 
@@ -408,22 +408,22 @@
     <div class="doc-grid3" style="margin-top:4px">
       <div class="doc-demo doc-demo--col"><span class="doc-cap">SPACING · 4 8 12 16 24 32 48</span>
         <div style="display:flex;flex-direction:column;gap:8px;width:100%">
-          <div style="height:12px;width:4px;background:var(--emit-50)"></div>
-          <div style="height:12px;width:8px;background:var(--emit-50)"></div>
-          <div style="height:12px;width:16px;background:var(--emit-50)"></div>
-          <div style="height:12px;width:32px;background:var(--emit-50)"></div>
-          <div style="height:12px;width:48px;background:var(--emit-50)"></div>
+          <div style="height:12px;width:4px;background:var(--ac-emit-50)"></div>
+          <div style="height:12px;width:8px;background:var(--ac-emit-50)"></div>
+          <div style="height:12px;width:16px;background:var(--ac-emit-50)"></div>
+          <div style="height:12px;width:32px;background:var(--ac-emit-50)"></div>
+          <div style="height:12px;width:48px;background:var(--ac-emit-50)"></div>
         </div>
         <span class="doc-faint doc-small">4px half-cells of the character grid.</span></div>
       <div class="doc-demo doc-demo--col"><span class="doc-cap">STROKE · 2PX ONLY</span>
-        <div style="width:100%;height:56px;border:var(--border-w) solid var(--stroke)"></div>
+        <div style="width:100%;height:56px;border:var(--ac-border-w) solid var(--ac-stroke)"></div>
         <span class="doc-faint doc-small">No hairlines — a 1px rule cannot exist on this panel. The one
           exception is <code>.ac-badge</code>, which is a chip rather than structure.</span></div>
       <div class="doc-demo doc-demo--col"><span class="doc-cap">RADIUS · 8 PADS / 4 WELLS / 0 STRIPS</span>
         <div style="display:flex;gap:10px">
-          <div style="width:56px;height:44px;border:var(--border-w) solid var(--stroke);border-radius:var(--radius)"></div>
-          <div style="width:56px;height:44px;border:var(--border-w) solid var(--stroke-dim);border-radius:var(--radius-sm);background:var(--screen-well)"></div>
-          <div style="width:56px;height:44px;background:var(--fill)"></div>
+          <div style="width:56px;height:44px;border:var(--ac-border-w) solid var(--ac-stroke);border-radius:var(--ac-radius)"></div>
+          <div style="width:56px;height:44px;border:var(--ac-border-w) solid var(--ac-stroke-dim);border-radius:var(--ac-radius-sm);background:var(--ac-screen-well)"></div>
+          <div style="width:56px;height:44px;background:var(--ac-fill)"></div>
         </div>
         <span class="doc-faint doc-small">CRT-rounded corners, never pills.</span></div>
     </div>
@@ -436,7 +436,7 @@
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
-    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:var(--glow-text-dim)">GO TO CONSOLE ►</a>
+    <a class="doc-mono" href="index.html" style="color:var(--ac-ink-dim);text-shadow:var(--ac-glow-text-dim)">GO TO CONSOLE ►</a>
   </footer>
 
 </div>

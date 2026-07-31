@@ -263,7 +263,7 @@
     </div>
 
     <!-- ----------------------------------------- 1/4 · state, the note -- -->
-    <div class="ac-stack" style="--gap: 24px">
+    <div class="ac-stack" style="--ac-gap: 24px">
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">State</span>
         <dl class="ac-list ac-list--dense">
@@ -365,7 +365,7 @@
     <div class="ac-grid ac-grid--console ac-grow">
 
       <!-- Operating column. Reading order is the operator's workflow. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-functions" role="tabpanel" aria-labelledby="tab-functions">
+      <div class="ac-stack" style="--ac-gap: 18px" id="view-functions" role="tabpanel" aria-labelledby="tab-functions">
         <div class="ac-panel">
           <span class="ac-panel__title">Show Information</span>
           <div class="doc-fields">
@@ -394,7 +394,7 @@
         <!-- --wrap matters: three pads at the 130px min-width floor plus gaps
              need 430px, so below that STOP must drop to a second row rather
              than be clipped by the frame's overflow:hidden. -->
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
+        <div class="ac-row ac-row--wrap" style="--ac-gap: 20px">
           <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="RUN" aria-pressed="false">Run</button>
           <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="JOG" aria-pressed="false">Jog</button>
           <button type="button" class="ac-btn ac-btn--lg ac-btn--pad ac-grow" data-motion="STOP" aria-pressed="true">Stop</button>
@@ -402,7 +402,7 @@
 
         <div class="ac-banner" id="banner" role="alert">Remote Mode</div>
 
-        <div class="ac-row ac-row--wrap ac-push" style="--gap: 20px">
+        <div class="ac-row ac-row--wrap ac-push" style="--ac-gap: 20px">
           <button type="button" class="ac-btn ac-btn--lg">Manual</button>
           <button type="button" class="ac-btn ac-btn--lg">Auto Load</button>
           <span class="ac-spacer"></span>
@@ -411,7 +411,7 @@
       </div>
 
       <!-- Alarms view. Same column slot; the tablist swaps them. -->
-      <div class="ac-stack" style="--gap: 18px" id="view-alarms" role="tabpanel" aria-labelledby="tab-alarms" hidden>
+      <div class="ac-stack" style="--ac-gap: 18px" id="view-alarms" role="tabpanel" aria-labelledby="tab-alarms" hidden>
         <div class="ac-panel">
           <span class="ac-panel__title">Alarm Log</span>
           <div class="ac-table-scroll">
@@ -430,7 +430,7 @@
             </table>
           </div>
         </div>
-        <div class="ac-row ac-row--wrap" style="--gap: 20px">
+        <div class="ac-row ac-row--wrap" style="--ac-gap: 20px">
           <button type="button" class="ac-btn ac-btn--lg" id="ack">Acknowledge</button>
           <span class="ac-spacer"></span>
           <button type="button" class="ac-btn ac-btn--lg ac-btn--dim">Print Log</button>
@@ -438,7 +438,7 @@
       </div>
 
       <!-- Instrument column. Dim frames so read-only data recedes. -->
-      <div class="ac-stack" style="--gap: 18px">
+      <div class="ac-stack" style="--ac-gap: 18px">
         <div class="ac-panel ac-panel--dim">
           <span class="ac-panel__title">Interlocks</span>
           <fieldset class="doc-bits">

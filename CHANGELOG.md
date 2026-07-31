@@ -6,6 +6,47 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Changed — every token is `--ac-*` prefixed (BREAKING for overrides)
+
+- **60 of the 76 tokens were bare** — `--ink`, `--fill`, `--screen`, `--radius`, `--leading`, `--gap`,
+  `--cols` — and all of them are now `--ac-*`. This was not tidiness. `dist/amber-console.layer.css`
+  exists so the framework can be embedded in an app that owns the page, and **cascade layers do not
+  protect custom properties**: an unlayered `:root { --radius: 12px }` in the host beats a layered one,
+  so a host that happened to use any of these names silently re-cornered every button, panel, dialog,
+  input, toggle and meter. `--gap` and `--cols` were near-certain collisions in any real codebase.
+- **`tokens/deprecated.css` keeps all 65 old names as read aliases, removed in 3.0.** Delete the file
+  and its one `@import` to drop them early. `--amber-*` and `--gas-*` fold in here too, re-pointed at
+  the new names, so there is one deprecation file rather than three generations of alias.
+- **Read aliases only — overriding an old name no longer does anything.** That is the point: immunity
+  to a consumer's `--radius` is exactly what the prefix buys, and it cannot be had while the framework
+  still reads the bare name. Prefix every token you set with `ac-`; nothing else changes.
+- **`--ac-gap` and `--ac-cols` have no alias at all**, because they are consumer-set rather than
+  framework-set — `.ac-row`, `.ac-stack` and `.ac-grid` read them off your element, so there is no
+  `:root` value to bridge. Rename them at the call site.
+- **stylelint now requires the prefix** (`custom-property-pattern`), so the next token cannot quietly
+  go bare. `tokens/deprecated.css` is the single documented exception.
+- Rendering is unchanged: 548 computed-style probes identical and the full visual suite passing with
+  no baseline update.
+
+### Fixed — a dim key glowed at full drive, and a latched key leaked an off-palette halo into forced colors
+
+- **`.ac-btn--dim` rendered the FULL halo under the default corner style.** `classic.css` appended the
+  extruded edge from a scope-prefixed rule at (0,2,0), which outranked `.ac-btn--dim` at (0,1,0) and
+  replaced `--ac-glow-box-dim` with `--ac-glow-box` — so every dim key glowed as hard as a lit one,
+  contradicting the drive-tier law the framework gates everywhere else. `.ac-rounded` had it too.
+- **The same rule defeated `a11y.css` in forced-colors mode.** `.ac-btn--filled` and
+  `[aria-pressed="true"]` are opted out of forced colors so inverse video survives, and a11y.css
+  restates `box-shadow: none` on them for exactly the reason its header gives — an opt-out hands the
+  element its shadow back. classic.css's press rule out-specified that restatement, so a latched key
+  carried a full `rgba(255,120,30,…)` discharge halo into the one mode that exists to have no
+  off-palette colour. It is `none` now.
+- **The fix is architectural, not a patch:** `button.css` and `toggle.css` now write
+  `var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent)` on each state themselves, so every state
+  carries its own drive tier *and* its own edge and the two cannot disagree. Four scope-prefixed rules
+  in `classic.css` — the resting edge, the pressed edge, a blank for disabled, and the toggle housing —
+  are deleted outright, which is also what the scopes-set-only-tokens design at the top of that file
+  always promised.
+
 ### Changed — `tokens/effects.css` is seven files, and the simulations are droppable
 
 - **The 1,004-line file was four things wearing one name:** the glow token system, blink, two hardware

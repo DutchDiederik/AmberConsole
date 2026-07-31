@@ -1,14 +1,14 @@
 :root {
   /* Character-cell grid: everything snaps to 4px half-cells */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-12: 48px;
+  --ac-space-1: 4px;
+  --ac-space-2: 8px;
+  --ac-space-3: 12px;
+  --ac-space-4: 16px;
+  --ac-space-6: 24px;
+  --ac-space-8: 32px;
+  --ac-space-12: 48px;
 
-  --border-w: 2px;      /* every stroke is 2px — no hairlines */
-  --radius: 8px;        /* touch pads, panels (CRT-rounded, not modern-pill) */
-  --radius-sm: 4px;     /* inputs, small chips */
+  --ac-border-w: 2px;      /* every stroke is 2px — no hairlines */
+  --ac-radius: 8px;        /* touch pads, panels (CRT-rounded, not modern-pill) */
+  --ac-radius-sm: 4px;     /* inputs, small chips */
 }

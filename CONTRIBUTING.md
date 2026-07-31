@@ -59,7 +59,7 @@ These are enforced by `scripts/check-prohibitions.mjs`, which fails the build:
 
 And two the linter cannot check:
 
-- **No hairlines on structure.** Every stroke is `var(--border-w)`. `.ac-badge` is the single
+- **No hairlines on structure.** Every stroke is `var(--ac-border-w)`. `.ac-badge` is the single
   legitimate 1px border, because a chip is not structure.
 - **Casing is semantic.** ALL CAPS for system text, Title Case for operator soft keys. Preserve the
   split in every example you write.
@@ -111,7 +111,7 @@ for it to disagree.
 ## Accessibility is not optional
 
 This aesthetic actively fights accessibility, which is exactly why the gates exist. Anything
-interactive needs a visible focus ring on both `--screen` and inverse-video backgrounds. Anything
+interactive needs a visible focus ring on both `--ac-screen` and inverse-video backgrounds. Anything
 that signals state must do so without relying on motion or on a single color intensity. Run
 `npm run contrast` if you touch the palette, and paste the regenerated table into the README.
 

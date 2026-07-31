@@ -288,7 +288,7 @@
     </div>
 
     <!-- ----------------------------------------- 1/4 · state, the note -- -->
-    <div class="ac-stack" style="--gap: 24px">
+    <div class="ac-stack" style="--ac-gap: 24px">
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">State</span>
         <dl class="ac-list ac-list--dense">
@@ -384,7 +384,7 @@
       <!-- Presentation is three exclusive states and it is a soft key rather
            than a tablist, because nothing below it is a panel being swapped —
            the same face is being drawn against a different reference. -->
-      <div class="ac-row ac-row--wrap" style="--gap: 8px">
+      <div class="ac-row ac-row--wrap" style="--ac-gap: 8px">
         <button type="button" class="ac-btn" data-pres="HEAD-UP" aria-pressed="true">Head-Up</button>
         <button type="button" class="ac-btn" data-pres="NORTH-UP" aria-pressed="false">North-Up</button>
         <button type="button" class="ac-btn" data-pres="COURSE-UP" aria-pressed="false">Course-Up</button>
@@ -407,7 +407,7 @@
            size, with no arithmetic in JavaScript and nothing to recompute when
            the panel is resized. The blip itself is the arm's ::after, so one
            element carries both the position and the light. -->
-      <div class="ac-stack" style="--gap: 18px">
+      <div class="ac-stack" style="--ac-gap: 18px">
         <div class="ac-panel ac-panel--bar doc-scope" id="scope-panel">
           <div class="ac-panel__barTitle">Plan Position Indicator</div>
 
@@ -505,11 +505,11 @@
       </div>
 
       <!-- ======================================================= INSTRUMENTS == -->
-      <div class="ac-stack" style="--gap: 18px">
+      <div class="ac-stack" style="--ac-gap: 18px">
 
         <div class="ac-panel ac-panel--bar">
           <div class="ac-panel__barTitle">Transmitter</div>
-          <div class="ac-stack" style="--gap: 12px">
+          <div class="ac-stack" style="--ac-gap: 12px">
             <div class="ac-readout">
               <div class="ac-readout__value" id="tx-value">TRANSMIT</div>
               <div class="ac-readout__label ac-readout__label--plain" id="tx-note">Pulse Short · 80 ns</div>
@@ -582,7 +582,7 @@
 
         <div class="ac-panel ac-panel--dim">
           <span class="ac-panel__title">Markers</span>
-          <div class="ac-stack" style="--gap: 10px">
+          <div class="ac-stack" style="--ac-gap: 10px">
             <div class="doc-marker">
               <span class="doc-marker__key">EBL</span>
               <span class="doc-marker__value" id="ebl-out">073.5°</span>
@@ -690,7 +690,7 @@
         </div>
       </div>
 
-      <div class="ac-row ac-row--wrap doc-softkeys" style="--gap: 20px">
+      <div class="ac-row ac-row--wrap doc-softkeys" style="--ac-gap: 20px">
         <!-- TRAILS IS A PERSISTENCE CONTROL AND IT IS NOT .ac-afterglow.
              The simulation class belongs to the CRT toggle on the board above
              and this must not touch it, which happens to be the historically
@@ -698,7 +698,7 @@
              target trails were a SEPARATE synthetic afterglow the set added on
              top of it. So this sets the floor the contacts decay to, and the
              emitter keeps doing whatever it was already doing underneath. -->
-        <div class="ac-row ac-row--center ac-row--wrap" style="--gap: 8px">
+        <div class="ac-row ac-row--center ac-row--wrap" style="--ac-gap: 8px">
           <span class="doc-softkeys__key">Trails</span>
           <button type="button" class="ac-btn" data-trails="0" aria-pressed="false">Off</button>
           <button type="button" class="ac-btn" data-trails="0.12" aria-pressed="false">1 Min</button>
@@ -706,7 +706,7 @@
           <button type="button" class="ac-btn" data-trails="0.3" aria-pressed="false">6 Min</button>
         </div>
         <span class="ac-spacer"></span>
-        <div class="ac-row ac-row--center ac-row--wrap" style="--gap: 8px">
+        <div class="ac-row ac-row--center ac-row--wrap" style="--ac-gap: 8px">
           <span class="doc-softkeys__key">Pulse</span>
           <button type="button" class="ac-btn" data-pulse="Short · 80 ns" aria-pressed="true">Short</button>
           <button type="button" class="ac-btn" data-pulse="Medium · 300 ns" aria-pressed="false">Med</button>

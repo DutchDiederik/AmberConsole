@@ -1,24 +1,24 @@
 :root {
-  /* NOTHING IN THIS FILE NAMES A COLOR. Every rgba() is built from the --halo-N
+  /* NOTHING IN THIS FILE NAMES A COLOR. Every rgba() is built from the --ac-halo-N
      triples in tokens/colors.css, which is what makes the display switch the
      panel and its glow together. Hardcode one and it keeps an amber corona
      around neon text. (On P7 the halo is a DIFFERENT spectrum from the ink, and
      that is correct rather than a bug — RATIONALE.md § P7.)
 
-     The wide layers scale by --halo-scatter / --halo-spread, per palette, both
+     The wide layers scale by --ac-halo-scatter / --ac-halo-spread, per palette, both
      falling back to 1. THE 2px LAYER IS NOT SCALED: it is the glyph's own lit
      edge, not scattered light. RADIUS NEVER SCALES WITH DRIVE — only alpha.
 
      THE DRIVE TIERS ARE ARITHMETIC, NOT TASTE. Each stop's luminance is already
      fixed by the contrast ratio it was solved to, so the ratios fall out:
 
-       --ink, --stroke        emit-90   7.00:1   drive 1.00
-       --ink-dim              emit-70   5.20:1   drive 0.70
-       --ink-faint, -dim      emit-50   3.40:1   drive 0.41
-       --ink-trace            emit-30   1.63:1   drive 0.11 -> none
+       --ac-ink, --ac-stroke        emit-90   7.00:1   drive 1.00
+       --ac-ink-dim              emit-70   5.20:1   drive 0.70
+       --ac-ink-faint, -dim      emit-50   3.40:1   drive 0.41
+       --ac-ink-trace            emit-30   1.63:1   drive 0.11 -> none
 
      THE TOKEN FAMILIES DO NOT LINE UP and the names actively mislead:
-     --ink-dim is emit-70 but --stroke-dim is emit-50. The tier is chosen by
+     --ac-ink-dim is emit-70 but --ac-stroke-dim is emit-50. The tier is chosen by
      DRIVE LEVEL, never by whether the token has "dim" in it.
 
      EACH TIER IS ITS OWN FULLY-RESOLVED TOKEN rather than one --ac-drive
@@ -26,33 +26,33 @@
      fails SILENTLY. Before rebuilding it that way, read RATIONALE.md § Why the
      tiers are three tokens and not one multiplier. The derivation behind the
      table, and why the box tier is separate, are in the same section. */
-  --drive-dim: 0.7;
-  --drive-faint: 0.41;
+  --ac-drive-dim: 0.7;
+  --ac-drive-faint: 0.41;
 
-  --glow-text:
-    0 0 2px rgba(var(--halo-1), 0.6),
-    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.26 * var(--halo-scatter, 1))),
-    0 0 calc(24px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1)));
-  --glow-text-dim:
-    0 0 2px rgba(var(--halo-1), calc(0.6 * var(--drive-dim))),
-    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.26 * var(--halo-scatter, 1) * var(--drive-dim))),
-    0 0 calc(24px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-dim)));
-  --glow-text-faint:
-    0 0 2px rgba(var(--halo-1), calc(0.6 * var(--drive-faint))),
-    0 0 calc(9px * var(--halo-spread, 1)) rgba(var(--halo-2), calc(0.26 * var(--halo-scatter, 1) * var(--drive-faint))),
-    0 0 calc(24px * var(--halo-spread, 1)) rgba(var(--halo-3), calc(0.1 * var(--halo-scatter, 1) * var(--drive-faint)));
+  --ac-glow-text:
+    0 0 2px rgba(var(--ac-halo-1), 0.6),
+    0 0 calc(9px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-2), calc(0.26 * var(--ac-halo-scatter, 1))),
+    0 0 calc(24px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-3), calc(0.1 * var(--ac-halo-scatter, 1)));
+  --ac-glow-text-dim:
+    0 0 2px rgba(var(--ac-halo-1), calc(0.6 * var(--ac-drive-dim))),
+    0 0 calc(9px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-2), calc(0.26 * var(--ac-halo-scatter, 1) * var(--ac-drive-dim))),
+    0 0 calc(24px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-3), calc(0.1 * var(--ac-halo-scatter, 1) * var(--ac-drive-dim)));
+  --ac-glow-text-faint:
+    0 0 2px rgba(var(--ac-halo-1), calc(0.6 * var(--ac-drive-faint))),
+    0 0 calc(9px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-2), calc(0.26 * var(--ac-halo-scatter, 1) * var(--ac-drive-faint))),
+    0 0 calc(24px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-3), calc(0.1 * var(--ac-halo-scatter, 1) * var(--ac-drive-faint)));
 
-  --glow-box:
-    0 0 calc(8px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.32 * var(--halo-scatter, 1))),
-    inset 0 0 10px rgba(var(--halo-1), 0.07);
-  --glow-box-dim:
-    0 0 calc(8px * var(--halo-spread, 1)) rgba(var(--halo-1), calc(0.32 * var(--halo-scatter, 1) * var(--drive-faint))),
-    inset 0 0 10px rgba(var(--halo-1), calc(0.07 * var(--drive-faint)));
+  --ac-glow-box:
+    0 0 calc(8px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-1), calc(0.32 * var(--ac-halo-scatter, 1))),
+    inset 0 0 10px rgba(var(--ac-halo-1), 0.07);
+  --ac-glow-box-dim:
+    0 0 calc(8px * var(--ac-halo-spread, 1)) rgba(var(--ac-halo-1), calc(0.32 * var(--ac-halo-scatter, 1) * var(--ac-drive-faint))),
+    inset 0 0 10px rgba(var(--ac-halo-1), calc(0.07 * var(--ac-drive-faint)));
 
   /* THE EXTRUDED KEY EDGE — the one shadow here that is NOT a halo, so it takes
-     neither --halo-spread nor --halo-scatter: those describe light scattering
+     neither --ac-halo-spread nor --ac-halo-scatter: those describe light scattering
      through glass, and this is geometry. It stays the same size when the palette
-     changes, while its color still follows --halo-1.
+     changes, while its color still follows --ac-halo-1.
 
      TWO LAYERS BECAUSE IT IS AN EDGE, NOT A GHOST: a bright 2px lip against the
      stroke, then 3px more at lower drive falling away from it. The alphas are
@@ -61,9 +61,9 @@
 
      Consumed by components/classic.css and nothing else. Override to blunt or
      kill the extrusion wholesale; print does exactly that. */
-  --edge-3d:
-    2px 2px 0 rgba(var(--halo-1), 0.92),
-    5px 5px 0 rgba(var(--halo-1), 0.6);
+  --ac-edge-3d:
+    2px 2px 0 rgba(var(--ac-halo-1), 0.92),
+    5px 5px 0 rgba(var(--ac-halo-1), 0.6);
 
   /* THE SAME EDGE FROM THE OTHER SIDE — a key pressed IN. The band moves to the
      top and left because the near face of a sunken key is the upper one.
@@ -71,9 +71,9 @@
      A SHADOW RATHER THAN A TRANSFORM, and that is load-bearing: `translate` DOES
      contribute to scrollable overflow, so every latched key flush against its
      container pushed 4px past it. See RATIONALE.md § The extruded key edge. */
-  --edge-3d-in:
-    -2px -2px 0 rgba(var(--halo-1), 0.92),
-    -5px -5px 0 rgba(var(--halo-1), 0.6);
+  --ac-edge-3d-in:
+    -2px -2px 0 rgba(var(--ac-halo-1), 0.92),
+    -5px -5px 0 rgba(var(--ac-halo-1), 0.6);
 
   /* PERSISTENCE IS A PROPERTY OF THE EMITTER, not of this file. A palette that
      knows its own decay declares --ac-persist, --ac-flicker and a sampled
@@ -139,7 +139,7 @@
 
    WHAT MUST THEN SUPPRESS IT, and why it is a short list rather than a long one:
 
-     --ink-dim / --ink-faint   glow is the signal of energization, so a disabled
+     --ac-ink-dim / --ac-ink-faint   glow is the signal of energization, so a disabled
                                control that glows is a lie about the hardware.
      inverse video             dark text on a lit block is the UNLIT part of the
                                block. Unlit cells do not scatter.
@@ -149,12 +149,12 @@
    build, because that is the half of this that drifts.
 
    SUPPRESSION IS ALWAYS `text-shadow: none`, NEVER A TOKEN OVERRIDE.
-   var(--glow-text) is resolved HERE, at the frame, and the resolved shadow list
-   is what inherits — a descendant setting its own --glow-text changes nothing.
+   var(--ac-glow-text) is resolved HERE, at the frame, and the resolved shadow list
+   is what inherits — a descendant setting its own --ac-glow-text changes nothing.
 
    Print and forced colors need no rule of their own; both already blank it
    upstream. --------------------------------------------------------------- */
 .ac-screen,
 .ac-root {
-  text-shadow: var(--glow-text);
+  text-shadow: var(--ac-glow-text);
 }

@@ -16,13 +16,13 @@
   align-items: center;
   gap: 10px;
   min-height: 44px;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   line-height: 1;
-  color: var(--ink);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
   text-transform: uppercase;
-  letter-spacing: var(--tracking-body);
+  letter-spacing: var(--ac-tracking-body);
   cursor: pointer;
 }
 
@@ -33,37 +33,37 @@
   height: 20px;
   margin: 0;
   flex: none;
-  border: var(--border-w) solid var(--stroke);
-  box-shadow: var(--glow-box);
+  border: var(--ac-border-w) solid var(--ac-stroke);
+  box-shadow: var(--ac-glow-box);
   border-radius: 0;
   background: transparent;
   cursor: pointer;
 }
 
 .ac-check input:checked {
-  background: var(--fill);
-  box-shadow: var(--glow-box);
+  background: var(--ac-fill);
+  box-shadow: var(--ac-glow-box);
 }
 
 .ac-check--disabled,
 .ac-check:has(input:disabled) {
-  color: var(--ink-faint);
+  color: var(--ac-ink-faint);
   text-shadow: none;
   cursor: default;
 }
 .ac-check--disabled input,
 .ac-check input:disabled {
-  border-color: var(--stroke-dim);
+  border-color: var(--ac-stroke-dim);
   box-shadow: none;
   cursor: default;
 }
 .ac-check--disabled input:checked,
 .ac-check input:disabled:checked {
-  background: var(--ink-faint);
+  background: var(--ac-ink-faint);
   box-shadow: none;
 }
 
 .ac-check input:focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }

@@ -24,16 +24,16 @@
 /* --------------------------------------------------------------- shared -- */
 
 .doc-byline {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   text-decoration: none;
 }
 .doc-byline:hover {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 /* ----------------------------------------------------------- setup board -- */
@@ -45,14 +45,14 @@
 .doc-nav-display {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
   white-space: nowrap;
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 .doc-nav-display [data-ac-display-out] {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 /* All four switches live in ONE region now — see the SWITCHES panel in the demo
@@ -68,7 +68,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
 }
 .doc-switches .ac-toggle {
   display: flex;
@@ -88,13 +88,13 @@
    the library is running — and a flat list of four switches quietly claims Plasma
    and JS Effects are the same sort of thing. See the header of components/setup.css. */
 .doc-switches__axis {
-  margin: var(--space-4) 0 var(--space-2);
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
+  margin: var(--ac-space-4) 0 var(--ac-space-2);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
   line-height: 1.6;
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   text-transform: uppercase;
 }
 .doc-switches__axis:first-of-type {
@@ -115,27 +115,27 @@
 /* The group heading is what makes the list two catalogs instead of one. It is
    not decoration and it does not collapse into the rows. */
 .doc-displays__head {
-  margin: var(--space-4) 0 0;
-  font-family: var(--font-terminal);
-  font-size: var(--type-small);
+  margin: var(--ac-space-4) 0 0;
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
   line-height: 1;
   letter-spacing: 0.12em;
-  color: var(--ink-bright);
+  color: var(--ac-ink-bright);
   text-transform: uppercase;
-  text-shadow: var(--glow-text);
+  text-shadow: var(--ac-glow-text);
 }
 .doc-displays__head:first-child {
   margin-top: 0;
 }
 
 .doc-displays__note {
-  margin: var(--space-2) 0 var(--space-3);
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
+  margin: var(--ac-space-2) 0 var(--ac-space-3);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
   line-height: 1.6;
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   text-transform: uppercase;
 }
 
@@ -154,7 +154,7 @@
   align-items: baseline;
   width: 100%;
   min-height: 36px;
-  font-size: var(--type-small);
+  font-size: var(--ac-type-small);
 }
 
 .doc-display input {
@@ -167,18 +167,18 @@
 
 .doc-display__fill {
   flex: 1;
-  min-width: var(--space-6);
+  min-width: var(--ac-space-6);
   align-self: baseline;
-  border-bottom: var(--border-w) dotted var(--ink-trace);
+  border-bottom: var(--ac-border-w) dotted var(--ac-ink-trace);
 }
 
 .doc-display__note {
   flex: none;
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   text-transform: uppercase;
 }
 
@@ -195,20 +195,20 @@
    and Silkscreen at 8px is unreadable past about a dozen words. */
 .doc-info {
   margin: 0;
-  font-family: var(--font-terminal);
-  font-size: var(--type-small);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
   line-height: 1.35;
-  letter-spacing: var(--tracking-body);
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  letter-spacing: var(--ac-tracking-body);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 
 .doc-setup-hint {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   text-transform: uppercase;
 }
 
@@ -218,29 +218,29 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: var(--space-6);
+  gap: var(--ac-space-6);
   flex-wrap: wrap;
 }
 
 .doc-wordmark {
-  font-size: var(--type-title);
+  font-size: var(--ac-type-title);
   letter-spacing: 0.18em;
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 .doc-console-head h1 {
-  font-size: var(--type-display);
-  letter-spacing: var(--tracking-display);
-  text-shadow: var(--glow-text);
-  border-bottom: var(--border-w) solid var(--stroke);
+  font-size: var(--ac-type-display);
+  letter-spacing: var(--ac-tracking-display);
+  text-shadow: var(--ac-glow-text);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke);
   padding-bottom: 4px;
 }
 
 .doc-fields {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
 }
 .doc-fields .ac-field {
   width: min(100%, 60%);
@@ -258,7 +258,7 @@
 .doc-lamp {
   display: flex;
   justify-content: center;
-  gap: var(--space-6);
+  gap: var(--ac-space-6);
   flex-wrap: wrap;
 }
 
@@ -278,7 +278,7 @@
   min-width: 0;
   max-width: 1180px;
   margin: 0 auto;
-  padding: var(--space-8) var(--space-8) 80px;
+  padding: var(--ac-space-8) var(--ac-space-8) 80px;
 }
 
 /* Documentation tables have a large min-content width (long token names in
@@ -301,11 +301,11 @@
    list that reflows is a chapter list you have to re-read every time. */
 .doc-chapters {
   display: flex;
-  gap: var(--space-6);
+  gap: var(--ac-space-6);
   align-items: baseline;
-  margin-bottom: var(--space-6);
-  padding-bottom: var(--space-3);
-  border-bottom: var(--border-w) solid var(--stroke-dim);
+  margin-bottom: var(--ac-space-6);
+  padding-bottom: var(--ac-space-3);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -316,39 +316,39 @@
 .doc-chapter {
   display: flex;
   align-items: baseline;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
   flex: none;
-  font-size: var(--type-small);
+  font-size: var(--ac-type-small);
   line-height: 1;
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
   text-decoration: none;
   white-space: nowrap;
 }
 .doc-chapter:hover {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 /* The chapter you are on is INVERSE VIDEO, which is law 2 doing the work a
    color would do anywhere else — the machine saying "this one". */
 .doc-chapter[aria-current="page"] {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
-  padding: 3px var(--space-2);
+  padding: 3px var(--ac-space-2);
 }
 .doc-chapter[aria-current="page"] .doc-chapter__n {
-  color: var(--on-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
 }
 
 .doc-chapter__n {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 
 /* The directory on the overview page. Each card is the whole target — a title
@@ -356,47 +356,47 @@
 .doc-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: var(--space-4);
+  gap: var(--ac-space-4);
 }
 
 .doc-card {
   display: grid;
   grid-template-columns: 34px 1fr;
-  gap: 4px var(--space-3);
+  gap: 4px var(--ac-space-3);
   align-items: baseline;
-  padding: var(--space-4);
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius);
+  padding: var(--ac-space-4);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius);
   text-decoration: none;
 }
 .doc-card:hover {
-  border-color: var(--stroke);
-  box-shadow: var(--glow-box-dim);
+  border-color: var(--ac-stroke);
+  box-shadow: var(--ac-glow-box-dim);
 }
 
 .doc-card__n {
   grid-row: span 2;
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 .doc-card__title {
-  font-size: var(--type-body);
+  font-size: var(--ac-type-body);
   letter-spacing: 0.1em;
   line-height: 1;
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 .doc-card__blurb {
-  font-size: var(--type-small);
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 .doc-card:hover .doc-card__blurb {
-  color: var(--ink);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
 }
 
 /* Previous / next. A chapter that is a whole page needs a way out of the end of
@@ -404,50 +404,50 @@
 .doc-pager {
   display: flex;
   justify-content: space-between;
-  gap: var(--space-4);
-  margin-top: var(--space-8);
-  padding-top: var(--space-4);
-  border-top: var(--border-w) solid var(--stroke-dim);
+  gap: var(--ac-space-4);
+  margin-top: var(--ac-space-8);
+  padding-top: var(--ac-space-4);
+  border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
 }
 .doc-pager__link {
-  font-size: var(--type-small);
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
   text-decoration: none;
 }
 .doc-pager__link:hover {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 .doc-head {
-  border-bottom: var(--border-w) solid var(--stroke);
-  padding-bottom: var(--space-4);
-  margin-bottom: var(--space-3);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke);
+  padding-bottom: var(--ac-space-4);
+  margin-bottom: var(--ac-space-3);
 }
 
 /* A chapter masthead is one step down from the overview's. Same rule under it,
    smaller voice: the front page is the system, a chapter is a part of it. */
 .doc-head--chapter h1 {
-  font-size: var(--type-display);
+  font-size: var(--ac-type-display);
 }
 .doc-head h1 {
   font-size: 56px;
-  letter-spacing: var(--tracking-display);
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  letter-spacing: var(--ac-tracking-display);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 .doc-kicker {
-  font-size: var(--type-title);
+  font-size: var(--ac-type-title);
   letter-spacing: 0.2em;
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 .doc-lede {
   max-width: 62ch;
-  color: var(--ink);
-  text-shadow: var(--glow-text);
-  font-size: var(--type-body);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  font-size: var(--ac-type-body);
   margin: 20px 0 0;
 }
 
@@ -457,7 +457,7 @@
    The frame's overlays cost nothing. Removing the bloom's viewport
    backdrop-filter, its blend mode, its mask and the cell mesh, one at a time,
    moved a 130-frame scroll by less than a millisecond each. What costs
-   everything is --glow-text: four text-shadow layers out to a 56px radius, on
+   everything is --ac-glow-text: four text-shadow layers out to a 56px radius, on
    every text node of a 26,000px page. Applied with no simulation running at all
    it reproduces the whole problem; taken off .ac-bloom the problem disappears.
    The numbers, at 1440x900, median frame time over a 130-frame scroll:
@@ -490,7 +490,7 @@
    reason you would guess. The frame's overlays cost nothing: removing the
    bloom's viewport backdrop-filter, its blend mode, its mask and the cell mesh,
    one at a time, each moved a 130-frame scroll by less than a millisecond. What
-   costs everything is --glow-text — four text-shadow layers out to a 56px radius,
+   costs everything is --ac-glow-text — four text-shadow layers out to a 56px radius,
    on every text node on the page. Applied with no simulation running at all it
    reproduces the whole problem; taken off .ac-bloom the problem disappears.
 
@@ -532,16 +532,16 @@
   }
 }
 .doc-wrap h2 {
-  font-size: var(--type-title);
+  font-size: var(--ac-type-title);
   letter-spacing: 0.14em;
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 .doc-wrap h3 {
-  font-size: var(--type-body);
+  font-size: var(--ac-type-body);
   letter-spacing: 0.1em;
-  color: var(--ink);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
 }
 /* 68ch is the MEASURE, and it is the default rather than the rule. A line of
    VT323 at 22px runs about 8.8px per character, so the 1180px wrap is 134ch
@@ -558,14 +558,14 @@
    paragraphs under their own subhead, so a column is a screen or less. */
 .doc-wrap p {
   max-width: 68ch;
-  font-size: var(--type-body);
-  margin: 0 0 var(--space-3);
+  font-size: var(--ac-type-body);
+  margin: 0 0 var(--ac-space-3);
 }
 
 .doc-prose {
   columns: 2;
-  column-gap: var(--space-8);
-  margin-bottom: var(--space-4);
+  column-gap: var(--ac-space-8);
+  margin-bottom: var(--ac-space-4);
 }
 /* The measure comes from the column now, so the cap has to come off or the
    columns are 68ch of text in a 64ch box and the second one is mostly air. */
@@ -587,30 +587,30 @@
 .doc-sec-head {
   display: flex;
   align-items: baseline;
-  gap: var(--space-4);
-  border-bottom: var(--border-w) solid var(--stroke-dim);
-  padding-bottom: var(--space-2);
-  margin-bottom: var(--space-6);
+  gap: var(--ac-space-4);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
+  padding-bottom: var(--ac-space-2);
+  margin-bottom: var(--ac-space-6);
 }
 .doc-num,
 .doc-mono {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 
 /* GLOW FOLLOWS THE DRIVE LEVEL, which is the rule section 04 states and this
-   pair was breaking: .doc-faint carried the FULL --glow-text at --ink-faint ink,
+   pair was breaking: .doc-faint carried the FULL --ac-glow-text at --ac-ink-faint ink,
    so the faintest text on the page wore the hottest halo — the drive tiers wired
-   backwards, in the one file that documents them. It also carried a --glow-box,
+   backwards, in the one file that documents them. It also carried a --ac-glow-box,
    which put a rectangular halo around a run of caption text; a box halo belongs
    to a lit SURFACE, and a caption is not one. `npm run check` gates the missing
    halo but not the wrong one, so neither showed up. */
-.doc-dim { color: var(--ink-dim); text-shadow: var(--glow-text-dim); }
-.doc-faint { color: var(--ink-faint); text-shadow: var(--glow-text-faint); }
-.doc-small { font-size: var(--type-small); }
+.doc-dim { color: var(--ac-ink-dim); text-shadow: var(--ac-glow-text-dim); }
+.doc-faint { color: var(--ac-ink-faint); text-shadow: var(--ac-glow-text-faint); }
+.doc-small { font-size: var(--ac-type-small); }
 
 .doc-grid2 {
   display: grid;
@@ -620,7 +620,7 @@
 .doc-grid3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-6);
+  gap: var(--ac-space-6);
 }
 .doc-span2 { grid-column: span 2; }
 
@@ -631,23 +631,23 @@
   align-items: start;
 }
 .doc-law-n {
-  font-size: var(--type-title);
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  font-size: var(--ac-type-title);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
   line-height: 1;
 }
 .doc-law h3 { margin: 0 0 6px; }
 .doc-law p {
   margin: 0;
-  font-size: var(--type-small);
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 
 /* A specimen card. Dim frame so it never competes with what it contains. */
 .doc-demo {
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius);
   padding: 22px;
   display: flex;
   flex-wrap: wrap;
@@ -661,11 +661,11 @@
 }
 
 .doc-cap {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   display: block;
   margin: 0 0 10px;
   width: 100%;
@@ -680,7 +680,7 @@
 }
 .doc-chip {
   height: 72px;
-  border: 1px solid var(--ink-trace);
+  border: 1px solid var(--ac-ink-trace);
 }
 
 /* Plain documentation tables — deliberately not .ac-table, which is a data
@@ -688,29 +688,29 @@
 .doc-table {
   border-collapse: collapse;
   width: 100%;
-  font-size: var(--type-small);
+  font-size: var(--ac-type-small);
 }
 .doc-table th {
   text-align: left;
   font-weight: 400;
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  padding: 0 var(--space-4) var(--space-2) 0;
-  border-bottom: var(--border-w) solid var(--stroke-dim);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  padding: 0 var(--ac-space-4) var(--ac-space-2) 0;
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
 }
 .doc-table td {
-  padding: var(--space-2) var(--space-4) var(--space-2) 0;
-  color: var(--ink);
-  text-shadow: var(--glow-text);
-  border-bottom: 1px solid var(--ink-trace);
+  padding: var(--ac-space-2) var(--ac-space-4) var(--ac-space-2) 0;
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  border-bottom: 1px solid var(--ac-ink-trace);
   vertical-align: top;
 }
 .doc-table td.doc-tok {
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
   white-space: nowrap;
 }
 
@@ -718,58 +718,58 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0;
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius);
   overflow: hidden;
 }
 .doc-dodont > div { padding: 18px 20px; }
-.doc-dodont > div + div { border-left: var(--border-w) solid var(--stroke-dim); }
+.doc-dodont > div + div { border-left: var(--ac-border-w) solid var(--ac-stroke-dim); }
 .doc-dd-h {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
   padding: 3px 10px;
   display: inline-block;
-  font-size: var(--type-small);
-  margin-bottom: var(--space-3);
+  font-size: var(--ac-type-small);
+  margin-bottom: var(--ac-space-3);
 }
 .doc-dd-h--off {
   background: transparent;
-  color: var(--ink-faint);
+  color: var(--ac-ink-faint);
   text-shadow: none;
-  border: var(--border-w) solid var(--stroke-dim);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
 }
 
 .doc-wrap ul {
   margin: 0;
   padding-left: 1.2em;
-  font-size: var(--type-small);
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 .doc-wrap li { margin-bottom: 6px; }
 
 .doc-wrap code {
-  font-family: var(--font-terminal);
+  font-family: var(--ac-font-terminal);
   font-size: 20px;
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 /* The copyable class string under every component specimen. */
 .doc-code {
   display: block;
   width: 100%;
-  margin: var(--space-3) 0 0;
-  padding: var(--space-2) var(--space-3);
-  background: var(--screen-well);
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-terminal);
-  font-size: var(--type-small);
+  margin: var(--ac-space-3) 0 0;
+  padding: var(--ac-space-2) var(--ac-space-3);
+  background: var(--ac-screen-well);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius-sm);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
   line-height: 1.3;
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -777,25 +777,25 @@
 /* "When not to use it" — deliberately faint; it is a caveat, not a heading. */
 .doc-when {
   width: 100%;
-  margin: var(--space-2) 0 0;
-  font-size: var(--type-small);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  margin: var(--ac-space-2) 0 0;
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 .doc-when::before {
   content: "NOT FOR: ";
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
 }
 
 .doc-foot {
   margin-top: 72px;
-  border-top: var(--border-w) solid var(--stroke-dim);
-  padding-top: var(--space-4);
+  border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
+  padding-top: var(--ac-space-4);
   display: flex;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--ac-space-4);
   flex-wrap: wrap;
 }
 
@@ -804,14 +804,14 @@
 .doc-sim-tile {
   position: relative;
   min-height: 150px;
-  padding: var(--space-4);
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius);
-  background: var(--screen);
+  padding: var(--ac-space-4);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius);
+  background: var(--ac-screen);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -820,21 +820,21 @@
 /* ---------------------------------------------------------- server page -- */
 
 /* Four instrument values across, dropping to two and then one as the frame
-   narrows. minmax rather than a fixed count because --type-display is 44px:
+   narrows. minmax rather than a fixed count because --ac-type-display is 44px:
    below about 140px a track the value cannot fit in gets clipped by the frame's
    overflow:clip instead of wrapping, which is the failure mode the visual
    suite's overflow probe exists to catch. */
 .doc-vitals {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--space-4);
+  gap: var(--ac-space-4);
   align-items: end;
 }
 
 .doc-net {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
 }
 
 /* A sparkline made of boxes.
@@ -847,27 +847,27 @@
 
    Height rides on an inline `--h` (a number, so it is invisible to the glow
    gate, which only inspects color declarations). A day that lost time drops to
-   --ink-faint with the halo off, because glow is the signal of energization and
+   --ac-ink-faint with the halo off, because glow is the signal of energization and
    an outage is the one thing on the strip that was not lit. */
 .doc-spark {
   display: flex;
   align-items: flex-end;
   gap: 2px;
   height: 44px;
-  margin-top: var(--space-4);
-  border-bottom: var(--border-w) solid var(--stroke-dim);
+  margin-top: var(--ac-space-4);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
 }
 
 .doc-spark__bar {
   flex: 1 1 0;
   min-width: 2px;
   height: calc(var(--h, 100) * 1%);
-  background: var(--fill);
-  box-shadow: var(--glow-box);
+  background: var(--ac-fill);
+  box-shadow: var(--ac-glow-box);
 }
 
 .doc-spark__bar--down {
-  background: var(--ink-faint);
+  background: var(--ac-ink-faint);
   box-shadow: none;
 }
 
@@ -889,7 +889,7 @@
 }
 
 .doc-svc-toggle {
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
 }
 
 /* A stopped container is still listed — an operator needs to see the thing that
@@ -897,7 +897,7 @@
    ink with the halo off. This is the whole color argument in one rule: with a
    single hue available, "off" is said with brightness rather than with red. */
 .doc-services tr[data-stopped] td {
-  color: var(--ink-faint);
+  color: var(--ac-ink-faint);
   text-shadow: none;
 }
 
@@ -974,11 +974,11 @@
   left: -1px;
   width: 2px;
   height: 11px;
-  background: var(--ink-trace);
+  background: var(--ac-ink-trace);
 }
 .doc-brg--maj::before {
   height: 19px;
-  background: var(--ink-faint);
+  background: var(--ac-ink-faint);
 }
 
 /* Counter-rotated so the numerals stay upright, which is what a printed bezel
@@ -988,11 +988,11 @@
   top: 22px;
   left: 50%;
   transform: translate(-50%, 0) rotate(calc(var(--b, 0) * -1deg));
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 
 /* Ship's heading marker: where the bow is pointing, full radius. */
@@ -1000,7 +1000,7 @@
   width: 2px;
   margin-left: -1px;
   transform: rotate(calc(var(--brg, 0) * 1deg));
-  background: rgba(var(--halo-1), 0.45);
+  background: rgba(var(--ac-halo-1), 0.45);
 }
 
 /* Electronic bearing line — dashed, because it is drawn by the set rather than
@@ -1011,7 +1011,7 @@
   transform: rotate(calc(var(--brg, 0) * 1deg));
   background: repeating-linear-gradient(
     to bottom,
-    rgba(var(--halo-2), 0.5) 0 9px,
+    rgba(var(--ac-halo-2), 0.5) 0 9px,
     transparent 9px 16px
   );
 }
@@ -1026,7 +1026,7 @@
   width: calc(var(--rng, 0.5) * 100%);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
-  border: var(--border-w) dashed rgba(var(--halo-2), 0.45);
+  border: var(--ac-border-w) dashed rgba(var(--ac-halo-2), 0.45);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -1039,7 +1039,7 @@
   inset: 0;
   border-radius: 50%;
   pointer-events: none;
-  background: conic-gradient(from 40deg, rgba(var(--halo-4), 0.12) 0 40deg, transparent 40deg);
+  background: conic-gradient(from 40deg, rgba(var(--ac-halo-4), 0.12) 0 40deg, transparent 40deg);
   -webkit-mask: radial-gradient(circle closest-side at 50% 50%, transparent 0 55%, black 55%);
   mask: radial-gradient(circle closest-side at 50% 50%, transparent 0 55%, black 55%);
 }
@@ -1047,7 +1047,7 @@
 /* A CONTACT, WHICH IS THE POINT OF THE WHOLE PAGE.
    The beam crosses this bearing once per revolution and re-strikes it. On P7
    that strike lands in the blue layer and the yellow-green one behind it takes
-   over within a frame — so the keyframes below cross from --halo-flash to the
+   over within a frame — so the keyframes below cross from --ac-halo-flash to the
    afterglow ramp, exactly as ac-ghost-cascade does in tokens/effects.css, and
    for the same reason. The drain runs on --ac-decay-ease, which is the palette's
    own sampled Becquerel curve rather than anything chosen here. */
@@ -1065,7 +1065,7 @@
   height: calc(var(--sz, 8) * 0.6px);
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background-color: rgb(var(--halo-flash, var(--halo-1)));
+  background-color: rgb(var(--ac-halo-flash, var(--ac-halo-1)));
   animation: doc-echo-strike var(--ac-sweep-period) var(--ac-decay-ease) infinite;
   /* Negative by one full period so the face is already in steady state on the
      first frame instead of lighting up bearing by bearing on load. */
@@ -1075,15 +1075,15 @@
 @keyframes doc-echo-strike {
   0% {
     opacity: 1;
-    background-color: rgb(var(--halo-flash, var(--halo-1)));
+    background-color: rgb(var(--ac-halo-flash, var(--ac-halo-1)));
   }
   4% {
     opacity: 0.92;
-    background-color: rgb(var(--halo-1));
+    background-color: rgb(var(--ac-halo-1));
   }
   100% {
     opacity: var(--doc-trail-floor, 0);
-    background-color: rgb(var(--halo-3));
+    background-color: rgb(var(--ac-halo-3));
   }
 }
 
@@ -1103,7 +1103,7 @@
   width: calc(var(--sz, 8) * 1px + 16px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
-  border: var(--border-w) solid rgba(var(--halo-4), 0.6);
+  border: var(--ac-border-w) solid rgba(var(--ac-halo-4), 0.6);
   border-radius: 50%;
 }
 
@@ -1117,33 +1117,33 @@
   align-items: flex-end;
   gap: 2px;
   height: 56px;
-  margin-top: var(--space-4);
+  margin-top: var(--ac-space-4);
   padding: 0 2px;
-  background: var(--screen-well);
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius-sm);
+  background: var(--ac-screen-well);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius-sm);
 }
 
 .doc-ascope__bar {
   flex: 1 1 0;
   min-width: 2px;
   height: calc(var(--h, 4) * 1%);
-  background-color: rgb(var(--halo-1));
+  background-color: rgb(var(--ac-halo-1));
   animation: doc-ascope-drain var(--ac-sweep-period) var(--ac-decay-ease) infinite;
 }
 
 @keyframes doc-ascope-drain {
   0% {
     opacity: 1;
-    background-color: rgb(var(--halo-flash, var(--halo-1)));
+    background-color: rgb(var(--ac-halo-flash, var(--ac-halo-1)));
   }
   4% {
     opacity: 0.92;
-    background-color: rgb(var(--halo-1));
+    background-color: rgb(var(--ac-halo-1));
   }
   100% {
     opacity: var(--doc-trail-floor, 0);
-    background-color: rgb(var(--halo-3));
+    background-color: rgb(var(--ac-halo-3));
   }
 }
 
@@ -1151,13 +1151,13 @@
 .doc-spark__scale {
   display: flex;
   justify-content: space-between;
-  gap: var(--space-2);
-  margin-top: var(--space-1);
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  gap: var(--ac-space-2);
+  margin-top: var(--ac-space-1);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   text-transform: uppercase;
 }
 
@@ -1208,13 +1208,13 @@
 .doc-knobs {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--space-6) var(--space-8);
+  gap: var(--ac-space-6) var(--ac-space-8);
 }
 
 .doc-knob {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
   min-width: 0;
 }
 .doc-knob .ac-meter {
@@ -1226,34 +1226,34 @@
 }
 
 .doc-softkeys {
-  margin-top: var(--space-6);
+  margin-top: var(--ac-space-6);
 }
 
 .doc-softkeys__key,
 .doc-marker__key {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   text-transform: uppercase;
 }
 
 .doc-marker {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--ac-space-3);
 }
 .doc-marker__key {
   min-width: 3em;
 }
 .doc-marker__value {
   margin-right: auto;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   line-height: 1;
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
   font-variant-numeric: tabular-nums;
 }
 .doc-marker .ac-btn {
@@ -1261,7 +1261,7 @@
 }
 
 .doc-fix {
-  margin-top: var(--space-3);
+  margin-top: var(--ac-space-3);
 }
 
 .doc-targets td:nth-child(2) {
@@ -1284,11 +1284,11 @@
 /* Contributor and center codes. Four letters that are an identifier rather than
    a word, so they get the micro face and stop competing with the numbers. */
 .doc-ctr {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 
 /* A FIELD THAT JUST CHANGED, and this is the law-1 answer to the question every
@@ -1308,8 +1308,8 @@
    took the inverse background and kept the lit foreground, so the value flashed
    green on green and vanished for a second and a half. */
 .ac-table td.doc-tick {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
 }
 
@@ -1319,22 +1319,22 @@
    edge. The diagonal is not a rate and must not look like one. */
 .doc-xrat th[scope="row"] {
   text-align: left;
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
   white-space: nowrap;
 }
 
 .doc-xrat__self {
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   text-align: center;
 }
 
 .doc-depo th[scope="row"] {
   text-align: left;
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
 }
 
@@ -1356,15 +1356,15 @@
    careful with. */
 .doc-ticker {
   overflow: hidden;
-  border-top: var(--border-w) solid var(--stroke-dim);
-  border-bottom: var(--border-w) solid var(--stroke-dim);
-  padding: var(--space-2) 0;
-  font-family: var(--font-terminal);
-  font-size: var(--type-small);
+  border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
+  padding: var(--ac-space-2) 0;
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
   line-height: 1;
-  letter-spacing: var(--tracking-body);
-  color: var(--ink);
-  text-shadow: var(--glow-text);
+  letter-spacing: var(--ac-tracking-body);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -1420,7 +1420,7 @@
   .doc-grid2,
   .doc-grid3,
   .doc-dodont,
-  /* .ac-grid holds whatever --cols says at every width — only --console carries
+  /* .ac-grid holds whatever --ac-cols says at every width — only --console carries
      a breakpoint. Two panels of dense figures side by side are about 155px each
      on a phone, which is narrower than one of their own rows, so this one has to
      say when to stop. */
@@ -1432,10 +1432,10 @@
   .doc-prose { columns: 1; }
   .doc-dodont > div + div {
     border-left: none;
-    border-top: var(--border-w) solid var(--stroke-dim);
+    border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
   }
   .doc-wrap {
-    padding: var(--space-6) var(--space-4) 64px;
+    padding: var(--ac-space-6) var(--ac-space-4) 64px;
   }
-  .doc-head h1 { font-size: var(--type-display); }
+  .doc-head h1 { font-size: var(--ac-type-display); }
 }

@@ -22,7 +22,13 @@ export default {
       },
     ],
     "keyframes-name-pattern": "^ac-[a-z0-9-]+$",
-    "custom-property-pattern": "^(ac-)?[a-z0-9]+(-[a-z0-9]+)*$",
+    // Law: every token this framework owns is --ac-* prefixed. The prefix used
+    // to be optional here and 60 of 76 tokens skipped it, which is what made the
+    // @layer build's promise hollow — cascade layers do not protect custom
+    // properties, so a host app's unlayered `--radius` beat the framework's.
+    // Required now, so the next token cannot quietly go bare.
+    // tokens/deprecated.css is the one file that must declare the old names.
+    "custom-property-pattern": "^ac-[a-z0-9]+(-[a-z0-9]+)*$",
 
     // NOTE: the ban on `transition` used to live here too, with its own
     // exemption list in an `overrides` block, duplicating the one in
@@ -67,4 +73,14 @@ export default {
     "rule-empty-line-before": null,
     "declaration-block-single-line-max-declarations": null,
   },
+
+  overrides: [
+    {
+      /* The one file whose whole job is declaring the pre-prefix names. It is
+         deleted wholesale in 3.0, and until then it cannot satisfy the rule it
+         exists to help everyone else satisfy. */
+      files: ["src/tokens/deprecated.css"],
+      rules: { "custom-property-pattern": null },
+    },
+  ],
 };

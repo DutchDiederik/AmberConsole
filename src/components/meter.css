@@ -22,18 +22,18 @@
 .ac-meter {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  font-family: var(--font-terminal);
+  gap: var(--ac-space-1);
+  font-family: var(--ac-font-terminal);
   min-width: 0;
 }
 
 .ac-meter__track {
   position: relative;
   height: 24px;
-  border: var(--border-w) solid var(--stroke-dim);
-  box-shadow: var(--glow-box-dim);
-  border-radius: var(--radius-sm);
-  background: var(--screen-well);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
+  border-radius: var(--ac-radius-sm);
+  background: var(--ac-screen-well);
   overflow: hidden;
 }
 
@@ -48,20 +48,20 @@
   width: calc(var(--ac-meter-value, 0) * 1%);
   background: repeating-linear-gradient(
     90deg,
-    var(--fill) 0 8px,
+    var(--ac-fill) 0 8px,
     transparent 8px 12px
   );
-  box-shadow: var(--glow-box);
+  box-shadow: var(--ac-glow-box);
 }
 
 .ac-meter__scale {
   display: flex;
   justify-content: space-between;
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 
 .ac-meter--lg .ac-meter__track {
@@ -71,7 +71,7 @@
 .ac-meter--dim .ac-meter__bar {
   background: repeating-linear-gradient(
     90deg,
-    var(--ink-faint) 0 8px,
+    var(--ac-ink-faint) 0 8px,
     transparent 8px 12px
   );
   box-shadow: none;
@@ -79,7 +79,7 @@
 
 /* Over-range. Inverse-video the whole track and blink it — there is no red. */
 .ac-meter--alarm .ac-meter__track {
-  border-color: var(--stroke);
+  border-color: var(--ac-stroke);
 }
 .ac-meter--alarm .ac-meter__bar {
   /* A blink site: reads the pair declared in tokens/effects.css and explained in

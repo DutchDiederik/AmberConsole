@@ -14,13 +14,13 @@
 
 body {
   margin: 0;
-  background: var(--screen);
-  color: var(--ink);
-  text-shadow: var(--glow-text);
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
-  line-height: var(--leading);
-  letter-spacing: var(--tracking-body);
+  background: var(--ac-screen);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
+  line-height: var(--ac-leading);
+  letter-spacing: var(--ac-tracking-body);
   /* Antialiasing softens the bitmap grid and kills the effect. Keep this. */
   -webkit-font-smoothing: none;
 }
@@ -38,19 +38,19 @@ h4 {
 
 /* Undefined links render browser-default blue and instantly break the illusion. */
 a {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 a:hover {
-  color: var(--fill-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-fill-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 ::selection {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
 }
 
@@ -74,6 +74,6 @@ textarea {
 /* The shared focus ring. Every interactive ac-* class repeats this so it still
    works when a consumer imports components without the reset. */
 :focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }

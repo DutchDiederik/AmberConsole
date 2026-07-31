@@ -14,18 +14,18 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--space-6);
-  border: var(--border-w) solid var(--stroke);
-  box-shadow: var(--glow-box);
+  gap: var(--ac-space-6);
+  border: var(--ac-border-w) solid var(--ac-stroke);
+  box-shadow: var(--ac-glow-box);
   border-radius: 2px;
   padding: 10px 24px;
-  font-family: var(--font-terminal);
-  font-size: var(--type-display);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-display);
   line-height: 1;
   letter-spacing: 0.14em;
-  color: var(--ink-bright);
+  color: var(--ac-ink-bright);
   text-transform: uppercase;
-  text-shadow: var(--glow-text);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-banner::before,
@@ -40,24 +40,24 @@
    the parts that carry the alarm — are untouched. */
 @media (max-width: 480px) {
   .ac-banner {
-    gap: var(--space-3);
-    padding: 10px var(--space-3);
-    font-size: var(--type-title);
+    gap: var(--ac-space-3);
+    padding: 10px var(--ac-space-3);
+    font-size: var(--ac-type-title);
     flex-wrap: wrap;
   }
 }
 
 /* Inverse video for an alarm that must survive a static screenshot. */
 .ac-banner--filled {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
-  box-shadow: var(--glow-box);
+  box-shadow: var(--ac-glow-box);
 }
 
 .ac-banner--dim {
-  color: var(--ink-faint);
-  border-color: var(--stroke-dim);
-  text-shadow: var(--glow-text-faint);
-  box-shadow: var(--glow-box-dim);
+  color: var(--ac-ink-faint);
+  border-color: var(--ac-stroke-dim);
+  text-shadow: var(--ac-glow-text-faint);
+  box-shadow: var(--ac-glow-box-dim);
 }

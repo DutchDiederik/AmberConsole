@@ -21,8 +21,8 @@
  *
  * P1/P39 and P7/P11 share a ramp on purpose — same compound, different decay.
  *
- * WHAT EVERY BLOCK MUST DEFINE: the five --emit-* stops, the three surfaces,
- * --on-fill, the four --halo-* glow triples, and --halo-scatter / --halo-spread.
+ * WHAT EVERY BLOCK MUST DEFINE: the five --ac-emit-* stops, the three surfaces,
+ * --ac-on-fill, the four --ac-halo-* glow triples, and --ac-halo-scatter / --ac-halo-spread.
  * Every other color token is an alias or is built from those, so adding a
  * palette means adding one block and nothing else.
  *
@@ -51,9 +51,9 @@
 [data-ac-tech="plasma"][data-ac-emitter="neon"],
 [data-ac-gas="neon"] {
   /* Surfaces — warm blacks (the unlit gas panel) */
-  --screen: #100600;        /* base panel */
-  --screen-raised: #1b0c02; /* subtly lifted region */
-  --screen-well: #060200;   /* recessed input wells */
+  --ac-screen: #100600;        /* base panel */
+  --ac-screen-raised: #1b0c02; /* subtly lifted region */
+  --ac-screen-well: #060200;   /* recessed input wells */
 
   /* Discharge scale — ONE hue, five intensities. Never introduce a second hue
      WITHIN a palette; these blocks are hardware, not decoration.
@@ -61,34 +61,34 @@
      HAND-BUILT, and stays that way: this ramp was solved hue-first at maximum
      saturation, which is not what derive-gas.mjs does, and neither of its gamut
      strategies reproduces it. Each stop is solved to a contrast ratio against
-     --screen (10.5 / 7.0 / 5.2 / 3.4) — rotating hue at constant lightness drops
-     --emit-50 to 2.79:1 and silently fails the 3:1 non-text gate. Re-solve,
+     --ac-screen (10.5 / 7.0 / 5.2 / 3.4) — rotating hue at constant lightness drops
+     --ac-emit-50 to 2.79:1 and silently fails the 3:1 non-text gate. Re-solve,
      never re-tint; scripts/contrast.mjs is the check.
 
      Why the hue is 24deg and why regenerating neon would be a mistake:
      RATIONALE.md § Hue — why neon is 24deg. */
-  --emit-100: #ffa86d; /* hot highlight / focus — 10.57:1 */
-  --emit-90:  #ff6b08; /* primary discharge    —  7.02:1 */
-  --emit-70:  #dd5800; /* secondary            —  5.22:1 */
-  --emit-50:  #ab4500; /* dim / disabled       —  3.42:1 */
-  --emit-30:  #5b2500; /* trace / ghost        —  1.63:1, decorative */
-  --on-fill:   #1e0c00;
+  --ac-emit-100: #ffa86d; /* hot highlight / focus — 10.57:1 */
+  --ac-emit-90:  #ff6b08; /* primary discharge    —  7.02:1 */
+  --ac-emit-70:  #dd5800; /* secondary            —  5.22:1 */
+  --ac-emit-50:  #ab4500; /* dim / disabled       —  3.42:1 */
+  --ac-emit-30:  #5b2500; /* trace / ghost        —  1.63:1, decorative */
+  --ac-on-fill:   #1e0c00;
 
   /* THE GLOW SOURCE — four points on the discharge hue, as bare "r, g, b"
      triples so tokens/effects.css can build every halo with its own alphas:
-     rgba(var(--halo-1), 0.4). That indirection is why the palettes switch
+     rgba(var(--ac-halo-1), 0.4). That indirection is why the palettes switch
      cleanly; hardcoding a halo puts an amber corona around neon text.
 
-     --halo-scatter is how much light reaches the halo, with NEON AT 1.00 BY
+     --ac-halo-scatter is how much light reaches the halo, with NEON AT 1.00 BY
      DEFINITION — every other palette's figure is stated against it — and
-     --halo-spread is its square root. See RATIONALE.md § Scattering. */
-  --halo-scatter: 1;
-  --halo-spread: 1;
+     --ac-halo-spread is its square root. See RATIONALE.md § Scattering. */
+  --ac-halo-scatter: 1;
+  --ac-halo-spread: 1;
 
-  --halo-1: 255, 120, 30; /* core halo */
-  --halo-2: 255, 109, 12; /* mid */
-  --halo-3: 255, 102, 0;  /* deep / outermost */
-  --halo-4: 255, 140, 64; /* pale — hot cores and the retrace band */
+  --ac-halo-1: 255, 120, 30; /* core halo */
+  --ac-halo-2: 255, 109, 12; /* mid */
+  --ac-halo-3: 255, 102, 0;  /* deep / outermost */
+  --ac-halo-4: 255, 140, 64; /* pale — hot cores and the retrace band */
 }
 
 /* --- CRT / P3 — the amber phosphor, and the source design system's ramp. Same
@@ -97,28 +97,28 @@
        technology and not sitting beside neon. --- */
 [data-ac-tech="crt"][data-ac-emitter="p3"],
 [data-ac-gas="amber"] {
-  --screen: #0d0700;
-  --screen-raised: #170e02;
-  --screen-well: #060200;
+  --ac-screen: #0d0700;
+  --ac-screen-raised: #170e02;
+  --ac-screen-well: #060200;
 
-  --emit-100: #ffd052; /* hot highlight / focus — 13.74:1 */
-  --emit-90:  #ffae1e; /* primary discharge    — 10.81:1 */
-  --emit-70:  #cd8817; /* secondary            —  6.81:1 */
-  --emit-50:  #8d5b10; /* dim / disabled       —  3.47:1 */
-  --emit-30:  #4a2f08; /* trace / ghost        —  1.62:1, decorative */
-  --on-fill:   #1a0e00;
+  --ac-emit-100: #ffd052; /* hot highlight / focus — 13.74:1 */
+  --ac-emit-90:  #ffae1e; /* primary discharge    — 10.81:1 */
+  --ac-emit-70:  #cd8817; /* secondary            —  6.81:1 */
+  --ac-emit-50:  #8d5b10; /* dim / disabled       —  3.47:1 */
+  --ac-emit-30:  #4a2f08; /* trace / ghost        —  1.62:1, decorative */
+  --ac-on-fill:   #1a0e00;
 
-  --halo-1: 255, 174, 30;
-  --halo-2: 255, 150, 12;
-  --halo-3: 255, 120, 0;
-  --halo-4: 255, 186, 64;
+  --ac-halo-1: 255, 174, 30;
+  --ac-halo-2: 255, 150, 12;
+  --ac-halo-3: 255, 120, 0;
+  --ac-halo-4: 255, 186, 64;
 
   /* Derived from the band model, replacing a placeholder held at neon's 1.00
      that was wrong by 23%. The RAMP above stays hand-built (emit: false in
      scripts/data/emitters.json); only the halo width was ever a placeholder.
      See RATIONALE.md § Scattering. */
-  --halo-scatter: 1.23;
-  --halo-spread: 1.11;
+  --ac-halo-scatter: 1.23;
+  --ac-halo-spread: 1.11;
 
   /* Persistence: 25ms to 10% (medium). 22% still lit at the next frame.
      --ac-flicker is the same quantity read the other way; the WCAG amplitude
@@ -141,27 +141,27 @@
      CIE 1931 2-deg integral over all 15 listed lines: x=0.3944 y=0.2986.
      Inside sRGB as measured; no gamut mapping needed.
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at 6.40:1 on --emit-90. --- */
+     own --ac-screen; --ac-on-fill lands at 6.40:1 on --ac-emit-90. --- */
 [data-ac-tech="plasma"][data-ac-emitter="helium"] {
-  --screen: #0e0809;
-  --screen-raised: #1b1214;
-  --screen-well: #060404;
+  --ac-screen: #0e0809;
+  --ac-screen-raised: #1b1214;
+  --ac-screen-well: #060404;
 
-  --emit-100: #ffa2b9;
-  --emit-90:  #dc7d96;
-  --emit-70:  #bc6a80;
-  --emit-50:  #925163;
-  --emit-30:  #502a34;
-  --on-fill:  #201216;
+  --ac-emit-100: #ffa2b9;
+  --ac-emit-90:  #dc7d96;
+  --ac-emit-70:  #bc6a80;
+  --ac-emit-50:  #925163;
+  --ac-emit-30:  #502a34;
+  --ac-on-fill:  #201216;
 
-  --halo-1: 255, 158, 183;
-  --halo-2: 255, 153, 180;
-  --halo-3: 255, 150, 178;
-  --halo-4: 255, 170, 191;
+  --ac-halo-1: 255, 158, 183;
+  --ac-halo-2: 255, 153, 180;
+  --ac-halo-3: 255, 150, 178;
+  --ac-halo-4: 255, 170, 191;
 
   /* Rayleigh: this gas throws 26% more light into the halo than neon. */
-  --halo-scatter: 1.26;
-  --halo-spread: 1.12;
+  --ac-halo-scatter: 1.26;
+  --ac-halo-spread: 1.12;
 }
 
 /* --- PLASMA / ARGON — pale violet-lavender.
@@ -172,30 +172,30 @@
      scripts/data/emitters.json.
 
      CIE 1931 2-deg integral over 43 of 102 listed lines: x=0.2163 y=0.1047.
-     Outside sRGB at the luminance --emit-90 needs, so it is
+     Outside sRGB at the luminance --ac-emit-90 needs, so it is
      desaturated 35% toward D65 — the gas is paler here than it is in the tube.
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at 6.37:1 on --emit-90. --- */
+     own --ac-screen; --ac-on-fill lands at 6.37:1 on --ac-emit-90. --- */
 [data-ac-tech="plasma"][data-ac-emitter="argon"] {
-  --screen: #0b0812;
-  --screen-raised: #171222;
-  --screen-well: #050309;
+  --ac-screen: #0b0812;
+  --ac-screen-raised: #171222;
+  --ac-screen-well: #050309;
 
-  --emit-100: #c9b0ff;
-  --emit-90:  #af81ff;
-  --emit-70:  #9f5dff;
-  --emit-50:  #8925f1;
-  --emit-30:  #4b1088;
-  --on-fill:  #1b112c;
+  --ac-emit-100: #c9b0ff;
+  --ac-emit-90:  #af81ff;
+  --ac-emit-70:  #9f5dff;
+  --ac-emit-50:  #8925f1;
+  --ac-emit-30:  #4b1088;
+  --ac-on-fill:  #1b112c;
 
-  --halo-1: 186, 149, 255;
-  --halo-2: 182, 143, 255;
-  --halo-3: 180, 138, 255;
-  --halo-4: 194, 164, 255;
+  --ac-halo-1: 186, 149, 255;
+  --ac-halo-2: 182, 143, 255;
+  --ac-halo-3: 180, 138, 255;
+  --ac-halo-4: 194, 164, 255;
 
   /* Rayleigh: this gas throws 49% more light into the halo than neon. */
-  --halo-scatter: 1.49;
-  --halo-spread: 1.22;
+  --ac-halo-scatter: 1.49;
+  --ac-halo-spread: 1.22;
 }
 
 /* --- PLASMA / KRYPTON — pale violet-white.
@@ -208,27 +208,27 @@
      CIE 1931 2-deg integral over all 95 listed lines: x=0.3153 y=0.2551.
      Inside sRGB as measured; no gamut mapping needed.
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at 6.35:1 on --emit-90. --- */
+     own --ac-screen; --ac-on-fill lands at 6.35:1 on --ac-emit-90. --- */
 [data-ac-tech="plasma"][data-ac-emitter="krypton"] {
-  --screen: #0b080b;
-  --screen-raised: #181318;
-  --screen-well: #050405;
+  --ac-screen: #0b080b;
+  --ac-screen-raised: #181318;
+  --ac-screen-well: #050405;
 
-  --emit-100: #eaa5eb;
-  --emit-90:  #bf86c0;
-  --emit-70:  #a372a3;
-  --emit-50:  #7f587f;
-  --emit-30:  #442e45;
-  --on-fill:  #1b141b;
+  --ac-emit-100: #eaa5eb;
+  --ac-emit-90:  #bf86c0;
+  --ac-emit-70:  #a372a3;
+  --ac-emit-50:  #7f587f;
+  --ac-emit-30:  #442e45;
+  --ac-on-fill:  #1b141b;
 
-  --halo-1: 251, 185, 252;
-  --halo-2: 241, 173, 242;
-  --halo-3: 229, 162, 230;
-  --halo-4: 254, 201, 255;
+  --ac-halo-1: 251, 185, 252;
+  --ac-halo-2: 241, 173, 242;
+  --ac-halo-3: 229, 162, 230;
+  --ac-halo-4: 254, 201, 255;
 
   /* Rayleigh: this gas throws 31% more light into the halo than neon. */
-  --halo-scatter: 1.31;
-  --halo-spread: 1.14;
+  --ac-halo-scatter: 1.31;
+  --ac-halo-spread: 1.14;
 }
 
 /* --- CRT / P1 — willemite green.
@@ -239,30 +239,30 @@
      scripts/data/emitters.json.
 
      Band 529nm FWHM 48nm: x=0.2154 y=0.7110.
-     Outside sRGB at the luminance --emit-90 needs, so it is
+     Outside sRGB at the luminance --ac-emit-90 needs, so it is
      desaturated 57% toward D65 — the phosphor is paler here than it is in the tube.
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at 6.39:1 on --emit-90. --- */
+     own --ac-screen; --ac-on-fill lands at 6.39:1 on --ac-emit-90. --- */
 [data-ac-tech="crt"][data-ac-emitter="p1"] {
-  --screen: #000c03;
-  --screen-raised: #001908;
-  --screen-well: #000601;
+  --ac-screen: #000c03;
+  --ac-screen-raised: #001908;
+  --ac-screen-well: #000601;
 
-  --emit-100: #00d871;
-  --emit-90:  #00b05b;
-  --emit-70:  #00964d;
-  --emit-50:  #00753a;
-  --emit-30:  #003f1c;
-  --on-fill:  #001a08;
+  --ac-emit-100: #00d871;
+  --ac-emit-90:  #00b05b;
+  --ac-emit-70:  #00964d;
+  --ac-emit-50:  #00753a;
+  --ac-emit-30:  #003f1c;
+  --ac-on-fill:  #001a08;
 
-  --halo-1: 0, 237, 125;
-  --halo-2: 0, 225, 118;
-  --halo-3: 0, 212, 111;
-  --halo-4: 46, 255, 140;
+  --ac-halo-1: 0, 237, 125;
+  --ac-halo-2: 0, 225, 118;
+  --ac-halo-3: 0, 212, 111;
+  --ac-halo-4: 46, 255, 140;
 
   /* Rayleigh: this phosphor throws 63% more light into the halo than neon. */
-  --halo-scatter: 1.63;
-  --halo-spread: 1.28;
+  --ac-halo-scatter: 1.63;
+  --ac-halo-spread: 1.28;
 
   /* Persistence: 24ms to 10% (medium).
      20% still lit when the next frame arrives.
@@ -287,27 +287,27 @@
      2 bands 466nm FWHM 76nm + 572nm FWHM 130nm x0.5: x=0.2701 y=0.3000.
      Inside sRGB as measured; no gamut mapping needed.
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at 6.37:1 on --emit-90. --- */
+     own --ac-screen; --ac-on-fill lands at 6.37:1 on --ac-emit-90. --- */
 [data-ac-tech="crt"][data-ac-emitter="p4"] {
-  --screen: #08090b;
-  --screen-raised: #121516;
-  --screen-well: #040405;
+  --ac-screen: #08090b;
+  --ac-screen-raised: #121516;
+  --ac-screen-well: #040405;
 
-  --emit-100: #9dc1d8;
-  --emit-90:  #7f9db0;
-  --emit-70:  #6c8696;
-  --emit-50:  #536874;
-  --emit-30:  #2b373e;
-  --on-fill:  #121618;
+  --ac-emit-100: #9dc1d8;
+  --ac-emit-90:  #7f9db0;
+  --ac-emit-70:  #6c8696;
+  --ac-emit-50:  #536874;
+  --ac-emit-30:  #2b373e;
+  --ac-on-fill:  #121618;
 
-  --halo-1: 176, 211, 234;
-  --halo-2: 165, 201, 223;
-  --halo-3: 153, 189, 211;
-  --halo-4: 197, 228, 248;
+  --ac-halo-1: 176, 211, 234;
+  --ac-halo-2: 165, 201, 223;
+  --ac-halo-3: 153, 189, 211;
+  --ac-halo-4: 197, 228, 248;
 
   /* Rayleigh: this phosphor throws 55% more light into the halo than neon. */
-  --halo-scatter: 1.55;
-  --halo-spread: 1.24;
+  --ac-halo-scatter: 1.55;
+  --ac-halo-spread: 1.24;
 
   /* Persistence: 0.06ms to 10% (medium-short).
      Fully dark between frames — flicker at maximum, no persistence to see.
@@ -326,43 +326,43 @@
      scripts/data/emitters.json.
 
      Band 466nm FWHM 76nm: x=0.1384 y=0.1502.
-     Outside sRGB at the luminance --emit-90 needs, so it is
+     Outside sRGB at the luminance --ac-emit-90 needs, so it is
      desaturated 29% toward D65 — the phosphor is paler here than it is in the tube.
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at 6.35:1 on --emit-90.
+     own --ac-screen; --ac-on-fill lands at 6.35:1 on --ac-emit-90.
 
-     TWO EMITTERS, IN SEQUENCE. --emit-* is the ZnS:Ag FLASH (x=0.1384 y=0.1502),
-     which is what the beam writes. --halo-* is the (Zn,Cd)S:Cu AFTERGLOW
+     TWO EMITTERS, IN SEQUENCE. --ac-emit-* is the ZnS:Ag FLASH (x=0.1384 y=0.1502),
+     which is what the beam writes. --ac-halo-* is the (Zn,Cd)S:Cu AFTERGLOW
      (x=0.3553 y=0.5373), which is what the screen holds after it. The halo
      therefore does NOT track the ink here, which inverts the rule stated at the
      top of tokens/effects.css and is the reason P7 exists as a part number. --- */
 [data-ac-tech="crt"][data-ac-emitter="p7"] {
-  --screen: #040a11;
-  --screen-raised: #0b1520;
-  --screen-well: #020409;
+  --ac-screen: #040a11;
+  --ac-screen-raised: #0b1520;
+  --ac-screen-well: #020409;
 
-  --emit-100: #8bc0ff;
-  --emit-90:  #00a0fb;
-  --emit-70:  #0088d7;
-  --emit-50:  #0069a8;
-  --emit-30:  #00385d;
-  --on-fill:  #03182a;
+  --ac-emit-100: #8bc0ff;
+  --ac-emit-90:  #00a0fb;
+  --ac-emit-70:  #0088d7;
+  --ac-emit-50:  #0069a8;
+  --ac-emit-30:  #00385d;
+  --ac-on-fill:  #03182a;
 
-  --halo-1: 156, 226, 72;
-  --halo-2: 145, 215, 54;
-  --halo-3: 135, 203, 40;
-  --halo-4: 176, 242, 107;
+  --ac-halo-1: 156, 226, 72;
+  --ac-halo-2: 145, 215, 54;
+  --ac-halo-3: 135, 203, 40;
+  --ac-halo-4: 176, 242, 107;
 
   /* Rayleigh: this phosphor throws 47% more light into the halo than neon. */
-  --halo-scatter: 1.47;
-  --halo-spread: 1.21;
+  --ac-halo-scatter: 1.47;
+  --ac-halo-spread: 1.21;
 
-  /* THE FLASH, as a halo triple. --halo-* above is the AFTERGLOW, which is what
+  /* THE FLASH, as a halo triple. --ac-halo-* above is the AFTERGLOW, which is what
      this screen holds; this is the layer the beam actually writes, and the ghost
      keyframe starts here before crossing to the afterglow within one frame.
      --ac-ghost-anim is how this palette tells tokens/effects.css it decays
      through two hues rather than one, without effects.css naming it. */
-  --halo-flash: 175, 209, 255;
+  --ac-halo-flash: 175, 209, 255;
   --ac-ghost-anim: ac-ghost-cascade;
 
   /* Persistence: 400ms to 10%, visible tail to 3000ms (long).
@@ -391,30 +391,30 @@
      scripts/data/emitters.json.
 
      Band 466nm FWHM 76nm: x=0.1384 y=0.1502.
-     Outside sRGB at the luminance --emit-90 needs, so it is
+     Outside sRGB at the luminance --ac-emit-90 needs, so it is
      desaturated 29% toward D65 — the phosphor is paler here than it is in the tube.
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at 6.35:1 on --emit-90. --- */
+     own --ac-screen; --ac-on-fill lands at 6.35:1 on --ac-emit-90. --- */
 [data-ac-tech="crt"][data-ac-emitter="p11"] {
-  --screen: #040a11;
-  --screen-raised: #0b1520;
-  --screen-well: #020409;
+  --ac-screen: #040a11;
+  --ac-screen-raised: #0b1520;
+  --ac-screen-well: #020409;
 
-  --emit-100: #8bc0ff;
-  --emit-90:  #00a0fb;
-  --emit-70:  #0088d7;
-  --emit-50:  #0069a8;
-  --emit-30:  #00385d;
-  --on-fill:  #03182a;
+  --ac-emit-100: #8bc0ff;
+  --ac-emit-90:  #00a0fb;
+  --ac-emit-70:  #0088d7;
+  --ac-emit-50:  #0069a8;
+  --ac-emit-30:  #00385d;
+  --ac-on-fill:  #03182a;
 
-  --halo-1: 87, 174, 255;
-  --halo-2: 70, 170, 255;
-  --halo-3: 56, 167, 255;
-  --halo-4: 119, 184, 255;
+  --ac-halo-1: 87, 174, 255;
+  --ac-halo-2: 70, 170, 255;
+  --ac-halo-3: 56, 167, 255;
+  --ac-halo-4: 119, 184, 255;
 
   /* Rayleigh: this phosphor throws 104% more light into the halo than neon. */
-  --halo-scatter: 2.04;
-  --halo-spread: 1.43;
+  --ac-halo-scatter: 2.04;
+  --ac-halo-spread: 1.43;
 
   /* Persistence: 0.035ms to 10% (medium-short).
      Fully dark between frames — flicker at maximum, no persistence to see.
@@ -433,30 +433,30 @@
      scripts/data/emitters.json.
 
      Band 513nm FWHM 78nm: x=0.2079 y=0.5295.
-     Outside sRGB at the luminance --emit-90 needs, so it is
+     Outside sRGB at the luminance --ac-emit-90 needs, so it is
      desaturated 45% toward D65 — the phosphor is paler here than it is in the tube.
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at 6.36:1 on --emit-90. --- */
+     own --ac-screen; --ac-on-fill lands at 6.36:1 on --ac-emit-90. --- */
 [data-ac-tech="crt"][data-ac-emitter="p31"] {
-  --screen: #010c06;
-  --screen-raised: #03180e;
-  --screen-well: #010503;
+  --ac-screen: #010c06;
+  --ac-screen-raised: #03180e;
+  --ac-screen-well: #010503;
 
-  --emit-100: #00d791;
-  --emit-90:  #00af76;
-  --emit-70:  #009564;
-  --emit-50:  #00744c;
-  --emit-30:  #003e27;
-  --on-fill:  #001b0e;
+  --ac-emit-100: #00d791;
+  --ac-emit-90:  #00af76;
+  --ac-emit-70:  #009564;
+  --ac-emit-50:  #00744c;
+  --ac-emit-30:  #003e27;
+  --ac-on-fill:  #001b0e;
 
-  --halo-1: 0, 235, 160;
-  --halo-2: 0, 223, 151;
-  --halo-3: 0, 210, 142;
-  --halo-4: 0, 254, 173;
+  --ac-halo-1: 0, 235, 160;
+  --ac-halo-2: 0, 223, 151;
+  --ac-halo-3: 0, 210, 142;
+  --ac-halo-4: 0, 254, 173;
 
   /* Rayleigh: this phosphor throws 67% more light into the halo than neon. */
-  --halo-scatter: 1.67;
-  --halo-spread: 1.29;
+  --ac-halo-scatter: 1.67;
+  --ac-halo-spread: 1.29;
 
   /* Persistence: 0.038ms to 10% (medium-short).
      Fully dark between frames — flicker at maximum, no persistence to see.
@@ -475,30 +475,30 @@
      scripts/data/emitters.json.
 
      Band 529nm FWHM 52nm: x=0.2248 y=0.6962.
-     Outside sRGB at the luminance --emit-90 needs, so it is
+     Outside sRGB at the luminance --ac-emit-90 needs, so it is
      desaturated 54% toward D65 — the phosphor is paler here than it is in the tube.
      Stops solved to 10.5 / 7.0 / 5.2 / 3.4 / 1.63 : 1 against this palette's
-     own --screen; --on-fill lands at 6.39:1 on --emit-90. --- */
+     own --ac-screen; --ac-on-fill lands at 6.39:1 on --ac-emit-90. --- */
 [data-ac-tech="crt"][data-ac-emitter="p39"] {
-  --screen: #000c03;
-  --screen-raised: #001908;
-  --screen-well: #000601;
+  --ac-screen: #000c03;
+  --ac-screen-raised: #001908;
+  --ac-screen-well: #000601;
 
-  --emit-100: #00d86e;
-  --emit-90:  #00b059;
-  --emit-70:  #00964b;
-  --emit-50:  #007538;
-  --emit-30:  #003f1b;
-  --on-fill:  #001a07;
+  --ac-emit-100: #00d86e;
+  --ac-emit-90:  #00b059;
+  --ac-emit-70:  #00964b;
+  --ac-emit-50:  #007538;
+  --ac-emit-30:  #003f1b;
+  --ac-on-fill:  #001a07;
 
-  --halo-1: 0, 237, 121;
-  --halo-2: 0, 225, 115;
-  --halo-3: 0, 212, 108;
-  --halo-4: 49, 255, 137;
+  --ac-halo-1: 0, 237, 121;
+  --ac-halo-2: 0, 225, 115;
+  --ac-halo-3: 0, 212, 108;
+  --ac-halo-4: 49, 255, 137;
 
   /* Rayleigh: this phosphor throws 62% more light into the halo than neon. */
-  --halo-scatter: 1.62;
-  --halo-spread: 1.27;
+  --ac-halo-scatter: 1.62;
+  --ac-halo-spread: 1.27;
 
   /* Persistence: 400ms to 10%, visible tail to 2000ms (long).
      91% still lit when the next frame arrives.
@@ -521,52 +521,18 @@
    that is the same shape regardless of which gas is in the panel belongs here;
    anything that is a color belongs in a palette block above. */
 :root {
-  --ink: var(--emit-90);
-  --ink-bright: var(--emit-100);
-  --ink-dim: var(--emit-70);
-  --ink-faint: var(--emit-50);
-  --ink-trace: var(--emit-30);
+  --ac-ink: var(--ac-emit-90);
+  --ac-ink-bright: var(--ac-emit-100);
+  --ac-ink-dim: var(--ac-emit-70);
+  --ac-ink-faint: var(--ac-emit-50);
+  --ac-ink-trace: var(--ac-emit-30);
 
   /* Inverse video (solid discharge block, dark text) */
-  --fill: var(--emit-90);
-  --fill-bright: var(--emit-100);
+  --ac-fill: var(--ac-emit-90);
+  --ac-fill-bright: var(--ac-emit-100);
 
-  --stroke: var(--emit-90);
-  --stroke-dim: var(--emit-50);
+  --ac-stroke: var(--ac-emit-90);
+  --ac-stroke-dim: var(--ac-emit-50);
 
   /* No red, no green. Alarm/danger = inverse video + blink, never a new hue. */
-
-  /* DEPRECATED, removed in 3.0. Two renames, both for the same reason: the old
-     name asserted a HARDWARE that most palettes are not.
-
-       --amber-*  named a hue, and the hue was only ever historically right —
-                  under the default palette the color is neon, not amber.
-       --gas-*    named a gas, and seven of the eleven palettes are phosphors on
-                  a tube. The halo is not made of gas on any of them. This is the
-                  same bug as data-ac-gas above, one level down.
-
-     THESE ARE READ ALIASES ONLY, and that is worth stating plainly because the
-     note here used to claim otherwise. Nothing in the framework reads --amber-*
-     or --gas-*, so SETTING one has no effect — the framework reads --emit-* and
-     --halo-*. They exist so a consumer who reads the old names off the computed
-     style keeps getting an answer while they migrate; a consumer who OVERRIDES
-     must move to the new name.
-
-     They resolve per palette for free: --emit-90 and --halo-1 are redefined in
-     every block above, so the aliases follow whichever palette is active without
-     this list needing to know any of them exist. */
-  --amber-100: var(--emit-100);
-  --amber-90: var(--emit-90);
-  --amber-70: var(--emit-70);
-  --amber-50: var(--emit-50);
-  --amber-30: var(--emit-30);
-
-  --gas-1: var(--halo-1);
-  --gas-2: var(--halo-2);
-  --gas-3: var(--halo-3);
-  --gas-4: var(--halo-4);
-  --gas-scatter: var(--halo-scatter);
-  --gas-spread: var(--halo-spread);
-  /* Not aliased: --gas-flash. Only P7 ever declared it, and a var() with no
-     value would make this declaration invalid on the other ten palettes. */
 }

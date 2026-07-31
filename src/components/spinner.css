@@ -22,10 +22,10 @@
   height: 1em;
   line-height: 1;
   vertical-align: -0.1em;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-spinner::before {
@@ -43,12 +43,12 @@
 }
 
 .ac-spinner--dim {
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 
 .ac-spinner--lg {
-  font-size: var(--type-title);
+  font-size: var(--ac-type-title);
 }
 
 /* Static, but still unmistakably "working". */

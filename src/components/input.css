@@ -1,7 +1,7 @@
 /* ===========================================================================
    Field / Input / Textarea — recessed data wells.
 
-   Input text is --ink-bright on --screen-well: the operator's own entry is the
+   Input text is --ac-ink-bright on --ac-screen-well: the operator's own entry is the
    brightest thing in the region, because it is the one part of the panel a
    human wrote.
 
@@ -16,8 +16,8 @@
 .ac-field {
   display: inline-flex;
   flex-direction: column;
-  gap: var(--space-1);
-  font-family: var(--font-terminal);
+  gap: var(--ac-space-1);
+  font-family: var(--ac-font-terminal);
   min-width: 0;
 }
 
@@ -27,50 +27,50 @@
 }
 
 .ac-field__label {
-  font-size: var(--type-small);
+  font-size: var(--ac-type-small);
   line-height: 1;
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
   text-transform: uppercase;
-  letter-spacing: var(--tracking-body);
+  letter-spacing: var(--ac-tracking-body);
 }
 
 .ac-input {
   box-sizing: border-box;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
-  background: var(--screen-well);
-  border: var(--border-w) solid var(--stroke-dim);
-  box-shadow: var(--glow-box-dim);
-  border-radius: var(--radius-sm);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+  background: var(--ac-screen-well);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
+  border-radius: var(--ac-radius-sm);
   padding: 6px 12px;
-  letter-spacing: var(--tracking-body);
-  caret-color: var(--ink-bright);
+  letter-spacing: var(--ac-tracking-body);
+  caret-color: var(--ac-ink-bright);
   text-transform: uppercase;
 }
 
 .ac-input::placeholder {
-  color: var(--ink-faint);
-  text-shadow: var(--glow-text-faint);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 
 .ac-input:focus {
   outline: none;
-  border-color: var(--stroke);
-  box-shadow: var(--glow-box);
+  border-color: var(--ac-stroke);
+  box-shadow: var(--ac-glow-box);
 }
 
 .ac-input:disabled {
-  color: var(--ink-faint);
+  color: var(--ac-ink-faint);
   text-shadow: none;
-  border-color: var(--ink-trace);
+  border-color: var(--ac-ink-trace);
 }
 
 .ac-input:read-only {
-  color: var(--ink-dim);
-  text-shadow: var(--glow-text-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 
 .ac-input--block {
@@ -82,23 +82,23 @@
 textarea.ac-input {
   display: block;
   width: 100%;
-  line-height: var(--leading);
+  line-height: var(--ac-leading);
   resize: vertical;
 }
 
 /* Invalid = the machine rejecting the entry. Inverse video carries it; the
    blink is the alarm on top. Pair with aria-invalid for assistive tech. */
 .ac-field--invalid .ac-field__label {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 .ac-field--invalid .ac-input,
 .ac-input[aria-invalid="true"] {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
-  border-color: var(--stroke);
-  caret-color: var(--on-fill);
+  border-color: var(--ac-stroke);
+  caret-color: var(--ac-on-fill);
   /* A blink site: reads the pair declared in tokens/effects.css and explained in
      base/blink.css, which is also what switches it off for the blink flag,
      reduced motion, print and forced colors. Nothing outside this rule needs to
@@ -110,6 +110,6 @@ textarea.ac-input {
 }
 .ac-field--invalid .ac-input::placeholder,
 .ac-input[aria-invalid="true"]::placeholder {
-  color: var(--on-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
 }

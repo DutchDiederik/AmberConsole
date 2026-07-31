@@ -16,25 +16,25 @@
 
 @media print {
   :root {
-    --screen: #ffffff;
-    --screen-raised: #f2f2f2;
-    --screen-well: #ffffff;
+    --ac-screen: #ffffff;
+    --ac-screen-raised: #f2f2f2;
+    --ac-screen-well: #ffffff;
 
-    --ink: #000000;
-    --ink-bright: #000000;
-    --ink-dim: #333333;
-    --ink-faint: #666666;
-    --ink-trace: #999999;
+    --ac-ink: #000000;
+    --ac-ink-bright: #000000;
+    --ac-ink-dim: #333333;
+    --ac-ink-faint: #666666;
+    --ac-ink-trace: #999999;
 
-    --fill: #000000;
-    --fill-bright: #000000;
-    --on-fill: #ffffff;
+    --ac-fill: #000000;
+    --ac-fill-bright: #000000;
+    --ac-on-fill: #ffffff;
 
-    --stroke: #000000;
-    --stroke-dim: #666666;
+    --ac-stroke: #000000;
+    --ac-stroke-dim: #666666;
 
-    --glow-text: none;
-    --glow-box: none;
+    --ac-glow-text: none;
+    --ac-glow-box: none;
 
     /* Every blink site at once — see the blink header in base/blink.css.
        -force rather than -name so the CRT simulation, which declares -name on a
@@ -55,8 +55,8 @@
      ancestor than :root and so wins for every descendant. Reset it here or the
      whole page prints with an amber halo around the text. */
   .ac-bloom {
-    --glow-text: none;
-    --glow-box: none;
+    --ac-glow-text: none;
+    --ac-glow-box: none;
   }
 
   body {

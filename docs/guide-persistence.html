@@ -264,7 +264,7 @@
     </div>
 
     <!-- ----------------------------------------- 1/4 · state, the note -- -->
-    <div class="ac-stack" style="--gap: 24px">
+    <div class="ac-stack" style="--ac-gap: 24px">
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">State</span>
         <dl class="ac-list ac-list--dense">
@@ -493,7 +493,7 @@
       lit area that shrank rather than for anything named.</p>
     <div class="doc-grid2" style="margin-top:16px">
       <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
-        <span class="ac-blink" style="background:var(--fill);color:var(--on-fill);padding:4px 14px;text-shadow:none">✳ LAMP FAULT ✳</span>
+        <span class="ac-blink" style="background:var(--ac-fill);color:var(--ac-on-fill);padding:4px 14px;text-shadow:none">✳ LAMP FAULT ✳</span>
         <span class="doc-faint doc-small">Toggle CRT on the board above and watch this one. Off, it
           snaps between full and 10%. On, it holds, then drains over an ~88ms window of the 1.1s
           cycle — deliberately near the floor of what registers as a decay at all.</span></div>
@@ -526,8 +526,8 @@
       <div class="doc-demo doc-demo--col"><span class="doc-cap">PPI — NO SCRIPT</span>
         <div class="ac-sweep" role="img" aria-label="Search radar sweep, no contacts"><span class="ac-sweep__beam"></span></div>
         <span class="doc-faint doc-small">Switch the display to P7 and the leading edge turns blue
-          against a yellow-green wake — that is <code>--halo-flash</code> against
-          <code>--halo-1</code>, the two coatings doing exactly what they did on the real tube. Every
+          against a yellow-green wake — that is <code>--ac-halo-flash</code> against
+          <code>--ac-halo-1</code>, the two coatings doing exactly what they did on the real tube. Every
           other emitter has one coating, so its leading edge is simply the brighter end of its own
           trail. The line itself is a constant-width arm rather than the first few degrees of the
           gradient, which would be a wedge and would thin to nothing near the middle; the center
@@ -563,7 +563,7 @@
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 1.0 · MONOCHROME PLASMA UI</span>
-    <a class="doc-mono" href="index.html" style="color:var(--ink-dim);text-shadow:var(--glow-text-dim)">GO TO CONSOLE ►</a>
+    <a class="doc-mono" href="index.html" style="color:var(--ac-ink-dim);text-shadow:var(--ac-glow-text-dim)">GO TO CONSOLE ►</a>
   </footer>
 
 </div>

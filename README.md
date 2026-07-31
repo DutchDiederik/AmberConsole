@@ -131,9 +131,9 @@ That renders a framed, glowing, scanlined control panel. No build step, no serve
 | --- | --- | --- |
 | `.ac-screen` | Full-height frame that hosts the simulations | — |
 | `.ac-screen__body` | Padded content area inside it | override `--ac-screen-pad` |
-| `.ac-stack` | Flex column, `gap` from `--gap` | — |
-| `.ac-row` | Flex row, `gap` from `--gap` | `--wrap` `--center` `--baseline` `--between` `--end` |
-| `.ac-grid` | Grid, columns from `--cols` | `--console` (operate left / instrument right) |
+| `.ac-stack` | Flex column, `gap` from `--ac-gap` | — |
+| `.ac-row` | Flex row, `gap` from `--ac-gap` | `--wrap` `--center` `--baseline` `--between` `--end` |
+| `.ac-grid` | Grid, columns from `--ac-cols` | `--console` (operate left / instrument right) |
 | `.ac-col-2/3/4/6` | Column span | — |
 | `.ac-spacer` `.ac-grow` `.ac-push` | Fill, absorb, push-to-end | — |
 | `.ac-sr-only` | Available to assistive tech, invisible | — |
@@ -234,7 +234,7 @@ island inside a rounded region is a supported arrangement, not a specificity coi
 links, toggle tracks, meter tracks — because a beveled key inside a rounded panel reads as two display
 generations on one screen. Two other things reach **only the controls**:
 
-- **The extruded edge** (`--edge-3d`). A drop shadow claims the thing stands off the glass, which is
+- **The extruded edge** (`--ac-edge-3d`). A drop shadow claims the thing stands off the glass, which is
   true of a soft key and a switch housing and of nothing else on the board. It is an *edge*, not a
   ghost: an outer `box-shadow` is clipped to outside the border box, so a hard offset copy paints a
   solid band down the bottom and right rather than a floating duplicate. Two layers give it depth — a
@@ -246,7 +246,7 @@ generations on one screen. Two other things reach **only the controls**:
 
 **The four corners are not cut the same, and that is the 3D reading rather than a decoration.** These
 keys were drawn as solid objects lit from the top left, so the far corner is barely cut and the near
-one is cut hardest: `2 / 4 / 8 / 4` px in TL TR BR BL order, with `--radius-sm` running the same
+one is cut hardest: `2 / 4 / 8 / 4` px in TL TR BR BL order, with `--ac-radius-sm` running the same
 diagonal at half depth for wells and switch housings. Cut all four alike and the key reads as an
 octagon instead of an object. The extrusion is offset along that same diagonal — one claim about where
 the light is, made twice.
@@ -264,7 +264,7 @@ engine has had for fifteen years. The extrusion and the top-left label are ident
 what Firefox loses is the chamfer and nothing else.
 
 `clip-path` and `mask-image` could cut a genuine stair-step and were both rejected: they clip the
-element's entire painting, `--glow-box` included, so a stepped corner would be bought by deleting the
+element's entire painting, `--ac-glow-box` included, so a stepped corner would be bought by deleting the
 discharge halo off all four sides. `border-radius` and `corner-shape` reshape the shadow instead of
 removing it, which is the only reason this is written in them.
 
@@ -283,7 +283,7 @@ be steady and smear-free at once, and every historical fitting decision falls ou
 is fully dark between frames (no persistence, maximum flicker, which is why it was a phosphor for
 screens meant to be *photographed*), and P39 is still at 91% (no flicker at any refresh rate, paid
 for in smear, which is why it went on radar). The derivation computes both from one decay constant
-for exactly that reason — the same way `--halo-spread` is the square root of `--halo-scatter` and
+for exactly that reason — the same way `--ac-halo-spread` is the square root of `--ac-halo-scatter` and
 cannot disagree with it.
 
 Palettes that know their own decay declare it, and the timing tokens are **derived from that**:
@@ -520,19 +520,19 @@ observer puts the discharge at x=0.631 y=0.369 — just outside sRGB, gamut-mapp
 against the 640 nm red group and walks the hue up. 19–31° is the defensible band; 24° is its middle.
 
 Every stop is solved to a **contrast ratio**, never re-tinted — rotating hue at constant lightness
-drops `--emit-50` to 2.79:1 and silently fails the 3:1 non-text gate. `npm run contrast` runs the
+drops `--ac-emit-50` to 2.79:1 and silently fails the 3:1 non-text gate. `npm run contrast` runs the
 [full pair table](#accessibility) against **every** palette independently; a ratio that passes under
 one and fails under another is a build failure.
 
 Adding an emitter — or a whole technology — means adding one block to `src/tokens/colors.css` and
-nothing else: the five discharge stops, three surfaces, `--on-fill`, the four `--halo-N` glow
+nothing else: the five discharge stops, three surfaces, `--ac-on-fill`, the four `--ac-halo-N` glow
 triples, and the two scattering scalars. Everything else in the system is an alias or is built from
 those.
 
 **The gases do not all glow the same, and that is physics rather than styling.** Rayleigh scattering
 goes as λ⁻⁴, so a violet gas throws far more of itself sideways into the glass than a red one does.
-`--halo-scatter` is that ratio against neon — helium 1.26, krypton 1.31, argon 1.49 — and
-`--halo-spread` is its square root, since multiple scattering widens the halo as it brightens it.
+`--ac-halo-scatter` is that ratio against neon — helium 1.26, krypton 1.31, argon 1.49 — and
+`--ac-halo-spread` is its square root, since multiple scattering widens the halo as it brightens it.
 `effects.css` applies them to the outer glow layers only: the innermost 2px is the glyph's own lit
 edge, not scattered light. A palette that declares neither falls back to 1 and renders exactly as
 before.
@@ -614,35 +614,35 @@ Override any of these; see [what you may safely change](#theming).
 
 ```
                   plasma/neon  plasma/helium  plasma/argon  plasma/krypton  crt/p3
---screen          #100600      #0e0809        #0b0812       #0b080b         #0d0700
---screen-raised   #1b0c02      #1b1214        #171222       #181318         #170e02
---screen-well     #060200      #060404        #050309       #050405         #060200
+--ac-screen          #100600      #0e0809        #0b0812       #0b080b         #0d0700
+--ac-screen-raised   #1b0c02      #1b1214        #171222       #181318         #170e02
+--ac-screen-well     #060200      #060404        #050309       #050405         #060200
 
---emit-100        #ffa86d      #ffa2b9        #c9b0ff       #eaa5eb         #ffd052   hot highlight, focus
---emit-90         #ff6b08      #dc7d96        #af81ff       #bf86c0         #ffae1e   primary discharge
---emit-70         #dd5800      #bc6a80        #9f5dff       #a372a3         #cd8817   secondary
---emit-50         #ab4500      #925163        #8925f1       #7f587f         #8d5b10   dim, disabled
---emit-30         #5b2500      #502a34        #4b1088       #442e45         #4a2f08   trace, ghost
---on-fill         #1e0c00      #201216        #1b112c       #1b141b         #1a0e00
+--ac-emit-100        #ffa86d      #ffa2b9        #c9b0ff       #eaa5eb         #ffd052   hot highlight, focus
+--ac-emit-90         #ff6b08      #dc7d96        #af81ff       #bf86c0         #ffae1e   primary discharge
+--ac-emit-70         #dd5800      #bc6a80        #9f5dff       #a372a3         #cd8817   secondary
+--ac-emit-50         #ab4500      #925163        #8925f1       #7f587f         #8d5b10   dim, disabled
+--ac-emit-30         #5b2500      #502a34        #4b1088       #442e45         #4a2f08   trace, ghost
+--ac-on-fill         #1e0c00      #201216        #1b112c       #1b141b         #1a0e00
 
---halo-1 … --halo-4 bare "r, g, b" triples the glow is built from
---halo-scatter     how much of this emitter reaches the halo, vs neon at 1.00
---halo-spread      sqrt of it; scales the halo radii
+--ac-halo-1 … --ac-halo-4 bare "r, g, b" triples the glow is built from
+--ac-halo-scatter     how much of this emitter reaches the halo, vs neon at 1.00
+--ac-halo-spread      sqrt of it; scales the halo radii
 
---ink --ink-bright --ink-dim --ink-faint --ink-trace
---fill --fill-bright
---stroke --stroke-dim
+--ac-ink --ac-ink-bright --ac-ink-dim --ac-ink-faint --ac-ink-trace
+--ac-fill --ac-fill-bright
+--ac-stroke --ac-stroke-dim
 
---font-terminal "VT323", "Courier New", ui-monospace, monospace
---font-micro    "Silkscreen", "VT323", ui-monospace, monospace
---type-display 44px  --type-title 30px  --type-body 22px  --type-small 18px  --type-micro 8px
---tracking-display .1em  --tracking-body .04em  --tracking-micro .08em  --leading 1.15
+--ac-font-terminal "VT323", "Courier New", ui-monospace, monospace
+--ac-font-micro    "Silkscreen", "VT323", ui-monospace, monospace
+--ac-type-display 44px  --ac-type-title 30px  --ac-type-body 22px  --ac-type-small 18px  --ac-type-micro 8px
+--ac-tracking-display .1em  --ac-tracking-body .04em  --ac-tracking-micro .08em  --ac-leading 1.15
 
---space-1 4px … --space-12 48px      --border-w 2px
---radius 8px   --radius-sm 4px       (0–2px on strips and badges)
+--ac-space-1 4px … --ac-space-12 48px      --ac-border-w 2px
+--ac-radius 8px   --ac-radius-sm 4px       (0–2px on strips and badges)
 
---glow-text  --glow-box
---edge-3d    2px+5px hard offset · the extruded key edge, the one shadow that is not a halo
+--ac-glow-text  --ac-glow-box
+--ac-edge-3d    2px+5px hard offset · the extruded key edge, the one shadow that is not a halo
 
 --ac-mesh-pitch 3px   --ac-mesh-wire 0.075   (the cell matrix; see the note below)
 ```
@@ -653,46 +653,46 @@ exactly the mean loss of the CRT scanlines it sits beside. `scripts/contrast.mjs
 `colors.css` and cannot see an overlay, so nothing will fail if you raise it. Redo the arithmetic
 first.
 
-The ramp is `--emit-100` through `--emit-30`. It was `--amber-*` until 2.0: that named a hue rather
+The ramp is `--ac-emit-100` through `--ac-emit-30`. It was `--amber-*` until 2.0: that named a hue rather
 than a ramp, and was already only historically true — under the default palette the color is neon,
 not amber. With a lavender and a pink in the file it stopped being defensible at all.
 **`--amber-*` survives as a deprecated alias and is removed in 3.0.** The aliases resolve per palette
-for free, since they point at `--emit-*`, which every palette block redefines.
+for free, since they point at `--ac-emit-*`, which every palette block redefines.
 
-Component-level hooks: `--gap`, `--cols`, `--ac-screen-pad`, `--ac-panel-title-bg`,
+Component-level hooks: `--ac-gap`, `--ac-cols`, `--ac-screen-pad`, `--ac-panel-title-bg`,
 `--ac-meter-value`, `--ac-backdrop`.
 
-**`--ink-faint` and `--ink-dim` never glow.** Glow is the signal of energization; a disabled control
+**`--ac-ink-faint` and `--ac-ink-dim` never glow.** Glow is the signal of energization; a disabled control
 that glows is a lie about the hardware. Inverse video does not glow either — dark text on a lit block
 is the *unlit* part of that block.
 
 **The halo is inherited, not requested.** `reset.css` and `.ac-screen` apply `text-shadow:
-var(--glow-text)` once and it inherits to everything, because the glow is light scattered in the
+var(--ac-glow-text)` once and it inherits to everything, because the glow is light scattered in the
 glass and the glass has no idea which component a lit cell belongs to. So **wherever you set an ink
 level, restate the halo that belongs to it**:
 
 ```css
-color: var(--ink);        text-shadow: var(--glow-text);         /* emit-90, full drive */
-color: var(--ink-bright); text-shadow: var(--glow-text);
-color: var(--ink-dim);    text-shadow: var(--glow-text-dim);     /* emit-70, 0.70 */
-color: var(--ink-faint);  text-shadow: var(--glow-text-faint);   /* emit-50, 0.41 */
-color: var(--on-fill);    text-shadow: none;                     /* unlit, inside a lit block */
+color: var(--ac-ink);        text-shadow: var(--ac-glow-text);         /* emit-90, full drive */
+color: var(--ac-ink-bright); text-shadow: var(--ac-glow-text);
+color: var(--ac-ink-dim);    text-shadow: var(--ac-glow-text-dim);     /* emit-70, 0.70 */
+color: var(--ac-ink-faint);  text-shadow: var(--ac-glow-text-faint);   /* emit-50, 0.41 */
+color: var(--ac-on-fill);    text-shadow: none;                     /* unlit, inside a lit block */
 
 .thing:disabled { text-shadow: none; box-shadow: none; }         /* inert — never glows */
 ```
 
-**Glow follows the drive level, not the token's name.** `--ink-dim` is `--emit-70`, which
+**Glow follows the drive level, not the token's name.** `--ac-ink-dim` is `--ac-emit-70`, which
 `derive-gas.mjs` labels *secondary* — a cell driven at 70%, which scatters 70% as much. It is not an
 off state. The only things that go completely flat are genuinely **inert**: a disabled control, and
 the unlit text inside an inverse-video block. The tiers are arithmetic rather than taste — each
 stop's luminance is already fixed by the contrast ratio it was solved to, so 1.00 / 0.70 / 0.41 fall
-straight out of 7.0 / 5.2 / 3.4 : 1, and `--emit-30` lands at 0.11, which is why decorative rules
+straight out of 7.0 / 5.2 / 3.4 : 1, and `--ac-emit-30` lands at 0.11, which is why decorative rules
 stay flat. **Radius never scales, only alpha** — how far light spreads is a property of the glass and
 the wavelength, not of the drive.
 
-**Strokes glow too.** A 2px rule in `--stroke` is the same value as `--ink`, so it is the same lit
-phosphor and carries the same halo — `box-shadow: var(--glow-box)`, or `var(--glow-box-dim)` for
-`--stroke-dim`. This has to be stated per component, because unlike `text-shadow`, `box-shadow` does
+**Strokes glow too.** A 2px rule in `--ac-stroke` is the same value as `--ac-ink`, so it is the same lit
+phosphor and carries the same halo — `box-shadow: var(--ac-glow-box)`, or `var(--ac-glow-box-dim)` for
+`--ac-stroke-dim`. This has to be stated per component, because unlike `text-shadow`, `box-shadow` does
 not inherit. Watch for the case where they disagree: an `.ac-input` is bright text inside a dim box.
 
 Inheritance alone is not enough in either direction, which is why the pairing is the rule rather than
@@ -715,7 +715,7 @@ as loudly as a lit level with no halo stated at all.
    ink inside a green halo is not a second hue smuggled in as decoration — it is the only thing that
    tube can honestly look like. The limits are what keep this from swallowing the law: the second
    emitter is **never** semantic (it cannot mean success, danger or state), no component may select
-   on it, and only the *first* emitter is ever `--ink` — so the ramp under the contrast gate is still
+   on it, and only the *first* emitter is ever `--ac-ink` — so the ramp under the contrast gate is still
    one emitter's, solved to the same ratios as every other palette. If a palette wants a second hue
    and cannot name the coating that produces it, it does not get one.
 2. **Inverse video is importance.** A solid amber block with dark text is the machine speaking.
@@ -738,8 +738,8 @@ Render product names in plain letter-spaced type.
 
 Two bitmap faces, both SIL Open Font License 1.1, vendored in `fonts/`:
 
-- **VT323** — everything at 18px and up (`--font-terminal`)
-- **Silkscreen** — 8–10px micro labels only (`--font-micro`)
+- **VT323** — everything at 18px and up (`--ac-font-terminal`)
+- **Silkscreen** — 8–10px micro labels only (`--ac-font-micro`)
 
 **Regular weight only.** There is no bold in this system — hierarchy is size, intensity and inverse
 video, never weight — so no bold face is fetched or shipped. Five `@font-face` rules, 54kb of woff2
@@ -751,7 +751,7 @@ which has no 700 either.
 
 These are **era-correct substitutes, not the original face.** The source hardware used a mask-ROM
 bitmap font with no digital release; VT323 is a digitization of the DEC VT320 terminal ROM. If you
-have a licensed face closer to the hardware, it is a one-line swap — replace `--font-terminal` and
+have a licensed face closer to the hardware, it is a one-line swap — replace `--ac-font-terminal` and
 nothing else.
 
 Prefer not to vendor the binaries? Swap `tokens/fonts.css` for `tokens/fonts-cdn.css` in
@@ -771,86 +771,86 @@ gate runs against **every palette**, so none of them ships untested.
 
 | Foreground | Background | Ratio | Needs | Verdict | Use |
 | --- | --- | --- | --- | --- | --- |
-| `--ink` | `--screen` | 7.02:1 | 4.5:1 | **AA** | Body text on the panel |
-| `--ink-bright` | `--screen` | 10.57:1 | 4.5:1 | **AA** | Live values, hover, input text |
-| `--ink-dim` | `--screen` | 5.22:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
-| `--ink-faint` | `--screen` | 3.42:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
-| `--ink-trace` | `--screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
-| `--on-fill` | `--fill` | 6.64:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
-| `--on-fill` | `--fill-bright` | 10.00:1 | 4.5:1 | **AA** | Inverse video, hover state |
-| `--ink-bright` | `--screen-well` | 10.89:1 | 4.5:1 | **AA** | Input text in a recessed well |
-| `--ink-faint` | `--screen-well` | 3.52:1 | 4.5:1 | fails — exempt | Placeholder text |
-| `--ink` | `--screen-raised` | 6.69:1 | 4.5:1 | **AA** | Body text on a zebra table row |
-| `--stroke` | `--screen` | 7.02:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
-| `--stroke-dim` | `--screen` | 3.42:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+| `--ac-ink` | `--ac-screen` | 7.02:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.57:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.22:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.42:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.64:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 10.00:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.89:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.52:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.69:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 7.02:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.42:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
 
 #### `data-ac-tech="crt" data-ac-emitter="p3"`
 
 | Foreground | Background | Ratio | Needs | Verdict | Use |
 | --- | --- | --- | --- | --- | --- |
-| `--ink` | `--screen` | 10.81:1 | 4.5:1 | **AA** | Body text on the panel |
-| `--ink-bright` | `--screen` | 13.74:1 | 4.5:1 | **AA** | Live values, hover, input text |
-| `--ink-dim` | `--screen` | 6.81:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
-| `--ink-faint` | `--screen` | 3.47:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
-| `--ink-trace` | `--screen` | 1.62:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
-| `--on-fill` | `--fill` | 10.23:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
-| `--on-fill` | `--fill-bright` | 13.01:1 | 4.5:1 | **AA** | Inverse video, hover state |
-| `--ink-bright` | `--screen-well` | 14.16:1 | 4.5:1 | **AA** | Input text in a recessed well |
-| `--ink-faint` | `--screen-well` | 3.58:1 | 4.5:1 | fails — exempt | Placeholder text |
-| `--ink` | `--screen-raised` | 10.29:1 | 4.5:1 | **AA** | Body text on a zebra table row |
-| `--stroke` | `--screen` | 10.81:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
-| `--stroke-dim` | `--screen` | 3.47:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+| `--ac-ink` | `--ac-screen` | 10.81:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 13.74:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 6.81:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.47:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.62:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 10.23:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 13.01:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 14.16:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.58:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 10.29:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 10.81:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.47:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
 
 #### `data-ac-tech="plasma" data-ac-emitter="helium"`
 
 | Foreground | Background | Ratio | Needs | Verdict | Use |
 | --- | --- | --- | --- | --- | --- |
-| `--ink` | `--screen` | 7.01:1 | 4.5:1 | **AA** | Body text on the panel |
-| `--ink-bright` | `--screen` | 10.52:1 | 4.5:1 | **AA** | Live values, hover, input text |
-| `--ink-dim` | `--screen` | 5.21:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
-| `--ink-faint` | `--screen` | 3.39:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
-| `--ink-trace` | `--screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
-| `--on-fill` | `--fill` | 6.40:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
-| `--on-fill` | `--fill-bright` | 9.59:1 | 4.5:1 | **AA** | Inverse video, hover state |
-| `--ink-bright` | `--screen-well` | 10.83:1 | 4.5:1 | **AA** | Input text in a recessed well |
-| `--ink-faint` | `--screen-well` | 3.49:1 | 4.5:1 | fails — exempt | Placeholder text |
-| `--ink` | `--screen-raised` | 6.49:1 | 4.5:1 | **AA** | Body text on a zebra table row |
-| `--stroke` | `--screen` | 7.01:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
-| `--stroke-dim` | `--screen` | 3.39:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+| `--ac-ink` | `--ac-screen` | 7.01:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.52:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.21:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.39:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.40:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 9.59:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.83:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.49:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.49:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 7.01:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.39:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
 
 #### `data-ac-tech="plasma" data-ac-emitter="argon"`
 
 | Foreground | Background | Ratio | Needs | Verdict | Use |
 | --- | --- | --- | --- | --- | --- |
-| `--ink` | `--screen` | 7.00:1 | 4.5:1 | **AA** | Body text on the panel |
-| `--ink-bright` | `--screen` | 10.53:1 | 4.5:1 | **AA** | Live values, hover, input text |
-| `--ink-dim` | `--screen` | 5.18:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
-| `--ink-faint` | `--screen` | 3.40:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
-| `--ink-trace` | `--screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
-| `--on-fill` | `--fill` | 6.37:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
-| `--on-fill` | `--fill-bright` | 9.58:1 | 4.5:1 | **AA** | Inverse video, hover state |
-| `--ink-bright` | `--screen-well` | 10.88:1 | 4.5:1 | **AA** | Input text in a recessed well |
-| `--ink-faint` | `--screen-well` | 3.52:1 | 4.5:1 | fails — exempt | Placeholder text |
-| `--ink` | `--screen-raised` | 6.46:1 | 4.5:1 | **AA** | Body text on a zebra table row |
-| `--stroke` | `--screen` | 7.00:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
-| `--stroke-dim` | `--screen` | 3.40:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+| `--ac-ink` | `--ac-screen` | 7.00:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.53:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.18:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.40:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.37:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 9.58:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.88:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.52:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.46:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 7.00:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.40:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
 
 #### `data-ac-tech="plasma" data-ac-emitter="krypton"`
 
 | Foreground | Background | Ratio | Needs | Verdict | Use |
 | --- | --- | --- | --- | --- | --- |
-| `--ink` | `--screen` | 7.01:1 | 4.5:1 | **AA** | Body text on the panel |
-| `--ink-bright` | `--screen` | 10.51:1 | 4.5:1 | **AA** | Live values, hover, input text |
-| `--ink-dim` | `--screen` | 5.21:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
-| `--ink-faint` | `--screen` | 3.42:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
-| `--ink-trace` | `--screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
-| `--on-fill` | `--fill` | 6.35:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
-| `--on-fill` | `--fill-bright` | 9.53:1 | 4.5:1 | **AA** | Inverse video, hover state |
-| `--ink-bright` | `--screen-well` | 10.80:1 | 4.5:1 | **AA** | Input text in a recessed well |
-| `--ink-faint` | `--screen-well` | 3.51:1 | 4.5:1 | fails — exempt | Placeholder text |
-| `--ink` | `--screen-raised` | 6.45:1 | 4.5:1 | **AA** | Body text on a zebra table row |
-| `--stroke` | `--screen` | 7.01:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
-| `--stroke-dim` | `--screen` | 3.42:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+| `--ac-ink` | `--ac-screen` | 7.01:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.51:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.21:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.42:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.35:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 9.53:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.80:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.51:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.45:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 7.01:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.42:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
 
 ### Known constraints
 

@@ -24,6 +24,10 @@
 @import "tokens/spacing.css";
 @import "tokens/effects.css";
 
+/* Every framework token is --ac-* prefixed. This file is the pre-prefix names,
+   kept as read aliases and removed in 3.0 — delete the file and this line. */
+@import "tokens/deprecated.css";
+
 /* Blink is law-2 emphasis rather than a simulation — every display technology
    here blinks — and components/ depends on it, so it is base and not sim. */
 @import "base/blink.css";
