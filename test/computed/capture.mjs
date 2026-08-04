@@ -238,6 +238,44 @@ const CORNER_SCOPES = [
 
 const CORNER_PROPS = ["boxShadow", "borderRadius", "alignItems", "justifyContent", "textAlign", "display"];
 
+/* THE HALO MUST NOT SURVIVE INTO FORCED COLORS OR PRINT — AT REST *OR* HOVERED.
+   The per-selector suppression in a11y.css weighs (0,1,0), so any component rule
+   with more specificity takes the halo back. That has happened twice: once from
+   a scope-prefixed rule in classic.css, once from `:hover` restatements in
+   button.css and tabs.css. Both put a full-strength discharge glow around a
+   latched control in the one mode that must contain no off-palette colour.
+   Hover is the half a screenshot can never catch. */
+async function suppression(browser, out) {
+  const BODY = `<div class="ac-screen ac-bloom" id="frame"><div class="ac-screen__body">
+    <button class="ac-btn ac-btn--filled" id="s-btn">B</button>
+    <button class="ac-btn" aria-pressed="true" id="s-btn-p">P</button>
+    <button class="ac-tab ac-tab--active" aria-selected="true" id="s-tab">T</button>
+    <button class="ac-toggle" id="s-tog"><span class="ac-toggle__track" id="s-track">
+      <span class="ac-toggle__thumb"></span></span></button>
+  </div></div>`;
+  for (const [mName, media] of MEDIA) {
+    if (mName === "screen" || mName === "reduced-motion") continue;
+    for (const scope of ["", "ac-classic", "ac-rounded"]) {
+      const { p, ctx } = await page$(browser, media, BODY);
+      if (scope) await p.evaluate((c) => document.getElementById("frame").classList.add(c), scope);
+      for (const id of ["s-btn", "s-btn-p", "s-tab", "s-track"]) {
+        for (const state of ["rest", "hover"]) {
+          if (state === "hover") await p.hover("#" + id).catch(() => {});
+          /* Anything non-transparent here is an off-palette leak. */
+          out[`suppression / ${mName} / ${scope || "none"} / ${id} / ${state}`] =
+            await p.evaluate((i) => {
+              const sh = getComputedStyle(document.getElementById(i)).boxShadow;
+              if (sh === "none") return "none";
+              const opaque = sh.split(/,(?![^(]*\))/).filter((s) => !/rgba\([^)]*,\s*0\)/.test(s));
+              return opaque.length ? `LEAK ${opaque.join(",")}` : "transparent";
+            }, id);
+        }
+      }
+      await ctx.close();
+    }
+  }
+}
+
 async function corners(browser, out) {
   const { p, ctx } = await page$(browser, MEDIA[0][1], CORNER_BODY);
   for (const [label, attrs, frameCls, selfCls] of CORNER_SCOPES) {
@@ -281,6 +319,7 @@ const out = {};
 await blink(browser, out);
 await layers(browser, out);
 await corners(browser, out);
+await suppression(browser, out);
 await browser.close();
 
 await mkdir(BASELINES, { recursive: true });

@@ -26,7 +26,13 @@
   background: transparent;
   text-transform: none;
   border: var(--ac-border-w) solid var(--ac-stroke);
-  box-shadow: var(--ac-glow-box);
+  /* A TAB IS A KEY, so it is extruded like one. It was not, and that was the
+     visible inconsistency: a tab is a bordered, cut-cornered, pressable box that
+     is the same species as .ac-btn, sitting beside real buttons with the same
+     corner and no edge. "A key is extruded; a panel is a hole in the bezel" —
+     a tab is on the key side of that line. Same token, same states, so the two
+     cannot drift apart again. See components/button.css. */
+  box-shadow: var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent);
   border-radius: var(--ac-radius);
   /* The 20px bottom padding is dead space that makes a soft key read as a
      physical key. It is intentional. Do not snap it to the 4/8px grid. */
@@ -39,6 +45,12 @@
   color: var(--ac-ink-bright);
   text-shadow: var(--ac-glow-text);
   border-color: var(--ac-ink-bright);
+  box-shadow: var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent);
+}
+
+/* A selected tab is latched, so it presses IN — same as .ac-btn[aria-pressed]. */
+.ac-tab:active {
+  box-shadow: var(--ac-glow-box), var(--ac-edge-press, 0 0 0 transparent);
 }
 
 .ac-tab--active,
@@ -46,12 +58,19 @@
   background: var(--ac-fill);
   color: var(--ac-on-fill);
   text-shadow: none;
-  box-shadow: var(--ac-glow-box);
+  box-shadow: var(--ac-glow-box), var(--ac-edge-press, 0 0 0 transparent);
+}
+/* Restated because .ac-tab:hover weighs the same and lands earlier: without it
+   a hovered selected tab would pop back out to the raised edge. */
+.ac-tab--active:hover,
+.ac-tab[aria-selected="true"]:hover {
+  box-shadow: var(--ac-glow-box), var(--ac-edge-press, 0 0 0 transparent);
 }
 
 .ac-tab:disabled {
   color: var(--ac-ink-faint);
   border-color: var(--ac-stroke-dim);
+  /* Inert keeps no edge, the same as a disabled key. */
   box-shadow: var(--ac-glow-box-dim);
   text-shadow: none;
   cursor: default;

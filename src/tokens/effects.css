@@ -65,15 +65,42 @@
     2px 2px 0 rgba(var(--ac-halo-1), 0.92),
     5px 5px 0 rgba(var(--ac-halo-1), 0.6);
 
-  /* THE SAME EDGE FROM THE OTHER SIDE — a key pressed IN. The band moves to the
-     top and left because the near face of a sunken key is the upper one.
+  /* A KEY PRESSED IN, AND IT IS A RECESS RATHER THAN A SECOND BAND.
 
-     A SHADOW RATHER THAN A TRANSFORM, and that is load-bearing: `translate` DOES
-     contribute to scrollable overflow, so every latched key flush against its
-     container pushed 4px past it. See RATIONALE.md § The extruded key edge. */
+     This used to mirror --ac-edge-3d: the same bright discharge-colored band,
+     moved to the top-left. Geometrically that was the sunken key's near wall and
+     it was self-consistent — and it read wrong in both directions:
+
+       Same-hue palettes  a pressed key is INVERSE VIDEO, so its fill is already
+                          the discharge color. A band in that same color beside
+                          that same fill is invisible: on neon a latched .ac-btn
+                          --filled showed no 3D at all, which is the "some
+                          buttons have no shadow" report.
+       P7                 halo and ink are different spectra there, so the band
+                          did show — as a green outline around a blue block.
+                          That reads as a highlight, not a recess: "inverted
+                          instead of depressed".
+
+     A bright band cannot mean two opposite things. Raised is the only state that
+     gets one, so the two can never be confused: PROUD = a lit face outside the
+     box, PRESSED = a shadow inside it.
+
+     INSET, so it paints over the fill rather than beside it, and the fill is
+     always bright when this token is used — :active, --filled and aria-pressed
+     all set inverse video. Positive offsets on an inset shadow paint the TOP and
+     LEFT inner edges, which is where a recess shades.
+
+     BLACK ALPHA RATHER THAN A PALETTE COLOR, on the same reasoning the cell mesh
+     uses: over a lit fill it darkens, and over a dark surface it has nothing to
+     take away. That makes it correct on all eleven palettes without naming one.
+
+     A SHADOW RATHER THAN A TRANSFORM, and that is still load-bearing:
+     `translate` DOES contribute to scrollable overflow, so every latched key
+     flush against its container pushed 4px past it.
+     See RATIONALE.md § The extruded key edge. */
   --ac-edge-3d-in:
-    -2px -2px 0 rgba(var(--ac-halo-1), 0.92),
-    -5px -5px 0 rgba(var(--ac-halo-1), 0.6);
+    inset 2px 2px 0 rgba(0, 0, 0, 0.34),
+    inset 5px 5px 0 rgba(0, 0, 0, 0.18);
 
   /* PERSISTENCE IS A PROPERTY OF THE EMITTER, not of this file. A palette that
      knows its own decay declares --ac-persist, --ac-flicker and a sampled

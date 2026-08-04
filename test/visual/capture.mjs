@@ -330,9 +330,23 @@ for (const page of PAGES) {
        concerned. The simulation dutifully blurred whichever tiles happened to be
        mid-stitch, and a tall capture came back different roughly one run in
        three. The `anchor` scroll below would trip it the same way. */
+    /* `content-visibility` HAS TO GO TOO, and for the same class of reason.
+       docs.css puts `content-visibility: auto` with `contain-intrinsic-size:
+       auto 320px` on every specimen tile, which is a real and worthwhile saving
+       on a 27,000px chapter. But `auto` means "remember the size this box was
+       the last time it rendered", so an off-screen tile's contribution to page
+       height depends on whether it has ever been scrolled through — and the
+       anchored scroll below therefore lands at a slightly different offset
+       depending on render timing. That surfaces as the whole viewport shifted
+       one pixel, which a full-frame comparison scores as ~76% changed.
+
+       Forcing every tile to lay out for real makes the capture depend on the CSS
+       and nothing else. It costs a little time on the tall chapters and buys a
+       suite that cannot fail for a reason that is not a regression. */
     await tab.addStyleTag({
       content:
         "*,*::before,*::after{animation:none !important;transition:none !important}" +
+        "*{content-visibility:visible !important}" +
         ".ac-persist::after{display:none !important}" +
         ".ac-afterglow[data-ac-scrolling]>*{filter:none !important}",
     });

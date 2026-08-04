@@ -543,45 +543,34 @@
   color: var(--ac-ink);
   text-shadow: var(--ac-glow-text);
 }
-/* 68ch is the MEASURE, and it is the default rather than the rule. A line of
-   VT323 at 22px runs about 8.8px per character, so the 1180px wrap is 134ch
-   wide — twice a readable line. Every paragraph therefore stops at 68ch and the
-   right half of the page stays empty, which is correct for one paragraph and
-   wrong for fourteen of them stacked: section 04 was 4,000px of half-width prose
-   in a 8,000px section, a column of text with a blank column beside it.
+/* PROSE RUNS THE FULL WIDTH OF THE WRAP, AND IT IS ONE RULE FOR EVERY PARAGRAPH.
 
-   .doc-prose is the answer to the stack rather than to the paragraph. Two
-   columns hold the same 60-odd character measure AND use the width, which is
-   the thing a single max-width cannot do. It is not applied to a whole section:
-   a 4,000px run split in two is a 2,000px column, and reading to the floor and
-   back up to the ceiling is worse than the wall it replaced. Runs of two to four
-   paragraphs under their own subhead, so a column is a screen or less. */
+   It used to be two. Paragraphs were capped at a 68ch measure, and because the
+   wrap is 1180px that left the right half of the page empty; a `.doc-prose`
+   wrapper then set `columns: 2` on selected runs to reclaim it. The result was a
+   page that changed layout without changing subject — some intros half-width
+   with a dead column beside them, some split into two ragged columns that rarely
+   balanced, and no way for a reader to tell which they were about to get.
+
+   One measure for every paragraph is the fix. A reader tracking a long line is a
+   real cost, and it is the smaller of the two here: the inconsistency was the
+   thing that read as unfinished.
+
+   If a narrower measure is wanted later it belongs on .doc-wrap, so the specimens
+   and the prose stay in the same column — capping the paragraph alone is what
+   produced the empty half in the first place. */
 .doc-wrap p {
-  max-width: 68ch;
   font-size: var(--ac-type-body);
   margin: 0 0 var(--ac-space-3);
 }
 
+/* Vestigial: a grouping wrapper that used to set `columns: 2`. Kept so the
+   markup in four guide chapters still has something to hang its spacing on. */
 .doc-prose {
-  columns: 2;
-  column-gap: var(--ac-space-8);
   margin-bottom: var(--ac-space-4);
 }
-/* The measure comes from the column now, so the cap has to come off or the
-   columns are 68ch of text in a 64ch box and the second one is mostly air. */
-.doc-prose p {
-  max-width: none;
-}
-/* A paragraph broken across the column boundary reads as two paragraphs, and
-   these are dense enough that losing the first line of one costs the argument.
-   Balanced columns plus whole paragraphs means the split lands between them. */
 .doc-prose p:last-child {
   margin-bottom: 0;
-}
-@supports (break-inside: avoid) {
-  .doc-prose p {
-    break-inside: avoid;
-  }
 }
 
 .doc-sec-head {
@@ -677,10 +666,26 @@
   gap: 6px;
   flex: 1;
   min-width: 120px;
+  /* TOP-ALIGNED, against .doc-demo's align-items: center. Centring is right for
+     a row of buttons, and wrong for a row of swatches: one caption wrapping to
+     two lines made that swatch taller, and centring then lifted its chip 13px
+     above the others — a ragged row of colour boxes with one riding high. The
+     chips are the thing being compared, so they line up. */
+  align-self: flex-start;
 }
 .doc-chip {
   height: 72px;
   border: 1px solid var(--ac-ink-trace);
+}
+/* Inline code inside a small caption inherits the caption's size. .doc-wrap code
+   is 20px, which is larger than .doc-small's 18px — so a caption naming two
+   tokens was set bigger than the label above it and wrapped a line earlier than
+   it needed to. */
+.doc-small code {
+  font-size: inherit;
+  /* A token is one word. Without this `--ac-fill` wrapped as `--` + `ac-fill`
+     across two lines, which reads as two different properties. */
+  white-space: nowrap;
 }
 
 /* Plain documentation tables — deliberately not .ac-table, which is a data

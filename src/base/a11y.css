@@ -27,6 +27,42 @@
    =========================================================================== */
 
 @media (forced-colors: active) {
+  /* THE HALO AND THE KEY EDGE ARE SWITCHED OFF AT THE TOKEN, NOT PER RULE.
+     ---------------------------------------------------------------------
+     Every box-shadow this framework paints is built from these four tokens, so
+     zeroing them here removes the discharge colour from all of them at once —
+     and, crucially, does it in a way NO component rule can out-specify. A rule
+     can beat `box-shadow: none` by weighing more; it cannot beat a token it is
+     itself reading.
+
+     That distinction is not theoretical. The per-selector suppression below
+     lists `.ac-btn--filled` and `.ac-tab--active` at (0,1,0), and a component
+     only has to say `.ac-btn--filled:hover` at (0,2,0) to take the halo back —
+     which is exactly what happened twice: once when components/classic.css
+     appended the extruded edge from a scope-prefixed rule, and again when
+     button.css and tabs.css restated the pressed edge on :hover. Both put a
+     full-strength rgba(255,120,30) glow around a latched control in the one
+     mode that exists to contain no off-palette colour at all.
+
+     `0 0 0 transparent` rather than `none`, because these are consumed inside a
+     comma-separated list — `var(--ac-glow-box), var(--ac-edge)` resolving to
+     `none, …` is not a valid shadow list and invalidates the whole declaration.
+     A transparent shadow paints nothing and stays valid.
+
+     The selector list is every element that REDECLARES one of these: .ac-bloom
+     amplifies the glow, and the corner scopes set the edge. Adding a new scope
+     means adding it here. */
+  :root,
+  .ac-bloom,
+  .ac-classic,
+  .ac-rounded,
+  [data-ac-style-classic] {
+    --ac-glow-box: 0 0 0 transparent;
+    --ac-glow-box-dim: 0 0 0 transparent;
+    --ac-edge: 0 0 0 transparent;
+    --ac-edge-press: 0 0 0 transparent;
+  }
+
   .ac-bloom::before,
   .ac-crt::after,
   .ac-scanlines::after,
