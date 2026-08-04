@@ -4,14 +4,14 @@ A project by <a href="https://diederik.blog" target="_blank" rel="noopener noref
 
 [![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
 [![CSS only](https://img.shields.io/badge/runtime%20deps-0-brightgreen.svg)](#install)
-[![Size](https://img.shields.io/badge/minified-35kb%20%C2%B7%206.6kb%20gzipped-lightgrey.svg)](#install)
+[![Size](https://img.shields.io/badge/minified-53kb%20%C2%B7%209.4kb%20gzipped-lightgrey.svg)](#install)
 [![CI](https://github.com/DutchDiederik/AmberConsole/actions/workflows/ci.yml/badge.svg)](https://github.com/DutchDiederik/AmberConsole/actions/workflows/ci.yml)
 
 A monochrome amber-terminal CSS framework — the look of a late-1980s industrial control panel, the
 kind of amber plasma display that drove heavy machinery. One stylesheet, no dependencies, no build
 step, no JavaScript required for any component's appearance.
 
-**[Live demo — ORION-70 console](https://dutchdiederik.github.io/amber-console/) · [D-STAR server dashboard](https://dutchdiederik.github.io/amber-console/docs/server.html) · [SEASCAN radar](https://dutchdiederik.github.io/amber-console/docs/radar.html) · [TELEMARK terminal](https://dutchdiederik.github.io/amber-console/docs/terminal.html) · [System guide](https://dutchdiederik.github.io/amber-console/docs/guide.html)**
+**[Live demo — ORION-70 console](https://dutchdiederik.github.io/AmberConsole/docs/index.html) · [D-STAR server dashboard](https://dutchdiederik.github.io/AmberConsole/docs/server.html) · [SEASCAN radar](https://dutchdiederik.github.io/AmberConsole/docs/radar.html) · [TELEMARK terminal](https://dutchdiederik.github.io/AmberConsole/docs/terminal.html) · [System guide](https://dutchdiederik.github.io/AmberConsole/docs/guide.html)**
 
 ![The ORION-70 console demo](docs/screenshot.png)
 
@@ -48,7 +48,7 @@ import "amber-console/layer";    // wrapped in @layer amber-console
 | File | Use it when |
 | --- | --- |
 | `dist/amber-console.css` | Default. Readable, sourcemapped, custom properties intact. |
-| `dist/amber-console.min.css` | Production. 35kb, 6.6kb gzipped, same behavior. |
+| `dist/amber-console.min.css` | Production. 53kb, 9.4kb gzipped, same behavior. |
 | `dist/amber-console.layer.css` | Dropping into an existing app — `@layer` makes the framework lose specificity fights against your own rules. Use *instead of*, never alongside. |
 | `dist/amber-console.layer.min.css` | The same, minified. Production embedding. |
 | `dist/amber-console.js` | Optional **behavior**, ES module. For bundlers. |
@@ -187,10 +187,21 @@ with three things to try at the bottom. Download the repo, double-click it, star
 | `.ac-classic` | The default look, stated explicitly: corners cut instead of arced on every bordered surface inside it, keys on a hard offset edge, labels top-left. See below. |
 | `.ac-rounded` | The way back to the smooth 8px arc, at any scope. Same rules, original values. |
 
-Put any of `.ac-bloom`, `.ac-crt` and `.ac-afterglow` on the outermost frame, once per screen, never
-nested. All three should be operator-toggleable in a real product — the demos show how, putting
-`.ac-afterglow` on the CRT switch rather than a third one, since persistence belongs to the same
-glass the scanlines are on.
+Put these on the outermost frame, once per screen, never nested. They should be operator-toggleable
+in a real product — the demos show how, putting `.ac-afterglow` on the CRT switch rather than a third
+one, since persistence belongs to the same glass the scanlines are on.
+
+**`.ac-bloom` and `.ac-crt` are mutually exclusive.** They are not two layers of glass, they are two
+display technologies, and no panel is both: a frame carrying both has gas gaps and a scanning beam in
+the same enclosure, wearing a cell mesh and raster blanking gaps at once. A screen door is not a
+scanline, and there is no scan in a plasma panel to blank. `amber-console.js` enforces this —
+switching either one on switches the other off, and both toggles move to prove it — but **nothing in
+the CSS stops you**, so if you are authoring the frame by hand, pick one. Both off is allowed and is
+a real thing to want: a flat lit surface, no particular hardware. `.ac-afterglow` is not a third
+technology but what the phosphor does after the beam has gone, so it belongs with `.ac-crt`.
+
+A DISPLAY preset must therefore name at most one of them in `data-ac-sims`; listing both leaves
+whichever is applied last, which is not a useful thing to have asked for.
 
 **The demos default to PLASMA on and CRT off**, and the markup they ship matches that state rather
 than the everything-on state above. Plasma is what the panel *is* — a matrix of gas gaps — so it is
@@ -425,9 +436,21 @@ plasma cell is driven continuously and has nothing that trails. And each is *tim
 `--ac-persist`, so a phosphor whose tail is measured in microseconds gives them no time to be seen.
 `data-ac-engine="css"` turns the module off entirely; the demo boards expose that as **JS Effects**,
 and the control **reads OFF and goes unclickable wherever it would be a no-op** — under any plasma
-simulation, and under P4, P11 and P31, whose tails are 0.06, 0.035 and 0.038 ms. It is live under P7,
-P39, P3 and P1, and under a plasma gas if you switch the CRT simulation on by hand, since the gate
-reads the frame rather than the preset.
+simulation, and under any phosphor whose tail is shorter than **80 ms**. That rules out P11, P31 and
+P4, whose tails are 0.035, 0.038 and 0.06 ms, and it rules out **P1 at 24 ms and P3 at 25 ms** as
+well. It is live under P7 and P39 — 3000 and 2000 ms — and under a plasma gas if you switch the CRT
+simulation on by hand, since the `:root` tail is 105 ms and the gate reads the frame rather than the
+preset.
+
+**80 ms is a perceptual floor, not a compositing one**, and the difference is the whole reason P1 and
+P3 are on the dead side of it. A 25 ms tail is a frame and a half at 60 Hz: the module could draw a
+ghost there, and it would be a single-frame flicker rather than a decay — `tokens/effects.css` has
+always held that much under ~80 ms the eye stops reading a relaxation and starts reading a switch.
+So the two most-picked phosphors were paying for cloning, measuring and mounting work whose result
+nobody could see. The catalog has nothing between 25 and 105 ms, so the threshold is not near
+anything. It is `ENGINE_FLOOR_MS` in `amber-console.js`, mirrored as `PERSIST_FLOOR_MS` in
+`amber-console.effects.js` — the switch and the work it governs — and by `scripts/build.mjs`, which
+uses it to decide whether a docs board ships the switch enabled.
 
 Two details worth knowing if you drive this yourself. **The switch shows what is contributing, not
 what the flag permits** — so it can read OFF while `data-ac-engine` is still `css+js`, because nothing
@@ -953,8 +976,8 @@ banks are invented alongside it, because a real institution's four-letter code i
 borrowed authority this section exists to refuse.
 
 The genre was studied from period projection-booth hardware, and the debt is
-[acknowledged below](#acknowledgements). Both demos are invented: their names, their wordmarks and
-their copy are ours, and no manufacturer's branding, wordmark or logo appears anywhere in this
+[acknowledged below](#acknowledgements). All four demos are invented: their names, their wordmarks
+and their copy are ours, and no manufacturer's branding, wordmark or logo appears anywhere in this
 repository or in the published package. Where a demo echoes the layout conventions of real equipment,
 that is the genre being reproduced rather than any one product — the same way a terminal emulator is
 not the VT320.

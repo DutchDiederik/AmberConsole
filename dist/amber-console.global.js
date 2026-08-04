@@ -1,4 +1,4 @@
-/*! Amber Console 2.0.0 | MIT | classic-script build
+/*! Amber Console 2.0.0 | BSD-3-Clause | classic-script build
  *  Generated from src/amber-console.js by scripts/build.mjs.
  *  Use this with a plain <script src> — including from file:// URLs, where
  *  type="module" is blocked. Exposes window.AmberConsole.
@@ -6,6 +6,7 @@
 (function () {
 "use strict";
 
+/*! Amber Console | BSD-3-Clause | https://github.com/DutchDiederik/AmberConsole */
 /**
  * Amber Console — optional behavior module.
  *
@@ -666,6 +667,14 @@ function engineOn() {
  * deliberate rather than collateral — the smear IS persistence, seen while the
  * image moves. A phosphor that does not hold between frames has nothing to trail
  * with, so a 25ms tube should not smear any more than it should ghost.
+ *
+ * THE NUMBER IS ENFORCED IN TWO PLACES AND MUST MATCH IN BOTH. This file only
+ * paints the switch; PERSIST_FLOOR_MS in amber-console.effects.js is what
+ * actually stops the work, and scripts/build.mjs uses the same figure to decide
+ * whether a docs board ships the switch enabled. When they drifted apart — this
+ * one at 80 and the effects module still at its old 5 — P1 and P3 got a switch
+ * that read OFF over a module that was still running. Change one, change all
+ * three, and the comment above each says so.
  */
 const ENGINE_FLOOR_MS = 80;
 

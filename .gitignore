@@ -13,7 +13,8 @@ node_modules/
 .env
 .env.*
 
-# Visual-regression run output. Only baselines/ is committed.
+# Visual-regression run output — written only for a capture that FAILED, so it
+# can be eyeballed against its baseline. Throwaway; the next run rewrites it.
 test/visual/*.actual.png
 
 # scripts/make-assets.mjs unlinks this; it only survives a crashed run.
@@ -28,160 +29,18 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
-test/visual/baselines/server-390-sims-on.png
-test/visual/baselines/server-390-sims-off.png
-test/visual/baselines/server-1440-sims-on.png
-test/visual/baselines/server-1440-sims-off.png
-test/visual/baselines/server-1440-reduced-motion.png
-test/visual/baselines/server-1440-forced-colors.png
-test/visual/baselines/server-1280-print.png
-test/visual/baselines/guide-390-sims-on.png
-test/visual/baselines/guide-390-sims-off.png
-test/visual/baselines/guide-1440-sims-on.png
-test/visual/baselines/guide-1440-sims-off.png
-test/visual/baselines/guide-1440-reduced-motion.png
-test/visual/baselines/guide-1440-forced-colors.png
-test/visual/baselines/console-390-sims-on.png
-test/visual/baselines/console-390-sims-off.png
-test/visual/baselines/console-1440-sims-on.png
-test/visual/baselines/console-1440-sims-off.png
-test/visual/baselines/console-1440-reduced-motion.png
-test/visual/baselines/console-1440-forced-colors.png
-test/visual/baselines/console-1280-print.png
-test/visual/baselines/terminal-390-sims-on.png
-test/visual/baselines/terminal-390-sims-off.png
-test/visual/baselines/terminal-1440-sims-on.png
-test/visual/baselines/terminal-1440-sims-off.png
-test/visual/baselines/terminal-1440-reduced-motion.png
-test/visual/baselines/terminal-1440-forced-colors.png
-test/visual/baselines/terminal-1280-print.png
-test/visual/baselines/radar-390-sims-on.png
-test/visual/baselines/radar-390-sims-off.png
-test/visual/baselines/radar-1440-sims-on.png
-test/visual/baselines/radar-1440-sims-off.png
-test/visual/baselines/radar-1440-reduced-motion.png
-test/visual/baselines/radar-1440-forced-colors.png
-test/visual/baselines/radar-1280-print.png
-test/visual/baselines/guide-390-sims-on.png
-test/visual/baselines/guide-390-sims-off.png
-test/visual/baselines/guide-1440-sims-on.png
-test/visual/baselines/guide-1440-sims-off.png
-test/visual/baselines/guide-1440-reduced-motion.png
-test/visual/baselines/guide-1440-forced-colors.png
-test/visual/baselines/guide-1280-print.png
-test/visual/baselines/console-390-sims-on.png
-test/visual/baselines/console-390-sims-off.png
-test/visual/baselines/console-1440-sims-on.png
-test/visual/baselines/console-1440-sims-off.png
-test/visual/baselines/console-1440-reduced-motion.png
-test/visual/baselines/console-1440-forced-colors.png
-test/visual/baselines/console-1280-print.png
-test/visual/baselines/radar-390-sims-on.png
-test/visual/baselines/radar-390-sims-off.png
-test/visual/baselines/radar-1440-sims-on.png
-test/visual/baselines/radar-1440-sims-off.png
-test/visual/baselines/radar-1440-reduced-motion.png
-test/visual/baselines/radar-1440-forced-colors.png
-test/visual/baselines/radar-1280-print.png
-test/visual/baselines/guide-390-sims-on.png
-test/visual/baselines/guide-390-sims-off.png
-test/visual/baselines/guide-1440-sims-on.png
-test/visual/baselines/guide-1440-sims-off.png
-test/visual/baselines/guide-1440-reduced-motion.png
-test/visual/baselines/guide-1440-forced-colors.png
-test/visual/baselines/guide-1440-classic.png
-test/visual/baselines/guide-1280-print.png
-test/visual/baselines/console-390-sims-on.png
-test/visual/baselines/console-390-sims-off.png
-test/visual/baselines/console-1440-sims-on.png
-test/visual/baselines/console-1440-sims-off.png
-test/visual/baselines/console-1440-reduced-motion.png
-test/visual/baselines/console-1440-forced-colors.png
-test/visual/baselines/console-1280-print.png
-test/visual/baselines/guide-controls-390-sims-on.png
-test/visual/baselines/guide-controls-390-sims-off.png
-test/visual/baselines/guide-controls-1440-sims-on.png
-test/visual/baselines/guide-controls-1440-sims-off.png
-test/visual/baselines/guide-controls-1440-rounded.png
-test/visual/baselines/guide-controls-1440-reduced-motion.png
-test/visual/baselines/guide-controls-1440-forced-colors.png
-test/visual/baselines/guide-controls-1280-print.png
-test/visual/baselines/guide-1440-sims-on.png
-test/visual/baselines/guide-1440-sims-off.png
-test/visual/baselines/guide-1440-reduced-motion.png
-test/visual/baselines/guide-1440-forced-colors.png
-test/visual/baselines/guide-1280-print.png
-test/visual/baselines/console-1280-print.png
-test/visual/baselines/console-1440-reduced-motion.png
-test/visual/baselines/console-1440-sims-off.png
-test/visual/baselines/console-1440-sims-on.png
-test/visual/baselines/console-390-sims-off.png
-test/visual/baselines/console-390-sims-on.png
-test/visual/baselines/guide-1280-print.png
-test/visual/baselines/guide-1440-forced-colors.png
-test/visual/baselines/guide-1440-reduced-motion.png
-test/visual/baselines/guide-1440-sims-off.png
-test/visual/baselines/guide-1440-sims-on.png
-test/visual/baselines/guide-controls-1280-print.png
-test/visual/baselines/guide-controls-1440-forced-colors.png
-test/visual/baselines/guide-controls-1440-reduced-motion.png
-test/visual/baselines/guide-controls-1440-rounded.png
-test/visual/baselines/guide-controls-1440-sims-off.png
-test/visual/baselines/guide-controls-1440-sims-on.png
-test/visual/baselines/guide-controls-390-sims-off.png
-test/visual/baselines/guide-controls-390-sims-on.png
-test/visual/baselines/radar-1280-print.png
-test/visual/baselines/radar-1440-reduced-motion.png
-test/visual/baselines/radar-1440-sims-off.png
-test/visual/baselines/radar-1440-sims-on.png
-test/visual/baselines/radar-390-sims-off.png
-test/visual/baselines/radar-390-sims-on.png
-test/visual/baselines/radar-390-sims-on.png
-test/visual/baselines/radar-390-sims-off.png
-test/visual/baselines/radar-1440-sims-on.png
-test/visual/baselines/radar-1440-sims-off.png
-test/visual/baselines/radar-1440-reduced-motion.png
-test/visual/baselines/radar-1440-forced-colors.png
-test/visual/baselines/radar-1280-print.png
-test/visual/baselines/guide-controls-390-sims-on.png
-test/visual/baselines/guide-controls-390-sims-off.png
-test/visual/baselines/guide-controls-1440-sims-on.png
-test/visual/baselines/guide-controls-1440-sims-off.png
-test/visual/baselines/guide-controls-1440-rounded.png
-test/visual/baselines/guide-controls-1440-reduced-motion.png
-test/visual/baselines/guide-controls-1440-forced-colors.png
-test/visual/baselines/guide-390-sims-on.png
-test/visual/baselines/guide-390-sims-off.png
-test/visual/baselines/guide-1440-sims-on.png
-test/visual/baselines/guide-1440-sims-off.png
-test/visual/baselines/guide-1440-reduced-motion.png
-test/visual/baselines/guide-1440-forced-colors.png
-test/visual/baselines/console-390-sims-on.png
-test/visual/baselines/console-390-sims-off.png
-test/visual/baselines/console-1440-sims-on.png
-test/visual/baselines/console-1440-sims-off.png
-test/visual/baselines/console-1440-reduced-motion.png
-test/visual/baselines/console-1440-forced-colors.png
-test/visual/baselines/console-1280-print.png
-test/visual/baselines/radar-390-sims-on.png
-test/visual/baselines/radar-390-sims-off.png
-test/visual/baselines/radar-1440-sims-on.png
-test/visual/baselines/radar-1440-sims-off.png
-test/visual/baselines/radar-1440-reduced-motion.png
-test/visual/baselines/radar-1440-forced-colors.png
-test/visual/baselines/radar-1280-print.png
-test/visual/baselines/guide-controls-390-sims-on.png
-test/visual/baselines/guide-controls-390-sims-off.png
-test/visual/baselines/guide-controls-1440-reduced-motion.png
-test/visual/baselines/guide-controls-1280-print.png
-test/visual/baselines/guide-390-sims-on.png
-test/visual/baselines/guide-390-sims-off.png
-test/visual/baselines/guide-1440-reduced-motion.png
-test/visual/baselines/guide-1280-print.png
-test/visual/baselines/console-390-sims-on.png
-test/visual/baselines/console-390-sims-off.png
-test/visual/baselines/console-1440-sims-on.png
-test/visual/baselines/console-1440-sims-off.png
-test/visual/baselines/console-1440-reduced-motion.png
-test/visual/baselines/console-1440-forced-colors.png
-test/visual/baselines/console-1280-print.png
+
+# VISUAL BASELINES, DELIBERATELY OUT OF THE REPO FOR NOW.
+#
+# 11.6MB of PNGs was the largest thing in here by a wide margin, so the
+# baselines are kept local until the 2.0 tag, when one final set goes in.
+# This was 157 hand-listed filenames — the same 44 files enumerated three
+# times over — and it contradicted the comment above test/visual/*.actual.png,
+# which claimed baselines/ was committed. One glob says the same thing and
+# cannot drift as pages are added.
+#
+# WHAT THIS COSTS UNTIL THE TAG: `npm run test:visual` on a fresh clone
+# reports MISSING for every capture and fails. Run it with --update once to
+# seed a local set. The 30 baselines that were committed before this rule
+# existed stay tracked — an ignore does not untrack — so they still compare.
+test/visual/baselines/*.png

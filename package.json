@@ -13,7 +13,7 @@
     "monochrome",
     "no-dependencies"
   ],
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "author": "Diederik (https://diederik.blog)",
   "type": "module",
   "main": "dist/amber-console.css",
@@ -72,7 +72,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DutchDiederik/amber-console.git"
+    "url": "git+https://github.com/DutchDiederik/AmberConsole.git"
   },
-  "homepage": "https://github.com/DutchDiederik/amber-console#readme"
+  "homepage": "https://github.com/DutchDiederik/AmberConsole#readme"
 }

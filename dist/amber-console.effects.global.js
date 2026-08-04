@@ -1,4 +1,4 @@
-/*! Amber Console 2.0.0 | MIT | classic-script build
+/*! Amber Console 2.0.0 | BSD-3-Clause | classic-script build
  *  Generated from src/amber-console.effects.js by scripts/build.mjs.
  *  Use this with a plain <script src> — including from file:// URLs, where
  *  type="module" is blocked. Exposes window.AmberConsoleEffects.
@@ -6,6 +6,7 @@
 (function () {
 "use strict";
 
+/*! Amber Console | BSD-3-Clause | https://github.com/DutchDiederik/AmberConsole */
 /**
  * Amber Console — optional PERSISTENCE module.
  *
@@ -96,13 +97,28 @@ const engineOn = () => document.documentElement.getAttribute("data-ac-engine") !
  * present is not optional. If the two ever disagree, the switch and the work it
  * governs disagree — so they are commented as a pair.
  *
- * 5ms is a third of a frame at 60Hz. Three phosphors declare a tail below it by
- * three orders of magnitude — P11 at 0.035ms, P31 at 0.038ms, P4 at 0.06ms — and
- * on those every effect in this file is real work with no visible result: a ghost
- * is cloned, measured, appended, given a 0.035ms animation and removed inside the
- * same frame. Stopping is not just honesty about the switch, it is not doing that.
+ * THEY DID DISAGREE, and it is worth writing down what that looked like. This
+ * number was 5ms — a COMPOSITING floor, asking only "can a frame be drawn at
+ * all" — while amber-console.js had already moved to the 80ms PERCEPTUAL one.
+ * P1 at 24ms and P3 at 25ms fall between the two, so on those phosphors the JS
+ * Effects switch was disabled and painted OFF, the State readout said CSS ONLY,
+ * and this file went on cloning ghosts and driving the smear behind both of
+ * them. A control that reads OFF while the thing it governs is running is the
+ * exact lie the gating in syncEngineControls exists to prevent, told from the
+ * other side of the split.
+ *
+ * SO THE FLOOR IS 80ms IN BOTH FILES, and the long note above ENGINE_FLOOR_MS in
+ * amber-console.js is where the reasoning for the number itself lives — briefly:
+ * tokens/effects.css has always held that much under ~80ms the eye stops reading
+ * a relaxation and starts reading a switch, and the catalog has nothing between
+ * 25ms and 105ms, so the threshold is not near anything.
+ *
+ * WHAT IT COSTS: on P1 and P3, ghosting, the scroll smear and the framebuffer
+ * decay all stop — and all three were single-frame flickers there, produced by
+ * real work. A ghost was cloned, measured, mounted, given a 25ms animation and
+ * removed about one frame later. Not doing that is the point, not the price.
  */
-const PERSIST_FLOOR_MS = 5;
+const PERSIST_FLOOR_MS = 80;
 
 /**
  * Whether this module should be contributing anything at all.
@@ -114,8 +130,8 @@ const PERSIST_FLOOR_MS = 5;
  *   .ac-afterglow     there is no persistence layer to decay onto — every
  *                     selector in the CSS half is scoped to it, and a plasma cell
  *                     is driven continuously and has nothing that trails
- *   the tail          the phosphor relaxes faster than a frame, so nothing these
- *                     effects draw could survive to be composited
+ *   the tail          the phosphor relaxes faster than the eye reads a decay, so
+ *                     nothing these effects draw could be seen as persistence
  *
  * amber-console.js disables the JS Effects switch on the last two and paints it
  * OFF, so the control agrees with this function rather than claiming to be on
@@ -661,7 +677,7 @@ function sync() {
       characterData: true,
       characterDataOldValue: true,
       /* `style` only, and with the old value, so a lit area that shrinks can be
-         ghosted at the geometry it no longer has — see oldRectOf. Filtered to the
+         ghosted at the geometry it no longer has — see geometryLoss. Filtered to the
          one attribute that can change geometry from script without replacing the
          element, rather than watching all of them: `class` churns constantly on
          these demos and none of that churn is a light-off event. */

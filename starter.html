@@ -18,18 +18,36 @@
 <link rel="stylesheet" href="dist/amber-console.css">
 </head>
 
-<!-- .ac-screen is the frame. The three classes after it are the screen
-     simulations, and each is optional:
+<!-- .ac-screen is the frame. The classes after it are the screen
+     simulations:
        ac-bloom      the plasma panel — glow + the cell mesh
        ac-crt        the tube — scanlines, vignette, a slow drift
        ac-afterglow  persistence — things fade out instead of vanishing
-     Delete any of them and the rest still work. The three <span>s below
-     are the layers those simulations paint into; keep the span for each
-     class you keep. -->
-<body class="ac-screen ac-bloom ac-crt ac-afterglow">
+     Each <span> below is the layer one of those paints into; keep the
+     span for each class you keep, and delete both together.
+
+     PICK ONE TECHNOLOGY. ac-bloom and ac-crt are not two layers of glass,
+     they are two kinds of display, and no panel is both — a screen door
+     is not a scanline, and there is no scan in a plasma panel to blank.
+     The optional JS enforces this and switches one off when the other
+     comes on; in plain CSS nothing stops you, so it is on you here.
+     Both off is fine too: that is a flat lit surface.
+
+     ac-afterglow is not a third technology, it is what the tube's
+     phosphor does after the beam has gone — so it rides with ac-crt.
+     To swap this page to the amber tube, put this on <body>:
+
+         class="ac-screen ac-crt ac-afterglow"
+
+     and replace the ac-mesh span below with these two:
+
+         <span class="ac-retrace"></span>
+         <span class="ac-persist"></span>
+
+     then set the palette to a phosphor — see THREE THINGS TO TRY at the
+     bottom of this file. -->
+<body class="ac-screen ac-bloom">
   <span class="ac-mesh"></span>
-  <span class="ac-retrace"></span>
-  <span class="ac-persist"></span>
 
   <!-- .ac-screen__body is the padded content area inside the frame. -->
   <div class="ac-screen__body">

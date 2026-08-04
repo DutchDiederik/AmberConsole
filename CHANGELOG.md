@@ -194,15 +194,25 @@ drop-in. If you did, prefix what you set with `ac-` and you are done.
   for different reasons. All three effects are scoped to `.ac-afterglow`, so under any plasma
   simulation the switch is wired to nothing at all — a *mechanical* no-op. And all three are timed by
   `--ac-persist`, so a phosphor whose tail is measured in microseconds gives them no time to be seen —
-  a *perceptual* one. It is live under **P7, P39, P3 and P1**, and dead under **P4, P11 and P31**
-  (0.06, 0.035 and 0.038 ms) and every plasma gas.
+  a *perceptual* one. It is live under **P7 and P39** (3000 and 2000 ms), and dead under **P1 and P3**
+  (24 and 25 ms) and under **P4, P11 and P31** (0.06, 0.035 and 0.038 ms), and under every plasma gas.
 - **The gate reads the frame, not the preset**, which matters for a state the system explicitly
   allows: a plasma gas with the CRT simulation switched on by hand has a real afterglow layer, and the
   switch correctly goes live there. Gating on the emitter would have got that backwards.
-- `ENGINE_FLOOR_MS` is 5 — a third of a frame at 60Hz, so anything under it cannot survive to be
-  composited even once. Nothing in the catalog is near the boundary: the phosphors that clear it do so
-  by 24ms or more and the ones that fail do so by three orders of magnitude, which is what makes a
-  single threshold safe rather than a fudge.
+- **`ENGINE_FLOOR_MS` is 80 — a perceptual floor, not a compositing one.** It was briefly 5ms, which
+  asks only whether a frame can be drawn at all: P1 and P3 cleared that, so the module did real work
+  on them — cloning, measuring and mounting a ghost, animating it and removing it — to produce
+  something that survived about one frame. That is a flicker, not persistence, and it was happening on
+  the two phosphors most people pick. 80ms is the figure `tokens/effects.css` has always reasoned
+  from: much under it and the eye stops reading a relaxation and starts reading a switch. Nothing in
+  the catalog is near the boundary — the nearest values are 25ms below and 105ms above — which is what
+  makes a single threshold safe rather than a fudge.
+- **The floor is enforced in three places and they must agree.** `ENGINE_FLOOR_MS` in
+  `amber-console.js` paints the switch, `PERSIST_FLOOR_MS` in `amber-console.effects.js` is what
+  actually stops the work, and `scripts/build.mjs` uses the same figure to decide whether a docs board
+  ships the switch enabled. They drifted apart once — the switch at 80 and the effects module still at
+  5 — and P1 and P3 spent that window with a disabled switch reading OFF, a `CSS ONLY` readout, and a
+  module still ghosting and smearing behind both of them. Change one, change all three.
 - The `needs` mechanism in `STYLES` now has no shipped user, since `smear` was its only one. It stays,
   documented as the framework's answer for a consumer flag that depends on a simulation.
 

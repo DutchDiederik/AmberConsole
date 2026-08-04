@@ -1,4 +1,4 @@
-/* Amber Console 2.0.0 — @layer build.
+/*! Amber Console 2.0.0 | BSD-3-Clause | @layer build.
  * Identical to amber-console.css, wrapped in @layer amber-console so the
  * framework loses specificity fights against your own unlayered rules.
  * Link this INSTEAD OF amber-console.css, never alongside it.
