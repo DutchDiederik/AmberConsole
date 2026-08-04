@@ -397,6 +397,34 @@ function expandNav(html, file) {
   );
 }
 
+/**
+ * THE REVISION STRING, STAMPED FROM package.json RATHER THAN HAND-CARRIED.
+ *
+ * It was in twenty-two places: one masthead per page (from _nav.html, so that
+ * half was already single-source), eight identical guide footers, and one line
+ * in guide.html that belongs to no partial. Every one of them still read REV 1.0
+ * while package.json said 2.0.0 — on a docs site whose entire subject is a panel
+ * that reports its own state honestly, which is the worst possible place for a
+ * wrong number to sit.
+ *
+ * A BLANKET REWRITE RATHER THAN A THIRD PARTIAL, and the choice is deliberate.
+ * A `_footer.html` would have fixed eight of the ten remaining spots and left the
+ * guide.html line drifting on its own — the exact failure mode this is meant to
+ * end. The pattern is narrow enough to be safe (`REV ` followed by two numbers
+ * and nothing else), the rewrite is idempotent, and it runs over the whole page
+ * rather than only between include markers, because that is where the strings
+ * are. This is the one thing the build edits outside a marker; everything else
+ * hand-written in docs/ is left exactly as it was typed.
+ *
+ * MAJOR.MINOR ONLY. A patch release does not re-photograph the panel, and
+ * "REV 2.0.1" on a bezel is not a thing anybody has ever seen.
+ */
+const REV = VERSION.split(".").slice(0, 2).join(".");
+
+function stampRev(html) {
+  return html.replace(/\bREV \d+\.\d+(\.\d+)?\b/g, `REV ${REV}`);
+}
+
 /** Same job for the guide's own chapter strip, where the match is exact. */
 function expandChapters(html, file) {
   const page = path.basename(file);
@@ -440,6 +468,9 @@ async function expandDocs() {
         `\n${indent}<!-- @end -->`
       );
     });
+
+    /* Outside the markers on purpose — see stampRev. */
+    after = stampRev(after);
 
     if (after !== before) {
       await writeFile(file, after);

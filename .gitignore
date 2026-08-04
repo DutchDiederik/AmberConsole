@@ -30,17 +30,21 @@ Thumbs.db
 .idea/
 .vscode/
 
-# VISUAL BASELINES, DELIBERATELY OUT OF THE REPO FOR NOW.
+# NOTHING HERE IGNORES test/visual/baselines/, AND THAT IS DELIBERATE.
 #
-# 11.6MB of PNGs was the largest thing in here by a wide margin, so the
-# baselines are kept local until the 2.0 tag, when one final set goes in.
-# This was 157 hand-listed filenames — the same 44 files enumerated three
-# times over — and it contradicted the comment above test/visual/*.actual.png,
-# which claimed baselines/ was committed. One glob says the same thing and
-# cannot drift as pages are added.
+# It briefly did. 157 hand-listed filenames — the same 44 files enumerated
+# three times over — sat here to keep 11.6MB of PNGs out of the repository,
+# while the comment above test/visual/*.actual.png claimed baselines/ was
+# committed. Both could not be true, and the way it resolved was silent: the
+# 30 baselines already tracked stayed tracked, because an ignore does not
+# untrack, and the 14 for server.html and terminal.html — the two newest demo
+# pages — were never committed at all. Two of the four demos had no visual
+# coverage in the repo and the suite could not tell anyone, because a file
+# that is ignored is not reported as missing.
 #
-# WHAT THIS COSTS UNTIL THE TAG: `npm run test:visual` on a fresh clone
-# reports MISSING for every capture and fails. Run it with --update once to
-# seed a local set. The 30 baselines that were committed before this rule
-# existed stay tracked — an ignore does not untrack — so they still compare.
-test/visual/baselines/*.png
+# A baseline IS the test. Ignoring it does not save the repository from the
+# bytes, it only saves them from being reviewed, and it costs the one thing
+# the suite exists for: a fresh clone that can say whether the pages still
+# render the way they did. The full set is committed as of 2.0, and adding a
+# thirteenth page means committing its baselines with it.
+

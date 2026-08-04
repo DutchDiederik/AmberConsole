@@ -10,6 +10,37 @@ A breaking release: every custom property this framework owns is now `--ac-*` pr
 pre-prefix names are gone rather than aliased. If you never overrode a token, upgrading is a
 drop-in. If you did, prefix what you set with `ac-` and you are done.
 
+### Fixed — the release audit
+
+A sweep of the whole repository before tagging. Most of these are metadata rather than rendering:
+nothing in the cascade moved, and the computed suite is unchanged at 644 probes.
+
+- **The package declared the wrong license.** `package.json` said `MIT` while `LICENSE` and the README
+  said BSD 3-Clause, and every banner the build stamped into `dist/` said MIT too — so npm would have
+  advertised one license over a repository shipping another. It is **BSD-3-Clause everywhere** now.
+  Two files that carried no notice at all also gained one: the `@layer` builds, and the ES-module
+  copies of the two optional scripts.
+- **The JS effects now actually stop on P1 and P3.** `ENGINE_FLOOR_MS` was raised to 80ms in
+  `amber-console.js`, but the mirrored `PERSIST_FLOOR_MS` in `amber-console.effects.js` stayed at 5 —
+  so on those two phosphors the switch was disabled and painted OFF, the readout said `CSS ONLY`, and
+  the module went on ghosting and smearing behind both of them. Both are 80 now, and the two files
+  carry a note saying they are a pair. See the engine notes below.
+- **Every GitHub Pages URL used the wrong repository casing** — 27 of them, across the README, the
+  root redirect and all twelve docs pages, pointing at `/amber-console/` when the repository is
+  `AmberConsole`. Social cards and the README's demo links resolved to nothing.
+- **`.ac-bloom` and `.ac-crt` are documented as mutually exclusive**, which until now only a source
+  comment said. `amber-console.js` has always enforced it; the CSS cannot, so a hand-authored frame
+  could carry both. `starter.html` shipped exactly that combination — the first file a new user opens
+  was demonstrating the one arrangement the framework calls incoherent — and now ships plasma alone,
+  with the CRT alternative written out beside it.
+- **The revision string is stamped from `package.json`** instead of being hand-carried in
+  twenty-two places, all of which still read `REV 1.0`.
+- Corrected in the docs: the minified size (35kb → **53kb**, 6.6 → **9.4kb gzipped**), "both demos"
+  where there are four, the guide's social description offering "two gas palettes" against a catalog
+  of eleven emitters, and the `og:image:alt` on three pages describing an image other than the one
+  actually served. Three guide chapters jumped from `h1` to `h3` and now carry the section head the
+  others already had.
+
 ### Fixed — the classic look is the default in CSS, with no JavaScript
 
 - **A page that links the stylesheet and authors nothing now gets the classic corner.** It used to

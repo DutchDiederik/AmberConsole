@@ -71,6 +71,8 @@
          scrolls away, this does not, and it always names the TECHNOLOGY first
          and the emitter second. -->
     <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">PLASMA · NEON</span></span>
+    <!-- Stamped from package.json by scripts/build.mjs — see stampRev. Editing
+         the number here does nothing; the next build overwrites it. -->
     <span>REV 2.0</span>
     <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
   </span>
@@ -135,7 +137,7 @@
                  data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
           <span class="doc-display__name">Neon</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">585nm</span>
+          <span class="doc-display__note">Orange-red 585nm</span>
         </label>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display"
@@ -334,6 +336,12 @@
            one phosphor does not behave like the rest of its family. -->
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">Technology</span>
+        <!-- FALLBACK ONLY, and no longer reached. paintInfo() in
+             ../src/amber-console.js prefers an exact "tech/emitter" key over a bare
+             "tech" one, and all eleven emitters now carry their own paragraph. These
+             two stay as the safety net for an emitter added without prose — delete
+             them only if you also drop that fallback. The technology is explained on
+             screen either way by the note under each catalog title. -->
         <p class="doc-info" data-ac-display-info="plasma" hidden>A gas in a sealed gap, struck by a
           sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
           hue and varies only how hard it is driven.</p>
@@ -343,7 +351,7 @@
         <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
           output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
           strongest line, not the color. What you see is the faint 415–475nm group, a hundred
-          times weaker and a hundred times better placed. It is also why argon is dim.</p>
+          times weaker and a hundred times better placed. It is also why argon is a dim GAS — though not a dim palette: every stop here is solved to the same contrast ratio as every other, so what changes between displays is the hue, never the brightness.</p>
         <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
           visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
           yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
@@ -351,6 +359,11 @@
         <p class="doc-info" data-ac-display-info="crt">A beam sweeps a phosphor coating,
           which emits while struck and then persists. The color belongs to the phosphor, not the
           beam; the P-number names the compound.</p>
+        <p class="doc-info" data-ac-display-info="plasma/neon" hidden>The gas the plasma panel was actually built on, and what this framework opens to. In a low-pressure glow the 2p→1s array dominates — the lowest excited states that radiate visibly, populated far more heavily than anything above them — so the discharge is one narrow orange-red rather than a mixture. Nixie tubes and the first flat panels ran on it.</p>
+        <p class="doc-info" data-ac-display-info="plasma/helium" hidden>The palest gas here, and structurally so: helium has no low-lying manifold to dominate the way the heavier gases do. Its visible lines all fall from n=3 and n=4 at comparable energies, so none outranks the rest and every one contributes. That integrates to near-white with a pink cast — 587.6nm carries the luminance while 447.1nm and 667.8nm pull it off the blackbody locus. A display gas by mixture rather than on its own.</p>
+        <p class="doc-info" data-ac-display-info="crt/p1" hidden>Zn₂SiO₄:Mn — willemite, the oldest CRT phosphor and the one the first oscilloscopes and radar indicators were built around. A silicate host rather than a sulfide, so a narrow 48nm band against P31's 78nm: a purer green, and a less efficient one. P39 is this same compound with arsenic added to stretch the decay.</p>
+        <p class="doc-info" data-ac-display-info="crt/p3">The amber terminal, and the ramp this framework was drawn against. Not a pure orange but a broad band with real green content — the fit lands at 594nm across 110nm — which is what holds amber text legible at small sizes. It was the standard alternative to green on office terminals, sold on being easier on the eyes across a working day.</p>
+        <p class="doc-info" data-ac-display-info="crt/p31" hidden>ZnS:Cu — the green everybody actually pictures when they picture a terminal or a laboratory oscilloscope. It carries the highest luminous efficiency of any phosphor here, sitting near the peak of the eye's photopic curve, which is why it displaced the willemites for anything meant to be looked at directly rather than photographed.</p>
         <p class="doc-info" data-ac-display-info="crt/p7" hidden>The radar phosphor, and it went onto scope tubes for a reason: the flash gives
           position and the trail gives history. Two coatings, not one. The beam writes into a blue
           ZnS:Ag layer that decays in microseconds, and that layer's own photons pump a
