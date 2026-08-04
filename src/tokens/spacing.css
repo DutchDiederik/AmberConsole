@@ -9,6 +9,20 @@
   --ac-space-12: 48px;
 
   --ac-border-w: 2px;      /* every stroke is 2px — no hairlines */
-  --ac-radius: 8px;        /* touch pads, panels (CRT-rounded, not modern-pill) */
-  --ac-radius-sm: 4px;     /* inputs, small chips */
+
+  /* THE CORNER, QUANTIZED TO THE GRID. 2px is what a gas-discharge panel
+     addressing a coarse cell matrix could actually draw, and it is the figure
+     .ac-badge and .ac-banner have always used literally.
+
+     This is the BASE value, not the whole story: components/classic.css spends
+     it on a real chamfer where `corner-shape` exists, adds the extruded key
+     edge, and provides the .ac-rounded opt-out. Those live there so this file
+     stays what it says it is — a spacing scale.
+
+     It is stated here rather than only there so that dropping classic.css
+     degrades to a plain 2px corner instead of leaving --ac-radius undefined,
+     which would make `border-radius: var(--ac-radius)` invalid and square off
+     every control in the framework. */
+  --ac-radius: 2px;
+  --ac-radius-sm: 2px;
 }

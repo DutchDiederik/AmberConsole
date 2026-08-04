@@ -732,19 +732,22 @@ without its halo, and the extrusion rule sets no colour.
 
 ---
 
-## Known inconsistency: the default corner style
+## The default corner style
 
 `classic.css` describes classic as the default look and the smooth corner as the
-opt-out. That is true **only when `amber-console.js` is loaded** — `classic:
-{ defaultOn: true }` lives in the JS `STYLES` table, and the
-`data-ac-style-classic="on"` attribute it selects on is written to `<html>` by
-`applyStyle()` at init.
+opt-out, and as of this release that is true in **CSS alone** — `:root` carries
+the classic tokens, so a page that links the stylesheet and authors no attribute
+and no class gets the chamfer and the extruded key edge.
 
-A CSS-only consumer never gets that attribute, so `--ac-radius` resolves to the `8px`
-in `tokens/spacing.css` and they get **rounded** corners — the look the documentation
-calls a departure from the panel.
+It was not always so. `classic: { defaultOn: true }` lives in the JS `STYLES`
+table, and the `data-ac-style-classic="on"` attribute it selects on is written to
+`<html>` by `applyStyle()` at init — so a CSS-only consumer never got it, and
+`--ac-radius` resolved to the rounded value in `tokens/spacing.css`. The
+documentation and the stylesheet disagreed for every consumer who did not load
+the optional JavaScript, which is the consumer the framework is mostly for.
 
-Making the CSS carry its own default (classic at `:root`, rounded under
-`.ac-rounded` and `[data-ac-style-classic="off"]`) would close the gap, but it
-changes the rendered default for every existing CSS-only consumer, so it is a
-release decision rather than a cleanup.
+The cascade now reads: `:root` classic → `.ac-rounded` / `[data-ac-style-classic="off"]`
+opt out → `.ac-classic` / `[data-ac-style-classic="on"]` opt back in. Order
+inside `classic.css` is load-bearing where `:root` and an attribute both match
+`<html>` at equal weight, and the `@supports` chamfer block for `:root` sits
+*above* the opt-out for exactly that reason.

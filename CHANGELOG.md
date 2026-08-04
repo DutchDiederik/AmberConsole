@@ -6,6 +6,23 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Fixed — the classic look is the default in CSS, with no JavaScript
+
+- **A page that links the stylesheet and authors nothing now gets the classic corner.** It used to
+  depend on `amber-console.js`: `classic: { defaultOn: true }` lives in the JS `STYLES` table, and it
+  is `applyStyle()` that writes `data-ac-style-classic="on"` to `<html>`. Without that file
+  `--ac-radius` fell through to the rounded value in `tokens/spacing.css`, so every CSS-only consumer
+  silently got the look `classic.css` calls a departure from the panel — while the file's own header
+  said "THIS IS THE DEFAULT LOOK". The stylesheet and the documentation agree now.
+- **The cascade reads:** `:root` classic → `.ac-rounded` / `[data-ac-style-classic="off"]` opt out →
+  `.ac-classic` / `[data-ac-style-classic="on"]` opt back in. `.ac-rounded` still works at any scope
+  and still nests in either direction.
+- **`tokens/spacing.css` now carries the 2px grid-quantized corner** rather than the 8px arc, so
+  dropping `components/classic.css` degrades to a plain square-ish corner instead of leaving
+  `--ac-radius` undefined and squaring off every control.
+- Pages that load the optional JS render identically — it writes the same attribute it always did, and
+  the full visual suite passes unchanged. Only the no-JS path moved.
+
 ### Changed — every token is `--ac-*` prefixed (BREAKING for overrides)
 
 - **60 of the 76 tokens were bare** — `--ink`, `--fill`, `--screen`, `--radius`, `--leading`, `--gap`,

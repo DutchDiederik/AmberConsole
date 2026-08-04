@@ -9,13 +9,22 @@
    what the framework ships. The smooth corner is still here and still supported —
    it is now the thing you opt into rather than the thing you opt out of.
 
-     data-ac-style-classic="on"   the root flag. ON by default; see STYLES in
-                                  ../amber-console.js.
-     .ac-classic                  scope class — a frame, a panel, or one control.
-     .ac-rounded                  the way back to the arc, at any scope.
+   IT IS THE DEFAULT IN CSS, WITH NO JAVASCRIPT. `:root` carries the classic
+   tokens, so a page that links the stylesheet and authors nothing at all gets
+   the chamfer and the extruded edge. This used to be true only when
+   ../amber-console.js was loaded — that file writes data-ac-style-classic="on",
+   and without it a CSS-only consumer silently got the rounded corner this
+   paragraph calls an opt-out. The stylesheet says what it means now.
 
-   All three are the same set of rules reading the same tokens; none is more real
-   than the others, and they nest in either direction.
+     (nothing)                    classic. The default.
+     .ac-rounded                  the way back to the arc, at any scope.
+     data-ac-style-classic="off"  the same opt-out for a whole page; what the
+                                  optional JS writes when the switch is thrown.
+     .ac-classic                  back to classic inside a rounded region.
+     data-ac-style-classic="on"   the page-level form of that.
+
+   All are the same set of rules reading the same tokens; none is more real than
+   the others, and they nest in either direction.
 
    HOW THE SCOPING WORKS — the thing to understand before editing. The three
    scopes set nothing but CUSTOM PROPERTIES, and custom properties inherit. Every
@@ -31,18 +40,20 @@
    degraded chamfer, so Firefox loses the chamfer and nothing else. Both in
    RATIONALE.md § components/classic.css.
 
-   NOTE: classic is the default look only when amber-console.js is loaded — it is
-   the JS that writes data-ac-style-classic="on". A CSS-only consumer gets the
-   rounded corner from tokens/spacing.css. See RATIONALE.md § Known
-   inconsistency: the default corner style.
    =========================================================================== */
 
 /* --- (1) The scopes. Tokens only; no rule below is repeated per scope. --- */
 
+/* CLASSIC IS THE DEFAULT, IN CSS, WITH NO JAVASCRIPT.
+   `:root` leads this list, which is the whole point: a page that links the
+   stylesheet and authors no attribute and no class gets the classic corner. The
+   two opt-in scopes ride along so a classic REGION works inside a rounded page,
+   and so the attribute the optional JS writes keeps meaning what it says. */
+:root,
 .ac-classic,
 [data-ac-style-classic="on"] {
-  /* Fallback corner: quantize to the grid. 2px is the figure .ac-badge and
-     .ac-banner have always used — they are already classic and need nothing. */
+  /* Grid-quantized corner, from tokens/spacing.css. Restated here only so a
+     .ac-classic region nested inside a .ac-rounded one gets it back. */
   --ac-radius: 2px;
   --ac-radius-sm: 2px;
   --ac-corner: bevel;
@@ -50,7 +61,25 @@
   --ac-edge-press: var(--ac-edge-3d-in);
 }
 
-.ac-rounded {
+@supports (corner-shape: bevel) {
+  /* The default's chamfer. It sits HERE, above the opt-out, and that position is
+     load-bearing: `:root` and `[data-ac-style-classic="off"]` both match <html>
+     at the same weight, so whichever is written last wins. Below the opt-out,
+     this block handed the bevel radii back to a page that had explicitly asked
+     for round corners — visible as a chamfered key with no extrusion, which is
+     neither of the two looks this file ships. */
+  :root {
+    --ac-radius: 2px 4px 8px 4px;
+    --ac-radius-sm: 1px 2px 4px 2px;
+  }
+}
+
+/* The opt-out, at any scope: a page (the attribute, which is what the optional
+   JS writes) or a region (the class). Declared AFTER the :root default above so
+   that when both land on <html> — `:root` and `[data-ac-style-classic="off"]`
+   weigh the same — the explicit off wins on order. */
+.ac-rounded,
+[data-ac-style-classic="off"] {
   --ac-radius: 8px;
   --ac-radius-sm: 4px;
   --ac-corner: round;
@@ -67,7 +96,11 @@
      barely cut and the near one is cut hardest. Cut all four the same and the key
      reads as an octagon. 2 / 4 / 8 / 4 in TL TR BR BL order, from the system's own
      radius steps; --ac-radius-sm runs the same diagonal at half depth.
-     See RATIONALE.md § The four corners are not the same size. */
+     See RATIONALE.md § The four corners are not the same size.
+
+     The :root half of this is declared above the opt-out; these two scopes are
+     declared below it, so a classic REGION inside a rounded page is chamfered
+     rather than inheriting the opt-out's arc. */
   .ac-classic,
   [data-ac-style-classic="on"] {
     --ac-radius: 2px 4px 8px 4px;
