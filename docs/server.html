@@ -77,7 +77,7 @@
 </nav>
   <!-- @end -->
 
-  <!-- @include _board.html emitter="neon" -->
+  <!-- @include _board.html emitter="p3" -->
   <!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
 <!-- ============================================================ SETUP ==
      Four quarters. Four axes, and they are never the same axis:
@@ -131,7 +131,7 @@
       <fieldset class="doc-displays">
         <legend class="ac-sr-only">Plasma gases</legend>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display" checked
+          <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
           <span class="doc-display__name">Neon</span>
           <span class="doc-display__fill"></span>
@@ -167,17 +167,20 @@
       <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
       <fieldset class="doc-displays">
         <legend class="ac-sr-only">CRT phosphors</legend>
+        <p class="doc-displays__group">General purpose · built to be read</p>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
           <span class="doc-display__name">P1</span>
+          <span class="doc-display__use">Scope</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Green 525nm</span>
         </label>
         <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display"
+          <input type="radio" name="ac-display" checked
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
           <span class="doc-display__name">P3</span>
+          <span class="doc-display__use">Terminal</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Amber 590nm</span>
         </label>
@@ -185,13 +188,24 @@
           <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
           <span class="doc-display__name">P4</span>
+          <span class="doc-display__use">Television</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">White 450+560nm</span>
         </label>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
+          <span class="doc-display__name">P31</span>
+          <span class="doc-display__use">Monitor</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 520nm</span>
+        </label>
+        <p class="doc-displays__group">Specialized · built for an instrument</p>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
           <span class="doc-display__name">P7</span>
+          <span class="doc-display__use">Radar</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Blue+green 450/558nm</span>
         </label>
@@ -199,22 +213,17 @@
           <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
           <span class="doc-display__name">P11</span>
+          <span class="doc-display__use">Photographic</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Blue 460nm</span>
         </label>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display"
-                 data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
-          <span class="doc-display__name">P31</span>
-          <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Green 520nm</span>
-        </label>
-        <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
           <span class="doc-display__name">P39</span>
+          <span class="doc-display__use">Slow decay</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Long green 525nm</span>
+          <span class="doc-display__note">Green 525nm</span>
         </label>
       </fieldset>
     </div>
@@ -316,7 +325,7 @@
            one phosphor does not behave like the rest of its family. -->
       <div class="ac-panel ac-panel--dim">
         <span class="ac-panel__title">Technology</span>
-        <p class="doc-info" data-ac-display-info="plasma">A gas in a sealed gap, struck by a
+        <p class="doc-info" data-ac-display-info="plasma" hidden>A gas in a sealed gap, struck by a
           sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
           hue and varies only how hard it is driven.</p>
         <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
@@ -330,7 +339,7 @@
           visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
           yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
           panel reads violet rather than any one of those colors.</p>
-        <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
+        <p class="doc-info" data-ac-display-info="crt">A beam sweeps a phosphor coating,
           which emits while struck and then persists. The color belongs to the phosphor, not the
           beam; the P-number names the compound.</p>
         <p class="doc-info" data-ac-display-info="crt/p7" hidden>The radar phosphor, and it went onto scope tubes for a reason: the flash gives

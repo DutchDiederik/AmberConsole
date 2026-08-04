@@ -86,10 +86,12 @@
       <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
       <fieldset class="doc-displays">
         <legend class="ac-sr-only">CRT phosphors</legend>
+        <p class="doc-displays__group">General purpose · built to be read</p>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
           <span class="doc-display__name">P1</span>
+          <span class="doc-display__use">Scope</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Green 525nm</span>
         </label>
@@ -97,6 +99,7 @@
           <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
           <span class="doc-display__name">P3</span>
+          <span class="doc-display__use">Terminal</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Amber 590nm</span>
         </label>
@@ -104,13 +107,24 @@
           <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
           <span class="doc-display__name">P4</span>
+          <span class="doc-display__use">Television</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">White 450+560nm</span>
         </label>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
+          <span class="doc-display__name">P31</span>
+          <span class="doc-display__use">Monitor</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 520nm</span>
+        </label>
+        <p class="doc-displays__group">Specialized · built for an instrument</p>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
           <span class="doc-display__name">P7</span>
+          <span class="doc-display__use">Radar</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Blue+green 450/558nm</span>
         </label>
@@ -118,22 +132,17 @@
           <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
           <span class="doc-display__name">P11</span>
+          <span class="doc-display__use">Photographic</span>
           <span class="doc-display__fill"></span>
           <span class="doc-display__note">Blue 460nm</span>
         </label>
         <label class="ac-radio doc-display">
           <input type="radio" name="ac-display"
-                 data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
-          <span class="doc-display__name">P31</span>
-          <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Green 520nm</span>
-        </label>
-        <label class="ac-radio doc-display">
-          <input type="radio" name="ac-display"
                  data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
           <span class="doc-display__name">P39</span>
+          <span class="doc-display__use">Slow decay</span>
           <span class="doc-display__fill"></span>
-          <span class="doc-display__note">Long green 525nm</span>
+          <span class="doc-display__note">Green 525nm</span>
         </label>
       </fieldset>
     </div>

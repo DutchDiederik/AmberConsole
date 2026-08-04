@@ -625,20 +625,41 @@ function engineOn() {
 /**
  * THE SHORTEST TAIL WORTH OFFERING A SWITCH FOR, in milliseconds.
  *
- * All three JS effects are timed by --ac-persist, and three of the seven
- * phosphors declare a tail in MICROSECONDS: P11 at 0.035ms, P31 at 0.038ms, P4
- * at 0.06ms. Those are real figures and the effects genuinely run on them — a
- * ghost is spawned, given a 0.035ms animation, and removed again inside the same
- * frame. Nothing is drawn that any eye could catch.
+ * All three JS effects are timed by --ac-persist. Measured against a 60Hz frame,
+ * what each phosphor actually buys is:
  *
- * So the switch has nothing to offer there, and 5ms is where that line sits: it
- * is a third of a frame at 60Hz, so anything under it cannot survive to be
- * composited even once, and everything over it is at least visible in principle.
- * P1 at 24ms and P3 at 25ms clear it; the microsecond sulfides do not, by three
- * orders of magnitude. Nothing in the catalog is anywhere near the boundary,
- * which is what makes a single threshold safe rather than a fudge.
+ *   P11  0.035ms   0.00 frames    nothing is composited at all
+ *   P31  0.038ms   0.00 frames
+ *   P4   0.06ms    0.00 frames
+ *   P1   24ms      1.44 frames    one frame of ghost, then gone
+ *   P3   25ms      1.50 frames
+ *   gas  105ms     6.3 frames     the :root fallback
+ *   P39  2000ms    120 frames
+ *   P7   3000ms    180 frames
+ *
+ * THIS USED TO BE 5ms, WHICH IS A COMPOSITING FLOOR RATHER THAN A PERCEPTUAL
+ * ONE. It asked "can a frame be drawn at all", so P1 and P3 cleared it and the
+ * module spent real work on them — cloning nodes, mounting them into the
+ * persistence layer, animating and removing them — to produce a ghost that
+ * survives about one frame. That is not persistence, it is a single-frame
+ * flicker, and on the two phosphors most people actually pick.
+ *
+ * 80ms is the perceptual floor, and it is not a new number: tokens/effects.css
+ * has always said that "much under ~80ms and the eye stops reading a relaxation
+ * and starts reading a switch". Using the figure the stylesheet already reasons
+ * from makes the two agree instead of drawing different lines.
+ *
+ * The catalog is nowhere near the boundary in either direction — the nearest
+ * values are 25ms below and 105ms above — so a single threshold stays safe
+ * rather than becoming a fudge.
+ *
+ * WHAT THIS COSTS ON P1 AND P3: ghosting and the framebuffer decay, both of
+ * which were invisible there. It also costs the scroll smear, and that one is
+ * deliberate rather than collateral — the smear IS persistence, seen while the
+ * image moves. A phosphor that does not hold between frames has nothing to trail
+ * with, so a 25ms tube should not smear any more than it should ghost.
  */
-const ENGINE_FLOOR_MS = 5;
+const ENGINE_FLOOR_MS = 80;
 
 /** The active palette's uncapped tail, in ms. Falls back to the :root default. */
 function persistTailMs() {

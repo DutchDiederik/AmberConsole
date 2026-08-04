@@ -128,6 +128,25 @@
   margin-top: 0;
 }
 
+/* Divides the CRT catalog into what a phosphor was BUILT FOR. Four of the seven
+   were made to be looked at for hours; three were made to do a job that reading
+   was not part of, and picking one of those for a UI is a deliberate choice
+   rather than a palette preference. See tokens/colors.css. */
+.doc-displays__group {
+  margin: var(--ac-space-3) 0 var(--ac-space-1);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ac-ink-trace);
+  padding-bottom: 3px;
+}
+.doc-displays__group:first-of-type {
+  margin-top: 0;
+}
+
 .doc-displays__note {
   margin: var(--ac-space-2) 0 var(--ac-space-3);
   font-family: var(--ac-font-micro);
@@ -165,9 +184,31 @@
   flex: none;
 }
 
+/* What the tube was FOR, beside its part number. The part number alone is only
+   meaningful to someone who already knows the catalog, which is the person least
+   in need of the panel. Kept short on purpose: the row is
+   [radio] NAME USE …dots… SPECTRUM, and the dotted leader is what absorbs the
+   slack — a long label eats it and then overflows the column at 390px. */
+.doc-display__use {
+  flex: none;
+  margin-left: 0.55em;
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+  text-transform: uppercase;
+}
+
 .doc-display__fill {
   flex: 1;
-  min-width: var(--ac-space-6);
+  /* COLLAPSIBLE TO NOTHING, and that is what keeps the row on one line. This
+     used to hold a 24px floor, which is fine when the row is [number] …dots…
+     [spectrum] and not fine once a purpose label sits between them: in the
+     printed board the columns are 254px and the reserved dots pushed every row
+     13px past the edge. The leader is decoration and the two labels are not, so
+     the leader is what gives way. */
+  min-width: 0;
   align-self: baseline;
   border-bottom: var(--ac-border-w) dotted var(--ac-ink-trace);
 }

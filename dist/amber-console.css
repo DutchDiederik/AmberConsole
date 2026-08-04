@@ -112,13 +112,36 @@
  *   plasma / neon      24deg. The default. What .ac-bloom simulates.
  *   plasma / helium    pale pink.          plasma / argon    pale lavender.
  *   plasma / krypton   pale violet-white.
- *   crt / p3           38deg amber — the classic terminal, and .ac-crt's pair.
- *   crt / p1           green.              crt / p4          television white.
- *   crt / p7           blue flash over a yellow-green afterglow (radar).
- *   crt / p11          blue.               crt / p31         green.
- *   crt / p39          yellow-green, long persistence.
+ *
+ * THE SEVEN PHOSPHORS SPLIT IN TWO, AND THE SPLIT IS WHAT THE TUBE WAS FOR
+ * rather than what colour it is. It decides whether a palette is a reasonable
+ * default for an interface or a deliberate costume, so the demo board groups
+ * them the same way.
+ *
+ *   GENERAL PURPOSE — built to be read, for hours, by a person.
+ *     crt / p3         38deg amber. The classic terminal, and .ac-crt's pair.
+ *     crt / p1         green, willemite. The early scope and terminal tube.
+ *     crt / p4         television white. A BLEND of two emitters.
+ *     crt / p31        green. The monitor and scope phosphor most people picture.
+ *
+ *   SPECIALIZED — built for an instrument, where reading was not the job. Each
+ *   is legible here, but each is a costume with a reason attached.
+ *     crt / p7         radar. Blue flash over a yellow-green afterglow that
+ *                      holds for seconds so a sweep leaves a picture behind.
+ *     crt / p39        long-persistence yellow-green. Same trade as P7 without
+ *                      the two coatings: no flicker at any refresh, paid in smear.
+ *     crt / p11        photographic recording. Blue is where film emulsion is
+ *                      most sensitive; nobody read text off one on purpose.
+ *
+ * THE FOUR GENERAL TUBES ALL DECAY IN UNDER ~25ms, which is under the ~80ms the
+ * eye needs to read a decay as a decay rather than as a switch — so on those the
+ * optional effects module has nothing visible to add, and says so by disabling
+ * its own switch. Persistence you can SEE is the specialized group's whole
+ * point. See ENGINE_FLOOR_MS in ../amber-console.js.
  *
  * P1/P39 and P7/P11 share a ramp on purpose — same compound, different decay.
+ * Note that puts one of each pair on either side of the split: the difference
+ * between a terminal and an instrument here is time, not colour.
  *
  * WHAT EVERY BLOCK MUST DEFINE: the five --ac-emit-* stops, the three surfaces,
  * --ac-on-fill, the four --ac-halo-* glow triples, and --ac-halo-scatter / --ac-halo-spread.

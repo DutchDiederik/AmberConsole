@@ -293,8 +293,9 @@ function persistByEmitter(colorsCss) {
   return out;
 }
 
-/** Mirrors ENGINE_FLOOR_MS in src/amber-console.js. */
-const ENGINE_FLOOR_MS = 5;
+/** Mirrors ENGINE_FLOOR_MS in src/amber-console.js — see the long note there for
+    why it is the ~80ms perceptual floor rather than a compositing one. */
+const ENGINE_FLOOR_MS = 80;
 
 /**
  * Put the board in the state this page loads in.
