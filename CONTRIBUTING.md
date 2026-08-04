@@ -46,6 +46,12 @@ without a build step. Rebuild before you commit or the demos will be stale.
 
 These are enforced by `scripts/check-prohibitions.mjs`, which fails the build:
 
+> **Two test suites, and they see different things.** `npm run test:visual` compares screenshots; it
+> freezes animation and never hovers, so it is blind to which keyframe is running and to every
+> `:hover` / `:active` state. `npm run test:computed` reads computed styles for exactly those —
+> 548 probes over blink, the persistence layers and the corner styles. Run both before a release; the
+> computed one also runs in CI, the visual one cannot (font rasterisation differs on Linux).
+
 - **No second hue.** No red, no green, no "success" color. Danger is blink plus inverse video.
   Literal hex is allowed only in `tokens/colors.css`, `base/print.css`, and the two `sim/` files that
   use `#000` inside a `mask-image` (where the value is alpha, not a color).

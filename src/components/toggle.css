@@ -132,9 +132,18 @@
   content: "ON";
 }
 
+/* Matches .ac-toggle:disabled above, and that is the point: the two forms are
+   documented as equivalent, so they have to LOOK equivalent. This one used to
+   blank the shadow while the button form dimmed it, which meant a disabled
+   switch built the CSS-only way sat flat on the panel while the same switch
+   built the button way still read as a drawn housing.
+
+   The housing dims rather than going dark because it is a box that is still
+   there, not a lamp that is out. The THUMB is the lamp, and it does go dark —
+   see the rule below. */
 .ac-toggle--input input:disabled ~ .ac-toggle__track {
   border-color: var(--ac-stroke-dim);
-  box-shadow: none;
+  box-shadow: var(--ac-glow-box-dim);
 }
 .ac-toggle--input input:disabled ~ .ac-toggle__track .ac-toggle__thumb {
   background: var(--ac-ink-trace);

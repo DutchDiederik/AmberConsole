@@ -91,10 +91,25 @@
   padding: 14px 28px;
 }
 
-/* NOTE: --sm computes to roughly 30px tall, below the 44px hit-target floor.
-   The value is fixed by the source design system, so it is documented rather
-   than changed — see "Known constraints" in README.md. Reserve it for dense,
-   mouse-driven tooling; never use it for a primary control on a touch panel. */
+/* ---------------------------------------------------------------------------
+   ACCESSIBILITY WARNING — READ BEFORE USING THIS CLASS.
+
+   .ac-btn--sm computes to roughly 30px tall. WCAG 2.2 Target Size (Minimum,
+   2.5.8, AA) asks for 24x24 CSS px and the widely-used practical floor is 44px;
+   this clears the spec minimum and misses the comfortable one. On a touch
+   screen it is genuinely hard to hit.
+
+   It is not silently resized because the value comes from the source design
+   system and every other size in the scale is solved against it.
+
+   SAFE:   dense mouse-driven tooling — a log filter, a table's row actions,
+           a settings row in an admin panel.
+   UNSAFE: anything on a touch panel, and any PRIMARY action anywhere. Use the
+           default .ac-btn (44px) for those; it is the default for this reason.
+
+   If you need small AND touch-safe, keep .ac-btn--sm for the look and give the
+   control padding or a pseudo-element that extends the hit area to 44px without
+   changing the drawn box. --------------------------------------------------- */
 .ac-btn--sm {
   font-size: var(--ac-type-small);
   padding: 6px 14px;

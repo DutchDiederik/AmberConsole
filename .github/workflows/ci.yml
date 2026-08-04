@@ -43,6 +43,18 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Computed-style regression. This one DOES run here, unlike the visual
+      # suite: nothing it measures depends on font rasterisation, so it gives the
+      # same answer on a Linux runner as on the machine the baselines came from.
+      # It is also the only gate that can see the class of bug where a rule stops
+      # applying without becoming invalid — lint and the prohibition checker both
+      # pass straight through that.
+      - name: Install Chromium for the computed suite
+        run: npx playwright install --with-deps chromium
+
+      - name: Computed-style regression
+        run: npm run test:computed
+
       # dist/ is committed so the framework works from a raw GitHub URL and from
       # the Pages demo without a build step. This fails the run if someone edits
       # src/ and forgets to rebuild.

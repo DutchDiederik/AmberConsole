@@ -1,4 +1,4 @@
-/*! Amber Console 1.0.0 | MIT | classic-script build
+/*! Amber Console 2.0.0 | MIT | classic-script build
  *  Generated from src/amber-console.effects.js by scripts/build.mjs.
  *  Use this with a plain <script src> — including from file:// URLs, where
  *  type="module" is blocked. Exposes window.AmberConsoleEffects.

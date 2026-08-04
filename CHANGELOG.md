@@ -4,7 +4,11 @@ All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] — 2026-08-04
+
+A breaking release: every custom property this framework owns is now `--ac-*` prefixed, and the
+pre-prefix names are gone rather than aliased. If you never overrode a token, upgrading is a
+drop-in. If you did, prefix what you set with `ac-` and you are done.
 
 ### Fixed — the classic look is the default in CSS, with no JavaScript
 
@@ -31,17 +35,18 @@ All notable changes to this project are documented here. Format follows
   protect custom properties**: an unlayered `:root { --radius: 12px }` in the host beats a layered one,
   so a host that happened to use any of these names silently re-cornered every button, panel, dialog,
   input, toggle and meter. `--gap` and `--cols` were near-certain collisions in any real codebase.
-- **`tokens/deprecated.css` keeps all 65 old names as read aliases, removed in 3.0.** Delete the file
-  and its one `@import` to drop them early. `--amber-*` and `--gas-*` fold in here too, re-pointed at
-  the new names, so there is one deprecation file rather than three generations of alias.
-- **Read aliases only — overriding an old name no longer does anything.** That is the point: immunity
-  to a consumer's `--radius` is exactly what the prefix buys, and it cannot be had while the framework
-  still reads the bare name. Prefix every token you set with `ac-`; nothing else changes.
+- **The old names are REMOVED, not aliased.** They were briefly kept as read aliases, and that was
+  worse than useless: nothing in the framework read them, so setting `--ink: red` did nothing and said
+  nothing — a silent no-op is the hardest kind of bug for a user to diagnose. A major version is the
+  right place to take the names away cleanly. `--amber-*` and `--gas-*`, deprecated in 1.x, go with
+  them.
+- **To upgrade: prefix every amber-console token you set with `ac-`.** `--ink` becomes `--ac-ink`,
+  `--gap` becomes `--ac-gap`. Values, cascade and per-palette resolution are all unchanged.
 - **`--ac-gap` and `--ac-cols` have no alias at all**, because they are consumer-set rather than
   framework-set — `.ac-row`, `.ac-stack` and `.ac-grid` read them off your element, so there is no
   `:root` value to bridge. Rename them at the call site.
 - **stylelint now requires the prefix** (`custom-property-pattern`), so the next token cannot quietly
-  go bare. `tokens/deprecated.css` is the single documented exception.
+  go bare.
 - Rendering is unchanged: 548 computed-style probes identical and the full visual suite passing with
   no baseline update.
 

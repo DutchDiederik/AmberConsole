@@ -100,7 +100,7 @@ Re-solve, never re-tint.
 `--amber-*` named a hue rather than a ramp, and was already only historically
 true — under the default palette the colour is neon, not amber. With a lavender,
 a pink and a violet in the file it stopped being defensible at all. The aliases
-survive, deprecated, removed in 3.0.
+were removed in 2.0.0 along with every other pre-prefix name.
 
 `data-ac-gas="neon"` and `data-ac-gas="amber"` are kept on the same terms. The
 name was the bug — "amber" was never a gas, it is a CRT phosphor, and calling it

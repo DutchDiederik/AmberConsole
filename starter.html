@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amber Console — starter</title>
+
+<!-- ===================================================================
+     THIS IS THE WHOLE SETUP. One stylesheet, no build step, no server.
+     Save this file, double-click it, start deleting things.
+
+     There is no JavaScript on this page on purpose. Everything you see
+     below — the glow, the scanlines, the cell mesh, the toggle flipping
+     between ON and OFF — is CSS. The optional JS in dist/ adds the demo
+     switches and a few effects that need to read the previous value of
+     something; you do not need it to build with this.
+     =================================================================== -->
+<link rel="stylesheet" href="dist/amber-console.css">
+</head>
+
+<!-- .ac-screen is the frame. The three classes after it are the screen
+     simulations, and each is optional:
+       ac-bloom      the plasma panel — glow + the cell mesh
+       ac-crt        the tube — scanlines, vignette, a slow drift
+       ac-afterglow  persistence — things fade out instead of vanishing
+     Delete any of them and the rest still work. The three <span>s below
+     are the layers those simulations paint into; keep the span for each
+     class you keep. -->
+<body class="ac-screen ac-bloom ac-crt ac-afterglow">
+  <span class="ac-mesh"></span>
+  <span class="ac-retrace"></span>
+  <span class="ac-persist"></span>
+
+  <!-- .ac-screen__body is the padded content area inside the frame. -->
+  <div class="ac-screen__body">
+
+    <!-- A panel is the basic box. The title sits in the border. -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">Reactor Control</span>
+
+      <!-- A status bar is the machine talking: inverse video, always. -->
+      <div class="ac-statusbar" role="status"><span>STATUS:AUTO MODE</span></div>
+
+      <!-- .ac-row lays things out in a line. --ac-gap sets the spacing;
+           every token this framework owns starts with --ac- so it can
+           never collide with your own CSS. -->
+      <div class="ac-row ac-row--center" style="--ac-gap: 12px">
+        <button class="ac-btn ac-btn--filled">Run</button>
+        <button class="ac-btn">Hold</button>
+        <button class="ac-btn ac-btn--dim">Standby</button>
+        <button class="ac-btn" disabled>Offline</button>
+      </div>
+
+      <!-- A toggle that works with no JavaScript: it is a <label> wrapping
+           a real checkbox, so the browser does the state. The ON/OFF text
+           is required — on a one-colour screen the thumb position alone is
+           ambiguous. -->
+      <label class="ac-toggle ac-toggle--input">
+        <span>Coolant Pump</span>
+        <input type="checkbox" checked>
+        <span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span>
+        <span class="ac-toggle__state"></span>
+      </label>
+
+      <!-- A bar graph. Set the value as a number from 0 to 100. -->
+      <div class="ac-meter">
+        <div class="ac-meter__track">
+          <div class="ac-meter__bar" style="--ac-meter-value: 62"></div>
+        </div>
+      </div>
+
+      <!-- Alarms have no red to use, so danger is inverse video plus a
+           blink. Add ac-blink to make it flash. -->
+      <div class="ac-banner ac-banner--filled ac-blink">Pressure High</div>
+    </div>
+
+    <!-- Corners are chamfered by default, the way a coarse panel could
+         actually draw them. Add .ac-rounded to any element or region to
+         get a smooth arc instead. -->
+    <div class="ac-panel ac-rounded">
+      <span class="ac-panel__title">Rounded Region</span>
+      <div class="ac-row" style="--ac-gap: 12px">
+        <button class="ac-btn">Softer</button>
+        <button class="ac-btn ac-btn--filled">Corners</button>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
+
+<!-- ======================================================================
+     THREE THINGS TO TRY NEXT
+
+     1. CHANGE THE HARDWARE. Put these on the <html> tag above:
+            <html lang="en" data-ac-tech="crt" data-ac-emitter="p3">
+        That is the classic amber terminal. Also try:
+            plasma / neon      the default, orange
+            plasma / helium    pale pink
+            plasma / argon     lavender
+            crt / p1           green
+            crt / p7           blue text, green afterglow (radar)
+            crt / p39          yellow-green, very long persistence
+
+     2. TURN THE BLINKING OFF. On the <html> tag:
+            data-ac-style-blink="off"
+        Alarms still read — they keep the inverse fill.
+
+     3. OVERRIDE ANYTHING. Every colour, size and space is a custom
+        property you can set yourself. In a <style> block:
+            :root { --ac-radius: 0px; --ac-type-body: 20px; }
+        The full list is in README.md.
+
+     ACCESSIBILITY IS ALREADY HANDLED. The framework respects reduced-motion,
+     high-contrast mode and print, and every colour pair is contrast-checked.
+     You do not have to do anything to get that.
+     ====================================================================== -->

@@ -1,4 +1,4 @@
-/* Amber Console 1.0.0 — @layer build.
+/* Amber Console 2.0.0 — @layer build.
  * Identical to amber-console.css, wrapped in @layer amber-console so the
  * framework loses specificity fights against your own unlayered rules.
  * Link this INSTEAD OF amber-console.css, never alongside it.
@@ -848,137 +848,6 @@
 .ac-root {
   text-shadow: var(--ac-glow-text);
 }
-
-
-/* Every framework token is --ac-* prefixed. This file is the pre-prefix names,
-   kept as read aliases and removed in 3.0 — delete the file and this line. */
-/* >>> src/amber-console.css -> tokens/deprecated.css */
-/* ===========================================================================
-   Deprecated token names — REMOVED IN 3.0. Delete this file and the one
-   @import that pulls it in; nothing else references any of these.
-
-   WHY THE PREFIX. Every token the framework reads is now --ac-*. It used to be
-   that 60 of the 76 were bare — --ink, --fill, --screen, --radius, --leading,
-   --gap, --cols — which is a problem the moment the framework is embedded
-   rather than owning the page. dist/amber-console.layer.css exists exactly for
-   that case, and cascade layers do NOT protect custom properties: an unlayered
-   `:root { --radius: 12px }` in the host app beats a layered one, so a host that
-   happened to use any of these names silently re-cornered every button, panel,
-   dialog, input, toggle and meter in the framework. --gap and --cols were
-   near-certain collisions in any real codebase.
-
-   It also made the API unteachable. There was no rule a reader could learn to
-   tell which properties were ours; --ac-radius needs no explanation.
-
-   THESE ARE READ ALIASES ONLY, and the distinction matters more here than it
-   did for --amber-*. Nothing in the framework reads the old names, so SETTING
-   one has no effect — which is the entire point, since being immune to a
-   consumer's --radius is what the prefix buys. They exist so code that READS an
-   old name off the computed style keeps getting an answer during migration.
-
-   To migrate: prefix every amber-console token you set with `ac-`. There are no
-   other changes — the values, the cascade and the per-palette resolution are
-   identical, because each line below simply points at the new name and inherits
-   whatever the active palette resolved it to.
-   =========================================================================== */
-
-:root {
-  /* --- Palette: the discharge ramp and the surfaces --- */
-  --emit-100: var(--ac-emit-100);
-  --emit-90: var(--ac-emit-90);
-  --emit-70: var(--ac-emit-70);
-  --emit-50: var(--ac-emit-50);
-  --emit-30: var(--ac-emit-30);
-  --screen: var(--ac-screen);
-  --screen-raised: var(--ac-screen-raised);
-  --screen-well: var(--ac-screen-well);
-  --on-fill: var(--ac-on-fill);
-
-  /* --- Semantic aliases --- */
-  --ink: var(--ac-ink);
-  --ink-bright: var(--ac-ink-bright);
-  --ink-dim: var(--ac-ink-dim);
-  --ink-faint: var(--ac-ink-faint);
-  --ink-trace: var(--ac-ink-trace);
-  --fill: var(--ac-fill);
-  --fill-bright: var(--ac-fill-bright);
-  --stroke: var(--ac-stroke);
-  --stroke-dim: var(--ac-stroke-dim);
-
-  /* --- The halo, and the two scattering scalars --- */
-  --halo-1: var(--ac-halo-1);
-  --halo-2: var(--ac-halo-2);
-  --halo-3: var(--ac-halo-3);
-  --halo-4: var(--ac-halo-4);
-  --halo-scatter: var(--ac-halo-scatter);
-  --halo-spread: var(--ac-halo-spread);
-
-  /* --- Glow and the extruded edge --- */
-  --glow-text: var(--ac-glow-text);
-  --glow-text-dim: var(--ac-glow-text-dim);
-  --glow-text-faint: var(--ac-glow-text-faint);
-  --glow-box: var(--ac-glow-box);
-  --glow-box-dim: var(--ac-glow-box-dim);
-  --drive-dim: var(--ac-drive-dim);
-  --drive-faint: var(--ac-drive-faint);
-  --edge-3d: var(--ac-edge-3d);
-  --edge-3d-in: var(--ac-edge-3d-in);
-
-  /* --- Type --- */
-  --font-terminal: var(--ac-font-terminal);
-  --font-micro: var(--ac-font-micro);
-  --type-display: var(--ac-type-display);
-  --type-title: var(--ac-type-title);
-  --type-body: var(--ac-type-body);
-  --type-small: var(--ac-type-small);
-  --type-micro: var(--ac-type-micro);
-  --tracking-display: var(--ac-tracking-display);
-  --tracking-body: var(--ac-tracking-body);
-  --tracking-micro: var(--ac-tracking-micro);
-  --leading: var(--ac-leading);
-
-  /* --- Space and shape --- */
-  --space-1: var(--ac-space-1);
-  --space-2: var(--ac-space-2);
-  --space-3: var(--ac-space-3);
-  --space-4: var(--ac-space-4);
-  --space-6: var(--ac-space-6);
-  --space-8: var(--ac-space-8);
-  --space-12: var(--ac-space-12);
-  --border-w: var(--ac-border-w);
-  --radius: var(--ac-radius);
-  --radius-sm: var(--ac-radius-sm);
-
-  /* --- Older still: two names that were already deprecated before the prefix,
-         re-pointed at the new ones so they keep resolving. --amber-* named a hue
-         the default palette does not have; --gas-* named a gas that seven of the
-         eleven palettes do not contain. Same 3.0 removal. --- */
-  --amber-100: var(--ac-emit-100);
-  --amber-90: var(--ac-emit-90);
-  --amber-70: var(--ac-emit-70);
-  --amber-50: var(--ac-emit-50);
-  --amber-30: var(--ac-emit-30);
-
-  --gas-1: var(--ac-halo-1);
-  --gas-2: var(--ac-halo-2);
-  --gas-3: var(--ac-halo-3);
-  --gas-4: var(--ac-halo-4);
-  --gas-scatter: var(--ac-halo-scatter);
-  --gas-spread: var(--ac-halo-spread);
-  /* Not aliased: --gas-flash / --halo-flash. Only P7 declares it, and a var()
-     with no value would make the declaration invalid on the other ten. */
-}
-
-/* --ac-gap and --ac-cols are CONSUMER-SET rather than framework-set: .ac-row,
-   .ac-stack and .ac-grid read them off whatever element you put them on, so
-   there is no :root value to alias. A read alias would be meaningless and an
-   override alias impossible. Rename them at the call site:
-
-     <div class="ac-row" style="--gap: 18px">   ->  style="--ac-gap: 18px"
-     <div class="ac-grid" style="--cols: 3">    ->  style="--ac-cols: 3"
-
-   They are also the two names most likely to have collided with a host app,
-   which is why they were worth breaking rather than bridging. */
 
 
 /* Blink is law-2 emphasis rather than a simulation — every display technology
@@ -2225,10 +2094,25 @@ textarea {
   padding: 14px 28px;
 }
 
-/* NOTE: --sm computes to roughly 30px tall, below the 44px hit-target floor.
-   The value is fixed by the source design system, so it is documented rather
-   than changed — see "Known constraints" in README.md. Reserve it for dense,
-   mouse-driven tooling; never use it for a primary control on a touch panel. */
+/* ---------------------------------------------------------------------------
+   ACCESSIBILITY WARNING — READ BEFORE USING THIS CLASS.
+
+   .ac-btn--sm computes to roughly 30px tall. WCAG 2.2 Target Size (Minimum,
+   2.5.8, AA) asks for 24x24 CSS px and the widely-used practical floor is 44px;
+   this clears the spec minimum and misses the comfortable one. On a touch
+   screen it is genuinely hard to hit.
+
+   It is not silently resized because the value comes from the source design
+   system and every other size in the scale is solved against it.
+
+   SAFE:   dense mouse-driven tooling — a log filter, a table's row actions,
+           a settings row in an admin panel.
+   UNSAFE: anything on a touch panel, and any PRIMARY action anywhere. Use the
+           default .ac-btn (44px) for those; it is the default for this reason.
+
+   If you need small AND touch-safe, keep .ac-btn--sm for the look and give the
+   control padding or a pseudo-element that extends the hit area to 44px without
+   changing the drawn box. --------------------------------------------------- */
 .ac-btn--sm {
   font-size: var(--ac-type-small);
   padding: 6px 14px;
@@ -3079,9 +2963,18 @@ textarea.ac-input {
   content: "ON";
 }
 
+/* Matches .ac-toggle:disabled above, and that is the point: the two forms are
+   documented as equivalent, so they have to LOOK equivalent. This one used to
+   blank the shadow while the button form dimmed it, which meant a disabled
+   switch built the CSS-only way sat flat on the panel while the same switch
+   built the button way still read as a drawn housing.
+
+   The housing dims rather than going dark because it is a box that is still
+   there, not a lamp that is out. The THUMB is the lamp, and it does go dark —
+   see the rule below. */
 .ac-toggle--input input:disabled ~ .ac-toggle__track {
   border-color: var(--ac-stroke-dim);
-  box-shadow: none;
+  box-shadow: var(--ac-glow-box-dim);
 }
 .ac-toggle--input input:disabled ~ .ac-toggle__track .ac-toggle__thumb {
   background: var(--ac-ink-trace);

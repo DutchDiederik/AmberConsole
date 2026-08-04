@@ -123,6 +123,10 @@ of them at runtime without rebuilding.
 That renders a framed, glowing, scanlined control panel. No build step, no server — save it as a
 `.html` file and double-click it.
 
+**Or start from [`starter.html`](starter.html)** in this repo: the same thing as a real file, with a
+panel, buttons, a working no-JS toggle, a meter and an alarm already on it, commented line by line and
+with three things to try at the bottom. Download the repo, double-click it, start deleting.
+
 ## Class reference
 
 ### Layout
@@ -656,8 +660,9 @@ first.
 The ramp is `--ac-emit-100` through `--ac-emit-30`. It was `--amber-*` until 2.0: that named a hue rather
 than a ramp, and was already only historically true — under the default palette the color is neon,
 not amber. With a lavender and a pink in the file it stopped being defensible at all.
-**`--amber-*` survives as a deprecated alias and is removed in 3.0.** The aliases resolve per palette
-for free, since they point at `--ac-emit-*`, which every palette block redefines.
+**`--amber-*` was removed in 2.0**, along with every other pre-prefix name. It was briefly kept as a
+read alias, which turned out to be worse than nothing: the framework never read it, so setting it did
+nothing and warned about nothing. Use `--ac-emit-*`.
 
 Component-level hooks: `--ac-gap`, `--ac-cols`, `--ac-screen-pad`, `--ac-panel-title-bg`,
 `--ac-meter-value`, `--ac-backdrop`.
@@ -854,9 +859,15 @@ gate runs against **every palette**, so none of them ships untested.
 
 ### Known constraints
 
-- **`.ac-btn--sm` computes to roughly 30px tall, below the 44px hit-target floor.** The value is
-  fixed by the source design system, so it is documented rather than changed. Reserve `--sm` for
-  dense, mouse-driven tooling; never use it for a primary control on a touch panel.
+- **`.ac-btn--sm` computes to roughly 30px tall.** WCAG 2.2 Target Size (Minimum, 2.5.8, AA) asks for
+  24×24 CSS px and the widely-used practical floor is 44px — so this clears the spec minimum and
+  misses the comfortable one. The value is fixed by the source design system, so it is documented
+  rather than changed.
+  **Safe:** dense mouse-driven tooling — a log filter, a table's row actions, an admin settings row.
+  **Unsafe:** anything on a touch panel, and any *primary* action anywhere — use the default
+  `.ac-btn`, which is 44px for exactly this reason.
+  If you need small *and* touch-safe, keep `--sm` for the look and extend the hit area to 44px with
+  padding or a pseudo-element, without changing the drawn box.
 - Checkbox, radio and toggle keep their drawn sizes (20px squares, a 64×28 track) but their **labels**
   carry `min-height: 44px` so the clickable area clears the floor. Bit-field rows are therefore taller
   than in the original design.
