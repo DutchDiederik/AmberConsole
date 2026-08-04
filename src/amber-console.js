@@ -718,8 +718,23 @@ function syncEngineControls() {
     const state = btn.querySelector(".ac-toggle__state");
     if (state) state.textContent = showing ? "ON" : "OFF";
   }
+  /* THREE NOTES, ONE VISIBLE AT A TIME, because the switch has three states and
+     only one of them is "off". A control that reads OFF for two different
+     reasons — you turned it off, or this hardware gives it nothing to do — is
+     the same small lie the forced-ON state above exists to avoid.
+
+       -note   the switch cannot do anything here (wrong sim, or too short a
+               phosphor). Shown whenever it is not useful, on or off.
+       -off    it could, and you have turned it off.
+       -on     it is contributing, and this is what it is contributing. */
   for (const note of document.querySelectorAll("[data-ac-engine-note]")) {
     note.hidden = live;
+  }
+  for (const note of document.querySelectorAll("[data-ac-engine-off]")) {
+    note.hidden = showing || !live;
+  }
+  for (const note of document.querySelectorAll("[data-ac-engine-on]")) {
+    note.hidden = !showing;
   }
 }
 

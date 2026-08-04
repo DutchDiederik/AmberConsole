@@ -271,11 +271,11 @@
 
       <p class="doc-switches__axis">Simulation · never a color</p>
       <div class="doc-switches">
-        <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="true">
-          <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        <button type="button" class="ac-toggle" data-ac-sim="plasma" aria-pressed="false">
+          <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
         </button>
-        <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
-          <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-sim="crt" aria-pressed="true">
+          <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
       </div>
 
@@ -307,8 +307,17 @@
       </div>
 
       <p hidden class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
-      <p class="doc-displays__note">JS Effects off: no ghosting, smear or framebuffer
+      <p class="doc-displays__note" data-ac-engine-off hidden>JS Effects off: no ghosting, smear or framebuffer
         decay. Everything else here is CSS.</p>
+
+      <div class="doc-engine" data-ac-engine-on>
+        <span class="doc-engine__title">Running · what CSS cannot do</span>
+        <ul class="doc-engine__list">
+          <li><b>Ghosting</b> — rewritten text leaves its old value to decay</li>
+          <li><b>Scroll smear</b> — the image trails while the page moves</li>
+          <li><b>Framebuffer decay</b> — the old screen drains behind the new</li>
+        </ul>
+      </div>
     </div>
 
     <!-- ----------------------------------------- 1/4 · state, the note -- -->

@@ -335,10 +335,47 @@ function expandBoard(html, args, persist, file) {
     `<button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true"${live ? "" : " disabled"}>`
   );
 
+  /* THE SIMULATION SWITCHES, WHICH THIS FUNCTION USED TO LEAVE ALONE.
+     The partial hardcodes PLASMA on and CRT off, so every page with a phosphor
+     preset shipped its board contradicting its own catalog — radar and terminal
+     have flashed a plasma-on board under a CRT phosphor for as long as they have
+     had one. It self-corrected within a frame, which is exactly why nobody
+     caught it, and it stopped being invisible the moment a page shipped a CRT
+     preset whose panel was already amber on arrival.
+
+     The catalog row is the source of truth here too: `tech` came out of the
+     checked radio a few lines up, so the switches cannot disagree with it. */
+  for (const sim of ["plasma", "crt"]) {
+    const on = tech === sim;
+    const re = new RegExp(
+      `<button type="button" class="ac-toggle(?: ac-toggle--on)?" data-ac-sim="${sim}" aria-pressed="(?:true|false)">` +
+        `([\\s\\S]*?)<span class="ac-toggle__state">(?:ON|OFF)</span>`
+    );
+    must(re.exec(html), `the ${sim.toUpperCase()} switch`, file);
+    html = html.replace(
+      re,
+      `<button type="button" class="ac-toggle${on ? " ac-toggle--on" : ""}" data-ac-sim="${sim}" ` +
+        `aria-pressed="${on}">$1<span class="ac-toggle__state">${on ? "ON" : "OFF"}</span>`
+    );
+  }
+
   must(/<p( hidden)? class="doc-displays__note" data-ac-engine-note>/.exec(html), "the engine note", file);
   html = html.replace(
     /<p( hidden)? class="doc-displays__note" data-ac-engine-note>/,
     `<p${live ? " hidden" : ""} class="doc-displays__note" data-ac-engine-note>`
+  );
+
+  /* The two notes that describe a LIVE engine. Same one-frame reasoning: the
+     board should arrive saying what it is about to be doing. `live` is the only
+     input because the engine flag itself defaults on and is restored from
+     storage after this, which markup cannot know. */
+  html = html.replace(
+    /<p( hidden)? class="doc-displays__note" data-ac-engine-off>/,
+    `<p hidden class="doc-displays__note" data-ac-engine-off>`
+  );
+  html = html.replace(
+    /<div class="doc-engine" data-ac-engine-on( hidden)?>/,
+    `<div class="doc-engine" data-ac-engine-on${live ? "" : " hidden"}>`
   );
 
   /* The technology note, and the exact-pair note where one exists. */

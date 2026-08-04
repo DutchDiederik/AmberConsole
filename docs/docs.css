@@ -234,6 +234,50 @@
 /* The technology note. VT323 at 18px rather than the Silkscreen micro the other
    notes use: this one is a paragraph to be read, not a label to be glanced at,
    and Silkscreen at 8px is unreadable past about a dozen words. */
+/* WHAT THE OPTIONAL MODULE IS ACTUALLY DOING, shown only while it is doing it.
+   The switch beside it says ON; this says what ON bought. Three effects, and the
+   reason each one cannot be CSS is the reason the module exists at all — so the
+   box states that rather than just naming them. Hidden by the `hidden`
+   attribute, driven from syncEngineControls in ../src/amber-console.js. */
+.doc-engine {
+  margin-top: var(--ac-space-3);
+  padding: var(--ac-space-3);
+  border: 1px solid var(--ac-ink-trace);
+  border-radius: var(--ac-radius-sm);
+  background: var(--ac-screen-well);
+}
+.doc-engine__title {
+  display: block;
+  margin-bottom: var(--ac-space-2);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  text-transform: uppercase;
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+}
+.doc-engine__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
+  line-height: 1.25;
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+}
+.doc-engine__list li + li {
+  margin-top: 6px;
+}
+/* The effect's name carries the drive level; its description is the dim half of
+   the same line, so the three names scan as a list without a bullet. */
+.doc-engine__list b {
+  font-weight: normal;
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  text-transform: uppercase;
+}
+
 .doc-info {
   margin: 0;
   font-family: var(--ac-font-terminal);

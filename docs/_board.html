@@ -202,8 +202,17 @@
       </div>
 
       <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
-      <p class="doc-displays__note">JS Effects off: no ghosting, smear or framebuffer
+      <p class="doc-displays__note" data-ac-engine-off hidden>JS Effects off: no ghosting, smear or framebuffer
         decay. Everything else here is CSS.</p>
+
+      <div class="doc-engine" data-ac-engine-on hidden>
+        <span class="doc-engine__title">Running · what CSS cannot do</span>
+        <ul class="doc-engine__list">
+          <li><b>Ghosting</b> — rewritten text leaves its old value to decay</li>
+          <li><b>Scroll smear</b> — the image trails while the page moves</li>
+          <li><b>Framebuffer decay</b> — the old screen drains behind the new</li>
+        </ul>
+      </div>
     </div>
 
     <!-- ----------------------------------------- 1/4 · state, the note -- -->

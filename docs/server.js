@@ -25,6 +25,44 @@
  * wall draw are functions of the CPU. Stop Jellyfin and the machine gets cooler
  * and cheaper, which is the whole reason a dashboard is worth looking at.
  */
+/* ------------------------------------------------------------- P3 first -- *
+ * FIT THE RIGHT TUBE BEFORE THE FRAMEWORK LOOKS.
+ *
+ * Same mechanism as the radar and terminal demos, and the same reason. The
+ * chosen display is stored under one key namespace shared by every page in this
+ * repo, which is what makes it stick while you read the guide — and which means
+ * a visitor arriving from the console demo brings PLASMA · NEON with them. This
+ * page is a server dashboard on a P3 amber terminal, which is the tube most
+ * people mean by "amber terminal", so it fits its own.
+ *
+ * Note it seeds the SIMULATION as well as the palette. The board's markup ships
+ * with P3 checked and the CRT switch on (scripts/build.mjs writes both from the
+ * page's `emitter=` argument), but the framework restores simulations from their
+ * own storage keys rather than from the checked preset — a preset is a starting
+ * point, not a lock, so a simulation you switched yourself has to survive a
+ * reload. Without a seeded value there is nothing to restore and the SIMS
+ * defaults win, which is plasma. That is why the page opened amber-on-plasma.
+ *
+ * Runs at parse time, before the framework's DOMContentLoaded init reads any of
+ * it, so there is no frame of the wrong palette. On every later visit the flag
+ * is set and whatever you chose here is what you get.
+ * ------------------------------------------------------------------------- */
+(function () {
+  try {
+    if (localStorage.getItem("ac.server.fitted")) return;
+    localStorage.setItem("ac.sim.tech", "crt");
+    localStorage.setItem("ac.sim.emitter", "p3");
+    localStorage.setItem("ac.sim.crt", "1");
+    localStorage.setItem("ac.sim.plasma", "0");
+    localStorage.setItem("ac.sim.mod", "0");
+    localStorage.setItem("ac.server.fitted", "1");
+  } catch {
+    /* Private mode and sandboxed file:// frames throw. The markup has P3 checked
+       and the CRT switch on, so a store that cannot be written still opens on the
+       right tube; only the simulation is lost, and the board can turn it on. */
+  }
+})();
+
 (function () {
   var $ = function (s) { return document.querySelector(s); };
   var $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
