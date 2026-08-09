@@ -14,9 +14,9 @@
  * WHY THIS IS GENERATED RATHER THAN DRAWN. The mark is the letter A set in
  * VT323 and lit with --ac-glow-text over --ac-screen — the same three tokens the rest
  * of the system uses. Hand-exporting it from a drawing tool would freeze a copy
- * of a palette that `data-ac-gas` can change and that scripts/contrast.mjs
- * gates. Rendering it through dist/amber-console.css means retuning the gas
- * retunes the icon, and it is one command to reprove it.
+ * of a palette that `data-ac-tech` / `data-ac-emitter` can change and that
+ * scripts/contrast.mjs gates. Rendering it through dist/amber-console.css means
+ * retuning an emitter retunes the icon, and it is one command to reprove it.
  *
  * NOT AN SVG, and that is the design law rather than a limitation:
  * scripts/check-prohibitions.mjs greps .html for `<svg` and `data:image/svg`,
@@ -177,11 +177,27 @@ async function shootConsole(out) {
   console.log(`  ${out.padEnd(22)} 1440x900`);
 }
 
-await shoot(icon(32), 32, 32, "favicon.png");
-await shoot(icon(180), 180, 180, "apple-touch-icon.png");
-/* Before the card — it is the card's input. */
-await shootConsole("screenshot.png");
-await shoot(card("screenshot.png"), 1200, 630, "social-card.png");
+/* THE CLEANUP IS IN A `finally` BECAUSE THE FAILURE PATH IS THE ONE THAT MATTERS.
+   Both of these used to run only after the last successful capture, so any throw
+   — and this script throws on purpose when the stylesheet has not applied — left
+   a chromium process alive and the scratch page sitting in docs/.
 
-await unlink(SCRATCH);
-await browser.close();
+   The scratch page is the worse of the two. scripts/build.mjs picks up
+   `*.html` in docs/ and excludes only `_`-prefixed partials, so a leftover
+   `.make-assets.tmp.html` was a real page as far as the next build was
+   concerned. That file's own .gitignore entry says it "only survives a crashed
+   run", which was true and is no longer the plan. build.mjs skips dotfiles too
+   now; belt and braces, because only one of the two is in this repo's control if
+   somebody copies this script out of it. */
+try {
+  await shoot(icon(32), 32, 32, "favicon.png");
+  await shoot(icon(180), 180, 180, "apple-touch-icon.png");
+  /* Before the card — it is the card's input. */
+  await shootConsole("screenshot.png");
+  await shoot(card("screenshot.png"), 1200, 630, "social-card.png");
+} finally {
+  /* Swallowed: the scratch file may never have been written if the very first
+     capture threw, and ENOENT here would mask the real error. */
+  await unlink(SCRATCH).catch(() => {});
+  await browser.close();
+}

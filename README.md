@@ -1047,7 +1047,7 @@ here; `node scripts/contrast.mjs --md` regenerates this section verbatim.
 **You may override:** the five amber intensities (to retune the gas), the three surface blacks,
 spacing, the two radii, glow strength, and any component-level custom property.
 
-**You must not override:** the hue (one gas — a second hue breaks law 1), the type sizes (the
+**You must not override:** the hue (one emitter — a second hue breaks law 1), the type sizes (the
 18px floor is a property of the bitmap face, not a preference), or the 2px stroke.
 
 Embedding in an existing app? Use `dist/amber-console.layer.css` and swap `base/reset.css` for

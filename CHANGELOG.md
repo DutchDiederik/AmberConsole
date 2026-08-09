@@ -98,6 +98,22 @@ without it that closer declaration would win and a scoped embed would print in a
   restores only what it can express and leaves the rest alone.
 - **"Reset to Preset" left a stale readout** when no catalog row was selected.
 
+### Fixed — a crashed `make-assets` run left a file the next build treated as a page
+
+`scripts/make-assets.mjs` renders through `docs/.make-assets.tmp.html` and unlinked it only after the
+last successful capture — so any throw, including the deliberate one when the stylesheet has not
+applied, left both the scratch page and a live chromium process behind. Cleanup moved into a
+`finally`.
+
+The scratch page was the worse half. `scripts/build.mjs` collects `*.html` from `docs/` and excluded
+only `_`-prefixed partials, so a leftover dotfile was a fourteenth demo page as far as the build was
+concerned — expanded into, counted, and served. It skips `.`-prefixed files now as well. Both ends
+are fixed rather than one, because only the build is in this repo's control if the script is copied
+out of it.
+
+- **`make-assets.mjs` still described the palette as something `data-ac-gas` changes** — the
+  deprecated single attribute, rather than `data-ac-tech` / `data-ac-emitter`.
+
 ### Fixed — the guide described a framework slightly different from this one
 
 Each was checkable against the thing it described.
@@ -124,6 +140,11 @@ Each was checkable against the thing it described.
   aliased".
 - **`RATIONALE.md` still described the pre-token blink maintenance model**, warning that a new blink
   site means editing four files. It has been one declaration pair on the site itself since 2.0.
+- **`CONTRIBUTING.md` advertised the wrong test sizes** — "44 Playwright screenshots" and "824
+  computed-style probes", both of which this pass itself invalidated by removing an orphan baseline
+  and adding the inert-state probes. It says 99 captures over 14 pages, 43 baselined, and 872 probes.
+- **The README called the hue "one gas"** where law 1 now reads *one emitter*, which is the whole
+  point of the rename: four of the eleven are gases.
 - **Stale source comments**: two pointed at "the top of this file" for things in other files, one
   instructed future editors to keep a selector list in step with copies in `print.css` and
   `a11y.css` that a refactor had already deleted, two gave `sim/afterglow.css` a line count it

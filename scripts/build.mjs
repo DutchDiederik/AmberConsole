@@ -479,7 +479,14 @@ function expandChapters(html, file) {
 
 async function expandDocs() {
   const all = await readdir(DOCS);
-  const pages = all.filter((f) => f.endsWith(".html") && !f.startsWith("_"));
+  /* `.`-prefixed files are excluded alongside the `_` partials, and that is not
+     hypothetical tidiness: scripts/make-assets.mjs renders through
+     docs/.make-assets.tmp.html, which survives a crashed run — and without this
+     the next build treated it as a fourteenth demo page, expanded includes into
+     it and reported it in the page count. */
+  const pages = all.filter(
+    (f) => f.endsWith(".html") && !f.startsWith("_") && !f.startsWith(".")
+  );
   const persist = persistByEmitter(await readFile(path.join(SRC, "tokens", "colors.css"), "utf8"));
 
   /* Underscore-prefixed files in docs/ are partials and are never served. */
