@@ -34,6 +34,11 @@ whole design; see [the six laws](#the-six-laws).
 Download [`dist/amber-console.css`](dist/amber-console.css) and the [`fonts/`](fonts/) directory,
 keeping them as siblings — the `@font-face` rules use `../fonts/`. Or:
 
+> **Coming from 1.x?** Every custom property is now `--ac-*` prefixed and the old bare names are gone
+> rather than aliased, so an override like `--ink: lime` is silently ignored. That is the only
+> breaking change; the 1.x attributes and JS calls all still work. Full migration table in
+> **[DEPRECATIONS.md](DEPRECATIONS.md)**.
+
 ```bash
 npm install amber-console
 ```
@@ -110,13 +115,13 @@ of them at runtime without rebuilding.
   <span class="ac-retrace"></span>
   <span class="ac-persist"></span>
   <nav class="ac-nav ac-nav--sticky">…</nav>   <!-- inside the frame, so the sims reach it -->
-  <div class="ac-screen__body">
+  <main class="ac-screen__body">              <!-- .ac-screen__body is styled by class, so make it your <main> -->
     <div class="ac-panel">
       <span class="ac-panel__title">Show Information</span>
       <div class="ac-statusbar" role="status"><span>STATUS:AUTO MODE</span></div>
       <button class="ac-btn ac-btn--filled">Run</button>
     </div>
-  </div>
+  </main>
 </div>
 ```
 
@@ -180,7 +185,7 @@ with three things to try at the bottom. Download the repo, double-click it, star
 | `.ac-blink` | Hard `steps(1)` on/off, 1.1s. Never a fade — `.ac-afterglow` softens the OFF edge only. |
 | `.ac-cursor` | Trailing block cursor |
 | `.ac-bloom` | PLASMA: amplified glow tokens, a soft bleed layer breathing on a 9s mains cycle, and the cell mesh — a crossed wire grid on a 3px pitch, so a lit pixel is a neon dot at a wire intersection rather than part of a solid stroke. Buzzes sub-pixel on two detuned cycles. Needs an `.ac-mesh` child. |
-| `.ac-crt` | CRT: scanlines, vignette, one-cell drift per 11s, ±2% flicker. Needs a `.ac-retrace` child. |
+| `.ac-crt` | CRT: scanlines, vignette, one-cell drift per 11s, ±2% flicker, and a retrace band sweeping down every 13s. Needs a `.ac-retrace` child. |
 | `.ac-afterglow` | PERSISTENCE: things that disappear decay instead of switching off, a de-energized control's glow lingers for the emitter's full tail, and the glass holds faint uneven patches. With `effects.js` it also ghosts rewritten text and smears while scrolling. Needs an `.ac-persist` child. |
 | `.ac-sweep` | PPI radar face — a rotating `conic-gradient` whose angular falloff *is* the decaying wake. Pure CSS, no script. Period scales off `--ac-persist-tail`. Needs an `.ac-sweep__beam` child. |
 | `.ac-scanlines` | Static, motion-free line texture, for print and thumbnails |
@@ -214,6 +219,33 @@ in `amber-console.js`. Note that `.ac-afterglow` rides the CRT switch, so it is 
 Anything off by default must be **absent from your static markup**, or it paints for one frame on
 every load before the script removes it. The overlay children are mounted and removed with their
 switch.
+
+### The retrace band is optional
+
+`.ac-crt` draws a band that sweeps down the frame every 13s — the spatial rendering of what a short
+phosphor actually did, since the temporal version cannot be drawn at all (a 60Hz modulation watched
+on a 60Hz display is Nyquist, not a browser limitation). Its amplitude scales with `--ac-flicker`, so
+P11 and P31 get one you can watch and P7 and P39 keep a lightening sweep that is almost invisible.
+
+It is also the only part of the tube that **travels** — 26% of the frame, across all of it, over text
+somebody is reading — so unlike the scanlines and the vignette it has an off switch:
+
+```html
+<html data-ac-style-retrace="off">     <!-- the whole page; what the demo switch writes -->
+```
+
+```html
+<!-- Or just do not ship the child. The band is a node you put in the frame yourself. -->
+<div class="ac-screen ac-crt ac-afterglow"><span class="ac-persist"></span> … </div>
+```
+
+The attribute exists because `amber-console.js` mounts that child when the CRT simulation is switched
+on, so a page driving the simulation from a toggle cannot say "CRT, but not the band" by omission
+alone. Expose it with `data-ac-style="retrace"` on a toggle; the switch disables itself under a gas,
+where there is no sweep to switch off. `prefers-reduced-motion` hides the band either way.
+
+> Turning it off is a **comfort preference**, in the same category as blink — not a claim that the
+> tube had no retrace. That is why it is a `data-ac-style-*` flag rather than part of the simulation.
 
 On a full-screen frame (`.ac-screen`) the bleed, scanline mask, vignette and retrace anchor to the
 **viewport**, not the document. They are properties of the glass, and glass does not scroll — a
@@ -418,7 +450,7 @@ imports the other, and every component looks and reads correctly with both absen
 5. the [display presets](#three-axes-and-they-are-not-the-same-axis), likewise persisted — the
    palettes themselves are pure CSS and switch on `data-ac-tech` + `data-ac-emitter`, which you can
    write into your own markup
-6. the style flags, same deal on `data-ac-style-*`
+6. the style flags, same deal on `data-ac-style-*` — `blink`, `classic`, `retrace`
 
 ### `amber-console.effects.js` — persistence
 
@@ -591,8 +623,10 @@ can. A `<button data-ac-engine>` toggles it; the default is `css+js`, and the ef
 the attribute off the root itself.
 
 Note what it is *not*. It makes no claim about the hardware, so it is not a simulation, and it is not
-a comfort preference, so it is not a style — which is also why flipping it does not put the readout
-into `*MOD`.
+a comfort preference, so it is not a style. It is still a separate axis — but a separate axis is not
+the same as an axis outside the preset: **Reset to Preset restores it**, along with every style flag,
+so flipping it *does* put the readout into `*MOD`. Anything the reset button puts back is part of
+what the preset describes.
 
 Simulation, style and engine share the board's third quarter as one **Switches** region rather than
 one panel each: three regions of switches ran 606px against 342px for the catalog beside them, on a
@@ -612,9 +646,15 @@ Selecting it switches the palette to the P3 phosphor, mounts `.ac-crt`, and swit
 known simulation off — one click, and the `.ac-toggle` for each moves to prove it. `data-ac-sims` is
 a space-separated list; simulations this build does not have are ignored rather than throwing.
 
-A preset is a starting point, not a lock. Flip a simulation or a style afterwards and the readout
-says `*MOD`; nothing is prevented. `[data-ac-display-reset]` puts the preset's simulations back, and
-`[data-ac-display-out="label|tech|emitter|peak|mode"]` gives you somewhere to show the state.
+A preset is a starting point, not a lock. Flip a simulation, a style or the engine afterwards and the
+readout says `*MOD`; nothing is prevented. `[data-ac-display-out="label|tech|emitter|peak|mode|engine"]`
+gives you somewhere to show the state.
+
+`[data-ac-display-reset]` puts **all four axes** back: the preset's simulations, every style flag and
+the engine flag. It *clears* the stored preferences rather than writing the defaults into them, and
+the difference is the whole mechanism — an absent key means "the user has never said", which is the
+only state a derived default is allowed to fill in. Writing the default would claim the preference on
+their behalf and a derived flag would stop following the simulation forever after.
 
 `peak` comes from `data-ac-peak` on the catalog row, and it is **not the same kind of number on both
 sides of the catalog.** A gas emits a *line spectrum*, so its number is the strongest visible line —
@@ -793,7 +833,8 @@ against.
 ## Accessibility
 
 Ratios below are **computed** from the tokens by `npm run contrast`, not estimated — and the
-gate runs against **every palette**, so none of them ships untested.
+gate runs against **every palette**, so none of them ships untested. All eleven are reproduced
+here; `node scripts/contrast.mjs --md` regenerates this section verbatim.
 
 #### `data-ac-tech="plasma" data-ac-emitter="neon"`
 
@@ -880,6 +921,108 @@ gate runs against **every palette**, so none of them ships untested.
 | `--ac-stroke` | `--ac-screen` | 7.01:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
 | `--ac-stroke-dim` | `--ac-screen` | 3.42:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
 
+#### `data-ac-tech="crt" data-ac-emitter="p1"`
+
+| Foreground | Background | Ratio | Needs | Verdict | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--ac-ink` | `--ac-screen` | 6.98:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.50:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.19:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.42:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.64:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.39:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 9.61:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.78:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.51:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.44:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 6.98:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.42:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+
+#### `data-ac-tech="crt" data-ac-emitter="p4"`
+
+| Foreground | Background | Ratio | Needs | Verdict | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--ac-ink` | `--ac-screen` | 6.97:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.48:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.21:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.41:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.37:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 9.58:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.79:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.51:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.42:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 6.97:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.41:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+
+#### `data-ac-tech="crt" data-ac-emitter="p7"`
+
+| Foreground | Background | Ratio | Needs | Verdict | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--ac-ink` | `--ac-screen` | 7.02:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.49:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.21:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.39:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.35:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 9.49:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.82:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.50:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.50:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 7.02:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.39:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+
+#### `data-ac-tech="crt" data-ac-emitter="p11"`
+
+| Foreground | Background | Ratio | Needs | Verdict | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--ac-ink` | `--ac-screen` | 7.02:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.49:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.21:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.39:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.35:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 9.49:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.82:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.50:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.50:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 7.02:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.39:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+
+#### `data-ac-tech="crt" data-ac-emitter="p31"`
+
+| Foreground | Background | Ratio | Needs | Verdict | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--ac-ink` | `--ac-screen` | 7.00:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.53:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.19:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.41:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.63:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.36:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 9.57:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.86:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.52:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.48:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 7.00:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.41:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+
+#### `data-ac-tech="crt" data-ac-emitter="p39"`
+
+| Foreground | Background | Ratio | Needs | Verdict | Use |
+| --- | --- | --- | --- | --- | --- |
+| `--ac-ink` | `--ac-screen` | 6.98:1 | 4.5:1 | **AA** | Body text on the panel |
+| `--ac-ink-bright` | `--ac-screen` | 10.48:1 | 4.5:1 | **AA** | Live values, hover, input text |
+| `--ac-ink-dim` | `--ac-screen` | 5.18:1 | 4.5:1 | **AA** | Field labels, legends, secondary text |
+| `--ac-ink-faint` | `--ac-screen` | 3.42:1 | 4.5:1 | fails — exempt | Disabled text — decorative only |
+| `--ac-ink-trace` | `--ac-screen` | 1.64:1 | 4.5:1 | fails — exempt | Row separators, leader dots — non-text |
+| `--ac-on-fill` | `--ac-fill` | 6.39:1 | 4.5:1 | **AA** | Inverse video: dark text on amber |
+| `--ac-on-fill` | `--ac-fill-bright` | 9.60:1 | 4.5:1 | **AA** | Inverse video, hover state |
+| `--ac-ink-bright` | `--ac-screen-well` | 10.76:1 | 4.5:1 | **AA** | Input text in a recessed well |
+| `--ac-ink-faint` | `--ac-screen-well` | 3.51:1 | 4.5:1 | fails — exempt | Placeholder text |
+| `--ac-ink` | `--ac-screen-raised` | 6.44:1 | 4.5:1 | **AA** | Body text on a zebra table row |
+| `--ac-stroke` | `--ac-screen` | 6.98:1 | 3:1 | **AA (non-text)** | 2px borders — non-text, needs 3:1 |
+| `--ac-stroke-dim` | `--ac-screen` | 3.42:1 | 3:1 | **AA (non-text)** | Dim borders — non-text, needs 3:1 |
+
 ### Known constraints
 
 - **`.ac-btn--sm` computes to roughly 30px tall.** WCAG 2.2 Target Size (Minimum, 2.5.8, AA) asks for
@@ -927,31 +1070,40 @@ simply does less rather than breaking, because the amplified glow tokens do most
 
 ## Development
 
-No install is needed for the main workflow — the build is pure Node.
+Building and every gate but one are pure Node — no install needed:
 
 ```bash
-npm test           # check + contrast + build — the whole zero-dependency gate
 npm run build      # -> dist/, zero dependencies
 npm run dev        # build + watch + serve docs/ at :4173 (--port to move it)
 npm run check      # the prohibitions gate
+npm run gas -- --check   # fails if the derived gas palettes have drifted
 npm run contrast   # recompute the contrast table (--md for the README format)
 ```
 
-Two gates need the optional dev dependencies (`npm i`):
+`npm test` chains all five of those behind `npm run lint`, so it is the one gate command that
+**does** need `npm i` first:
 
 ```bash
+npm test             # lint + check + gas + contrast + build — what CI runs
 npm run lint         # stylelint: ac- BEM pattern, no transitions in components
-npm run test:visual  # playwright: 14 captures across widths, a11y modes and print
+npm run test:visual  # playwright: 14 pages — 44 screenshots across widths, a11y
+                     # modes and print, plus layout probes on the rest
+npm run test:computed  # 644 computed-style probes: blink, persistence, corners
 ```
 
 `npm run fonts` re-downloads the webfonts and regenerates `src/tokens/fonts.css`.
 
-`npm run assets` re-renders the favicon, the touch icon and the social card. They are not drawn —
+`npm run assets` re-renders the favicon, the touch icon, the README hero and the social card. They are not drawn —
 they are the letter A and the console demo rendered through `dist/amber-console.css` itself, so
 retuning the gas retunes the icon. The favicon is a PNG rather than the usual inline SVG on purpose:
 `npm run check` bans `<svg>` in HTML, and law 6 does not make an exception for browser chrome.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+**Why the numbers are the numbers** — the per-decision derivation behind every token value, from the
+chromaticity a gas is computed from to why the four corners of a chamfer are not the same size — is
+in [RATIONALE.md](RATIONALE.md). Roughly two dozen comments in `src/` point into it by section
+(`see RATIONALE.md § Hue`); it ships with the npm package so those pointers resolve there too.
 
 ## Provenance
 
@@ -984,7 +1136,8 @@ not the VT320.
 
 The values in `src/tokens/` came from an internal design bundle that is not published with this
 repository. The deviations from it, and the discrepancies resolved along the way, are recorded in
-[CHANGELOG.md](CHANGELOG.md).
+[CHANGELOG.md](CHANGELOG.md). What has been removed, what is deprecated and what to write instead is
+in [DEPRECATIONS.md](DEPRECATIONS.md).
 
 ## License
 

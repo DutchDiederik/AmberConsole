@@ -14,6 +14,12 @@ import path from "node:path";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+/**
+ * Every directory on this list is build output or vendored input — nothing the
+ * prohibitions are meant to police, which is what THIS framework renders from
+ * source. `dist` is the bundle of files already checked in `src`; `baselines`
+ * is PNG.
+ */
 const SKIP_DIRS = new Set(["node_modules", ".git", "fonts", "dist", "baselines"]);
 
 const CHECKS = [

@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Amber Console — starter</title>
+<meta name="description" content="The smallest complete Amber Console page: one stylesheet, no build step, no JavaScript — a framed panel with buttons, a toggle, a meter and an alarm, commented line by line.">
 
 <!-- ===================================================================
      THIS IS THE WHOLE SETUP. One stylesheet, no build step, no server.
@@ -49,47 +50,165 @@
 <body class="ac-screen ac-bloom">
   <span class="ac-mesh"></span>
 
-  <!-- .ac-screen__body is the padded content area inside the frame. -->
-  <div class="ac-screen__body">
+  <!-- .ac-screen__body is the padded content area inside the frame. It is
+       styled by class, so make it your <main> and the page gets a landmark
+       for free — screen-reader users can jump straight here. -->
+  <main class="ac-screen__body">
 
-    <!-- A panel is the basic box. The title sits in the border. -->
-    <div class="ac-panel">
-      <span class="ac-panel__title">Reactor Control</span>
+    <!-- .ac-grid--console is the canonical split: what the operator DOES on
+         the left, what the panel REPORTS on the right. It folds to one
+         column below 900px on its own, so there is nothing to write for
+         the phone. Delete the wrapper and both panels simply stack. -->
+    <div class="ac-grid ac-grid--console">
 
-      <!-- A status bar is the machine talking: inverse video, always. -->
-      <div class="ac-statusbar" role="status"><span>STATUS:AUTO MODE</span></div>
+      <!-- ------------------------------------------------ operate -- -->
+      <!-- A panel is the basic box. The title sits in the border. -->
+      <div class="ac-panel">
+        <span class="ac-panel__title">Reactor Control</span>
 
-      <!-- .ac-row lays things out in a line. --ac-gap sets the spacing;
-           every token this framework owns starts with --ac- so it can
-           never collide with your own CSS. -->
-      <div class="ac-row ac-row--center" style="--ac-gap: 12px">
-        <button class="ac-btn ac-btn--filled">Run</button>
-        <button class="ac-btn">Hold</button>
-        <button class="ac-btn ac-btn--dim">Standby</button>
-        <button class="ac-btn" disabled>Offline</button>
-      </div>
+        <!-- NOTHING SPACES A PANEL'S CHILDREN FOR YOU. The panel draws a
+             border and pads it; the gaps between the rows inside come from
+             a layout box, and .ac-stack is that box — a flex column whose
+             gap is --ac-gap, defaulting to 16px. Take this wrapper out and
+             everything below it sits flush against its neighbour. -->
+        <div class="ac-stack">
 
-      <!-- A toggle that works with no JavaScript: it is a <label> wrapping
-           a real checkbox, so the browser does the state. The ON/OFF text
-           is required — on a one-colour screen the thumb position alone is
-           ambiguous. -->
-      <label class="ac-toggle ac-toggle--input">
-        <span>Coolant Pump</span>
-        <input type="checkbox" checked>
-        <span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span>
-        <span class="ac-toggle__state"></span>
-      </label>
+          <!-- A status bar is the machine talking: inverse video, always. -->
+          <div class="ac-statusbar" role="status"><span>STATUS:AUTO MODE</span></div>
 
-      <!-- A bar graph. Set the value as a number from 0 to 100. -->
-      <div class="ac-meter">
-        <div class="ac-meter__track">
-          <div class="ac-meter__bar" style="--ac-meter-value: 62"></div>
+          <!-- .ac-row lays things out in a line. --ac-gap sets the spacing;
+               every token this framework owns starts with --ac- so it can
+               never collide with your own CSS. -->
+          <div class="ac-row ac-row--center ac-row--wrap" style="--ac-gap: 12px">
+            <button class="ac-btn ac-btn--filled">Run</button>
+            <button class="ac-btn">Hold</button>
+            <button class="ac-btn ac-btn--dim">Standby</button>
+            <button class="ac-btn" disabled>Offline</button>
+          </div>
+
+          <!-- An input is a recessed well, and what you type in it is the
+               brightest ink on the panel — it is the one part a human wrote.
+               The label goes inside the .ac-field, so the whole thing is one
+               <label> and the click target includes the text. -->
+          <div class="ac-row ac-row--wrap" style="--ac-gap: 12px">
+            <label class="ac-field ac-grow">
+              <span class="ac-field__label">Setpoint:</span>
+              <input class="ac-input" type="text" value="740" inputmode="numeric">
+            </label>
+            <label class="ac-field">
+              <span class="ac-field__label">Mode:</span>
+              <!-- The wrapper exists only to hang the ▼ on. That glyph is a
+                   character in the terminal font, never an icon. -->
+              <span class="ac-select">
+                <select class="ac-input">
+                  <option>Auto</option>
+                  <option>Manual</option>
+                  <option>Test</option>
+                </select>
+              </span>
+            </label>
+          </div>
+
+          <!-- A toggle that works with no JavaScript: it is a <label> wrapping
+               a real checkbox, so the browser does the state. The ON/OFF text
+               is required — on a one-colour screen the thumb position alone is
+               ambiguous. -->
+          <label class="ac-toggle ac-toggle--input">
+            <span>Coolant Pump</span>
+            <input type="checkbox" checked>
+            <span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span>
+            <span class="ac-toggle__state"></span>
+          </label>
+
+          <!-- Checkboxes are STATUS BITS, not to-do ticks: a set bit fills the
+               square solid, the way an indicator lamp lights, and there is no
+               tick glyph anywhere in the system. Group them in a fieldset; the
+               legend can be hidden with .ac-sr-only when the panel title
+               already says what they are. -->
+          <fieldset class="ac-row ac-row--wrap" style="--ac-gap: 20px; border: none; padding: 0; margin: 0">
+            <legend class="ac-sr-only">Interlocks</legend>
+            <label class="ac-check"><input type="checkbox" checked><span>Door</span></label>
+            <label class="ac-check"><input type="checkbox" checked><span>Pressure</span></label>
+            <label class="ac-check"><input type="checkbox"><span>Bypass</span></label>
+          </fieldset>
+
+          <!-- A bar graph. The value is a 0-100 number on the TRACK, and the
+               aria attributes carry the same number for anyone who cannot see
+               the bar. The fill is stepped at every size on purpose: a smooth
+               bar would claim a precision the instrument does not have. -->
+          <div class="ac-meter">
+            <div class="ac-meter__track" style="--ac-meter-value: 62"
+                 role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"
+                 aria-label="Core temperature">
+              <div class="ac-meter__bar"></div>
+            </div>
+            <div class="ac-meter__scale"><span>0</span><span>50</span><span>100</span></div>
+          </div>
+
+          <!-- Alarms have no red to use, so danger is inverse video plus a
+               blink. Add ac-blink to make it flash. -->
+          <div class="ac-banner ac-banner--filled ac-blink" role="alert">Pressure High</div>
         </div>
       </div>
 
-      <!-- Alarms have no red to use, so danger is inverse video plus a
-           blink. Add ac-blink to make it flash. -->
-      <div class="ac-banner ac-banner--filled ac-blink">Pressure High</div>
+      <!-- --------------------------------------------- instrument -- -->
+      <!-- Same panel, dimmed. --dim is a DRIVE LEVEL and not a grey: the
+           halo drops with the ink, so the region scatters less light and
+           recedes behind the column you are working in. -->
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">Core Instrumentation</span>
+
+        <div class="ac-stack">
+
+          <!-- A readout is a number to be read across the room. The label
+               rides in inverse video above it, the unit at body size beside
+               it so the digits keep the eye. -->
+          <div class="ac-row ac-row--wrap" style="--ac-gap: 24px">
+            <div class="ac-readout">
+              <div class="ac-readout__label">Core Temp</div>
+              <div class="ac-readout__value">618<span class="ac-readout__unit">C</span></div>
+            </div>
+            <div class="ac-readout">
+              <div class="ac-readout__label">Flow</div>
+              <div class="ac-readout__value">12.4<span class="ac-readout__unit">M3/S</span></div>
+            </div>
+          </div>
+
+          <!-- The only divider in the system, at the 2px stroke. -->
+          <hr class="ac-hr">
+
+          <!-- A list is a fixed set of named readings, joined by leader dots.
+               If it is sortable, or has more than one value per key, it is a
+               table instead. -->
+          <dl class="ac-list">
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Rod Position</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">48%</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Loop Pressure</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">7.1 MPA</dd>
+            </div>
+            <div class="ac-list__item">
+              <dt class="ac-list__key">Uptime</dt>
+              <span class="ac-list__fill"></span>
+              <dd class="ac-list__value">0412:07</dd>
+            </div>
+          </dl>
+
+          <!-- Badges are micro tags in the pixel face — a label, never a
+               message. This is the one place in the system with a 1px
+               border, because 2px on something 8px tall reads as a block. -->
+          <div class="ac-row ac-row--wrap ac-row--center" style="--ac-gap: 8px">
+            <span class="ac-badge">Loop A</span>
+            <span class="ac-badge ac-badge--filled">Armed</span>
+            <span class="ac-badge ac-badge--dim">Spare</span>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Corners are chamfered by default, the way a coarse panel could
@@ -97,13 +216,13 @@
          get a smooth arc instead. -->
     <div class="ac-panel ac-rounded">
       <span class="ac-panel__title">Rounded Region</span>
-      <div class="ac-row" style="--ac-gap: 12px">
+      <div class="ac-row ac-row--wrap" style="--ac-gap: 12px">
         <button class="ac-btn">Softer</button>
         <button class="ac-btn ac-btn--filled">Corners</button>
       </div>
     </div>
 
-  </div>
+  </main>
 </body>
 </html>
 

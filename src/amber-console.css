@@ -1,7 +1,8 @@
 /* ===========================================================================
    Amber Console — a monochrome amber-terminal CSS framework
-   MIT licensed. Fonts in fonts/ are SIL OFL 1.1; see fonts/OFL-*.txt.
-   https://github.com/DutchDiederik/amber-console
+   BSD-3-Clause licensed; see LICENSE. Fonts in fonts/ are SIL OFL 1.1; see
+   fonts/OFL-*.txt.
+   https://github.com/DutchDiederik/AmberConsole
 
    NO VERSION NUMBER LIVES IN src/. package.json is the single source of truth;
    scripts/build.mjs stamps it into the dist/ banners. A version written here

@@ -38,6 +38,7 @@
      CRT off. Any class or overlay node that is off by default must be absent here,
      or it paints for one frame on every load before initSims removes it. -->
 <div class="ac-screen ac-bloom" data-ac-screen>
+<a class="doc-skip" href="#content">Skip to content</a>
 <span class="ac-mesh"></span>
 
 <!-- @include _nav.html -->
@@ -240,6 +241,25 @@
         <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
           <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
         </button>
+        <!-- THE BAND STANDS UNDER CRT BECAUSE IT IS PART OF THE TUBE, and it is
+             the one switch here that is not a `data-ac-sim`. It earns an off
+             switch by being the only part of the tube that TRAVELS: scanlines,
+             vignette and the mains hum are texture and sit still, while this is
+             26% of the frame crossing all of it every 13s, over text somebody is
+             reading. So it is a comfort control — but it is a comfort control
+             over ONE SIMULATION'S effect, and the note below has always said so
+             in as many words. Standing it beside CLASSIC BUTTONS asked the reader
+             to hold both ideas at once: that the band is part of the CRT
+             simulation, and that it is not on the simulation side of the board.
+             It is gated the same way it reads — `needs: "ac-crt"` in the STYLES
+             table, so it disables itself wherever there is no tube to sweep.
+             See ../src/sim/crt.css, which also documents the author's version of
+             the same opt-out: leave the .ac-retrace child out of the frame and
+             there is nothing to switch. prefers-reduced-motion hides it either
+             way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true" disabled>
+          <span>Retrace Band</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
       </div>
 
       <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
@@ -254,8 +274,10 @@
           <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
         <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
-             the board with blink and smear rather than beside PLASMA and CRT: a bevel
-             makes no claim about which gas is in the gap. Cuts the corners off every
+             the board rather than beside PLASMA and CRT: a bevel makes no claim about
+             which gas is in the gap, and unlike the retrace band above it is not one
+             simulation's effect either — it reaches every bordered surface on the
+             page whichever display is fitted. Cuts the corners off every
              bordered surface, stands the keys on a hard offset edge and parks their
              labels top-left — one look, one switch. Ships ON, because that is what the
              panel was; switching it off asks for a smoother corner than the hardware
@@ -269,8 +291,12 @@
         </button>
       </div>
 
+      <!-- Ships VISIBLE, because the partial's own default is a gas and the band
+           is a CRT effect. The build hides it on the pages whose preset is a
+           phosphor — see expandBoard. -->
+      <p class="doc-displays__note" data-ac-style-note="retrace">The retrace band is part of the CRT simulation, and there is no sweep across a plasma panel to switch off.</p>
       <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
-      <p class="doc-displays__note" data-ac-engine-off hidden>JS Effects off: no ghosting, smear or framebuffer
+      <p hidden class="doc-displays__note" data-ac-engine-off>JS Effects off: no ghosting, smear or framebuffer
         decay. Everything else here is CSS.</p>
 
       <div class="doc-engine" data-ac-engine-on hidden>
@@ -377,7 +403,7 @@
   <div class="ac-setup__foot">
     <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
     <span class="ac-spacer"></span>
-    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable — and Reset puts all of it back, switches, styles and engine alike.</span>
   </div>
 </div>
 <!-- @end -->
@@ -403,8 +429,19 @@
   <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
   <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
   <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+  <!-- 08 AND 09 ARE LOOKUP RATHER THAN READING, and they are still numbered.
+       An unnumbered appendix would have said "optional", which is the opposite of
+       what a complete index is for: the seven chapters before them argue a case
+       and can be read in order, these two answer "does the framework have X" and
+       "what happened to Y" without being read at all. Same strip, same weight —
+       the distinction lives in the blurb on the overview card, not in the
+       numbering. -->
+  <a class="doc-chapter" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
+  <a class="doc-chapter" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
 </nav>
 <!-- @end -->
+
+  <main id="content">
 
   <header class="doc-head">
     <div class="doc-kicker">AMBER CONSOLE</div>
@@ -472,11 +509,126 @@
   </section>
 
   <!-- ================================================================ -- -->
+  <!-- THE ONRAMP, AND IT SITS BETWEEN THE THESIS AND THE INDEX ON PURPOSE.
+       A reader who has just been handed six laws has exactly one question — what
+       do I type — and the answer to it is a file rather than another paragraph.
+       Nine chapters and four demos are both the wrong size of thing to start
+       from: the chapters argue, and each demo is a whole product.
+
+       EVERYTHING BELOW DESCRIBES ../starter.html AND NOTHING ELSE. It is the one
+       section of this site whose subject is a file rather than the framework, so
+       it is also the one that goes stale silently — edit that file and edit this
+       with it. The class strings quoted here are the ones it actually ships. -->
+  <section id="starter">
+    <div class="doc-sec-head"><h2>START HERE</h2></div>
+    <p class="doc-dim">One file at the root of the repository, called <code>starter.html</code>. It is
+      the shortest path from reading this page to having a panel on screen — not a snippet to
+      assemble, but a whole working page you open by double-clicking it. No build step, no server, no
+      package manager, and no JavaScript on the page at all.</p>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:20px">
+      <span class="doc-cap">STARTER — ONE FILE, ONE STYLESHEET, NO BUILD</span>
+      <a href="../starter.html" style="font-size:var(--ac-type-title);text-shadow:var(--ac-glow-text)">OPEN starter.html ►</a>
+      <span class="doc-faint doc-small">It arrives as a small console rather than a swatch sheet:
+        the <code>.ac-grid--console</code> split, with an operating panel on the left — status strip,
+        four button states, an input well, a select, status bits, an unscripted toggle, a meter with
+        its scale and a blinking alarm — and a dimmed instrument panel on the right carrying two
+        readouts, a rule, a keyed list and badges. Under both, a third region on
+        <code>.ac-rounded</code>, so both corner styles are on screen at once.
+        <strong>The instruction is to start deleting.</strong> Every block is commented with what it
+        is and why it is shaped that way before you remove it, and what survives is your
+        page.</span></div>
+
+    <code class="doc-code">&lt;!-- this is the whole setup --&gt;
+&lt;link rel="stylesheet" href="dist/amber-console.css"&gt;
+
+&lt;body class="ac-screen ac-bloom"&gt;
+  &lt;span class="ac-mesh"&gt;&lt;/span&gt;
+  &lt;div class="ac-screen__body"&gt; … &lt;/div&gt;
+&lt;/body&gt;</code>
+
+    <h3 style="margin:32px 0 12px">WHAT IT IS DEMONSTRATING</h3>
+    <div class="doc-prose">
+      <p class="doc-dim"><strong>That the framework is CSS.</strong> The glow, the cell mesh, the
+        chamfered corners and the toggle flipping between ON and OFF are all stylesheet — the file
+        carries no script, deliberately, so that nobody comes away thinking a runtime is required.
+        The two optional modules in <code>dist/</code> add the setup board's switches and the three
+        persistence effects that genuinely cannot be done in CSS, which
+        <a href="guide-persistence.html">04 PERSISTENCE</a> is about. You do not need either to
+        build with this.</p>
+      <p class="doc-dim"><strong>That you pick one technology.</strong>
+        <code>.ac-bloom</code> and <code>.ac-crt</code> are not two layers of glass, they are two
+        kinds of display, and no panel is both — a screen door is not a scanline, and there is no
+        scan in a plasma panel to blank. So the starter ships plasma alone, and writes the tube out
+        beside it as a swap: <code>class="ac-screen ac-crt ac-afterglow"</code> on the body, the
+        <code>.ac-mesh</code> child replaced by <code>.ac-retrace</code> and <code>.ac-persist</code>,
+        and a phosphor set on <code>&lt;html&gt;</code>. Afterglow rides with the CRT because it is
+        not a third technology — it is what the phosphor does after the beam has gone.
+        <code>amber-console.js</code> enforces the exclusivity and switches one off when the other
+        comes on; CSS cannot, so on a hand-authored page it is on the author.
+        <a href="guide-effects.html">03 EFFECTS</a> makes the argument in full.</p>
+      <p class="doc-dim"><strong>That every companion node is paired with its class.</strong> Each
+        simulation paints into a child of the frame, and the file says so at each one: keep the
+        <code>&lt;span&gt;</code> for the class you keep, and delete both together. A class with no
+        layer to paint into renders nothing, which is the single most common way a first page comes
+        out flat.</p>
+      <p class="doc-dim"><strong>That spacing is a box you write, not something a component does for
+        you.</strong> <code>.ac-panel</code> draws a border and pads its inside; it does
+        <em>not</em> space its own children, because nothing in this system puts margins between
+        siblings — they would fight the 4px half-cell grid. So each panel in the starter holds one
+        <code>.ac-stack</code>, and the rows inside it are 16px apart because that is
+        <code>--ac-gap</code>'s default. The same applies to a fieldset of status bits: the framework
+        styles the controls, not the elements it never claimed, so the UA border on a
+        <code>&lt;fieldset&gt;</code> is yours to clear — and the file does it inline where you can
+        see it happen.</p>
+    </div>
+
+    <h3 style="margin:32px 0 12px">THREE THINGS TO TRY, WHICH THE FILE ENDS ON</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>TO CHANGE</th><th>WRITE</th><th>THE CHAPTER FOR IT</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="doc-tok">The hardware</td>
+          <td><code>&lt;html data-ac-tech="crt" data-ac-emitter="p3"&gt;</code> — the classic amber
+            terminal. Eleven emitters across the two technologies, and the pair is always stated
+            together.</td>
+          <td><a href="guide-color.html">01 COLOR</a></td>
+        </tr>
+        <tr>
+          <td class="doc-tok">The blinking</td>
+          <td><code>data-ac-style-blink="off"</code> on the root. Alarms still read — they keep the
+            inverse fill, because blink was never the only thing saying it.</td>
+          <td><a href="guide-effects.html">03 EFFECTS</a></td>
+        </tr>
+        <tr>
+          <td class="doc-tok">Anything else</td>
+          <td><code>:root { --ac-radius: 0px; --ac-type-body: 20px }</code>. Every color, size and
+            space is a custom property, and they survive into <code>dist/</code> unresolved.</td>
+          <td><a href="guide-reference.html">08 REFERENCE</a></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:20px">Accessibility is already handled and the
+      starter says so: reduced motion, forced colors and print are all respected, and every color
+      pair in the system is contrast-checked. There is nothing to add to get that. The file also
+      ships inside the npm package — <code>npm i amber-console</code> puts a copy at
+      <code>node_modules/amber-console/starter.html</code>.</p>
+    <p class="doc-when">Adding the framework to an app that already exists. That is
+      <code>dist/amber-console.layer.css</code> plus your own markup, so the framework loses
+      specificity fights against your rules — see <a href="guide-screen.html">07 SCREEN &amp; BOARD</a>
+      for how a full console assembles.</p>
+  </section>
+
+  <!-- ================================================================ -- -->
   <section id="chapters">
     <div class="doc-sec-head"><h2>THE GUIDE</h2></div>
-    <p class="doc-dim">Seven chapters. Every specimen on every one of them is live markup from the
-      library, running under whatever hardware the board above is set to — so the guide is also the
-      largest test of the system in the repository.</p>
+    <p class="doc-dim">Nine chapters — seven that argue and two that only list. Every specimen on
+      every one of them is live markup from the library, running under whatever hardware the board
+      above is set to, so the guide is also the largest test of the system in the repository. Read
+      01–07 in order if you are learning the system; go straight to <strong>08 REFERENCE</strong> if
+      you already know it and want to know whether a given class, attribute or token exists.</p>
     <div class="doc-cards" style="margin-top:20px">
       <a class="doc-card" href="guide-color.html">
         <span class="doc-card__n">01</span>
@@ -512,6 +664,16 @@
         <span class="doc-card__n">07</span>
         <span class="doc-card__title">SCREEN &amp; BOARD</span>
         <span class="doc-card__blurb">How a full console assembles, zone by zone — and every control on the setup board at the top of these pages: what it writes, where it starts, whether it is remembered.</span>
+      </a>
+      <a class="doc-card" href="guide-reference.html">
+        <span class="doc-card__n">08</span>
+        <span class="doc-card__title">REFERENCE</span>
+        <span class="doc-card__blurb">The index rather than the argument: every class, every root attribute, every token split by whether you set it or the framework does, and every key the board remembers you by.</span>
+      </a>
+      <a class="doc-card" href="guide-deprecations.html">
+        <span class="doc-card__n">09</span>
+        <span class="doc-card__title">DEPRECATED</span>
+        <span class="doc-card__blurb">Everything taken away since 1.0 and everything going in 3.0, with what to write instead. The token rename is the only breaking change in 2.0, and it fails silently — start here if you are upgrading.</span>
       </a>
     </div>
   </section>
@@ -563,6 +725,8 @@
       that happen to share a stylesheet — the point is that the constraints survive being taken
       somewhere they were not designed for.</p>
   </section>
+
+  </main>
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 2.0 · MONOCHROME PLASMA UI</span>

@@ -38,6 +38,7 @@
      CRT off. Any class or overlay node that is off by default must be absent here,
      or it paints for one frame on every load before initSims removes it. -->
 <div class="ac-screen ac-bloom" data-ac-screen>
+<a class="doc-skip" href="#content">Skip to content</a>
 <span class="ac-mesh"></span>
 
 <!-- @include _nav.html -->
@@ -240,6 +241,25 @@
         <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
           <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
         </button>
+        <!-- THE BAND STANDS UNDER CRT BECAUSE IT IS PART OF THE TUBE, and it is
+             the one switch here that is not a `data-ac-sim`. It earns an off
+             switch by being the only part of the tube that TRAVELS: scanlines,
+             vignette and the mains hum are texture and sit still, while this is
+             26% of the frame crossing all of it every 13s, over text somebody is
+             reading. So it is a comfort control — but it is a comfort control
+             over ONE SIMULATION'S effect, and the note below has always said so
+             in as many words. Standing it beside CLASSIC BUTTONS asked the reader
+             to hold both ideas at once: that the band is part of the CRT
+             simulation, and that it is not on the simulation side of the board.
+             It is gated the same way it reads — `needs: "ac-crt"` in the STYLES
+             table, so it disables itself wherever there is no tube to sweep.
+             See ../src/sim/crt.css, which also documents the author's version of
+             the same opt-out: leave the .ac-retrace child out of the frame and
+             there is nothing to switch. prefers-reduced-motion hides it either
+             way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true" disabled>
+          <span>Retrace Band</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
       </div>
 
       <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
@@ -254,8 +274,10 @@
           <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
         <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
-             the board with blink and smear rather than beside PLASMA and CRT: a bevel
-             makes no claim about which gas is in the gap. Cuts the corners off every
+             the board rather than beside PLASMA and CRT: a bevel makes no claim about
+             which gas is in the gap, and unlike the retrace band above it is not one
+             simulation's effect either — it reaches every bordered surface on the
+             page whichever display is fitted. Cuts the corners off every
              bordered surface, stands the keys on a hard offset edge and parks their
              labels top-left — one look, one switch. Ships ON, because that is what the
              panel was; switching it off asks for a smoother corner than the hardware
@@ -269,8 +291,12 @@
         </button>
       </div>
 
+      <!-- Ships VISIBLE, because the partial's own default is a gas and the band
+           is a CRT effect. The build hides it on the pages whose preset is a
+           phosphor — see expandBoard. -->
+      <p class="doc-displays__note" data-ac-style-note="retrace">The retrace band is part of the CRT simulation, and there is no sweep across a plasma panel to switch off.</p>
       <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
-      <p class="doc-displays__note" data-ac-engine-off hidden>JS Effects off: no ghosting, smear or framebuffer
+      <p hidden class="doc-displays__note" data-ac-engine-off>JS Effects off: no ghosting, smear or framebuffer
         decay. Everything else here is CSS.</p>
 
       <div class="doc-engine" data-ac-engine-on hidden>
@@ -377,7 +403,7 @@
   <div class="ac-setup__foot">
     <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
     <span class="ac-spacer"></span>
-    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable — and Reset puts all of it back, switches, styles and engine alike.</span>
   </div>
 </div>
 <!-- @end -->
@@ -403,8 +429,19 @@
   <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
   <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
   <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+  <!-- 08 AND 09 ARE LOOKUP RATHER THAN READING, and they are still numbered.
+       An unnumbered appendix would have said "optional", which is the opposite of
+       what a complete index is for: the seven chapters before them argue a case
+       and can be read in order, these two answer "does the framework have X" and
+       "what happened to Y" without being read at all. Same strip, same weight —
+       the distinction lives in the blurb on the overview card, not in the
+       numbering. -->
+  <a class="doc-chapter" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
+  <a class="doc-chapter" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
 </nav>
 <!-- @end -->
+
+  <main id="content">
 
   <header class="doc-head doc-head--chapter">
     <div class="doc-kicker"><span class="doc-num">02</span> AMBER CONSOLE · SYSTEM GUIDE</div>
@@ -460,10 +497,155 @@
     </div>
   </section>
 
+  <!-- LAYOUT LIVES IN THIS CHAPTER because it falls out of the character grid
+       above rather than standing on its own. Every gap here is a multiple of the
+       4px half-cell, and the reason the framework has no margin utilities at all
+       is stated in the first paragraph: margins between siblings fight a grid
+       that everything else is snapped to. -->
+  <section id="layout">
+    <div class="doc-sec-head"><h2>LAYOUT</h2></div>
+    <p class="doc-dim">Flex and grid, with <code>gap</code> everywhere and <strong>never a margin
+      between siblings</strong> — a margin is a distance nobody declared, and it would fight the 4px
+      half-cell the rest of this chapter is snapped to. Two containers, one grid, and a handful of
+      child utilities. Every one of them carries <code>min-width: 0</code>, which is not a detail:
+      a grid or flex item's automatic minimum size is its <em>content</em>, and
+      <code>.ac-btn--pad</code>'s 130px floor will push a track wider than its share and overflow the
+      page. That has happened, and it is what the responsive probe in the test suite exists to
+      catch.</p>
+
+    <div class="doc-prose" style="margin-top:16px">
+      <p class="doc-dim">Both containers take their gap from <code>--ac-gap</code>, which you set on
+        the element rather than on <code>:root</code> — it is a per-instance dial, not a token with a
+        global value. Unset, a row or stack is <code>--ac-space-4</code> (16px) and a grid is
+        <code>--ac-space-6</code> (24px), because a grid separates regions and a row separates
+        controls.</p>
+    </div>
+
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">ROW — THE FOUR ALIGNMENTS</span>
+        <div class="ac-stack" style="width:100%;--ac-gap:10px">
+          <div class="ac-row ac-row--center" style="--ac-gap:10px;border:var(--ac-border-w) solid var(--ac-stroke-dim);padding:8px">
+            <span class="ac-badge">CENTER</span>
+            <button type="button" class="ac-btn ac-btn--sm">Jog</button>
+            <span class="doc-faint doc-small">items centered on the cross axis</span>
+          </div>
+          <div class="ac-row ac-row--baseline" style="--ac-gap:10px;border:var(--ac-border-w) solid var(--ac-stroke-dim);padding:8px">
+            <span style="font-size:var(--ac-type-title)">28.4</span>
+            <span class="doc-faint doc-small">BASELINE — a big number and its unit sit on one line</span>
+          </div>
+          <div class="ac-row ac-row--between" style="--ac-gap:10px;border:var(--ac-border-w) solid var(--ac-stroke-dim);padding:8px">
+            <span class="doc-faint doc-small">BETWEEN</span>
+            <span class="ac-badge">EDGE</span>
+          </div>
+          <div class="ac-row ac-row--end" style="--ac-gap:10px;border:var(--ac-border-w) solid var(--ac-stroke-dim);padding:8px">
+            <span class="doc-faint doc-small">END</span>
+            <button type="button" class="ac-btn ac-btn--sm ac-btn--dim">Cancel</button>
+          </div>
+        </div>
+        <code class="doc-code">class="ac-row ac-row--center"   --center  --baseline  --between  --end  --wrap
+style="--ac-gap: 12px"          &lt;!-- per instance, not a root token --&gt;</code>
+        <p class="doc-when">Reaching for <code>--between</code> to push one item right in a row that
+          has three. It justifies <em>every</em> gap; use <code>.ac-spacer</code> below, which pushes
+          exactly where you put it.</p>
+      </div>
+
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">GROW, SPACER, PUSH</span>
+        <div class="ac-row" style="--ac-gap:10px;width:100%;border:var(--ac-border-w) solid var(--ac-stroke-dim);padding:8px">
+          <button type="button" class="ac-btn ac-btn--sm ac-grow">Grow</button>
+          <button type="button" class="ac-btn ac-btn--sm ac-grow">Grow</button>
+          <button type="button" class="ac-btn ac-btn--sm">Fixed</button>
+        </div>
+        <div class="ac-row ac-row--center" style="--ac-gap:10px;width:100%;border:var(--ac-border-w) solid var(--ac-stroke-dim);padding:8px">
+          <span class="doc-faint doc-small">STATUS</span>
+          <span class="ac-spacer"></span>
+          <button type="button" class="ac-btn ac-btn--sm ac-btn--dim">Abort</button>
+        </div>
+        <div class="ac-stack" style="width:100%;height:120px;border:var(--ac-border-w) solid var(--ac-stroke-dim);padding:8px">
+          <span class="doc-faint doc-small">A stack with room to spare —</span>
+          <div class="ac-push ac-row ac-row--end" style="width:100%">
+            <button type="button" class="ac-btn ac-btn--sm">Pushed</button>
+          </div>
+        </div>
+        <span class="doc-faint doc-small"><code>.ac-grow</code> absorbs leftover space (and carries
+          <code>min-width: 0</code> with it, which is why a row of touch pads needs it).
+          <code>.ac-spacer</code> is an empty element that eats the slack at exactly one point.
+          <code>.ac-push</code> is <code>margin-top: auto</code> — the one margin in the system, and it
+          is a layout instruction rather than a distance.</span>
+        <code class="doc-code">class="ac-grow"    &lt;span class="ac-spacer"&gt;&lt;/span&gt;    class="ac-push"</code>
+        <p class="doc-when">Nothing — these are the pinned-footer and fill-the-row idioms, and the
+          console screen uses all three. <code>.ac-push</code> only works in a flex column.</p>
+      </div>
+    </div>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:20px"><span class="doc-cap">GRID — --AC-COLS AND THE SPANS</span>
+      <div class="ac-grid" style="--ac-cols:6;--ac-gap:8px;width:100%">
+        <div class="ac-col-3" style="background:var(--ac-emit-30);padding:8px"><span class="doc-faint doc-small">.ac-col-3</span></div>
+        <div class="ac-col-3" style="background:var(--ac-emit-30);padding:8px"><span class="doc-faint doc-small">.ac-col-3</span></div>
+        <div class="ac-col-2" style="background:var(--ac-emit-30);padding:8px"><span class="doc-faint doc-small">.ac-col-2</span></div>
+        <div class="ac-col-4" style="background:var(--ac-emit-30);padding:8px"><span class="doc-faint doc-small">.ac-col-4</span></div>
+        <div class="ac-col-6" style="background:var(--ac-emit-30);padding:8px"><span class="doc-faint doc-small">.ac-col-6 — a full row</span></div>
+      </div>
+      <span class="doc-faint doc-small">The track count is <code>--ac-cols</code> on the grid, and the
+        spans are on the children: <code>.ac-col-2</code>, <code>-3</code>, <code>-4</code>,
+        <code>-6</code>. There is no <code>-5</code> and there will not be — the console layouts are
+        halves, thirds and quarters of six, and a span nobody can divide evenly is a layout that will
+        not survive the next breakpoint. <strong>Below 900px every span resets to
+        <code>auto</code></strong> and the grid becomes its declared track count of narrow columns;
+        set <code>--ac-cols: 1</code> in your own media query if that is not what you want.</span>
+      <code class="doc-code">&lt;div class="ac-grid" style="--ac-cols: 6"&gt;
+  &lt;div class="ac-col-3"&gt;…&lt;/div&gt;    &lt;!-- half --&gt;
+  &lt;div class="ac-col-2"&gt;…&lt;/div&gt;    &lt;!-- third --&gt;
+&lt;/div&gt;
+
+&lt;div class="ac-grid ac-grid--console"&gt;   &lt;!-- the canonical split, no --ac-cols --&gt;
+  &lt;div class="ac-stack"&gt;…operate…&lt;/div&gt;
+  &lt;div class="ac-stack"&gt;…instrument…&lt;/div&gt;
+&lt;/div&gt;</code>
+      <p class="doc-when">A span larger than <code>--ac-cols</code>. It does not error, it just
+        overflows the track and takes the page with it.</p>
+    </div>
+
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">.AC-GRID--CONSOLE — THE CANONICAL SPLIT</span>
+        <span class="doc-faint doc-small">Operate left, instrument right:
+          <code>minmax(0, 1fr)</code> beside <code>minmax(280px, 380px)</code>, with no
+          <code>--ac-cols</code> to set. It stacks below <strong>900px</strong>, which is the width at
+          which the instrument column can no longer hold its 280px floor beside a usable operating
+          column. That number is measured off the source console screen rather than picked off a
+          device list — there is no phone/tablet/desktop ladder in this framework, only the two widths
+          where something specific stops fitting.</span>
+        <p class="doc-when">Three columns. The split is an argument about where an operator looks, and
+          a third column has nowhere to be in it.</p>
+      </div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">THE SHELL, AND TWO CLASSES THAT ARE NOT LAYOUT</span>
+        <span class="doc-faint doc-small"><code>.ac-screen</code> is the full-height frame that hosts
+          the simulations — <code>100svh</code>, not <code>100vh</code>, so a retracting URL bar
+          cannot leave a screenful of nothing to scroll past, and <code>overflow: clip</code> rather
+          than <code>hidden</code>, so the sticky nav inside it still has the viewport to stick to.
+          <code>.ac-screen__body</code> is the padded content well inside it, overridable with
+          <code>--ac-screen-pad</code>.</span>
+        <span class="doc-faint doc-small"><code>.ac-root</code> is the <strong>scoped reset</strong>:
+          put it on a wrapper when you are embedding the framework in a page you do not own, and the
+          box-sizing and margin reset applies inside it instead of globally.
+          <code>.ac-sr-only</code> is the visually-hidden utility — it exists for the
+          <code>&lt;legend&gt;</code> of a bit group whose visible label is already the panel's own
+          title, which is the one place the accessible name and the drawn name legitimately
+          differ.</span>
+        <code class="doc-code">&lt;div class="ac-screen" data-ac-screen&gt;
+  &lt;div class="ac-screen__body" style="--ac-screen-pad: 20px 24px"&gt; … &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="ac-root"&gt; … &lt;/div&gt;      &lt;legend class="ac-sr-only"&gt;Status bits&lt;/legend&gt;</code>
+        <p class="doc-when">Nesting <code>.ac-screen</code>. Once per page, on the outermost frame.</p>
+      </div>
+    </div>
+  </section>
+
   <nav class="doc-pager" aria-label="Chapter">
     <a class="doc-pager__link" href="guide-color.html">◄ Previous: Color</a>
     <a class="doc-pager__link" href="guide-effects.html">Next: Effects ►</a>
   </nav>
+
+  </main>
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 2.0 · MONOCHROME PLASMA UI</span>

@@ -28,7 +28,9 @@
  *               preferences that make no claim about what the panel is.
  *
  * A DISPLAY preset sets the first two at once and then gets out of the way. It
- * is a starting point, not a lock.
+ * is a starting point, not a lock. "Reset to Preset" is the way back, and it
+ * restores the STYLE flags and the ENGINE flag too — everything the board can
+ * move, it moves back.
  *
  * No dependencies, no build step, no framework. Auto-initializes on DOM ready
  * when loaded with <script type="module" src="amber-console.js"></script>.
@@ -423,18 +425,36 @@ function initDisplay() {
     });
   }
 
-  /* [data-ac-display-reset] puts the selected preset's simulations back. */
+  /* [data-ac-display-reset] puts the whole board back: the selected preset's
+     simulations, every STYLE flag, and the ENGINE flag.
+
+     IT USED TO CLEAR ONLY THE DERIVED STYLES, which was the bug. A flag with a
+     FIXED default — `classic` — kept its stored value through a reset, so a
+     visitor who had once switched the corners off could not get them back from
+     this button, on any preset, ever; and the ENGINE key was not touched at all,
+     so JS Effects was in the same position. "Reset" that resets two of the four
+     axes is not a reset, it is a partial one nobody can predict the shape of.
+     Every axis the board can move, this button moves back. */
   for (const btn of document.querySelectorAll("[data-ac-display-reset]")) {
     if (wired.has(btn)) continue;
     wired.add(btn);
     btn.addEventListener("click", () => {
-      /* FORGET THE DERIVED STYLES FIRST, and first is the load-bearing word:
-         the change below runs applySim, which re-derives them — but only for
-         flags with nothing stored. Clearing after would leave the user's old
-         choice in place for one more preset, which is not what a reset is. */
-      for (const [name, spec] of Object.entries(STYLES)) {
-        if (typeof spec.defaultOn === "function") clearStored(`style.${name}`);
+      /* FORGET THE STORED PREFERENCES FIRST, and first is the load-bearing word:
+         the change below runs applySim, which re-derives the derived flags — but
+         only for flags with nothing stored. Clearing after would leave the user's
+         old choice in place for one more preset, which is not what a reset is.
+
+         `persist: false` on the way back is the other half. Writing the default
+         to storage here would CLAIM the preference on the user's behalf — the key
+         would exist, syncDerivedStyles would stop filling it, and a derived flag
+         would never follow the simulation again. An absent key means "the user
+         has never said", which is exactly the state a reset is restoring. */
+      for (const name of Object.keys(STYLES)) {
+        clearStored(`style.${name}`);
+        applyStyle(name, styleDefault(name), false);
       }
+      clearStored("engine");
+      applyEngine(ENGINE_DEFAULT_JS, false);
 
       const current = radios.find((r) => r.checked);
       if (current) current.dispatchEvent(new Event("change", { bubbles: true }));
@@ -614,6 +634,12 @@ function initGas() {
  * a far better answer to "what does the JavaScript buy me" than a paragraph.
  *
  * That file reads this attribute off the root itself; nothing here calls it.
+ *
+ * A SEPARATE AXIS IS NOT THE SAME AS AN AXIS OUTSIDE THE PRESET, and the two used
+ * to be confused here. This flag is still not a style and still not hardware —
+ * that is what the paragraph above is defending — but "Reset to Preset" restores
+ * it along with everything else, and moving it therefore reads as MOD. See the
+ * click handler in initEngine.
  */
 const ENGINE_DEFAULT_JS = true;
 
@@ -780,12 +806,22 @@ function initEngine() {
       /* Controls for effects that just stopped existing have to say so. */
       syncDerivedStyles();
 
-      /* Deliberately NOT markModified(). MOD means the panel has been moved off
-         the DISPLAY preset it was set from, and a preset is a statement about
-         hardware — which gas, which phosphor, which simulation. How much of the
-         library is running is not part of that claim and must not read as a
-         change to it. */
-      paintReadout();
+      /* AND IT DOES MARK MOD, which is a reversal worth stating plainly because
+         this line used to be a comment arguing the opposite. The argument was
+         that a preset is a statement about HARDWARE — which gas, which phosphor,
+         which simulation — and how much of the library is running is not part of
+         that claim.
+
+         What changed is the button beside it. "Reset to Preset" now restores the
+         engine flag along with the styles and the simulations, and once a control
+         is something the reset puts BACK, it is by definition part of what the
+         preset describes. A board that resets a switch it never admitted was
+         moved is the readout and the button disagreeing about the same fact.
+
+         In practice this is only reachable on P39 and P7 — everywhere else the
+         switch is disabled because engineUseful() is false — and those are
+         exactly the two panels where turning it off is a visible change. */
+      markModified();
     });
   }
 }
@@ -849,14 +885,47 @@ const STYLES = {
      the panel, not the default reading of it. .ac-rounded is the same opt-out
      scoped to a region instead of the page. */
   classic: { defaultOn: true },
+  /* THE RETRACE BAND — the band that sweeps down the tube every 13s. sim/crt.css.
+     `needs` is the interesting half here, and it is the opposite of `classic`:
+     every rule drawing the band is scoped to .ac-crt, so under plasma this
+     switch has nothing on the other end of it and says so rather than lying.
+     `needsEngine` is deliberately absent — the band is pure CSS and does not
+     care whether the effects module is loaded.
+
+     IT IS A STYLE AND NOT A SIMULATION, which is the one call worth defending.
+     The band is real: it is what a short phosphor actually looked like, and
+     crt.css spends a screen of comment on why it is rendered spatially. But it
+     is also, by a wide margin, the largest moving object in the system — 26% of
+     the frame, traversing all of it, on the one surface a reader is trying to
+     read — and "that motion bothers me" is a comfort preference in exactly the
+     way blink is. Filing it under SIMULATION would have made turning it off a
+     claim that the tube had no retrace, which is not what anybody clicking it
+     means. ON, because it is what the hardware did.
+
+     prefers-reduced-motion hides the band regardless, in sim/frame.css. This
+     switch is for the people that media query does not cover: no system-level
+     preference set, and one effect on one site they would rather not watch. */
+  retrace: { defaultOn: true, needs: "ac-crt" },
 };
+
+/**
+ * What a style flag would be if nobody had ever touched it — the attribute is
+ * deliberately NOT consulted.
+ *
+ * Split out of styleOn because "Reset to Preset" needs the default while the
+ * root is still carrying the value it is about to discard. Asking styleOn there
+ * would answer with the very preference the reset exists to forget.
+ */
+function styleDefault(name) {
+  const fallback = STYLES[name]?.defaultOn ?? true;
+  return typeof fallback === "function" ? Boolean(fallback()) : Boolean(fallback);
+}
 
 /** Current value of a style flag, defaults included. Safe before init. */
 function styleOn(name) {
   const set = document.documentElement.getAttribute(`data-ac-style-${name}`);
   if (set !== null) return set === "on";
-  const fallback = STYLES[name]?.defaultOn ?? true;
-  return typeof fallback === "function" ? Boolean(fallback()) : Boolean(fallback);
+  return styleDefault(name);
 }
 
 /**
@@ -906,16 +975,24 @@ function syncDerivedStyles() {
       applyStyle(name, Boolean(spec.defaultOn()), false);
     }
 
-    /* A SWITCH THAT CANNOT DO ANYTHING SAYS SO. No shipped style needs this any
-       more — the smear was the one that did, and it is no longer a style at all —
-       but the mechanism stays because it is the framework's answer for a consumer
-       flag that depends on a simulation, and because the ENGINE switch is gated
-       the same way a few functions down. A control that can be clicked ON and
-       produce nothing reads as a broken effect rather than as an effect this
-       hardware does not have. */
+    /* A SWITCH THAT CANNOT DO ANYTHING SAYS SO. `retrace` is the shipped flag
+       that needs this — every rule drawing the band is scoped to .ac-crt, so
+       under plasma the switch is wired to nothing — and the ENGINE switch is
+       gated the same way a few functions down. A control that can be clicked ON
+       and produce nothing reads as a broken effect rather than as an effect this
+       hardware does not have.
+
+       `needsEngine` IS A SECOND, SEPARATE CONDITION and it used to be welded on
+       unconditionally. That was inherited from `smear`, the flag this mechanism
+       was written for, which was implemented in the effects module and genuinely
+       did go dark with the engine. Nothing else does: `retrace` is pure CSS, and
+       gating it on engineOn() would have disabled the band's switch for anybody
+       running the framework without the JS effects — which is most consumers.
+       A flag opts into that condition now instead of inheriting it. */
     if (!spec.needs) continue;
     const live =
-      Boolean(screenFrame()?.classList.contains(spec.needs)) && engineOn();
+      Boolean(screenFrame()?.classList.contains(spec.needs)) &&
+      (!spec.needsEngine || engineOn());
     for (const btn of document.querySelectorAll(`[data-ac-style="${name}"]`)) {
       btn.disabled = !live;
     }

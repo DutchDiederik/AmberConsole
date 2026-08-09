@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REFERENCE — Amber Console</title>
+<meta name="description" content="The complete index: every class, every root attribute, every token and every stored key in the framework.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#100600">
+
+<!-- Social cards. og:image MUST be absolute — a relative path is ignored by
+     every scraper — so these are the only URLs in the project hardcoded to the
+     Pages host. They are inert over file://, which costs nothing. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Amber Console">
+<meta property="og:title" content="REFERENCE — Amber Console System Guide">
+<meta property="og:description" content="The complete index: every class, every root attribute, every token and every stored key in the framework.">
+<meta property="og:url" content="https://dutchdiederik.github.io/AmberConsole/docs/guide-reference.html">
+<meta property="og:image" content="https://dutchdiederik.github.io/AmberConsole/docs/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ORION-70 projection console: an amber plasma control panel of framed regions, inverse-video status strips and instrument readouts.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@DutchDiederik">
+
+<link rel="stylesheet" href="../dist/amber-console.css">
+<link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<!-- The nav lives INSIDE the frame. A menu bar floating above the simulations
+     is a menu bar that is not part of the screen — no bleed, no scanlines, no
+     vignette on it. .ac-screen uses overflow:clip precisely so a sticky bar can
+     sit inside the frame and still stick to the viewport.
+
+     The frame ships in the DEFAULT state, not the everything-on state: plasma on,
+     CRT off. Any class or overlay node that is off by default must be absent here,
+     or it paints for one frame on every load before initSims removes it. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+<a class="doc-skip" href="#content">Skip to content</a>
+<span class="ac-mesh"></span>
+
+<!-- @include _nav.html -->
+<!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
+<nav class="ac-nav ac-nav--sticky">
+  <span class="ac-nav__mark">Amber Console</span>
+  <div class="ac-nav__links">
+    <a class="ac-nav__link" href="index.html">Console</a>
+    <a class="ac-nav__link" href="server.html">Server</a>
+    <a class="ac-nav__link" href="radar.html">Radar</a>
+    <a class="ac-nav__link" href="terminal.html">Terminal</a>
+    <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
+  </div>
+  <span class="ac-nav__meta">
+    <!-- The bar is the sticky half of the anti-confusion job: the board below
+         scrolls away, this does not, and it always names the TECHNOLOGY first
+         and the emitter second. -->
+    <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">PLASMA · NEON</span></span>
+    <!-- Stamped from package.json by scripts/build.mjs — see stampRev. Editing
+         the number here does nothing; the next build overwrites it. -->
+    <span>REV 2.0</span>
+    <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
+  </span>
+</nav>
+<!-- @end -->
+
+<!-- @include _board.html emitter="neon" -->
+<!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- ============================================================ SETUP ==
+     Four quarters. Four axes, and they are never the same axis:
+
+       DISPLAY     what hardware is in the panel. Sets the color.
+                   TWO regions, one per technology, never one list of eleven.
+       SIMULATION  what the glass does about it. Never sets a color.
+       STYLE       preferences that make no claim about the hardware at all.
+       ENGINE      how much of the library is running. Not hardware, and not a
+                   preference either — see the SWITCHES quarter.
+
+     The last three share one quarter and are told apart by the labels inside it
+     rather than by three panel borders, because three regions of switches ran
+     606px on a board that is not allowed to scroll.
+
+     Splitting the catalog across two quarters is not only about confusion,
+     though that is the point of it: eleven rows in one column is also taller
+     than a board that never scrolls is allowed to be. Four gases and seven
+     phosphors side by side fit.
+
+     data-ac-peak IS NOT THE SAME KIND OF NUMBER ON BOTH SIDES, which is the
+     clearest single reason these two catalogs are not one list:
+
+       A GAS emits a LINE SPECTRUM. The number is the strongest VISIBLE line,
+       and it is NOT the perceived hue — that is the CIE integral of every line
+       at once, which is the whole argument tokens/colors.css makes for landing
+       neon at 24deg rather than at its 585.2nm line. Argon reads violet on the
+       glass while its strongest visible line is deep red at 696.5nm, and most
+       of what argon emits is not visible at all. No contradiction: they are
+       answers to different questions.
+
+       A PHOSPHOR emits a BROAD BAND. The number is the band peak, and it does
+       correspond to the perceived hue, because there is only one band.
+
+     Two phosphors carry two numbers and both are real hardware, not a hedge.
+     P4 is a BLEND of a blue and a yellow emitter, mixed to white; P7 is two
+     LAYERS, a fast blue flash over a yellow-green glow that outlasts it by
+     seconds. Neither has a single peak to state.
+
+     Every row below carries its peak, and all eleven are fitted — the four
+     gases and the seven phosphors each have a block in tokens/colors.css. Adding
+     a twelfth is one block there plus one row here carrying
+     data-ac-display/-tech/-emitter/-sims, and nothing else. -->
+<div class="ac-setup">
+  <div class="ac-setup__grid">
+
+    <!-- ------------------------------------------------- 1/4 · plasma -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▮ Plasma Gases</span>
+      <p class="doc-displays__note">Gas emitting directly. No phosphor in the stack.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">Plasma gases</legend>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" checked
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
+          <span class="doc-display__name">Neon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Orange-red 585nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="helium" data-ac-sims="plasma" data-ac-peak="587.6 nm">
+          <span class="doc-display__name">Helium</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Pale pink 588nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="argon" data-ac-sims="plasma" data-ac-peak="696.5 nm">
+          <span class="doc-display__name">Argon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Lavender 696nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="krypton" data-ac-sims="plasma" data-ac-peak="587.1 nm">
+          <span class="doc-display__name">Krypton</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Violet 587nm</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <!-- ---------------------------------------------------- 1/4 · crt -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▯ CRT Phosphors</span>
+      <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">CRT phosphors</legend>
+        <p class="doc-displays__group">General purpose · built to be read</p>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
+          <span class="doc-display__name">P1</span>
+          <span class="doc-display__use">Scope</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 525nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
+          <span class="doc-display__name">P3</span>
+          <span class="doc-display__use">Terminal</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Amber 590nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
+          <span class="doc-display__name">P4</span>
+          <span class="doc-display__use">Television</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">White 450+560nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
+          <span class="doc-display__name">P31</span>
+          <span class="doc-display__use">Monitor</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 520nm</span>
+        </label>
+        <p class="doc-displays__group">Specialized · built for an instrument</p>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
+          <span class="doc-display__name">P7</span>
+          <span class="doc-display__use">Radar</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Blue+green 450/558nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
+          <span class="doc-display__name">P11</span>
+          <span class="doc-display__use">Photographic</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Blue 460nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
+          <span class="doc-display__name">P39</span>
+          <span class="doc-display__use">Slow decay</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 525nm</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <!-- ------------------------------------------------ 1/4 · switches -- -->
+    <!-- ONE REGION FOR ALL FOUR SWITCHES, WITH TWO GROUP LABELS INSIDE IT.
+
+         Three panels — SIMULATION, STYLE, ENGINE — read correctly and cost 606px
+         of a board that is not allowed to scroll, against 250 and 350 for the two
+         catalogs beside them. One region is about 370px, and the quarter stops
+         being the tallest thing on the glass.
+
+         THE LABELS ARE NOT DECORATION, THEY ARE WHAT THE PANEL BORDERS WERE
+         SAYING. These are three different KINDS of statement — what the hardware
+         is, what the viewer prefers, and how much of the library is running.
+         Merge them without replacing the boundary and the board quietly claims
+         PLASMA and JS EFFECTS are the same sort of switch, which is the exact
+         confusion the four quarters exist to prevent. -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">Switches</span>
+
+      <p class="doc-switches__axis">Simulation · never a color</p>
+      <div class="doc-switches">
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-sim="plasma" aria-pressed="true">
+          <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+        <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+          <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+        </button>
+        <!-- THE BAND STANDS UNDER CRT BECAUSE IT IS PART OF THE TUBE, and it is
+             the one switch here that is not a `data-ac-sim`. It earns an off
+             switch by being the only part of the tube that TRAVELS: scanlines,
+             vignette and the mains hum are texture and sit still, while this is
+             26% of the frame crossing all of it every 13s, over text somebody is
+             reading. So it is a comfort control — but it is a comfort control
+             over ONE SIMULATION'S effect, and the note below has always said so
+             in as many words. Standing it beside CLASSIC BUTTONS asked the reader
+             to hold both ideas at once: that the band is part of the CRT
+             simulation, and that it is not on the simulation side of the board.
+             It is gated the same way it reads — `needs: "ac-crt"` in the STYLES
+             table, so it disables itself wherever there is no tube to sweep.
+             See ../src/sim/crt.css, which also documents the author's version of
+             the same opt-out: leave the .ac-retrace child out of the frame and
+             there is nothing to switch. prefers-reduced-motion hides it either
+             way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true" disabled>
+          <span>Retrace Band</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+      </div>
+
+      <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
+      <div class="doc-switches">
+        <!-- No BLINK switch here on purpose. Blink is law-2 emphasis, and every
+             page carrying this board has a live alarm on it somewhere, so they
+             keep it on and do not offer to turn it off. The style flag itself is
+             still in the framework — write data-ac-style="blink" on a toggle to
+             expose it, or set data-ac-style-blink="off" on <html>.
+             prefers-reduced-motion stops it either way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true" disabled>
+          <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+        <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
+             the board rather than beside PLASMA and CRT: a bevel makes no claim about
+             which gas is in the gap, and unlike the retrace band above it is not one
+             simulation's effect either — it reaches every bordered surface on the
+             page whichever display is fitted. Cuts the corners off every
+             bordered surface, stands the keys on a hard offset edge and parks their
+             labels top-left — one look, one switch. Ships ON, because that is what the
+             panel was; switching it off asks for a smoother corner than the hardware
+             could draw. Where corner-shape is unsupported the corners quantize to 2px
+             instead of cutting, so both positions mean something in every browser.
+             See ../src/components/classic.css, and .ac-rounded for the same opt-out
+             scoped to one region — which is how the guide's CONTROLS chapter shows
+             both corners at once regardless of where this switch is standing. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="classic" aria-pressed="true">
+          <span>Classic Buttons</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+      </div>
+
+      <!-- Ships VISIBLE, because the partial's own default is a gas and the band
+           is a CRT effect. The build hides it on the pages whose preset is a
+           phosphor — see expandBoard. -->
+      <p class="doc-displays__note" data-ac-style-note="retrace">The retrace band is part of the CRT simulation, and there is no sweep across a plasma panel to switch off.</p>
+      <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
+      <p hidden class="doc-displays__note" data-ac-engine-off>JS Effects off: no ghosting, smear or framebuffer
+        decay. Everything else here is CSS.</p>
+
+      <div class="doc-engine" data-ac-engine-on hidden>
+        <span class="doc-engine__title">Running · what CSS cannot do</span>
+        <ul class="doc-engine__list">
+          <li><b>Ghosting</b> — rewritten text leaves its old value to decay</li>
+          <li><b>Scroll smear</b> — the image trails while the page moves</li>
+          <li><b>Framebuffer decay</b> — the old screen drains behind the new</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ----------------------------------------- 1/4 · state, the note -- -->
+    <div class="ac-stack" style="--ac-gap: 24px">
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">State</span>
+        <dl class="ac-list ac-list--dense">
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Technology</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="tech">PLASMA</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emitter</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emission</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="peak">585.2 nm</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Mode</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Engine</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="engine">CSS + JS</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- The prose is markup, one node per key, all but the matching one
+           hidden. A key is a technology, or an exact tech/emitter pair where
+           one phosphor does not behave like the rest of its family. -->
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">Technology</span>
+        <!-- FALLBACK ONLY, and no longer reached. paintInfo() in
+             ../src/amber-console.js prefers an exact "tech/emitter" key over a bare
+             "tech" one, and all eleven emitters now carry their own paragraph. These
+             two stay as the safety net for an emitter added without prose — delete
+             them only if you also drop that fallback. The technology is explained on
+             screen either way by the note under each catalog title. -->
+        <p class="doc-info" data-ac-display-info="plasma">A gas in a sealed gap, struck by a
+          sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
+          hue and varies only how hard it is driven.</p>
+        <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
+             deep red, while the panel is plainly lavender — that looks like a bug
+             until you know the eye is doing the arithmetic. -->
+        <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
+          output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
+          strongest line, not the color. What you see is the faint 415–475nm group, a hundred
+          times weaker and a hundred times better placed. It is also why argon is a dim GAS — though not a dim palette: every stop here is solved to the same contrast ratio as every other, so what changes between displays is the hue, never the brightness.</p>
+        <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
+          visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
+          yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
+          panel reads violet rather than any one of those colors.</p>
+        <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
+          which emits while struck and then persists. The color belongs to the phosphor, not the
+          beam; the P-number names the compound.</p>
+        <p class="doc-info" data-ac-display-info="plasma/neon">The gas the plasma panel was actually built on, and what this framework opens to. In a low-pressure glow the 2p→1s array dominates — the lowest excited states that radiate visibly, populated far more heavily than anything above them — so the discharge is one narrow orange-red rather than a mixture. Nixie tubes and the first flat panels ran on it.</p>
+        <p class="doc-info" data-ac-display-info="plasma/helium" hidden>The palest gas here, and structurally so: helium has no low-lying manifold to dominate the way the heavier gases do. Its visible lines all fall from n=3 and n=4 at comparable energies, so none outranks the rest and every one contributes. That integrates to near-white with a pink cast — 587.6nm carries the luminance while 447.1nm and 667.8nm pull it off the blackbody locus. A display gas by mixture rather than on its own.</p>
+        <p class="doc-info" data-ac-display-info="crt/p1" hidden>Zn₂SiO₄:Mn — willemite, the oldest CRT phosphor and the one the first oscilloscopes and radar indicators were built around. A silicate host rather than a sulfide, so a narrow 48nm band against P31's 78nm: a purer green, and a less efficient one. P39 is this same compound with arsenic added to stretch the decay.</p>
+        <p class="doc-info" data-ac-display-info="crt/p3" hidden>The amber terminal, and the ramp this framework was drawn against. Not a pure orange but a broad band with real green content — the fit lands at 594nm across 110nm — which is what holds amber text legible at small sizes. It was the standard alternative to green on office terminals, sold on being easier on the eyes across a working day.</p>
+        <p class="doc-info" data-ac-display-info="crt/p31" hidden>ZnS:Cu — the green everybody actually pictures when they picture a terminal or a laboratory oscilloscope. It carries the highest luminous efficiency of any phosphor here, sitting near the peak of the eye's photopic curve, which is why it displaced the willemites for anything meant to be looked at directly rather than photographed.</p>
+        <p class="doc-info" data-ac-display-info="crt/p7" hidden>The radar phosphor, and it went onto scope tubes for a reason: the flash gives
+          position and the trail gives history. Two coatings, not one. The beam writes into a blue
+          ZnS:Ag layer that decays in microseconds, and that layer's own photons pump a
+          yellow-green one behind it which holds for seconds. So the ink is blue and the halo is
+          green: text you are reading is being re-struck sixty times a second, and text that stops
+          being written leaves only the glow.</p>
+        <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
+          and leaves the color alone — this palette and P1 are the same green, and differ only in
+          how long it lasts. At hundreds of milliseconds the screen is still near full brightness
+          when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
+          paid for in smear.</p>
+        <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
+          P11 was fitted to screens meant to be photographed rather than watched — and watched, it
+          is the worst screen here. It decays in tens of microseconds, three orders below a
+          refresh interval, so the screen is genuinely dark between frames. Short persistence and
+          heavy flicker are the same fact.</p>
+        <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
+          mixed into one coating, emitting together, which the eye integrates to white. That is
+          what separates it from P7 — two powders mixed have one color, two powders layered emit
+          in sequence and the color changes as you watch.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ac-setup__foot">
+    <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
+    <span class="ac-spacer"></span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable — and Reset puts all of it back, switches, styles and engine alike.</span>
+  </div>
+</div>
+<!-- @end -->
+
+<div class="doc-wrap">
+
+<!-- @include _chapters.html -->
+<!-- GENERATED from docs/_chapters.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- The guide's own second level. The top bar names the four demos and the
+     guide; this names the guide's chapters, and it is deliberately NOT sticky —
+     the bar above it is the one thing that must survive scrolling, and two
+     stacked sticky strips eat a quarter of a laptop viewport.
+
+     Not .ac-tabs, though it looks like a row of soft keys: tabs swap a region
+     and these are page loads, which is the distinction the TABS specimen in the
+     CONTROLS chapter draws itself. Marked with aria-current by the build. -->
+<nav class="doc-chapters" aria-label="Guide chapters">
+  <a class="doc-chapter" href="guide.html">Overview</a>
+  <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
+  <a class="doc-chapter" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
+  <a class="doc-chapter" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
+  <a class="doc-chapter" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
+  <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
+  <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
+  <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+  <!-- 08 AND 09 ARE LOOKUP RATHER THAN READING, and they are still numbered.
+       An unnumbered appendix would have said "optional", which is the opposite of
+       what a complete index is for: the seven chapters before them argue a case
+       and can be read in order, these two answer "does the framework have X" and
+       "what happened to Y" without being read at all. Same strip, same weight —
+       the distinction lives in the blurb on the overview card, not in the
+       numbering. -->
+  <a class="doc-chapter" aria-current="page" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
+  <a class="doc-chapter" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
+</nav>
+<!-- @end -->
+
+  <main id="content">
+
+  <header class="doc-head doc-head--chapter">
+    <div class="doc-kicker"><span class="doc-num">08</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>REFERENCE</h1>
+  </header>
+  <p class="doc-lede">Everything the framework exposes, in one place. The seven chapters before this
+    one argue; this one only lists.</p>
+
+  <section id="how-to-read">
+    <div class="doc-sec-head"><h2>HOW TO READ IT</h2></div>
+    <div class="doc-prose">
+      <p class="doc-dim">This chapter is the <strong>index</strong>, not the argument. Every entry
+        links back to the chapter that explains it, and nothing here is a summary of the reasoning —
+        if a row makes you ask <em>why</em>, the chapter it points at is where the answer lives.</p>
+      <p class="doc-dim">It exists because a guide made of specimens answers "how do I do X" very
+        well and "does this thing even have Y" very badly. Both are real questions. Seven chapters of
+        prose could not answer the second one without being read end to end, and a framework whose
+        surface can only be discovered by reading it is a framework people re-implement pieces of.</p>
+      <p class="doc-dim"><strong>Tokens are split by who sets them</strong>, which is the single most
+        useful distinction in the list and the one the source files do not make on their face. A
+        token you set is part of the API: override it and the framework follows. A token the
+        framework sets is plumbing — it is derived from the palette or from another token, it is
+        rewritten whenever the display changes, and setting it yourself means fighting the code that
+        owns it. Both are documented, because you may well need to <em>read</em> a derived value; only
+        one of them is a place to write.</p>
+      <p class="doc-dim">Nothing here is versioned separately from the framework. If a name appears
+        in this table it is in the build you are looking at, and anything that has been taken away is
+        in <a href="guide-deprecations.html">DEPRECATED</a> instead.</p>
+    </div>
+  </section>
+
+  <section id="classes">
+    <div class="doc-sec-head"><h2>EVERY CLASS</h2></div>
+    <p class="doc-dim">All of them, grouped the way <code>src/</code> is. A class marked
+      <strong>needs a child</strong> will not render on its own — the companion node is listed, and
+      <a href="guide-effects.html">EFFECTS</a> shows the assembled frame.</p>
+
+    <h3 style="margin:28px 0 12px">LAYOUT AND UTILITY · src/base/layout.css</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>CLASS</th><th>WHAT IT DOES</th><th>NOTES</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">.ac-screen</td><td>The full-height frame the simulations paint on.</td><td>Once per page. <code>100svh</code>, <code>overflow: clip</code>.</td></tr>
+        <tr><td class="doc-tok">.ac-screen__body</td><td>The padded content well inside the frame.</td><td>Override with <code>--ac-screen-pad</code>.</td></tr>
+        <tr><td class="doc-tok">.ac-stack</td><td>Flex column, gap from <code>--ac-gap</code>.</td><td>Default gap <code>--ac-space-4</code>.</td></tr>
+        <tr><td class="doc-tok">.ac-row</td><td>Flex row, gap from <code>--ac-gap</code>.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-row--wrap</td><td>Lets the row wrap.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-row--center</td><td><code>align-items: center</code>.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-row--baseline</td><td><code>align-items: baseline</code>.</td><td>A big number beside its unit.</td></tr>
+        <tr><td class="doc-tok">.ac-row--between</td><td><code>justify-content: space-between</code>.</td><td>Justifies every gap — see <code>.ac-spacer</code>.</td></tr>
+        <tr><td class="doc-tok">.ac-row--end</td><td><code>justify-content: flex-end</code>.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-grid</td><td>Grid of <code>--ac-cols</code> equal tracks.</td><td>Default gap <code>--ac-space-6</code>.</td></tr>
+        <tr><td class="doc-tok">.ac-grid--console</td><td>The canonical split: operate left, instrument right.</td><td>Stacks below 900px. No <code>--ac-cols</code>.</td></tr>
+        <tr><td class="doc-tok">.ac-col-2 -3 -4 -6</td><td>Column spans for a grid child.</td><td>All reset to <code>auto</code> below 900px. No <code>-5</code>.</td></tr>
+        <tr><td class="doc-tok">.ac-grow</td><td>Absorbs leftover space, with <code>min-width: 0</code>.</td><td>Needed on a row of <code>.ac-btn--pad</code>.</td></tr>
+        <tr><td class="doc-tok">.ac-spacer</td><td>Empty element that eats the slack at one point.</td><td>Use instead of <code>--between</code> in a row of three.</td></tr>
+        <tr><td class="doc-tok">.ac-push</td><td><code>margin-top: auto</code> — drop to the bottom.</td><td>The one margin in the system. Flex column only.</td></tr>
+        <tr><td class="doc-tok">.ac-sr-only</td><td>Available to assistive tech, invisible on the panel.</td><td>For a <code>&lt;legend&gt;</code> the panel title already states.</td></tr>
+        <tr><td class="doc-tok">.ac-root</td><td>Scoped reset, for embedding in a page you do not own.</td><td>src/base/reset-scoped.css. Use <em>instead of</em> the global reset.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px">All of these are demonstrated in
+      <a href="guide-type.html#layout">TYPE &amp; GEOMETRY · LAYOUT</a>.</p>
+
+    <h3 style="margin:32px 0 12px">CONTROLS · src/components/</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>CLASS</th><th>WHAT IT DOES</th><th>MODIFIERS</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">.ac-btn</td><td>The key. Outline by default.</td><td><code>--filled</code> (inverse, one per region) <code>--dim</code> <code>--sm</code> <code>--lg</code> <code>--pad</code> <code>--block</code></td></tr>
+        <tr><td class="doc-tok">.ac-tabs</td><td>Soft-key strip. Needs <code>role="tablist"</code>.</td><td>Children: <code>.ac-tab</code>, <code>.ac-tab--active</code></td></tr>
+        <tr><td class="doc-tok">.ac-toggle</td><td>Two-position switch with a mandatory ON/OFF word.</td><td><code>--on</code> (state) <code>--input</code> (CSS-only, no JS) · parts <code>__track</code> <code>__thumb</code> <code>__state</code></td></tr>
+        <tr><td class="doc-tok">.ac-check</td><td>Status bit. A set bit fills solid; no check glyph.</td><td><code>--disabled</code></td></tr>
+        <tr><td class="doc-tok">.ac-radio</td><td>Exclusive mode selection.</td><td><code>--disabled</code></td></tr>
+        <tr><td class="doc-tok">.ac-field</td><td>Label plus control wrapper.</td><td><code>--block</code> <code>--invalid</code> · parts <code>__label</code></td></tr>
+        <tr><td class="doc-tok">.ac-input</td><td>The recessed well itself.</td><td><code>--block</code></td></tr>
+        <tr><td class="doc-tok">.ac-select</td><td>Wrapper that draws the well around a <code>&lt;select&gt;</code>.</td><td><code>--block</code></td></tr>
+        <tr><td class="doc-tok">.ac-keypad</td><td>Numeric pad for gloved hands.</td><td><code>--dense</code> (mouse only) · keys <code>.ac-keypad__key</code>, <code>__key--fn</code> (CLR / ENT, read as commands), <code>__key--wide</code> (spans two columns)</td></tr>
+        <tr><td class="doc-tok">.ac-dialog</td><td>Native <code>&lt;dialog&gt;</code>, flat backdrop, no fade.</td><td><code>--wide</code> · parts <code>__title</code> <code>__body</code> <code>__actions</code></td></tr>
+        <tr><td class="doc-tok">.ac-nav</td><td>The menu bar. Goes <em>inside</em> the frame.</td><td><code>--sticky</code> · parts <code>__mark</code> <code>__links</code> <code>__link</code> <code>__meta</code> · the current link inverts on <code>[aria-current="page"]</code>, with <code>__link--active</code> as the class equivalent where you cannot write the aria state</td></tr>
+        <tr><td class="doc-tok">.ac-setup</td><td>The permanently-open control board.</td><td>parts <code>__grid</code> <code>__foot</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px">Live specimens in
+      <a href="guide-controls.html">CONTROLS</a>.</p>
+
+    <h3 style="margin:32px 0 12px">DISPLAY · src/components/</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>CLASS</th><th>WHAT IT DOES</th><th>MODIFIERS</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">.ac-panel</td><td>A framed region with a legend chip in its border.</td><td><code>--dim</code> (recedes) <code>--bar</code> (inverse title) · parts <code>__title</code> (the chip in the border), <code>__barTitle</code> (the full-width strip <code>--bar</code> draws instead — the one camel-cased name in the framework)</td></tr>
+        <tr><td class="doc-tok">.ac-statusbar</td><td>Inverse strip — the machine's own voice.</td><td><code>--line</code> (a data row rather than a statement)</td></tr>
+        <tr><td class="doc-tok">.ac-readout</td><td>Labelled instrument value.</td><td><code>--lg</code> <code>--inline</code> · parts <code>__label</code> (<code>__label--plain</code> drops the inverse-video strip) <code>__value</code> <code>__unit</code></td></tr>
+        <tr><td class="doc-tok">.ac-list</td><td>Keyed log with leader dots. A <code>&lt;dl&gt;</code>.</td><td><code>--dense</code> <code>--dim</code> <code>--bright</code> · parts <code>__item</code> <code>__key</code> <code>__fill</code> <code>__value</code></td></tr>
+        <tr><td class="doc-tok">.ac-table</td><td>The data grid.</td><td><code>--zebra</code> <code>--dense</code> · parts <code>__num</code> <code>__row--active</code></td></tr>
+        <tr><td class="doc-tok">.ac-table-scroll</td><td>Horizontal scroll container for a wide table.</td><td>The answer to a table that will not fit a phone.</td></tr>
+        <tr><td class="doc-tok">.ac-meter</td><td>Stepped bargraph, never a smooth fill.</td><td><code>--lg</code> <code>--dim</code> <code>--alarm</code> · parts <code>__track</code> <code>__bar</code> <code>__scale</code></td></tr>
+        <tr><td class="doc-tok">.ac-badge</td><td>Micro tag in the pixel face.</td><td><code>--filled</code> <code>--dim</code></td></tr>
+        <tr><td class="doc-tok">.ac-banner</td><td>The loudest element. One per screen.</td><td><code>--filled</code> <code>--dim</code></td></tr>
+        <tr><td class="doc-tok">.ac-spinner</td><td>A rotating character, not a circle.</td><td><code>--lg</code> <code>--dim</code></td></tr>
+        <tr><td class="doc-tok">.ac-hr</td><td>The only divider, at the 2px stroke.</td><td><code>--bright</code></td></tr>
+        <tr><td class="doc-tok">.ac-cursor</td><td>Block cursor after the text.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-sweep</td><td>The PPI radar sweep. Pure CSS.</td><td>part <code>__beam</code> (the rotating wedge; the sweep draws nothing without it) — see <a href="guide-persistence.html">PERSISTENCE</a>.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px">Live specimens in
+      <a href="guide-display.html">DISPLAY</a>.</p>
+
+    <h3 style="margin:32px 0 12px">SIMULATIONS AND EFFECTS · src/sim/, src/base/blink.css</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>CLASS</th><th>WHAT IT DOES</th><th>NEEDS A CHILD</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">.ac-bloom</td><td>The plasma panel: hotter glow, a breathing bleed, the cell mesh.</td><td class="doc-tok">.ac-mesh</td></tr>
+        <tr><td class="doc-tok">.ac-crt</td><td>The tube: scanline texture, vignette, 11s drift, 5.5s hum, the retrace band.</td><td class="doc-tok">.ac-retrace</td></tr>
+        <tr><td class="doc-tok">.ac-afterglow</td><td>Persistence. Rides with <code>.ac-crt</code> on the board.</td><td class="doc-tok">.ac-persist</td></tr>
+        <tr><td class="doc-tok">.ac-scanlines</td><td>The static, motion-free texture. For cards, thumbnails and print.</td><td>no</td></tr>
+        <tr><td class="doc-tok">.ac-mesh</td><td>The cell mesh and its shimmer. Companion to bloom.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-retrace</td><td>The sweeping band. Companion to CRT; switchable, and omittable.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-persist</td><td>The layer ghosts and the smear are mounted into. Companion to afterglow.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-ghost</td><td>One decaying copy of a rewritten value. Mounted and removed by effects.js.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-ghost--fast</td><td>The same, on the short tail, where a value rewrites often.</td><td>—</td></tr>
+        <tr><td class="doc-tok">.ac-blink</td><td>Law-2 emphasis. <code>steps(1)</code>, 1.1s, never a fade.</td><td>—</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px">All three simulations compose in CSS; the
+      board refuses to run plasma and CRT together, which is a rule of the demo and not of the
+      framework. <a href="guide-effects.html">EFFECTS</a> and
+      <a href="guide-persistence.html">PERSISTENCE</a> have the arguments.</p>
+
+    <h3 style="margin:32px 0 12px">CORNER STYLE · src/components/classic.css</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>CLASS</th><th>WHAT IT DOES</th><th>SCOPE</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">.ac-classic</td><td>Cut corners, extruded key edge, label top-left. The default look.</td><td>One region — including back inside a rounded one.</td></tr>
+        <tr><td class="doc-tok">.ac-rounded</td><td>The way back to the arc.</td><td>One region.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px">The page-wide version of the same choice is
+      <code>data-ac-style-classic</code> below. Where <code>corner-shape</code> is unsupported the
+      corners quantize to a hard 2px instead of cutting, so both positions mean something in every
+      browser. <a href="guide-controls.html">CONTROLS</a> shows both at once.</p>
+  </section>
+
+  <section id="attributes">
+    <div class="doc-sec-head"><h2>EVERY ATTRIBUTE</h2></div>
+    <p class="doc-dim">Two kinds, and they are not interchangeable. <strong>State attributes</strong>
+      go on <code>&lt;html&gt;</code> and are read by the CSS — write them yourself and the framework
+      follows, with or without the JavaScript. <strong>Hooks</strong> are how the optional module
+      finds controls; they do nothing on their own.</p>
+
+    <h3 style="margin:28px 0 12px">STATE · on the root element, read by CSS</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>ATTRIBUTE</th><th>VALUES</th><th>WHAT IT SELECTS</th><th>DEFAULT</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">data-ac-tech</td><td><code>plasma</code> <code>crt</code></td><td>What is making light at all.</td><td><code>plasma</code></td></tr>
+        <tr><td class="doc-tok">data-ac-emitter</td><td><code>neon helium argon krypton</code> · <code>p1 p3 p4 p7 p11 p31 p39</code></td><td>Which gas or phosphor inside that technology. The palette.</td><td><code>neon</code></td></tr>
+        <tr><td class="doc-tok">data-ac-engine</td><td><code>css</code> <code>css+js</code></td><td>Whether the effects module may contribute.</td><td><code>css+js</code></td></tr>
+        <tr><td class="doc-tok">data-ac-style-blink</td><td><code>on</code> <code>off</code></td><td>Law-2 blink, everywhere at once.</td><td><code>on</code></td></tr>
+        <tr><td class="doc-tok">data-ac-style-classic</td><td><code>on</code> <code>off</code></td><td>Cut corners and extruded key edges, page-wide.</td><td><code>on</code></td></tr>
+        <tr><td class="doc-tok">data-ac-style-retrace</td><td><code>on</code> <code>off</code></td><td>The CRT retrace band.</td><td><code>on</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px"><strong>The style flags are always written
+      explicitly, both ways</strong>, and that is deliberate: CSS selecting on the <em>absence</em> of
+      an attribute cannot tell "the author has not chosen" apart from "the author chose off", and the
+      defaults above are the only place that distinction is allowed to live. An emitter is only
+      meaningful inside its technology, which is why naming a palette takes two attributes and not
+      one — see <a href="guide-color.html">COLOR</a>.</p>
+
+    <h3 style="margin:32px 0 12px">HOOKS · read by amber-console.js, inert without it</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>ATTRIBUTE</th><th>GOES ON</th><th>WHAT IT WIRES</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">data-ac="tabs"</td><td>An <code>.ac-tabs</code> container</td><td>The arrow-key tablist model and roving focus.</td></tr>
+        <tr><td class="doc-tok">data-ac="toggle"</td><td>An <code>.ac-toggle</code> button</td><td>Click-to-flip, keeping <code>aria-pressed</code> and the ON/OFF word in sync.</td></tr>
+        <tr><td class="doc-tok">data-ac-screen</td><td>The frame</td><td>Names the element the simulations mount on. Falls back to the first <code>.ac-screen</code>.</td></tr>
+        <tr><td class="doc-tok">data-ac-sim</td><td>A toggle</td><td><code>"plasma"</code> or <code>"crt"</code> — mounts the classes and the companion child.</td></tr>
+        <tr><td class="doc-tok">data-ac-style</td><td>A toggle</td><td>The flag name: <code>"blink"</code>, <code>"classic"</code>, <code>"retrace"</code>.</td></tr>
+        <tr><td class="doc-tok">data-ac-style-note</td><td>Any element</td><td>Revealed while the named style flag can do nothing.</td></tr>
+        <tr><td class="doc-tok">data-ac-engine</td><td>A <em>button</em></td><td>The engine switch. On the root it is state, above; on a button it is the control.</td></tr>
+        <tr><td class="doc-tok">data-ac-engine-note<br>-off / -on</td><td>Any element</td><td>The three states of that switch: cannot / could but off / contributing.</td></tr>
+        <tr><td class="doc-tok">data-ac-display</td><td>A radio</td><td>One catalog row. Carries <code>-tech</code>, <code>-emitter</code>, <code>-sims</code>, <code>-peak</code>.</td></tr>
+        <tr><td class="doc-tok">data-ac-display-out</td><td>Any element</td><td>A readout: <code>tech emitter peak mode engine label</code>.</td></tr>
+        <tr><td class="doc-tok">data-ac-display-info</td><td>Any element</td><td>Prose for one technology or one exact <code>tech/emitter</code> pair.</td></tr>
+        <tr><td class="doc-tok">data-ac-display-reset</td><td>A button</td><td>Reset to Preset — simulations, styles and engine together.</td></tr>
+        <tr><td class="doc-tok">data-ac-dialog-open</td><td>A button</td><td>The id of the <code>&lt;dialog&gt;</code> to show.</td></tr>
+        <tr><td class="doc-tok">data-ac-dialog-close</td><td>A button <em>inside</em> the dialog</td><td>Closes the dialog it is in. Takes no value. Only needed where the button is not in a <code>&lt;form method="dialog"&gt;</code>, which closes on its own.</td></tr>
+        <tr><td class="doc-tok">data-ac-scrolling</td><td>The frame</td><td><em>Written</em> by effects.js while the page moves. Read it; do not set it.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px"><strong>The catalog is markup, not a table
+      inside the JavaScript.</strong> Ship your own <code>[data-ac-display]</code> radios with your
+      own palettes and the module needs no edit — which is the same reason the technology prose is
+      one <code>[data-ac-display-info]</code> node per key rather than strings escaped through a
+      script. <a href="guide-screen.html#board">SCREEN &amp; BOARD</a> documents the assembled
+      board.</p>
+
+    <!-- THE ONE THING IN EITHER MODULE YOU EVER HAVE TO CALL, and it was
+         undocumented because it is almost never needed: both modules bind
+         themselves on DOMContentLoaded, so a static page never calls anything.
+         Markup that arrives afterwards is the exception, and there was nothing
+         on this site saying what to do about it. -->
+    <p class="doc-faint doc-small" style="margin-top:12px"><strong>Element hooks are bound once, on
+      load.</strong> Both optional modules bind themselves at <code>DOMContentLoaded</code>, so a
+      page that ships its markup in the HTML calls nothing at all. The exception is markup inserted
+      <em>afterwards</em>: a <code>[data-ac="tabs"]</code> strip or a <code>[data-ac="toggle"]</code>
+      your own code rendered is not wired, and the fix is one call —
+      <code>AmberConsole.init(el)</code> over the new subtree, or <code>AmberConsole.init()</code>
+      for the whole document. It keeps a set of what it has already wired, so calling it twice on
+      the same element cannot double-bind a listener.</p>
+    <p class="doc-faint doc-small" style="margin-top:12px">Two hooks need nothing either way.
+      <strong>The dialog pair is delegated from the document</strong>, so a
+      <code>&lt;dialog&gt;</code> appended at runtime opens and closes with no call. And the
+      persistence module watches the whole tree with a <code>MutationObserver</code> — ghosting and
+      smear find new nodes on their own, which is why <code>AmberConsoleEffects.init()</code> is
+      called for you and is not something you normally touch.</p>
+  </section>
+
+  <section id="tokens">
+    <div class="doc-sec-head"><h2>EVERY TOKEN</h2></div>
+    <p class="doc-dim">Every custom property in the framework begins <code>--ac-</code>. That is not
+      tidiness: <code>dist/amber-console.layer.css</code> exists so the framework can be embedded in
+      an app that owns the page, and <strong>cascade layers do not protect custom properties</strong>
+      — an unlayered <code>:root { --radius: 12px }</code> in the host beats a layered one. A host
+      that happened to use <code>--gap</code> or <code>--cols</code> silently re-cornered every
+      control in the framework. <code>stylelint</code> enforces the prefix now, so the next token
+      cannot go bare.</p>
+
+    <h3 style="margin:28px 0 12px">COLOR · you set these</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>TOKEN</th><th>WHAT IT IS</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">--ac-ink</td><td>Body text. The 5.2:1 stop.</td></tr>
+        <tr><td class="doc-tok">--ac-ink-bright</td><td>The live value. 7.0:1.</td></tr>
+        <tr><td class="doc-tok">--ac-ink-dim</td><td>Secondary drive. 3.4:1 — a cell driven at 70%, not an off state.</td></tr>
+        <tr><td class="doc-tok">--ac-ink-faint</td><td>Furniture and disabled text.</td></tr>
+        <tr><td class="doc-tok">--ac-ink-trace</td><td>The faintest mark the panel can make — leader dots, unlit scale ticks.</td></tr>
+        <tr><td class="doc-tok">--ac-screen</td><td>The glass. One of three warm blacks.</td></tr>
+        <tr><td class="doc-tok">--ac-screen-well</td><td>A recessed surface: inputs, selects.</td></tr>
+        <tr><td class="doc-tok">--ac-screen-raised</td><td>A surface standing above the glass.</td></tr>
+        <tr><td class="doc-tok">--ac-fill</td><td>Inverse video: filled keys, status strips.</td></tr>
+        <tr><td class="doc-tok">--ac-fill-bright</td><td>The hot fill, for a latched or alarmed surface.</td></tr>
+        <tr><td class="doc-tok">--ac-on-fill</td><td>Text drawn on a fill.</td></tr>
+        <tr><td class="doc-tok">--ac-stroke</td><td>Every border in the system.</td></tr>
+        <tr><td class="doc-tok">--ac-stroke-dim</td><td>The receded border.</td></tr>
+        <tr><td class="doc-tok">--ac-emit-100 -90 -70 -50 -30</td><td>The emission ramp the five ink levels are solved from.</td></tr>
+        <tr><td class="doc-tok">--ac-halo-1 -2 -3 -4</td><td>The scatter ramp — light spread in the glass, as raw <code>r, g, b</code> triples.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px">Eleven palettes set all of these, and every
+      stop in every one of them is solved to the same contrast ratio — so what changes between
+      displays is the <em>hue</em>, never the brightness. <a href="guide-color.html">COLOR</a> shows
+      the derivation. The halo tokens are triples rather than colors so they can be given an alpha at
+      the point of use.</p>
+
+    <h3 style="margin:32px 0 12px">TYPE, SPACE AND GEOMETRY · you set these</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>TOKEN</th><th>WHAT IT IS</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">--ac-font-terminal</td><td>The body face. A bitmap terminal font.</td></tr>
+        <tr><td class="doc-tok">--ac-font-micro</td><td>The 8px pixel face, for badges and micro labels.</td></tr>
+        <tr><td class="doc-tok">--ac-type-display -title -body -small -micro</td><td>The five sizes. 18px is the floor for anything anybody reads.</td></tr>
+        <tr><td class="doc-tok">--ac-tracking-display -body -micro</td><td>Letter-spacing per size band.</td></tr>
+        <tr><td class="doc-tok">--ac-leading</td><td>Line height. One number for the whole system.</td></tr>
+        <tr><td class="doc-tok">--ac-space-1 -2 -3 -4 -6 -8 -12</td><td>The scale, in 4px half-cells: 4 8 12 16 24 32 48.</td></tr>
+        <tr><td class="doc-tok">--ac-border-w</td><td>2px. There are no hairlines on this panel.</td></tr>
+        <tr><td class="doc-tok">--ac-radius</td><td>8px — pads and keys.</td></tr>
+        <tr><td class="doc-tok">--ac-radius-sm</td><td>4px — wells.</td></tr>
+        <tr><td class="doc-tok">--ac-gap</td><td><strong>Per element</strong>, not on the root: the gap of one row, stack or grid.</td></tr>
+        <tr><td class="doc-tok">--ac-cols</td><td><strong>Per element</strong>: the track count of one <code>.ac-grid</code>.</td></tr>
+        <tr><td class="doc-tok">--ac-screen-pad</td><td><strong>Per element</strong>: the padding of one <code>.ac-screen__body</code>.</td></tr>
+        <tr><td class="doc-tok">--ac-meter-value</td><td><strong>Per element</strong>: 0–100 on an <code>.ac-meter__track</code>.</td></tr>
+        <tr><td class="doc-tok">--ac-panel-title-bg</td><td><strong>Per element</strong>: what the legend chip masks itself against.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px">The last five are set on <em>your</em>
+      element rather than on <code>:root</code> — they are per-instance dials, and there is no global
+      value to override. That is also why they were the only two tokens in the 1.x rename that could
+      not be aliased: see <a href="guide-deprecations.html">DEPRECATED</a>.</p>
+
+    <h3 style="margin:32px 0 12px">GLOW, MOTION AND PERSISTENCE · mostly the framework's</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>TOKEN</th><th>WHO SETS IT</th><th>WHAT IT IS</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">--ac-glow-text</td><td>you</td><td>The halo on a lit value. Never scales with drive — radius is a property of the glass.</td></tr>
+        <tr><td class="doc-tok">--ac-glow-text-dim</td><td>you</td><td>The halo that belongs to <code>--ac-ink-dim</code>.</td></tr>
+        <tr><td class="doc-tok">--ac-glow-text-faint</td><td>you</td><td>The halo that belongs to <code>--ac-ink-faint</code>.</td></tr>
+        <tr><td class="doc-tok">--ac-glow-box</td><td>you</td><td>The halo on a filled or focused surface.</td></tr>
+        <tr><td class="doc-tok">--ac-glow-box-dim</td><td>you</td><td>Its receded twin.</td></tr>
+        <tr><td class="doc-tok">--ac-halo-spread<br>--ac-halo-scatter<br>--ac-halo-flash</td><td>framework</td><td>The three radii the glow tokens are assembled from.</td></tr>
+        <tr><td class="doc-tok">--ac-persist</td><td>framework</td><td>The working tail, per palette — capped for use in transitions.</td></tr>
+        <tr><td class="doc-tok">--ac-persist-tail</td><td>framework</td><td>The <em>uncapped</em> tail. 35µs on P11, 3s on P7. What the engine gate reads.</td></tr>
+        <tr><td class="doc-tok">--ac-persist-fast</td><td>framework</td><td>The short tail, for values that rewrite often.</td></tr>
+        <tr><td class="doc-tok">--ac-decay<br>--ac-decay-fast<br>--ac-decay-ease</td><td>framework</td><td>The decay durations and curve. Derived from the tail.</td></tr>
+        <tr><td class="doc-tok">--ac-flicker</td><td>framework</td><td>0–1, per phosphor. Scales the mains hum <em>and</em> the retrace band, from one number.</td></tr>
+        <tr><td class="doc-tok">--ac-drive-dim<br>--ac-drive-faint</td><td>framework</td><td>The drive fractions the dim and faint tiers are, arithmetically.</td></tr>
+        <tr><td class="doc-tok">--ac-mesh-pitch<br>--ac-mesh-wire</td><td>framework</td><td>The cell mesh: spacing, and the darkness of a barrier rib. The rib figure is a contrast budget.</td></tr>
+        <tr><td class="doc-tok">--ac-corner</td><td>framework</td><td><code>bevel</code> or <code>round</code>. What the classic flag actually flips.</td></tr>
+        <tr><td class="doc-tok">--ac-edge<br>--ac-edge-press</td><td>framework</td><td>The key's extruded edge, and the same key pressed IN.</td></tr>
+        <tr><td class="doc-tok">--ac-edge-3d<br>--ac-edge-3d-in</td><td>framework</td><td>The classic values those two point at.</td></tr>
+        <tr><td class="doc-tok">--ac-lit</td><td>framework</td><td>The afterimage's own halo, read rather than animated.</td></tr>
+        <tr><td class="doc-tok">--ac-blink-anim<br>--ac-blink-name<br>--ac-blink-ease</td><td>framework</td><td>The blink, assembled per palette.</td></tr>
+        <tr><td class="doc-tok">--ac-blink-force<br>--ac-blink-force-ease</td><td>framework</td><td>The root-level override, read <em>first</em> at every blink site. How one rule stops every blink at once.</td></tr>
+        <tr><td class="doc-tok">--ac-ghost-anim</td><td>framework</td><td>The ghost's decay animation.</td></tr>
+        <tr><td class="doc-tok">--ac-smear-filter</td><td>framework</td><td>The scroll smear. Set to <code>none</code> by reduced-motion and by print.</td></tr>
+        <tr><td class="doc-tok">--ac-afterimage-display</td><td>framework</td><td>Switches the static afterimage halo off wholesale.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px"><strong>The "framework" rows are still
+      worth knowing</strong> — several are the single point where an entire class of effect is
+      switched off, which is exactly how <code>prefers-reduced-motion</code> and the print stylesheet
+      do their jobs in a handful of lines rather than a selector list. Read them freely; write them
+      only if you have read the file that owns them, because the palette rewrites most of these
+      whenever the display changes.</p>
+  </section>
+
+  <section id="storage">
+    <div class="doc-sec-head"><h2>EVERY STORED KEY</h2></div>
+    <p class="doc-dim">The optional module remembers what the board was set to. All of it is
+      <code>localStorage</code>, all of it is prefixed <code>ac.sim.</code>, and every write is
+      wrapped — <code>localStorage</code> throws in private mode and in sandboxed
+      <code>file://</code> frames, and a panel that cannot persist must still work.</p>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>KEY</th><th>VALUES</th><th>WRITTEN BY</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">ac.sim.tech</td><td><code>plasma</code> <code>crt</code></td><td>Picking a catalog row.</td></tr>
+        <tr><td class="doc-tok">ac.sim.emitter</td><td>The emitter name</td><td>Picking a catalog row.</td></tr>
+        <tr><td class="doc-tok">ac.sim.plasma</td><td><code>1</code> <code>0</code></td><td>The PLASMA switch, and any preset that moves it.</td></tr>
+        <tr><td class="doc-tok">ac.sim.crt</td><td><code>1</code> <code>0</code></td><td>The CRT switch, and any preset that moves it.</td></tr>
+        <tr><td class="doc-tok">ac.sim.engine</td><td><code>1</code> <code>0</code></td><td>The JS Effects switch. <strong>Cleared</strong> by Reset.</td></tr>
+        <tr><td class="doc-tok">ac.sim.style.blink</td><td><code>1</code> <code>0</code></td><td>A blink switch, if the page ships one. <strong>Cleared</strong> by Reset.</td></tr>
+        <tr><td class="doc-tok">ac.sim.style.classic</td><td><code>1</code> <code>0</code></td><td>The Classic Buttons switch. <strong>Cleared</strong> by Reset.</td></tr>
+        <tr><td class="doc-tok">ac.sim.style.retrace</td><td><code>1</code> <code>0</code></td><td>The Retrace Band switch. <strong>Cleared</strong> by Reset.</td></tr>
+        <tr><td class="doc-tok">ac.sim.mod</td><td><code>1</code> <code>0</code></td><td>Whether the board has been moved off its preset.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">CLEARED IS NOT THE SAME AS SET TO THE DEFAULT</span>
+        <span class="doc-faint doc-small">Reset <em>removes</em> the style and engine keys rather than
+          writing the default into them, and the difference is the whole mechanism. An absent key
+          means <strong>the user has never said</strong>, which is the only state a derived default is
+          allowed to fill in. Writing the default would claim the preference on their behalf, and a
+          flag that derives from the simulation would stop following it forever after. There is no
+          separate "has this been touched" flag, because <code>localStorage</code> already answers
+          that question and a second source of truth for it would be a thing to keep in sync.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">A PREFERENCE IS ONLY RESTORED WHILE THE PAGE CAN CHANGE IT BACK</span>
+        <span class="doc-faint doc-small">Take a switch out of your markup and the flag it wrote falls
+          back to your own attribute, or to the default — the stored value is not read. A preference
+          with no control left on the page is not a preference, it is a setting the visitor can no
+          longer reach, and one earlier click would otherwise have turned blink off on that page
+          forever. Nothing is written back in that case either: the stored value still belongs to
+          whichever page does ship the switch.</span></div>
+    </div>
+  </section>
+
+  <nav class="doc-pager" aria-label="Chapter">
+    <a class="doc-pager__link" href="guide-screen.html">◄ Previous: Screen &amp; Board</a>
+    <a class="doc-pager__link" href="guide-deprecations.html">Next: Deprecated ►</a>
+  </nav>
+
+  </main>
+
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 2.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="index.html" style="color:var(--ac-ink-dim);text-shadow:var(--ac-glow-text-dim)">GO TO CONSOLE ►</a>
+  </footer>
+
+</div>
+</div>
+
+<script src="../dist/amber-console.global.js"></script>
+<script src="../dist/amber-console.effects.global.js"></script>
+</body>
+</html>

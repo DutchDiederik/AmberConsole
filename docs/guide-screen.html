@@ -38,6 +38,7 @@
      CRT off. Any class or overlay node that is off by default must be absent here,
      or it paints for one frame on every load before initSims removes it. -->
 <div class="ac-screen ac-bloom" data-ac-screen>
+<a class="doc-skip" href="#content">Skip to content</a>
 <span class="ac-mesh"></span>
 
 <!-- @include _nav.html -->
@@ -240,6 +241,25 @@
         <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
           <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
         </button>
+        <!-- THE BAND STANDS UNDER CRT BECAUSE IT IS PART OF THE TUBE, and it is
+             the one switch here that is not a `data-ac-sim`. It earns an off
+             switch by being the only part of the tube that TRAVELS: scanlines,
+             vignette and the mains hum are texture and sit still, while this is
+             26% of the frame crossing all of it every 13s, over text somebody is
+             reading. So it is a comfort control — but it is a comfort control
+             over ONE SIMULATION'S effect, and the note below has always said so
+             in as many words. Standing it beside CLASSIC BUTTONS asked the reader
+             to hold both ideas at once: that the band is part of the CRT
+             simulation, and that it is not on the simulation side of the board.
+             It is gated the same way it reads — `needs: "ac-crt"` in the STYLES
+             table, so it disables itself wherever there is no tube to sweep.
+             See ../src/sim/crt.css, which also documents the author's version of
+             the same opt-out: leave the .ac-retrace child out of the frame and
+             there is nothing to switch. prefers-reduced-motion hides it either
+             way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true" disabled>
+          <span>Retrace Band</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
       </div>
 
       <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
@@ -254,8 +274,10 @@
           <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
         <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
-             the board with blink and smear rather than beside PLASMA and CRT: a bevel
-             makes no claim about which gas is in the gap. Cuts the corners off every
+             the board rather than beside PLASMA and CRT: a bevel makes no claim about
+             which gas is in the gap, and unlike the retrace band above it is not one
+             simulation's effect either — it reaches every bordered surface on the
+             page whichever display is fitted. Cuts the corners off every
              bordered surface, stands the keys on a hard offset edge and parks their
              labels top-left — one look, one switch. Ships ON, because that is what the
              panel was; switching it off asks for a smoother corner than the hardware
@@ -269,8 +291,12 @@
         </button>
       </div>
 
+      <!-- Ships VISIBLE, because the partial's own default is a gas and the band
+           is a CRT effect. The build hides it on the pages whose preset is a
+           phosphor — see expandBoard. -->
+      <p class="doc-displays__note" data-ac-style-note="retrace">The retrace band is part of the CRT simulation, and there is no sweep across a plasma panel to switch off.</p>
       <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
-      <p class="doc-displays__note" data-ac-engine-off hidden>JS Effects off: no ghosting, smear or framebuffer
+      <p hidden class="doc-displays__note" data-ac-engine-off>JS Effects off: no ghosting, smear or framebuffer
         decay. Everything else here is CSS.</p>
 
       <div class="doc-engine" data-ac-engine-on hidden>
@@ -377,7 +403,7 @@
   <div class="ac-setup__foot">
     <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
     <span class="ac-spacer"></span>
-    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable — and Reset puts all of it back, switches, styles and engine alike.</span>
   </div>
 </div>
 <!-- @end -->
@@ -403,8 +429,19 @@
   <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
   <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
   <a class="doc-chapter" aria-current="page" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+  <!-- 08 AND 09 ARE LOOKUP RATHER THAN READING, and they are still numbered.
+       An unnumbered appendix would have said "optional", which is the opposite of
+       what a complete index is for: the seven chapters before them argue a case
+       and can be read in order, these two answer "does the framework have X" and
+       "what happened to Y" without being read at all. Same strip, same weight —
+       the distinction lives in the blurb on the overview card, not in the
+       numbering. -->
+  <a class="doc-chapter" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
+  <a class="doc-chapter" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
 </nav>
 <!-- @end -->
+
+  <main id="content">
 
   <header class="doc-head doc-head--chapter">
     <div class="doc-kicker"><span class="doc-num">07</span> AMBER CONSOLE · SYSTEM GUIDE</div>
@@ -443,7 +480,9 @@
 &lt;/div&gt;</code>
     <p class="doc-faint doc-small" style="margin-top:20px">See the assembled reference
       screen: <a href="index.html">ORION-70 PROJECTION CONSOLE</a> — and the three other demos in
-      <a href="guide.html#demos">the overview</a>.</p>
+      <a href="guide.html#demos">the overview</a>. For the smallest frame that still works,
+      <a href="../starter.html">starter.html</a> is one commented file with a single simulation on
+      it; <a href="guide.html#starter">START HERE</a> describes what is on it.</p>
   </section>
 
   <section id="board">
@@ -508,21 +547,29 @@
           <td class="doc-tok">Classic Buttons</td>
           <td>Style</td>
           <td><code>data-ac-style-classic="on|off"</code> on <code>&lt;html&gt;</code>.</td>
-          <td>ON</td>
+          <td>ON, on every preset</td>
           <td class="doc-tok">ac.sim.style.classic</td>
         </tr>
         <tr>
+          <td class="doc-tok">Retrace Band</td>
+          <td>Style</td>
+          <td><code>data-ac-style-retrace="on|off"</code> on <code>&lt;html&gt;</code>.</td>
+          <td>ON, and disabled under a gas</td>
+          <td class="doc-tok">ac.sim.style.retrace</td>
+        </tr>
+        <tr>
           <td class="doc-tok">Reset to Preset</td>
+          <td>All four</td>
+          <td>Puts the simulations back to the pairing the current display shipped with, <em>and</em>
+            forgets every style and engine preference — corners, band and JS Effects all return to ON.</td>
           <td>—</td>
-          <td>Puts the simulations back to the pairing the current display shipped with.</td>
-          <td>—</td>
-          <td class="doc-tok">clears ac.sim.mod</td>
+          <td class="doc-tok">clears ac.sim.mod, ac.sim.engine, every ac.sim.style.*</td>
         </tr>
       </tbody>
     </table>
     </div>
 
-    <h3 style="margin:32px 0 12px">FOUR THINGS THE BOARD DOES THAT LOOK LIKE BUGS</h3>
+    <h3 style="margin:32px 0 12px">FIVE THINGS THE BOARD DOES THAT LOOK LIKE BUGS</h3>
     <div class="doc-grid2" style="margin-top:16px">
       <div class="doc-demo doc-demo--col"><span class="doc-cap">PLASMA AND CRT EXCLUDE EACH OTHER</span>
         <span class="doc-faint doc-small">Switching one ON switches the other OFF, and both toggles
@@ -540,11 +587,22 @@
           and the menu bar appends <code>*MOD</code>. Reset to Preset puts it back.</span></div>
       <div class="doc-demo doc-demo--col"><span class="doc-cap">JS EFFECTS GOES DISABLED BY ITSELF</span>
         <span class="doc-faint doc-small">The module needs the CRT simulation and a phosphor whose
-          tail is at least 5ms; under a gas, or under P11's 35 microseconds, it would contribute
-          nothing. Rather than let the switch claim otherwise it goes inert and the State panel reads
-          <code>CSS ONLY</code> — the readout describes what is rendering the panel, not what the flag
-          permits. A preference you actually expressed is not clobbered by this; it is restored when
-          it can do something again.</span></div>
+          tail is at least <strong>80ms</strong>; under a gas, or under P11's 35 microseconds, it would
+          contribute nothing. That figure is a perceptual floor and not a compositing one — much under
+          it and the eye stops reading a relaxation and starts reading a switch — so P1 and P3, at 24
+          and 25ms, are on the dark side of it too. Rather than let the switch claim otherwise it goes
+          inert and the State panel reads <code>CSS ONLY</code>: the readout describes what is
+          rendering the panel, not what the flag permits. A preference you actually expressed is not
+          clobbered by this; it is restored when it can do something again. Only <strong>P39 and
+          P7</strong> clear the floor, which makes them the only two panels where the switch can be
+          clicked at all — and clicking it reads <code>MOD</code>, because Reset puts it back.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">THE RETRACE SWITCH GOES INERT UNDER A GAS</span>
+        <span class="doc-faint doc-small">Same rule, different reason. Every rule drawing the band is
+          scoped to <code>.ac-crt</code>, and there is no sweep across a plasma panel to switch off —
+          a gas cell is driven continuously and the whole surface is lit at once. So under any gas the
+          switch disables itself and says why. Unlike JS Effects it does <em>not</em> care how long the
+          phosphor holds or whether the JavaScript is loaded: the band is pure CSS, so P11 gets a
+          working switch and a dead engine at the same time.</span></div>
       <div class="doc-demo doc-demo--col"><span class="doc-cap">THERE IS NO BLINK SWITCH</span>
         <span class="doc-faint doc-small">Deliberate. Blink is law-2 emphasis and half of what the
           alarm specimens in <a href="guide-effects.html">EFFECTS</a> and
@@ -557,6 +615,8 @@
     </div>
     <code class="doc-code">&lt;button class="ac-toggle" data-ac-sim="crt" aria-pressed="false"&gt;…&lt;/button&gt;
 &lt;button class="ac-toggle" data-ac-style="classic" aria-pressed="true"&gt;…&lt;/button&gt;
+&lt;button class="ac-toggle" data-ac-style="retrace" aria-pressed="true"&gt;…&lt;/button&gt;
+&lt;p data-ac-style-note="retrace"&gt;…why the switch above is dead…&lt;/p&gt;
 &lt;input type="radio" name="ac-display" data-ac-display
        data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm"&gt;</code>
     <p class="doc-when">Shipping this board in your own app. It is a hardware bench for looking at the
@@ -568,6 +628,8 @@
     <a class="doc-pager__link" href="guide-display.html">◄ Previous: Display</a>
     <span></span>
   </nav>
+
+  </main>
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 2.0 · MONOCHROME PLASMA UI</span>

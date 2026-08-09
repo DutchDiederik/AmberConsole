@@ -23,6 +23,64 @@
 
 /* --------------------------------------------------------------- shared -- */
 
+/* SKIP LINK — the first focusable thing on every page in docs/.
+
+   DOCS-ONLY, AND DELIBERATELY NOT AN `.ac-` CLASS. A skip link belongs to a
+   *page*, not to a component library: it has to know where the page's main
+   region starts, and the framework has no opinion about that. Shipping an
+   `.ac-skip` would also add public API that the reference index, the guide and
+   the README all have to carry, for a rule that is nine lines of CSS a consumer
+   can write against their own layout.
+
+   Not `display: none` when unfocused — a hidden element is not focusable, which
+   is the one thing this must be. It is pulled out of the flow by size instead
+   and returns to the top-left of the frame on focus, inside the bezel rather
+   than over the browser chrome, so the simulations reach it like everything
+   else on the panel. */
+.doc-skip {
+  position: absolute;
+  left: -9999px;
+  z-index: 200;
+  /* 44px like every other interactive thing in this system — a skip link is the
+     first control on the page and does not get to be the one exception. */
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--ac-space-2) var(--ac-space-3);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-on-fill);
+  /* Inverse video: dark ink on lit amber, so no halo — same pairing every other
+     --ac-on-fill site makes. */
+  text-shadow: none;
+  background: var(--ac-fill);
+  text-decoration: none;
+}
+.doc-skip:focus {
+  left: var(--ac-space-3);
+  top: var(--ac-space-3);
+}
+
+/* THE TABS SPECIMEN, SIZED SO SWITCHING A TAB DOES NOT RESIZE THE BOX.
+
+   `.doc-demo--col` aligns its children to flex-start, so each panel would take
+   its own content width — three different widths, and the specimen would jump
+   as you moved between them. A widget whose job is to demonstrate a widget must
+   not do that.
+
+   `width: max-content` on the wrapper makes it as wide as its widest child (the
+   soft-key strip), and stretch does the rest, so the panels line up under the
+   keys at whatever width the font renders them. No magic number to go stale. */
+.doc-tabspec {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ac-space-3);
+  width: max-content;
+  max-width: 100%;
+}
+
 .doc-byline {
   font-family: var(--ac-font-micro);
   font-size: var(--ac-type-micro);
@@ -382,20 +440,29 @@
    than a second bar. Not sticky: the menu bar is the thing that has to survive
    scrolling, and two stacked sticky strips eat a quarter of a laptop viewport.
 
-   Scrolls horizontally on a phone instead of wrapping to three lines. A chapter
-   list that reflows is a chapter list you have to re-read every time. */
+   Ten chapters do not fit one line at any width we design for, so the strip
+   is two rows rather than one scrolling row: a row that runs off the edge hides
+   its own tail, and a chapter index whose last entries are invisible is not an
+   index.
+
+   Five columns rather than free wrapping, because free wrapping at the wrap's
+   full width puts nine chapters on one line and one orphan under them, which
+   reads as a mistake. A fixed 5x2 grid reads as a plan, and the columns line up
+   the way a printed index does.
+
+   The block of columns is centred under the rule; the words inside each column
+   are not. Centring the items too would ragged the columns and lose the one
+   thing the grid was for. */
 .doc-chapters {
-  display: flex;
-  gap: var(--ac-space-6);
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  justify-content: center;
+  justify-items: start;
+  gap: var(--ac-space-3) var(--ac-space-6);
   align-items: baseline;
   margin-bottom: var(--ac-space-6);
   padding-bottom: var(--ac-space-3);
   border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.doc-chapters::-webkit-scrollbar {
-  display: none;
 }
 
 .doc-chapter {
@@ -802,6 +869,28 @@
   color: var(--ac-ink-dim);
   text-shadow: var(--ac-glow-text-dim);
   white-space: nowrap;
+}
+/* THE EMPHASIZED ROW OF A DOC TABLE, and it is deliberately NOT
+   .ac-table__row--active. That modifier is a matched pair — it fills the row
+   with --ac-fill and repaints the text --ac-on-fill, which is the near-black
+   that makes the fill readable — and only half of the pair survives here.
+   `.ac-table__row--active td` and `.doc-table td` are both 0-1-1, docs.css is
+   linked after dist/amber-console.css, so the later file takes `color` back to
+   --ac-ink. The fill lands, the counter-color does not, and the deprecation
+   table rendered amber text on an amber fill at 1.00:1 — the STATUS column,
+   under a heading promising a status at a glance, was invisible.
+
+   A raised region needs no counter-color at all, so there is no pair to break:
+   the wash moves the background one step and the ink is left where the rest of
+   the table already puts it. Emphasis then arrives the way this system says
+   energization arrives — MORE DRIVE, not inverse video — by lifting the token
+   cells off their dim tier onto the full one the other columns are already at. */
+.doc-table__row--gone td {
+  background: var(--ac-screen-raised);
+}
+.doc-table__row--gone td.doc-tok {
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
 }
 
 .doc-dodont {
@@ -1528,4 +1617,9 @@
     padding: var(--ac-space-6) var(--ac-space-4) 64px;
   }
   .doc-head h1 { font-size: var(--ac-type-display); }
+  /* Five columns on a phone is five columns of one word each. Stacked, the
+     chapters are a list — which is what a chapter index is anyway. */
+  .doc-chapters {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

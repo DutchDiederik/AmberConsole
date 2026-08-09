@@ -16,7 +16,7 @@
  *   dist/amber-console.layer.css  the bundle wrapped in @layer amber-console
  *   dist/amber-console.js         copy of the optional behavior module
  */
-import { readFile, writeFile, mkdir, copyFile, readdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { watch } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -216,8 +216,23 @@ const MODULES = [
   ["amber-console.effects.js", "AmberConsoleEffects", ["init", "afterglow", "transition"]],
 ];
 
+/**
+ * THE SOURCE BANNER, STAMPED WITH THE VERSION src/ IS NOT ALLOWED TO CARRY.
+ *
+ * Same rule as the stylesheet — see the header of src/amber-console.css. The
+ * two JS modules open with an unversioned `/*! … *\/` line so nothing in src/
+ * can drift from package.json, and both dist/ flavors get the number written in
+ * here on the way out. The ESM builds used to be a straight copyFile, which
+ * meant they were the only two files in dist/ shipping without a version.
+ */
+const stampBanner = (source) =>
+  source.replace(/^\/\*! Amber Console \|/, `/*! Amber Console ${VERSION} |`);
+
 function toGlobal(source, file, globalName, exports) {
   const body = source
+    /* The classic-script banner below says everything the source banner says
+       and more, so the source one is dropped rather than nested inside it. */
+    .replace(/^\/\*! Amber Console \|[^\n]*\n/, "")
     .replace(/^export default [\s\S]*?;\s*$/m, "")
     .replace(/^export /gm, "")
     .trim();
@@ -359,6 +374,36 @@ function expandBoard(html, args, persist, file) {
     );
   }
 
+  /* THE RETRACE SWITCH IS GATED ON THE TECHNOLOGY ALONE, not on `live`. Every
+     rule drawing the band is scoped to .ac-crt, so it is inert under a gas — but
+     it is pure CSS and does not care how long the phosphor holds or whether the
+     effects module is loaded, which is the whole difference between it and the
+     engine switch above. P11 gets a working band and a dead engine. */
+  const retrace = must(
+    /<button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true"( disabled)?>/.exec(html),
+    "the Retrace Band switch",
+    file
+  );
+  html = html.replace(
+    retrace[0],
+    `<button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true"${tech === "crt" ? "" : " disabled"}>`
+  );
+
+  /* `hidden` IS ACCEPTED IN EITHER POSITION on every note matched in this
+     function, and that is not defensive padding. The partial writes it after the
+     hook attribute, the way it reads in markup; this function writes it directly
+     after the `<p`, so that the attribute it keys on is always in the same place.
+     A pattern that only accepted one of the two matched the partial and not its
+     own output, or the reverse — which is precisely how the engine-off note below
+     spent its life as a silent no-op. Both shapes, and the rewrite is idempotent
+     from either. */
+  const RETRACE_NOTE = /<p( hidden)? class="doc-displays__note" data-ac-style-note="retrace"( hidden)?>/;
+  must(RETRACE_NOTE.exec(html), "the retrace note", file);
+  html = html.replace(
+    RETRACE_NOTE,
+    `<p${tech === "crt" ? " hidden" : ""} class="doc-displays__note" data-ac-style-note="retrace">`
+  );
+
   must(/<p( hidden)? class="doc-displays__note" data-ac-engine-note>/.exec(html), "the engine note", file);
   html = html.replace(
     /<p( hidden)? class="doc-displays__note" data-ac-engine-note>/,
@@ -369,10 +414,9 @@ function expandBoard(html, args, persist, file) {
      board should arrive saying what it is about to be doing. `live` is the only
      input because the engine flag itself defaults on and is restored from
      storage after this, which markup cannot know. */
-  html = html.replace(
-    /<p( hidden)? class="doc-displays__note" data-ac-engine-off>/,
-    `<p hidden class="doc-displays__note" data-ac-engine-off>`
-  );
+  const ENGINE_OFF_NOTE = /<p( hidden)? class="doc-displays__note" data-ac-engine-off( hidden)?>/;
+  must(ENGINE_OFF_NOTE.exec(html), "the engine-off note", file);
+  html = html.replace(ENGINE_OFF_NOTE, `<p hidden class="doc-displays__note" data-ac-engine-off>`);
   html = html.replace(
     /<div class="doc-engine" data-ac-engine-on( hidden)?>/,
     `<div class="doc-engine" data-ac-engine-on${live ? "" : " hidden"}>`
@@ -524,7 +568,7 @@ async function build() {
      anything if either can be loaded alone. */
   for (const [file, globalName, exports] of MODULES) {
     const source = await readFile(path.join(SRC, file), "utf8");
-    await copyFile(path.join(SRC, file), path.join(DIST, file));
+    await writeFile(path.join(DIST, file), stampBanner(source));
     await writeFile(
       path.join(DIST, file.replace(/\.js$/, ".global.js")),
       toGlobal(source, file, globalName, exports)

@@ -6,8 +6,9 @@
  *   node scripts/make-assets.mjs
  *
  * Emits:
- *   docs/favicon.png            32x32   browser tab
- *   docs/apple-touch-icon.png   180x180 iOS home screen
+ *   docs/favicon.png            32x32    browser tab
+ *   docs/apple-touch-icon.png   180x180  iOS home screen
+ *   docs/screenshot.png         1440x900 the README hero, and the card's input
  *   docs/social-card.png        1200x630 og:image / twitter:card
  *
  * WHY THIS IS GENERATED RATHER THAN DRAWN. The mark is the letter A set in
@@ -126,8 +127,60 @@ async function shoot(html, width, height, out) {
   console.log(`  ${out.padEnd(22)} ${width}x${height}`);
 }
 
+/**
+ * THE CONSOLE CAPTURE, WHICH THIS SCRIPT USED TO CONSUME WITHOUT PRODUCING.
+ *
+ * docs/screenshot.png is the README hero and the image the card letterboxes, and
+ * nothing regenerated it — so it went on showing a REV 1.0 nav bar and the old
+ * inline gas switches long after the demo had stopped looking like that, and the
+ * social card inherited the staleness. It is generated here now, from the same
+ * dist/amber-console.css as everything else in this file.
+ *
+ * THE SETUP BOARD IS HIDDEN FOR THE SHOT, and that is a framing decision rather
+ * than a cheat. The board is docs-site chrome — it exists so a visitor can drive
+ * the eleven palettes — and the thing both alt texts describe is the console.
+ * Scrolling past it does not work: the console is the last content on the page,
+ * so the scroll clamps with the board's last row still under the sticky nav.
+ */
+async function shootConsole(out) {
+  const ctx = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    deviceScaleFactor: 1,
+  });
+  const page = await ctx.newPage();
+  await page.goto(pathToFileURL(path.join(DOCS, "index.html")).href, { waitUntil: "networkidle" });
+  await page.evaluate(() => document.fonts.ready);
+  /* The plasma frame fades in and the readouts settle; 2.5s is what it takes for
+     both to finish on a cold load. */
+  await page.waitForTimeout(2500);
+
+  const hid = await page.evaluate(() => {
+    const board = document.querySelector(".ac-setup, [class*='setup']");
+    if (board) board.style.display = "none";
+    window.scrollTo(0, 0);
+    return !!board;
+  });
+  if (!hid) throw new Error("setup board not found — the capture would include it.");
+
+  await page.waitForTimeout(1200);
+  /* Freeze the blink and the tube drift so the file does not change on every run
+     for reasons nobody can see. */
+  await page.evaluate(() =>
+    document.querySelectorAll("*").forEach((el) => {
+      if (getComputedStyle(el).animationName !== "none") el.style.animationPlayState = "paused";
+    })
+  );
+  await page.waitForTimeout(200);
+
+  await writeFile(path.join(DOCS, out), await page.screenshot());
+  await ctx.close();
+  console.log(`  ${out.padEnd(22)} 1440x900`);
+}
+
 await shoot(icon(32), 32, 32, "favicon.png");
 await shoot(icon(180), 180, 180, "apple-touch-icon.png");
+/* Before the card — it is the card's input. */
+await shootConsole("screenshot.png");
 await shoot(card("screenshot.png"), 1200, 630, "social-card.png");
 
 await unlink(SCRATCH);

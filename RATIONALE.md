@@ -378,25 +378,56 @@ only the **amplitude** answers to the hardware, via `--ac-flicker`:
 
 Both halves of that trade come from one number.
 
-### The two flash budgets
+**And the other half of it is spatial, which is where the effect actually lives.**
+A short phosphor never showed the whole screen blinking. At any instant only the
+band the beam had just written was at full brightness and everything behind it had
+already decayed — the dark bar a phone camera sees when it looks at a CRT. Being
+spatial, it has no frequency to alias, so it can move as slowly as you like and
+still read. `.ac-retrace` is that band: it sweeps down the frame in 13s with a
+bright freshly-written leading edge and a decayed trough trailing it, and
+`--ac-flicker` sets how deep the trough goes and how hot the edge is. The radar
+wake in `components/sweep.css` is the same idea on a circle.
 
-Both are WCAG 2.3.1 arithmetic, not taste. The rule prohibits more than 3
+So the two carry different halves: `ac-crt-hum` says how hard the picture
+breathes, `.ac-retrace` says where the tube has already gone dark. Only the second
+is really what a short phosphor looked like.
+
+Note that `--ac-flicker: 1` therefore now reaches further than it used to. A gas
+palette declares no flicker and inherits the `:root` default of 1, so switching
+the CRT simulation on over one gives it the pronounced band. That is a deliberate
+reading rather than an oversight — the simulation is the tube, and asking for the
+tube over a gas is asking for what `--ac-flicker: 1` describes — but it is a
+behaviour change, and the "renders identically" note below is now about the hum
+alone.
+
+### The three flash budgets
+
+All three are WCAG 2.3.1 arithmetic, not taste. The rule prohibits more than 3
 flashes/sec above 10% relative luminance over more than 25% of the field, and the
-3–8Hz band is the most seizure-provocative there is.
+3–8Hz band is the most seizure-provocative there is. The three conditions are
+conjunctive; everything here fails at least two of them by a wide margin.
 
 - **`ac-crt-hum`** runs at 0.18Hz — a 5.5s cycle, more than an order of magnitude
-  below the threshold frequency — and its deepest dip is 3.5% of the opacity of an
-  overlay whose own mean darkening is about 15%, so worst-case panel luminance
-  moves by well under 1%.
+  below the threshold frequency. Its deepest dip is 3.5%, and since it moved off
+  the overlay's `opacity` and onto that overlay's `background-color`, that 3.5% is
+  now 3.5% **of the picture** rather than 3.5% of an overlay whose own mean
+  darkening is 15%. Worst-case panel luminance moves by 3.5% where it used to move
+  by well under 1% — and downward, which is what a mains sag does. Fading a
+  darkening layer out made the panel brighter, which was backwards.
+- **`.ac-retrace`** runs at 0.077Hz — one pass every 13s, 39× below the threshold
+  frequency. Its trough is a black wash reaching 8.5% over a band 26% of the frame
+  tall, so it sits under the luminance threshold as well as far under the frequency
+  one. Measured against the console at P11: −6.4% on the darkest row, and a leading
+  edge that lifts a near-black row by 15/255.
 - **`ac-mesh-hum`** is a 1.8% swing on a layer whose own mean darkening is 5%,
   moving panel luminance by about 0.09% — three orders below the threshold.
 
-Both margins are large on purpose. Raising either constant spends them; redo the
-arithmetic first.
+The margins are large on purpose. Raising any of these constants spends them; redo
+the arithmetic first.
 
-At `--ac-flicker: 1` the two hum stops resolve to 0.965 and 0.985, which is what
-the keyframe was before it took a variable — so a gas palette, which declares no
-flicker, renders identically.
+At `--ac-flicker: 1` the two hum stops resolve to 0.035 and 0.015 — the same
+constants the keyframe carried when it animated opacity, so nothing about the
+budget changed when the direction did.
 
 ### Persistence is three phenomena
 

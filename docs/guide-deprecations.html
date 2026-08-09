@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AFTERGLOW & PERSISTENCE — Amber Console</title>
-<meta name="description" content="Eight separate phenomena, five of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
+<title>DEPRECATED — Amber Console</title>
+<meta name="description" content="Everything taken away since 1.0, everything going away next, and what to write instead.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -14,9 +14,9 @@
      Pages host. They are inert over file://, which costs nothing. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amber Console">
-<meta property="og:title" content="AFTERGLOW & PERSISTENCE — Amber Console System Guide">
-<meta property="og:description" content="Eight separate phenomena, five of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
-<meta property="og:url" content="https://dutchdiederik.github.io/AmberConsole/docs/guide-persistence.html">
+<meta property="og:title" content="DEPRECATED — Amber Console System Guide">
+<meta property="og:description" content="Everything taken away since 1.0, everything going away next, and what to write instead.">
+<meta property="og:url" content="https://dutchdiederik.github.io/AmberConsole/docs/guide-deprecations.html">
 <meta property="og:image" content="https://dutchdiederik.github.io/AmberConsole/docs/social-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -425,7 +425,7 @@
   <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
   <a class="doc-chapter" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
   <a class="doc-chapter" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
-  <a class="doc-chapter" aria-current="page" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
+  <a class="doc-chapter" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
   <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
   <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
   <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
@@ -437,205 +437,254 @@
        the distinction lives in the blurb on the overview card, not in the
        numbering. -->
   <a class="doc-chapter" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
-  <a class="doc-chapter" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
+  <a class="doc-chapter" aria-current="page" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
 </nav>
 <!-- @end -->
 
   <main id="content">
 
   <header class="doc-head doc-head--chapter">
-    <div class="doc-kicker"><span class="doc-num">04</span> AMBER CONSOLE · SYSTEM GUIDE</div>
-    <h1>AFTERGLOW &amp; PERSISTENCE</h1>
+    <div class="doc-kicker"><span class="doc-num">09</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>DEPRECATED</h1>
   </header>
-  <p class="doc-lede">Nothing on either technology goes dark on the next refresh, and they do not go dark for the same reason. Persistence is eight separate phenomena — five of them pure CSS.</p>
+  <p class="doc-lede">Everything the framework has taken away, everything it is going to take away,
+    and what to write instead. If you are upgrading from 1.x, this is the chapter.</p>
 
-  <section id="persistence">
-    <div class="doc-sec-head"><h2>AFTERGLOW AND PERSISTENCE</h2></div>
+  <section id="short-version">
+    <div class="doc-sec-head"><h2>THE SHORT VERSION</h2></div>
     <div class="doc-prose">
-    <p class="doc-dim">Nothing on either technology goes dark on the next refresh, and they do not
-      go dark for the same reason. A gas gap that stops being driven leaves excited and metastable
-      atoms behind, and that population keeps emitting while it relaxes and recombines — an
-      afterglow that is a property of the gas and of no coating at all. A phosphor is the opposite
-      case: the persistence <em>is</em> the coating, it is what the compound was chosen for, and it
-      ranges over four orders of magnitude between the parts on the board above. Most of the light
-      is gone early either way, then a tail whose length is the whole difference between them.
-      <code>.ac-afterglow</code> is that relaxation, and it is several separate things because
-      persistence is eight separate phenomena. <strong>Five of them are pure CSS, and three are
-      not</strong> — and the three are not withheld, they are genuinely not expressible. Nothing in
-      the cascade remembers the string a readout held one frame ago; scroll <em>velocity</em> cannot
-      be derived from a scroll timeline, which exposes position only; and
-      <code>startViewTransition</code> is the one API that hands you a picture of the screen you just
-      replaced. Those three live in <code>amber-console.effects.js</code>, which is optional and
-      separate from <code>amber-console.js</code> — the stylesheet alone still decays, de-energizes,
-      throbs and sweeps.</p>
-    <p class="doc-dim"><strong>How long it lasts belongs to the emitter, not to this file.</strong>
-      A palette that knows its own decay declares it, and every timing below is derived from that one
-      number — so the panel does not have a persistence setting, it has whatever persistence the
-      hardware in it had. Which is also why <em>persistence and flicker are the same number read in
-      two directions</em>: a screen redraws every frame, and what is still lit when the next frame
-      arrives is the smear while what is missing is the flicker. A screen cannot be steady and
-      smear-free at once. P11 is fully dark between frames — no persistence, maximum flicker, which
-      is why it was fitted to tubes meant to be <em>photographed</em> rather than watched. P39 is
-      still at 91% — no flicker at any refresh rate, paid for in smear, which is why it went on
-      radar. Both come off one decay constant and cannot disagree.</p>
+      <p class="doc-dim">The 1.x <strong>token names</strong> are gone. The 1.x <strong>attributes and
+        JavaScript calls</strong> all still work. So the upgrade only breaks for people who
+        <em>overrode custom properties</em> — if you linked the stylesheet and wrote your own markup,
+        2.0 is a drop-in and there is nothing on this page for you.</p>
     </div>
 
-    <h3 style="margin:32px 0 12px">WHAT A LONG PHOSPHOR COSTS</h3>
-    <div class="doc-prose">
-    <p class="doc-dim">Two consequences worth knowing before the switches surprise you. The long
-      phosphors are <strong>capped where you wait on them and uncapped where you do not</strong>:
-      P7's tail is three seconds, which is correct and would be an unusable dialog close, so anything
-      that has to actually leave is clamped to 250ms and the ghosts run the full three. And a
-      long-persistence phosphor does not decay exponentially — it follows a power law, a fast knee
-      over a very long tail, which no single easing curve expresses. Those palettes ship a
-      <code>linear()</code> sampled from the decay model itself.</p>
-    <p class="doc-dim"><strong>P7 is the one that is worth turning on.</strong> It is two coatings
-      rather than one: the beam writes into a blue layer that decays in microseconds, and that
-      layer's own photons pump a yellow-green layer behind it that holds for seconds. So the ink is
-      blue and the halo is green — text you are reading is being re-struck sixty times a second, and
-      text that stops being written leaves only the glow behind. It is the only palette here whose
-      halo is a different spectrum from its ink, which inverts a rule the rest of the system relies
-      on, and it is the reason a radar sweep is still legible when the beam comes round again.</p>
-    </div>
-    <div class="doc-grid3" style="margin-top:20px">
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">1 · DECAY-OUT — CSS</span>
-        <span class="doc-faint doc-small">Anything that disappears drains instead of switching off —
-          a tab panel, a closing dialog, an acknowledged alarm. Pure CSS, and the one part that
-          carries the effect on its own. The transition is declared on the hidden state only, so
-          hiding decays and showing snaps back instantly. Nothing here ever fades <em>in</em>.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">2 · GHOSTING — effects.js</span>
-        <span class="doc-faint doc-small">Text rewritten in place leaves the previous value behind
-          for a beat. Watch the clock and the frame counter on the console page. This is the one part
-          CSS cannot do — nothing in the cascade remembers the old string — so a MutationObserver in
-          <code>amber-console.effects.js</code> parks a copy at the rect it occupied.</span>
-        <span class="doc-faint doc-small">The copy is <strong><code>.ac-ghost</code></strong>, and it
-          is worth knowing the name: it is a real element in your DOM for the length of the tail, it
-          is <code>aria-hidden</code> and <code>pointer-events: none</code>, and it is the hook to
-          style or suppress if a ghost lands somewhere you do not want one.
-          <code>.ac-ghost--fast</code> is the same node on the short tail, used where a value rewrites
-          often enough that the full decay would stack copies on top of each other. Both are removed
-          when they finish; nothing accumulates.</span>
-        <code class="doc-code">&lt;span class="ac-ghost"&gt;    &lt;!-- mounted and removed by effects.js --&gt;
-.ac-ghost { display: none }   /* suppress it in one region, without the module */</code></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">3 · RESIDUAL PATCHES — CSS</span>
-        <span class="doc-faint doc-small">The glass never sits perfectly uniform; charge relaxes
-          unevenly. Four overlapping pools at 3% over the amber, drifting on a 47s cycle. You do not
-          notice it directly — you notice when it stops.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">4 · THE BLINK OFF-EDGE — CSS</span>
-        <span class="doc-faint doc-small">A blinking alarm is the thing on the panel that stops being
-          driven most often — once a second, forever — so it is the last place the decay should be
-          missing. <code>.ac-blink</code> stays <code>steps(1)</code> by default; with persistence on,
-          only the <em>ON</em> edge stays hard. Instant up, curve down.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">5 · DE-ENERGIZING — CSS</span>
-        <span class="doc-faint doc-small">The commonest light-off event on a control panel is not a
-          node disappearing, it is a lamp going out: a pressed button releasing, a tab deselecting,
-          an interlock unchecking. <strong>Split by what each property describes:</strong> the
-          structure — background, border, color — releases fast so the control reads as off
-          immediately, while the <em>halo</em> decays on the full uncapped tail, because the halo is
-          the scattered light that persists. Under P39 a released button glows for a second and a
-          half. Hover is excluded on purpose — a wake behind the cursor reads as lag.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">6 · SCROLL SMEAR — effects.js</span>
-        <span class="doc-faint doc-small">Scrolling hands every cell on the panel a new value at
-          once, which is the largest light-off event there is, and the image trails. Scaled by real
-          scroll <em>velocity</em>, which is why it cannot be CSS: a scroll timeline exposes
-          position, and velocity is not derivable from it. Scroll this page briskly.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">7 · PAGE PERSISTENCE — CSS</span>
-        <span class="doc-faint doc-small">The only place a <em>real framebuffer snapshot</em> is
-          available with no script at all. Everything above decays an element — something the cascade
-          can name. A phosphor decays whatever was drawn, including the parts of the screen no
-          element owns. Navigate to the console and back under P39 and the old page drains behind the
-          new one, per pixel. Needs one line —
-          <code>@view-transition { navigation: auto }</code> — in your own stylesheet, because it is
-          a document-level switch and linking a stylesheet must not rewrite how your site
-          navigates.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">8 · A LIT AREA SHRINKING — CSS + effects.js</span>
-        <span class="doc-faint doc-small">A bargraph does none of the seven things above: the element
-          stays, its text is elsewhere, its color never moves. What changes is its <em>width</em>, so
-          the strip it vacates was lit a moment ago and is now simply not drawn. On a two-second
-          phosphor that was the most visible wrong thing on the panel — everything around the bar
-          trailed and the bar itself snapped. A second bar now lags behind the live one on
-          <code>--ac-persist-tail</code>, and the asymmetry needs no rule of its own: on a fall the
-          ghost is <em>wider</em> and its trailing strip drains, and on a rise it is
-          <em>narrower</em>, so it hides underneath and nothing fades in. Watch a load bar on the
-          server dashboard under P39.</span></div>
-    </div>
-    <p class="doc-dim" style="margin-top:16px">The eighth is the one place the two tiers do different
-      things rather than one filling a gap the other leaves, and the difference is real. A bar falling
-      <em>gradually</em> stops driving each cell at a slightly different moment, so the honest result
-      is a taper behind a receding edge — which is what the CSS draws, and what a drifting value
-      actually does. A bar that drops <em>suddenly</em> stops every vacated cell at once and should
-      fade uniformly instead. CSS cannot hold the old width, so it cannot tell those apart;
-      <code>effects.js</code> recovers the old geometry and parks a proper uniform ghost for that
-      case — which is also how the radar's A-scope and echoes get theirs, since it watches for any
-      lit area that shrank rather than for anything named.</p>
-    <div class="doc-grid2" style="margin-top:16px">
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
-        <span class="ac-blink" style="background:var(--ac-fill);color:var(--ac-on-fill);padding:4px 14px;text-shadow:none">✳ LAMP FAULT ✳</span>
-        <span class="doc-faint doc-small">Toggle CRT on the board above and watch this one. Off, it
-          snaps between full and 10%. On, it holds, then drains over an ~88ms window of the 1.1s
-          cycle — deliberately near the floor of what registers as a decay at all.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">EVERY BLINK SITE FOLLOWS</span>
-        <span class="doc-faint doc-small">One rule swaps the <em>animation-name</em> rather than the
-          shorthand, so <code>.ac-blink</code>, <code>.ac-cursor</code>, an invalid
-          <code>.ac-input</code> and an over-range <code>.ac-meter--alarm</code> bar all keep their own
-          cycle length and pick up the same curve. The de-energizing rules use the same trick as
-          decay-out: the transition is declared on the UNLIT half, so going out drains and coming
-          on is instant.</span></div>
-    </div>
-    <code class="doc-code">&lt;div class="ac-screen ac-afterglow"&gt;&lt;span class="ac-persist"&gt;&lt;/span&gt; … &lt;/div&gt;</code>
-
-    <h3 style="margin:32px 0 12px">THE PPI SWEEP</h3>
-    <div class="doc-prose">
-    <p class="doc-dim">The one widget where persistence <em>is</em> the whole thing, and the one
-      place a decaying trail is achievable in pure CSS. The obvious way to draw a radar wake is to
-      stamp a mark every frame and fade each one, which is a per-pixel framebuffer problem and needs
-      a canvas. But a PPI trail is not a history of marks — it is one continuous falloff behind a
-      rotating line, and a <code>conic-gradient</code> already is that falloff. Rotate it and the
-      decay comes for free, on the GPU, in one element, with no script at all.</p>
-    <p class="doc-dim">The angular stops are the phosphor's decay curve read in degrees rather than
-      milliseconds, which is a substitution rather than a pun: the beam turns at a constant rate, so
-      angle behind the beam <em>is</em> time since that bearing was painted. Same curve, same
-      fast-knee-long-tail shape, different axis. The rotation period comes off
-      <code>--ac-persist-tail</code>, so the sweep returns about as the trail finishes draining —
-      which is precisely the trade P7 and P39 were bought to make.</p>
-    </div>
     <div class="doc-grid2" style="margin-top:20px">
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">PPI — NO SCRIPT</span>
-        <div class="ac-sweep" role="img" aria-label="Search radar sweep, no contacts"><span class="ac-sweep__beam"></span></div>
-        <span class="doc-faint doc-small">Switch the display to P7 and the leading edge turns blue
-          against a yellow-green wake — that is <code>--ac-halo-flash</code> against
-          <code>--ac-halo-1</code>, the two coatings doing exactly what they did on the real tube. Every
-          other emitter has one coating, so its leading edge is simply the brighter end of its own
-          trail. The line itself is a constant-width arm rather than the first few degrees of the
-          gradient, which would be a wedge and would thin to nothing near the middle; the center
-          is bright because all 360 bearings cross it and it takes the whole revolution's
-          dose.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">WHY IT SLOWS DOWN</span>
-        <span class="doc-faint doc-small">Under P39 the sweep takes 3s and under P7 4.5s, because
-          both are scaled from the tail. Neon would scale to 0.16s, which is not a radar but a
-          strobe, so the period has a floor. A face whose trail has not drained by the time the beam
-          returns never reads as dark, and stops looking like a radar at all — it looks like a
-          spinning pie chart.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">DEPRECATED</span>
+        <span class="doc-faint doc-small">Still works, still tested, still shipped. Announced in the
+          <code>CHANGELOG</code> and listed here with the release that removes it. <strong>Nothing is
+          removed in a minor or patch release</strong> — a deprecation announced in 2.x goes in 3.0 at
+          the earliest, so there is always a whole major cycle to migrate in.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">REMOVED</span>
+        <span class="doc-faint doc-small">Gone from the code. Only ever happens in a
+          <strong>major</strong> version. And while a feature is listed as deprecated it keeps working
+          <em>as documented</em> — it does not quietly degrade first. There is one deliberate
+          exception, and it is argued below: the custom properties were removed outright rather than
+          aliased, because a silently-ignored alias turned out to be worse than an honest
+          absence.</span></div>
     </div>
-    <code class="doc-code">&lt;div class="ac-sweep" role="img" aria-label="Search radar"&gt;&lt;span class="ac-sweep__beam"&gt;&lt;/span&gt;&lt;/div&gt;</code>
-    <p class="doc-when">Assuming a removed node ghosts itself. The observer only sees text change;
-      a node that stops existing has no rect left to pin a ghost to, so ghost it
-      <em>before</em> you remove it — <code>AmberConsoleEffects.afterglow(row)</code>, then
-      <code>row.remove()</code>. Retune the decay with the three tokens it is built from, none of
-      which is a duration you set directly — each is the palette's own
-      <code>--ac-persist</code> under a different cap. <code>--ac-decay</code> is capped at 250ms and
-      belongs to things that must actually leave; <code>--ac-decay-fast</code> is capped at 60ms and
-      belongs to de-energizing controls and hover release, because it fires on every control the
-      pointer crosses; <code>--ac-persist-tail</code> is uncapped and belongs to the ghosts and the
-      residual patches, which is where a long phosphor is allowed to be long. Rewritten text is its
-      own case at 400ms, enough to keep one generation legible and not two.
-      <code>--ac-decay-ease</code> is the curve.</p>
 
+    <h3 style="margin:32px 0 12px">STATUS AT A GLANCE</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>FEATURE</th><th>STATUS</th><th>DEPRECATED IN</th><th>REMOVED IN</th><th>USE INSTEAD</th></tr></thead>
+      <tbody>
+        <tr class="doc-table__row--gone"><td class="doc-tok">Unprefixed tokens — --ink, --gap, …</td><td>REMOVED</td><td>—</td><td>2.0</td><td class="doc-tok">--ac-ink, --ac-gap, …</td></tr>
+        <tr class="doc-table__row--gone"><td class="doc-tok">--amber-* ramp tokens</td><td>REMOVED</td><td>1.x</td><td>2.0</td><td class="doc-tok">--ac-emit-100 … --ac-emit-30</td></tr>
+        <tr class="doc-table__row--gone"><td class="doc-tok">--gas-* halo tokens</td><td>REMOVED</td><td>1.x</td><td>2.0</td><td class="doc-tok">--ac-halo-1 … --ac-halo-4</td></tr>
+        <tr class="doc-table__row--gone"><td class="doc-tok">data-ac-style-smear</td><td>REMOVED</td><td>—</td><td>2.0</td><td>Nothing — the smear is automatic now</td></tr>
+        <tr><td class="doc-tok">data-ac-gas="neon" | "amber"</td><td>Deprecated</td><td>2.0</td><td>3.0</td><td class="doc-tok">data-ac-tech + data-ac-emitter</td></tr>
+        <tr><td class="doc-tok">data-ac-gas-toggle</td><td>Deprecated</td><td>2.0</td><td>3.0</td><td class="doc-tok">[data-ac-display] radios</td></tr>
+        <tr><td class="doc-tok">AmberConsole.afterglow(el)</td><td>Deprecated</td><td>2.0</td><td>3.0</td><td class="doc-tok">AmberConsoleEffects.afterglow(el)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="removed">
+    <div class="doc-sec-head"><h2>REMOVED IN 2.0</h2></div>
+
+    <h3 style="margin:28px 0 12px">EVERY CUSTOM PROPERTY IS NOW --AC- PREFIXED</h3>
+    <div class="doc-prose">
+      <p class="doc-dim"><strong>This is the only breaking change in 2.0, and it fails
+        silently.</strong> Setting <code>--ink: lime</code> does not error, does not warn, and does
+        not work — the framework reads <code>--ac-ink</code> and never looks at <code>--ink</code>.</p>
+    </div>
+    <code class="doc-code">/* 1.x — silently ignored in 2.0 */
+:root { --ink: #ffb000; --radius: 0; --leading: 1.4; }
+
+/* 2.0 */
+:root { --ac-ink: #ffb000; --ac-radius: 0; --ac-leading: 1.4; }</code>
+    <div class="doc-prose" style="margin-top:16px">
+      <p class="doc-dim"><strong>To migrate: put <code>ac-</code> in front of every Amber Console
+        property you set.</strong> Values, cascade behaviour and per-palette resolution are all
+        unchanged — this is a rename and nothing more. The complete list of what to rename
+        <em>to</em> is in <a href="guide-reference.html#tokens">REFERENCE · EVERY TOKEN</a>.</p>
+    </div>
+
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">WHY THEY WERE NOT KEPT AS ALIASES</span>
+        <span class="doc-faint doc-small">They were, briefly, and it was worse than useless. Nothing
+          in the framework <em>read</em> the old names, so <code>--ink: red</code> did nothing
+          <strong>and said nothing</strong> — the hardest kind of bug to diagnose. An absent name at
+          least behaves consistently: it does nothing, everywhere, for one obvious reason.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">WHY THEY WERE RENAMED AT ALL</span>
+        <span class="doc-faint doc-small">Not tidiness. <code>dist/amber-console.layer.css</code>
+          exists so the framework can be embedded in an app that owns the page, and <strong>cascade
+          layers do not protect custom properties</strong> — an unlayered
+          <code>:root { --radius: 12px }</code> in the host beats a layered one. A host that happened
+          to use <code>--radius</code>, <code>--gap</code> or <code>--cols</code> silently re-cornered
+          every button, panel, dialog, input, toggle and meter in the framework. <code>--gap</code>
+          and <code>--cols</code> were near-certain collisions in any real codebase.
+          <code>stylelint</code> enforces the prefix now, so the next token cannot go bare.</span></div>
+    </div>
+
+    <h4 class="doc-cap" style="display:block;margin:28px 0 8px">--AC-GAP AND --AC-COLS NEED RENAMING AT THE CALL SITE</h4>
+    <div class="doc-prose">
+      <p class="doc-dim">These two are <strong>consumer-set</strong>: <code>.ac-row</code>,
+        <code>.ac-stack</code> and <code>.ac-grid</code> read them off <em>your</em> element, not off
+        <code>:root</code>. So there was no framework-level value to bridge, and no alias was possible
+        even in principle. Rename them where you write them.</p>
+    </div>
+    <code class="doc-code">&lt;!-- 1.x --&gt;
+&lt;div class="ac-row" style="--gap: 12px"&gt;
+&lt;div class="ac-grid" style="--cols: 3"&gt;
+
+&lt;!-- 2.0 --&gt;
+&lt;div class="ac-row" style="--ac-gap: 12px"&gt;
+&lt;div class="ac-grid" style="--ac-cols: 3"&gt;</code>
+
+    <h4 class="doc-cap" style="display:block;margin:28px 0 8px">--AMBER-* AND --GAS-*</h4>
+    <div class="doc-prose">
+      <p class="doc-dim">Deprecated in 1.x, removed here with the rest.
+        <code>--amber-*</code> named a <em>hue</em> rather than a <em>ramp</em>, which stopped being
+        defensible once the catalog held a lavender and a pink. <code>--gas-*</code> named a
+        <em>gas</em> when what it carried was the halo — the light scattered in the glass — which is a
+        property of the emitter, not the fill.</p>
+    </div>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>1.X</th><th>2.0</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">--amber-100 … --amber-30</td><td class="doc-tok">--ac-emit-100 … --ac-emit-30</td></tr>
+        <tr><td class="doc-tok">--gas-1 … --gas-4</td><td class="doc-tok">--ac-halo-1 … --ac-halo-4</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3 style="margin:32px 0 12px">DATA-AC-STYLE-SMEAR</h3>
+    <div class="doc-prose">
+      <p class="doc-dim">The scroll smear no longer has a switch. It is simply part of what
+        <code>amber-console.effects.js</code> does: on wherever the persistence simulation is running
+        and the engine flag permits it, off everywhere else.</p>
+      <p class="doc-dim">It was a style flag that could only ever be on under CRT — every selector
+        implementing it is scoped to <code>.ac-afterglow</code>, and a plasma cell is driven
+        continuously and has nothing that trails. So it spent most of its life disabled and explaining
+        why, which is a third axis of state for a preference nobody was expressing.
+        <code>prefers-reduced-motion</code> still stops the smear, which was the only accessibility
+        case the flag was actually carrying.</p>
+      <p class="doc-dim"><strong>Nothing breaks if you leave the attribute in your markup</strong> —
+        it is simply inert. Delete it at your convenience.</p>
+      <p class="doc-dim">The mechanism it was written for did not go with it. A style flag can still
+        declare the frame class it is a no-op without, and the switch will disable itself and say why
+        — <code>data-ac-style-retrace</code> is the flag that uses it now. See
+        <a href="guide-screen.html#board">SCREEN &amp; BOARD</a>.</p>
+    </div>
+  </section>
+
+  <section id="deprecated">
+    <div class="doc-sec-head"><h2>DEPRECATED — STILL WORKS, REMOVED IN 3.0</h2></div>
+
+    <h3 style="margin:28px 0 12px">DATA-AC-GAS="NEON" | "AMBER"</h3>
+    <div class="doc-prose">
+      <p class="doc-dim">The 1.x one-attribute palette switch. <strong>It still selects a
+        palette</strong>, so a 1.x page keeps rendering.</p>
+    </div>
+    <code class="doc-code">&lt;!-- Deprecated, works through 2.x --&gt;
+&lt;html data-ac-gas="neon"&gt;
+&lt;html data-ac-gas="amber"&gt;
+
+&lt;!-- 2.0 --&gt;
+&lt;html data-ac-tech="plasma" data-ac-emitter="neon"&gt;
+&lt;html data-ac-tech="crt"    data-ac-emitter="p3"&gt;</code>
+    <div class="doc-prose" style="margin-top:16px">
+      <p class="doc-dim"><strong>The name was the bug.</strong> <code>amber</code> was never a gas —
+        it is P3, a CRT phosphor — and a control that calls a phosphor a gas is exactly the confusion
+        2.0 exists to remove. An emitter is only meaningful inside its technology, which is why naming
+        a palette now takes two attributes: <code>data-ac-tech</code> is what is making light at all,
+        <code>data-ac-emitter</code> is which gas or which phosphor inside it.</p>
+    </div>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:16px"><span class="doc-cap">IT IS A PARTIAL ALIAS — THE ONE BEHAVIOURAL DIFFERENCE WORTH KNOWING</span>
+      <span class="doc-faint doc-small"><code>data-ac-gas</code> carries the <strong>colour</strong>
+        but not the <strong>persistence</strong>:</span>
+      <div class="doc-scroll" style="width:100%">
+      <table class="doc-table">
+        <thead><tr><th>MARKUP</th><th>INK</th><th class="ac-table__num">TAIL</th></tr></thead>
+        <tbody>
+          <tr><td class="doc-tok">data-ac-tech="crt" data-ac-emitter="p3"</td><td class="doc-tok">#ffae1e</td><td class="ac-table__num">25 ms — P3's real decay</td></tr>
+          <tr><td class="doc-tok">data-ac-gas="amber"</td><td class="doc-tok">#ffae1e</td><td class="ac-table__num">105 ms — the generic default</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <span class="doc-faint doc-small">So a 1.x page gets P3's amber with the generic plasma tail
+        rather than P3's own. Visually it is a slightly longer afterglow and nothing more; nothing
+        breaks. It is not worth fixing in the deprecated path, because the two-attribute form is right
+        there — but if your page leans on persistence timing, migrate rather than relying on the
+        alias. Migrating also <strong>unlocks the other nine palettes</strong>:
+        <code>data-ac-gas</code> can only ever reach these two and will not grow to reach more.</span>
+    </div>
+
+    <h3 style="margin:32px 0 12px">DATA-AC-GAS-TOGGLE</h3>
+    <div class="doc-prose">
+      <p class="doc-dim">The old two-position GAS button hook. Still cycles the same two palettes
+        through the new attributes, so a page using it stays correct while it migrates. It cannot
+        reach the rest of the catalog.</p>
+      <p class="doc-dim">Replace it with one <code>[data-ac-display]</code> radio per palette — the
+        catalog is markup, not a table inside the JavaScript, so you can ship your own rows without
+        touching the module.</p>
+    </div>
+    <code class="doc-code">&lt;input type="radio" name="ac-display" data-ac-display
+       data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt"&gt;</code>
+
+    <h3 style="margin:32px 0 12px">AMBERCONSOLE.AFTERGLOW(EL)</h3>
+    <div class="doc-prose">
+      <p class="doc-dim">A forwarding shim. Ghosting moved to
+        <code>amber-console.effects.js</code>, because it is an <em>effect</em> and
+        <code>amber-console.js</code> is <em>behaviour</em> — and the two files are independently
+        optional, which only means anything if neither imports the other.</p>
+    </div>
+    <code class="doc-code">AmberConsole.afterglow(row);         // deprecated, still works
+AmberConsoleEffects.afterglow(row);  // 2.0
+row.remove();</code>
+    <div class="doc-prose" style="margin-top:16px">
+      <p class="doc-dim">The shim delegates when the effects module is present and does nothing when
+        it is not — the same no-op it always was with the simulation switched off. Call it
+        <strong>before</strong> you remove or empty the element: a detached node has no rect, so there
+        is nowhere to pin the ghost.</p>
+    </div>
+  </section>
+
+  <section id="checking">
+    <div class="doc-sec-head"><h2>CHECKING YOUR OWN CODEBASE</h2></div>
+    <p class="doc-dim">Three greps. The first two are the breaking change; the third is the
+      housekeeping.</p>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:16px"><span class="doc-cap">FIND BARE TOKENS</span>
+      <span class="doc-faint doc-small">Every line this prints sets or reads an Amber Console property
+        that 2.0 no longer sees.</span>
+      <code class="doc-code">grep -rnE '\-\-(ink|fill|screen|radius|leading|gap|cols|stroke|emit|halo|glow|space|type|tracking|font|border-w|decay|persist|drive|edge|on-fill|mesh|blink|flicker|smear|ghost|afterimage|amber|gas)\b' .</code>
+    </div>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:16px"><span class="doc-cap">OR LIST THE PROPERTY NAMES THEMSELVES</span>
+      <span class="doc-faint doc-small">Which also catches any bare token the list above misses. Your
+        own custom properties show up here too, so read it as a shortlist rather than a verdict.</span>
+      <code class="doc-code">grep -rhoE '\-\-[a-z][a-z0-9-]*' . | grep -v '^--ac-' | sort -u</code>
+    </div>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:16px"><span class="doc-cap">FIND THE DEPRECATED HOOKS</span>
+      <span class="doc-faint doc-small">These all still work today and go in 3.0.</span>
+      <code class="doc-code">grep -rn 'data-ac-gas\|AmberConsole\.afterglow\|data-ac-style-smear' .</code>
+    </div>
+
+    <p class="doc-faint doc-small" style="margin-top:24px">This chapter is the on-site copy of
+      <code>DEPRECATIONS.md</code> in the repository, which is the canonical one and ships in the npm
+      package. <code>CHANGELOG.md</code> has the full reasoning behind each change, per release.</p>
   </section>
 
   <nav class="doc-pager" aria-label="Chapter">
-    <a class="doc-pager__link" href="guide-effects.html">◄ Previous: Effects</a>
-    <a class="doc-pager__link" href="guide-controls.html">Next: Controls ►</a>
+    <a class="doc-pager__link" href="guide-reference.html">◄ Previous: Reference</a>
+    <span></span>
   </nav>
 
   </main>

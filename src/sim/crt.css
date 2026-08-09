@@ -6,12 +6,30 @@
 
 /* --- CRT --- */
 .ac-crt { position: relative; }
-/* Scanline texture + vignette, drifting one cell every 11s */
+/* Scanline texture + vignette, drifting one cell every 11s.
+
+   THE HUM IS A BACKGROUND-COLOR ON THIS LAYER RATHER THAN ITS OPACITY, and the
+   difference is the whole point of the flicker being visible at all. This
+   element is a DARKENING layer — a black vignette and black scanlines — so
+   fading it out made the panel BRIGHTER, which is backwards for a mains sag, and
+   what moved was 3.5% of an overlay whose own mean darkening is about 15%: half
+   a percent of panel luminance, in the wrong direction. Filling the same layer
+   with black instead removes light directly, so the same 3.5% constant is 3.5%
+   of the picture and the scanlines stop breathing along with it.
+
+   It costs nothing extra: ac-crt-drift already animates background-position on
+   this element, so the layer is being repainted every frame regardless.
+
+   It is NOT a `::before` on .ac-crt, which is what a separate wash layer would
+   want. .ac-bloom::before is the plasma bleed, and a frame is allowed to carry
+   both classes — screen.css calls the three simulations independent and means
+   it — so the two would be one pseudo-element fighting over a backdrop-filter. */
 .ac-crt::after {
   content: "";
   position: absolute; inset: 0; z-index: 50;
   pointer-events: none;
-  background:
+  background-color: rgba(0,0,0,0);
+  background-image:
     radial-gradient(135% 125% at 50% 50%, transparent 58%, rgba(0,0,0,0.34) 100%),
     repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0 1px, transparent 1px 3px);
   animation: ac-crt-drift 11s linear infinite, ac-crt-hum 5.5s ease-in-out infinite;
@@ -34,25 +52,114 @@
      P7, P39        0.091  the long phosphors — rock steady at any refresh rate,
                            paid for in smear. Both halves, from one number.
 
+   AND THE OTHER HALF IS SPATIAL, which is the part this keyframe cannot carry.
+   See the retrace band below: temporal amplitude says how hard the picture
+   breathes, the band says WHERE the tube has already gone dark, and only the
+   second one is really what a short phosphor looks like.
+
    THE 0.035 IS A WCAG 2.3.1 BUDGET, NOT A TASTE SETTING, and the margins are
    large on purpose. Raising it spends them; redo the arithmetic first, exactly
-   as the --ac-mesh-wire note above demands — RATIONALE.md § The two flash
-   budgets. At --ac-flicker: 1 the stops resolve to 0.965 and 0.985, so a gas
-   palette renders identically to before this took a variable. */
+   as the --ac-mesh-wire note above demands — RATIONALE.md § The three flash
+   budgets. The constant is unchanged from when this animated opacity; what
+   changed is that it now lands on the picture instead of on the vignette, which
+   is a sevenfold gain in what you can see for no gain in what it spends. */
 @keyframes ac-crt-hum {
-  0%, 100% { opacity: 1; }
-  31%      { opacity: calc(1 - 0.035 * var(--ac-flicker, 1)); }
-  32%      { opacity: 1.0; }
-  68%      { opacity: calc(1 - 0.015 * var(--ac-flicker, 1)); }
+  0%, 100% { background-color: rgba(0,0,0,0); }
+  31%      { background-color: rgba(0,0,0,calc(0.035 * var(--ac-flicker, 1))); }
+  32%      { background-color: rgba(0,0,0,0); }
+  68%      { background-color: rgba(0,0,0,calc(0.015 * var(--ac-flicker, 1))); }
 }
-/* Vertical retrace band — a slow, almost invisible lightening sweep */
+
+/* THE RETRACE BAND — the unsteadiness of a short phosphor, rendered SPATIALLY
+   because temporally it cannot be rendered at all.
+
+   The refresh itself is unwatchable here for the Nyquist reason above. But the
+   thing a short phosphor actually did was never the whole screen blinking: at
+   any instant only the band the beam had just written was at full brightness,
+   and everything behind it had already decayed. That is the dark bar you see
+   when a phone camera looks at a CRT, and being SPATIAL it can move as slowly as
+   you like and still read — there is no frequency to alias.
+
+   SO THE BAND IS THE RADAR WAKE IN ONE DIMENSION: it moves down the frame, its
+   leading (lower) edge is freshly written and bright, and what trails above it
+   is the trough where the phosphor has given up. --ac-flicker sets how deep the
+   trough goes and how hot the edge is, so P7 and P39 keep the almost-invisible
+   lightening sweep this was before, and P11, P31 and P4 get a band you can
+   watch. That is the emitter axis finally rendering the difference it claims.
+
+   NORMAL BLENDING, NOT `screen`, and it is the trough that forces it: screen
+   only ever adds light, so the dark half of the gradient would be a no-op — and
+   a black child inside a screen-blended element is a no-op too, so the trough
+   cannot be a pseudo-element hiding inside this one either. The cost is that the
+   bright edge alpha-blends rather than adding: at its strongest it moves the
+   brightest glyph in the system by about one part in 255, toward the halo color
+   it is already glowing in — half of what it was before the amplitude came down.
+   The gain is one fewer mix-blend-mode on the page, which a11y.css and print.css
+   both have notes about.
+
+   THE HEIGHT DOES NOT SCALE WITH --ac-flicker even though the decayed region
+   physically would. ac-retrace translates by percentages of this element's OWN
+   box, so a taller band travels further in the same 13s and starts spending most
+   of the cycle off-screen — the timing would become a property of the emitter,
+   and RATIONALE.md § the detune has four other periods depending on this one
+   staying put. Amplitude carries it instead.
+
+   AND THE AMPLITUDE IS HALF WHAT IT WAS, which is a correction rather than a
+   taste change. The previous constants — a 8.5% trough under a 10.6% hot edge at
+   full flicker — made the band the first thing anybody saw and the last thing
+   they stopped seeing: a bar sweeping the page, read as an overlay playing over
+   the panel rather than as the panel's own unevenness. The thing being simulated
+   is a REGION THAT HAS DECAYED, which is a gradient in brightness across a
+   surface, not an object crossing it. At these levels it is something you notice
+   on a pale readout and stop noticing on text, which is where it belongs; the
+   shape, the timing and the --ac-flicker scaling are all unchanged, so P11 still
+   gets several times what P39 gets and the emitter axis still renders. Somebody
+   who wants the old reading has one switch — see the flag at the foot of this
+   file — and it is a better default to arrive under. */
 .ac-crt > .ac-retrace {
   position: absolute; left: 0; right: 0; top: 0; height: 26%;
-  z-index: 45; pointer-events: none; mix-blend-mode: screen; opacity: 0.32;
-  background: linear-gradient(180deg, transparent 0%, rgba(var(--ac-halo-1), 0.028) 50%, rgba(var(--ac-halo-4), 0.05) 66%, transparent 100%);
+  z-index: 45; pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,calc(0.042 * var(--ac-flicker, 1))) 30%,
+    rgba(0,0,0,calc(0.025 * var(--ac-flicker, 1))) 58%,
+    rgba(var(--ac-halo-1), calc(0.005 + 0.027 * var(--ac-flicker, 1))) 78%,
+    rgba(var(--ac-halo-4), calc(0.008 + 0.045 * var(--ac-flicker, 1))) 90%,
+    rgba(0,0,0,0) 100%);
   animation: ac-retrace 13s linear infinite;
 }
 @keyframes ac-retrace {
   0%   { transform: translateY(-110%); }
   100% { transform: translateY(500%); }
 }
+
+/* THE BAND IS OPTIONAL, AND IT IS THE ONLY EFFECT HERE THAT IS.
+   Everything else on this file is texture: the scanlines, the vignette and the
+   hum are the shape and the state of the tube, and they sit still. The band
+   TRAVELS — 26% of the frame, across all of it, every 13s, over the one surface
+   somebody is trying to read. It is by a wide margin the largest moving object
+   in the system, and "I would rather that did not sweep past while I read" is a
+   comfort preference in exactly the way the blink flag is.
+
+   TWO WAYS TO SAY IT, and they are for two different people:
+
+     <html data-ac-style-retrace="off">   the whole page. What the demo switch
+                                          writes; a viewer preference, and the
+                                          one amber-console.js persists.
+     …just do not ship the child          the band is a <span class="ac-retrace">
+                                          you put in the frame yourself. Leave it
+                                          out and there is nothing to switch off.
+                                          The author's answer, and it costs a
+                                          node rather than a rule.
+
+   The attribute exists because the SCRIPT mounts that child when the CRT
+   simulation comes on (SIMS.crt.children in amber-console.js), so a page driving
+   the simulation from the toggle cannot express "CRT, but not the band" by
+   omission alone. It hides rather than unmounts, so flipping the flag is a style
+   recalculation and not a remount of the simulation.
+
+   0,3,0 against the 0,2,0 of the rule above, which is what it takes to win —
+   `:root[…]` is an element plus an attribute. It agrees with the reduced-motion
+   `display: none` in frame.css rather than fighting it: both say the same word,
+   so whichever matches, the band is gone. */
+:root[data-ac-style-retrace="off"] .ac-retrace { display: none; }

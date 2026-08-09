@@ -1,0 +1,77 @@
+name: Bug report
+description: Something renders or behaves differently than the guide says it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: this framework is deliberately opinionated, and several
+        things that look like bugs are documented decisions. The
+        [six laws](https://github.com/DutchDiederik/AmberConsole#the-six-laws) and
+        [RATIONALE.md](https://github.com/DutchDiederik/AmberConsole/blob/main/RATIONALE.md)
+        cover most of them — the 18px type floor, the absence of a second hue, the
+        2px stroke, the stepped meter fill.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens, and what you expected instead
+    validations:
+      required: true
+
+  - type: input
+    id: repro
+    attributes:
+      label: Smallest page that reproduces it
+      description: A CodePen, a gist, or markup pasted below. Start from `starter.html` if that is easiest.
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Firefox 142 on Windows 11
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build
+    attributes:
+      label: Which build are you loading?
+      options:
+        - dist/amber-console.css
+        - dist/amber-console.min.css
+        - dist/amber-console.layer.css
+        - dist/amber-console.layer.min.css
+        - src/ directly, via my own bundler
+    validations:
+      required: true
+
+  - type: input
+    id: palette
+    attributes:
+      label: Palette
+      description: The two root attributes, or "default" if you set neither.
+      placeholder: data-ac-tech="crt" data-ac-emitter="p7"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: js
+    attributes:
+      label: Optional JavaScript loaded
+      description: Both are optional and independently loadable. Leave both unchecked for CSS only.
+      options:
+        - label: amber-console.js (behavior — tabs, dialogs, toggles, presets)
+        - label: amber-console.effects.js (persistence — ghosting, smear, decay)
+
+  - type: checkboxes
+    id: env
+    attributes:
+      label: Does it also happen under any of these?
+      options:
+        - label: prefers-reduced-motion
+        - label: forced-colors / high contrast
+        - label: print preview
+        - label: a viewport under 480px

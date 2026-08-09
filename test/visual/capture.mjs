@@ -101,6 +101,12 @@ const PAGES = [
   { name: "guide-persistence", file: "docs/guide-persistence.html", probeOnly: true },
   { name: "guide-display", file: "docs/guide-display.html", probeOnly: true },
   { name: "guide-screen", file: "docs/guide-screen.html", probeOnly: true },
+  /* The two index chapters. Probed rather than photographed on the same
+     economics as the six above — but they earn the probe more than any of them,
+     because they are almost entirely WIDE TABLES, which is the one shape that
+     overflows a 390px frame without anyone noticing on a laptop. */
+  { name: "guide-reference", file: "docs/guide-reference.html", probeOnly: true },
+  { name: "guide-deprecations", file: "docs/guide-deprecations.html", probeOnly: true },
 ];
 
 /**
@@ -343,11 +349,26 @@ for (const page of PAGES) {
        Forcing every tile to lay out for real makes the capture depend on the CSS
        and nothing else. It costs a little time on the tall chapters and buys a
        suite that cannot fail for a reason that is not a regression. */
+    /* .ac-retrace GOES FOR THE SAME REASON .ac-persist::after DOES: it is an
+       overlay whose only meaningful state is in motion. The band is the tube's
+       rolling unsteadiness — it exists at a POSITION, sweeping down the frame
+       every 13s — so freezing the animation does not photograph it dimmed, it
+       photographs it parked at top:0 with no transform, lying across the top
+       quarter of every CRT page in a place no reader will ever see it.
+
+       This was invisible until the band started carrying a --ac-flicker-scaled
+       trough (sim/crt.css); before that it was a near-transparent screen-blended
+       wash and the parked copy scored under tolerance by luck. The band still
+       gets gated: reduced-motion drops it in sim/frame.css, forced-colors and
+       print in a11y.css and print.css, and all three of those cases are captured
+       here. What is not gated is the one thing this suite cannot photograph
+       anyway, which is where it is at a given instant. */
     await tab.addStyleTag({
       content:
         "*,*::before,*::after{animation:none !important;transition:none !important}" +
         "*{content-visibility:visible !important}" +
         ".ac-persist::after{display:none !important}" +
+        ".ac-retrace{display:none !important}" +
         ".ac-afterglow[data-ac-scrolling]>*{filter:none !important}",
     });
     await tab.waitForTimeout(250);

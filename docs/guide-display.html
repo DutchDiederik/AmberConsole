@@ -38,6 +38,7 @@
      CRT off. Any class or overlay node that is off by default must be absent here,
      or it paints for one frame on every load before initSims removes it. -->
 <div class="ac-screen ac-bloom" data-ac-screen>
+<a class="doc-skip" href="#content">Skip to content</a>
 <span class="ac-mesh"></span>
 
 <!-- @include _nav.html -->
@@ -240,6 +241,25 @@
         <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
           <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
         </button>
+        <!-- THE BAND STANDS UNDER CRT BECAUSE IT IS PART OF THE TUBE, and it is
+             the one switch here that is not a `data-ac-sim`. It earns an off
+             switch by being the only part of the tube that TRAVELS: scanlines,
+             vignette and the mains hum are texture and sit still, while this is
+             26% of the frame crossing all of it every 13s, over text somebody is
+             reading. So it is a comfort control — but it is a comfort control
+             over ONE SIMULATION'S effect, and the note below has always said so
+             in as many words. Standing it beside CLASSIC BUTTONS asked the reader
+             to hold both ideas at once: that the band is part of the CRT
+             simulation, and that it is not on the simulation side of the board.
+             It is gated the same way it reads — `needs: "ac-crt"` in the STYLES
+             table, so it disables itself wherever there is no tube to sweep.
+             See ../src/sim/crt.css, which also documents the author's version of
+             the same opt-out: leave the .ac-retrace child out of the frame and
+             there is nothing to switch. prefers-reduced-motion hides it either
+             way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true" disabled>
+          <span>Retrace Band</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
       </div>
 
       <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
@@ -254,8 +274,10 @@
           <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
         <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
-             the board with blink and smear rather than beside PLASMA and CRT: a bevel
-             makes no claim about which gas is in the gap. Cuts the corners off every
+             the board rather than beside PLASMA and CRT: a bevel makes no claim about
+             which gas is in the gap, and unlike the retrace band above it is not one
+             simulation's effect either — it reaches every bordered surface on the
+             page whichever display is fitted. Cuts the corners off every
              bordered surface, stands the keys on a hard offset edge and parks their
              labels top-left — one look, one switch. Ships ON, because that is what the
              panel was; switching it off asks for a smoother corner than the hardware
@@ -269,8 +291,12 @@
         </button>
       </div>
 
+      <!-- Ships VISIBLE, because the partial's own default is a gas and the band
+           is a CRT effect. The build hides it on the pages whose preset is a
+           phosphor — see expandBoard. -->
+      <p class="doc-displays__note" data-ac-style-note="retrace">The retrace band is part of the CRT simulation, and there is no sweep across a plasma panel to switch off.</p>
       <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
-      <p class="doc-displays__note" data-ac-engine-off hidden>JS Effects off: no ghosting, smear or framebuffer
+      <p hidden class="doc-displays__note" data-ac-engine-off>JS Effects off: no ghosting, smear or framebuffer
         decay. Everything else here is CSS.</p>
 
       <div class="doc-engine" data-ac-engine-on hidden>
@@ -377,7 +403,7 @@
   <div class="ac-setup__foot">
     <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
     <span class="ac-spacer"></span>
-    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable — and Reset puts all of it back, switches, styles and engine alike.</span>
   </div>
 </div>
 <!-- @end -->
@@ -403,8 +429,19 @@
   <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
   <a class="doc-chapter" aria-current="page" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
   <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+  <!-- 08 AND 09 ARE LOOKUP RATHER THAN READING, and they are still numbered.
+       An unnumbered appendix would have said "optional", which is the opposite of
+       what a complete index is for: the seven chapters before them argue a case
+       and can be read in order, these two answer "does the framework have X" and
+       "what happened to Y" without being read at all. Same strip, same weight —
+       the distinction lives in the blurb on the overview card, not in the
+       numbering. -->
+  <a class="doc-chapter" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
+  <a class="doc-chapter" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
 </nav>
 <!-- @end -->
+
+  <main id="content">
 
   <header class="doc-head doc-head--chapter">
     <div class="doc-kicker"><span class="doc-num">06</span> AMBER CONSOLE · SYSTEM GUIDE</div>
@@ -440,7 +477,7 @@
           <div class="ac-panel ac-panel--bar" style="width:100%"><div class="ac-panel__barTitle">Frame Count</div>
             <div class="ac-readout"><div class="ac-readout__value">255315</div></div>
           </div>
-          <code class="doc-code">class="ac-panel ac-panel--bar"</code>
+          <code class="doc-code">&lt;div class="ac-panel ac-panel--bar"&gt;&lt;div class="ac-panel__barTitle"&gt;Frame Count&lt;/div&gt;…&lt;/div&gt;</code>
         </div>
       </div>
 
@@ -450,11 +487,18 @@
             <div class="ac-readout"><div class="ac-readout__label">Lamp Volts</div><div class="ac-readout__value">41.0<span class="ac-readout__unit">V</span></div></div>
             <div class="ac-readout"><div class="ac-readout__label">Lamp Amps</div><div class="ac-readout__value">154<span class="ac-readout__unit">A</span></div></div>
             <div class="ac-readout ac-readout--lg"><div class="ac-readout__label ac-readout__label--plain">Frames</div><div class="ac-readout__value">255315</div></div>
+            <div class="ac-readout ac-readout--inline"><div class="ac-readout__label">Reel</div><div class="ac-readout__value">04</div></div>
           </div>
+          <span class="doc-faint doc-small">Three sizes and one arrangement.
+            <code>--lg</code> is the hero value a room reads from the doorway;
+            <code>--inline</code> puts the label beside the number instead of above it, for a status
+            strip or a menu bar where a stacked readout would double the height of the row. The label
+            is still a label — inline is about where it sits, not about dropping it.</span>
           <code class="doc-code">&lt;div class="ac-readout"&gt;
   &lt;div class="ac-readout__label"&gt;Lamp Volts&lt;/div&gt;
   &lt;div class="ac-readout__value"&gt;41.0&lt;span class="ac-readout__unit"&gt;V&lt;/span&gt;&lt;/div&gt;
-&lt;/div&gt;</code>
+&lt;/div&gt;
+class="ac-readout ac-readout--lg"      ac-readout--inline</code>
           <p class="doc-when">Text. A readout is for a number that changes.</p>
         </div>
         <div class="doc-demo doc-demo--col"><span class="doc-cap">BADGE — MICRO TAGS, PIXEL FACE</span>
@@ -488,9 +532,21 @@
             <div class="ac-list__item"><dt class="ac-list__key">Reel</dt><span class="ac-list__fill"></span><dd class="ac-list__value">04 / 06</dd></div>
             <div class="ac-list__item"><dt class="ac-list__key">Format</dt><span class="ac-list__fill"></span><dd class="ac-list__value">70MM</dd></div>
           </dl>
+          <dl class="ac-list ac-list--dense ac-list--dim" style="width:100%">
+            <div class="ac-list__item"><dt class="ac-list__key">Rack</dt><span class="ac-list__fill"></span><dd class="ac-list__value">B</dd></div>
+            <div class="ac-list__item"><dt class="ac-list__key">Bay</dt><span class="ac-list__fill"></span><dd class="ac-list__value">12</dd></div>
+          </dl>
+          <span class="doc-faint doc-small">Four modifiers, two axes.
+            <code>--dense</code> is spacing — it tightens the rows, and it is what the State panel on
+            the board above uses. <code>--dim</code> and <code>--bright</code> are
+            <strong>drive level</strong>, not decoration: a dim list is context you are not reading
+            right now, a bright one is the reading the screen exists for. They compose, and they
+            follow the same law as everything else here — the halo moves with the ink, so a dim list
+            scatters less light rather than merely being greyer.</span>
           <code class="doc-code">&lt;dl class="ac-list"&gt;&lt;div class="ac-list__item"&gt;
   &lt;dt class="ac-list__key"&gt;Reel&lt;/dt&gt;&lt;span class="ac-list__fill"&gt;&lt;/span&gt;
-  &lt;dd class="ac-list__value"&gt;04 / 06&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;</code>
+  &lt;dd class="ac-list__value"&gt;04 / 06&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;
+class="ac-list ac-list--dense"    ac-list--dim    ac-list--bright</code>
           <p class="doc-when">Sortable or multi-column data. That is a table.</p>
         </div>
       </div>
@@ -504,8 +560,20 @@
           <div class="ac-meter ac-meter--dim" style="width:100%">
             <div class="ac-meter__track" style="--ac-meter-value:28"><div class="ac-meter__bar"></div></div>
           </div>
+          <div class="ac-meter ac-meter--lg ac-meter--alarm" style="width:100%">
+            <div class="ac-meter__track" style="--ac-meter-value:94" role="progressbar" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100" aria-label="Coolant"><div class="ac-meter__bar"></div></div>
+            <div class="ac-meter__scale"><span>0</span><span>50</span><span>100</span></div>
+          </div>
+          <span class="doc-faint doc-small">Three modifiers.
+            <code>--dim</code> recedes, <code>--lg</code> is the tall bar for the one reading a
+            supervisor watches from across the room, and <code>--alarm</code> is the bar in a
+            condition — it is a <em>state</em>, so drive it from your data and take it off again when
+            the value comes back, exactly as you would the blink on a row.
+            <strong>The fill is always stepped</strong>, at every size: a smooth bar implies a
+            resolution the instrument does not have.</span>
           <code class="doc-code">&lt;div class="ac-meter__track" style="--ac-meter-value: 72"&gt;
-  &lt;div class="ac-meter__bar"&gt;&lt;/div&gt;&lt;/div&gt;</code>
+  &lt;div class="ac-meter__bar"&gt;&lt;/div&gt;&lt;/div&gt;
+class="ac-meter ac-meter--lg"    ac-meter--dim    ac-meter--alarm</code>
           <p class="doc-when">A single precise reading. A number the operator can write down beats a bar
             they have to estimate — use an <code>.ac-readout</code>.</p>
         </div>
@@ -528,17 +596,40 @@
         <div style="width:100%;display:flex;flex-direction:column;gap:12px">
           <div class="ac-banner">Remote Mode</div>
           <div class="ac-banner ac-banner--filled ac-blink" role="alert">Lamp Fault</div>
+          <div class="ac-banner ac-banner--dim">Maintenance Window 02:00</div>
         </div>
         <span class="doc-faint doc-small">✳✳ glyphs are added by the component. Blink is reserved for a live, unacknowledged condition — and it is always paired with inverse video and the glyphs, so it still reads as an alarm when blink is switched off.</span>
-        <code class="doc-code">&lt;div class="ac-banner ac-banner--filled ac-blink" role="alert"&gt;Lamp Fault&lt;/div&gt;</code>
-        <p class="doc-when">Two banners on one screen. The second one makes the first one furniture.</p>
+        <span class="doc-faint doc-small"><code>--filled</code> is inverse video and the loudest thing
+          the framework can draw. <code>--dim</code> is the other end: a standing notice that is true
+          but is not news — a scheduled window, a mode the operator already knows about. It is the
+          variant that lets the rule above stay honest, because "one banner per screen" is only
+          keepable if there is somewhere to put the condition that does not need shouting.</span>
+        <code class="doc-code">&lt;div class="ac-banner ac-banner--filled ac-blink" role="alert"&gt;Lamp Fault&lt;/div&gt;
+class="ac-banner"    ac-banner--filled    ac-banner--dim</code>
+        <p class="doc-when">Two <em>loud</em> banners on one screen. The second one makes the first one
+          furniture.</p>
       </div>
 
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">PANEL — DIM FRAME (RECEDES)</span>
-        <div class="ac-panel ac-panel--dim" style="width:100%"><span class="ac-panel__title">Interlocks</span>
-          <span class="doc-faint doc-small">SECONDARY REGION — READ-ONLY INSTRUMENTATION</span>
+      <div class="doc-grid2">
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">PANEL — DIM FRAME (RECEDES)</span>
+          <div class="ac-panel ac-panel--dim" style="width:100%"><span class="ac-panel__title">Interlocks</span>
+            <span class="doc-faint doc-small">SECONDARY REGION — READ-ONLY INSTRUMENTATION</span>
+          </div>
+          <code class="doc-code">class="ac-panel ac-panel--dim"    ac-panel--bar</code>
         </div>
-        <code class="doc-code">class="ac-panel ac-panel--dim"</code>
+        <div class="doc-demo doc-demo--col"><span class="doc-cap">RULE — THE ONLY DIVIDER</span>
+          <div style="width:100%">
+            <hr class="ac-hr">
+            <span class="doc-faint doc-small">.ac-hr — a section break inside a region</span>
+            <hr class="ac-hr ac-hr--bright">
+            <span class="doc-faint doc-small">.ac-hr--bright — a break between two things that are not the same kind of thing</span>
+          </div>
+          <span class="doc-faint doc-small">Two weights and no others, both at the 2px stroke — there
+            are no hairlines on this panel. Reach for a rule only when a region border would be
+            heavier than the separation deserves; most of the time the answer is two
+            <code>.ac-panel</code>s.</span>
+          <code class="doc-code">&lt;hr class="ac-hr"&gt;    &lt;hr class="ac-hr ac-hr--bright"&gt;</code>
+        </div>
       </div>
 
     </div>
@@ -548,6 +639,8 @@
     <a class="doc-pager__link" href="guide-controls.html">◄ Previous: Controls</a>
     <a class="doc-pager__link" href="guide-screen.html">Next: Screen & Board ►</a>
   </nav>
+
+  </main>
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 2.0 · MONOCHROME PLASMA UI</span>

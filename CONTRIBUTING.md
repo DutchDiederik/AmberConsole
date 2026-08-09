@@ -24,14 +24,19 @@ npm run test:visual
 ## Before opening a pull request
 
 ```bash
-npm test             # check + contrast + build, all zero-dependency
-npm run lint         # stylelint: ac- BEM pattern       (needs npm install)
-npm run test:visual  # 14 Playwright captures           (needs npm install)
+npm install
+npm test             # lint + check + gas + contrast + build — what CI runs
+npm run test:visual  # 44 Playwright screenshots over 14 pages
+npm run test:computed  # 644 computed-style probes
 ```
 
-`npm test` runs the prohibitions gate (no second hue, no svg, no emoji, no transitions in
-components), re-derives the generated gas palettes and fails on drift, recomputes the contrast table
-against every palette, and rebuilds `dist/`.
+`npm test` lints the stylesheets, runs the prohibitions gate (no second hue, no svg, no emoji, no
+transitions in components), re-derives the generated gas palettes and fails on drift, recomputes the
+contrast table against every palette, and rebuilds `dist/`.
+
+**It leads with `npm run lint`, so `npm test` needs the dev dependencies** — the four gates behind
+it do not. If you have not installed anything, `npm run check && npm run gas -- --check && npm run
+contrast && npm run build` is the same coverage minus the linter.
 
 **The gas palettes are generated.** `plasma/helium`, `plasma/argon` and `plasma/krypton` are computed
 by `scripts/derive-gas.mjs` from the line tables in `scripts/data/emitters.json` — do not hand-edit
@@ -49,7 +54,7 @@ These are enforced by `scripts/check-prohibitions.mjs`, which fails the build:
 > **Two test suites, and they see different things.** `npm run test:visual` compares screenshots; it
 > freezes animation and never hovers, so it is blind to which keyframe is running and to every
 > `:hover` / `:active` state. `npm run test:computed` reads computed styles for exactly those —
-> 548 probes over blink, the persistence layers and the corner styles. Run both before a release; the
+> 644 probes over blink, the persistence layers and the corner styles. Run both before a release; the
 > computed one also runs in CI, the visual one cannot (font rasterisation differs on Linux).
 
 - **No second hue.** No red, no green, no "success" color. Danger is blink plus inverse video.
@@ -77,6 +82,11 @@ system and several look odd on purpose — `padding: 8px 24px 20px` on `.ac-tab`
 illusion, `min-width: 130px` on `.ac-btn--pad` is a gloved-finger target, the `1px` border on
 `.ac-badge` is deliberate.
 
+**Read [RATIONALE.md](RATIONALE.md) before you argue with a number.** It carries the derivation for
+most of them — why neon is 24deg, why the drive tiers are three tokens and not one multiplier, why
+the two corner paths use different radii — and the comments in `src/` point into it by section. If
+the value you want to change has a section there, answer that section.
+
 If you do change one, list it in `CHANGELOG.md` with the reason. Accessibility criteria are a valid
 reason; taste is not.
 
@@ -95,7 +105,7 @@ belong here. Every new component needs:
 
 ## The docs pages are partly generated
 
-`docs/` has twelve pages and all of them carry the same menu bar and the same setup board. Those
+`docs/` has fourteen pages and all of them carry the same menu bar and the same setup board. Those
 live in `docs/_nav.html`, `docs/_board.html` and `docs/_chapters.html`, and `npm run build` expands
 them in place between markers:
 

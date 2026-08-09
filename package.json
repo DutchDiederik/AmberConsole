@@ -47,6 +47,8 @@
     "starter.html",
     "README.md",
     "CHANGELOG.md",
+    "DEPRECATIONS.md",
+    "RATIONALE.md",
     "LICENSE"
   ],
   "scripts": {

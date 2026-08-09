@@ -38,6 +38,7 @@
      CRT off. Any class or overlay node that is off by default must be absent here,
      or it paints for one frame on every load before initSims removes it. -->
 <div class="ac-screen ac-bloom" data-ac-screen>
+<a class="doc-skip" href="#content">Skip to content</a>
 <span class="ac-mesh"></span>
 
 <!-- @include _nav.html -->
@@ -240,6 +241,25 @@
         <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
           <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
         </button>
+        <!-- THE BAND STANDS UNDER CRT BECAUSE IT IS PART OF THE TUBE, and it is
+             the one switch here that is not a `data-ac-sim`. It earns an off
+             switch by being the only part of the tube that TRAVELS: scanlines,
+             vignette and the mains hum are texture and sit still, while this is
+             26% of the frame crossing all of it every 13s, over text somebody is
+             reading. So it is a comfort control — but it is a comfort control
+             over ONE SIMULATION'S effect, and the note below has always said so
+             in as many words. Standing it beside CLASSIC BUTTONS asked the reader
+             to hold both ideas at once: that the band is part of the CRT
+             simulation, and that it is not on the simulation side of the board.
+             It is gated the same way it reads — `needs: "ac-crt"` in the STYLES
+             table, so it disables itself wherever there is no tube to sweep.
+             See ../src/sim/crt.css, which also documents the author's version of
+             the same opt-out: leave the .ac-retrace child out of the frame and
+             there is nothing to switch. prefers-reduced-motion hides it either
+             way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true" disabled>
+          <span>Retrace Band</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
       </div>
 
       <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
@@ -254,8 +274,10 @@
           <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
         <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
-             the board with blink and smear rather than beside PLASMA and CRT: a bevel
-             makes no claim about which gas is in the gap. Cuts the corners off every
+             the board rather than beside PLASMA and CRT: a bevel makes no claim about
+             which gas is in the gap, and unlike the retrace band above it is not one
+             simulation's effect either — it reaches every bordered surface on the
+             page whichever display is fitted. Cuts the corners off every
              bordered surface, stands the keys on a hard offset edge and parks their
              labels top-left — one look, one switch. Ships ON, because that is what the
              panel was; switching it off asks for a smoother corner than the hardware
@@ -269,8 +291,12 @@
         </button>
       </div>
 
+      <!-- Ships VISIBLE, because the partial's own default is a gas and the band
+           is a CRT effect. The build hides it on the pages whose preset is a
+           phosphor — see expandBoard. -->
+      <p class="doc-displays__note" data-ac-style-note="retrace">The retrace band is part of the CRT simulation, and there is no sweep across a plasma panel to switch off.</p>
       <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
-      <p class="doc-displays__note" data-ac-engine-off hidden>JS Effects off: no ghosting, smear or framebuffer
+      <p hidden class="doc-displays__note" data-ac-engine-off>JS Effects off: no ghosting, smear or framebuffer
         decay. Everything else here is CSS.</p>
 
       <div class="doc-engine" data-ac-engine-on hidden>
@@ -377,7 +403,7 @@
   <div class="ac-setup__foot">
     <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
     <span class="ac-spacer"></span>
-    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable — and Reset puts all of it back, switches, styles and engine alike.</span>
   </div>
 </div>
 <!-- @end -->
@@ -403,8 +429,19 @@
   <a class="doc-chapter" aria-current="page" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
   <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
   <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+  <!-- 08 AND 09 ARE LOOKUP RATHER THAN READING, and they are still numbered.
+       An unnumbered appendix would have said "optional", which is the opposite of
+       what a complete index is for: the seven chapters before them argue a case
+       and can be read in order, these two answer "does the framework have X" and
+       "what happened to Y" without being read at all. Same strip, same weight —
+       the distinction lives in the blurb on the overview card, not in the
+       numbering. -->
+  <a class="doc-chapter" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
+  <a class="doc-chapter" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
 </nav>
 <!-- @end -->
+
+  <main id="content">
 
   <header class="doc-head doc-head--chapter">
     <div class="doc-kicker"><span class="doc-num">05</span> AMBER CONSOLE · SYSTEM GUIDE</div>
@@ -509,15 +546,47 @@
       </div>
 
       <div class="doc-demo doc-demo--col"><span class="doc-cap">TABS — SOFT KEYS, TITLE CASE</span>
-        <div class="ac-tabs" role="tablist" data-ac="tabs">
-          <button type="button" class="ac-tab" role="tab" aria-selected="true">Functions</button>
-          <button type="button" class="ac-tab" role="tab" aria-selected="false">Alarms</button>
-          <button type="button" class="ac-tab" role="tab" aria-selected="false">Presets</button>
+        <div class="doc-tabspec">
+        <div class="ac-tabs" role="tablist" data-ac="tabs" aria-label="Specimen tabs">
+          <button type="button" class="ac-tab" role="tab" aria-selected="true" aria-controls="spec-tab-functions" id="spec-key-functions">Functions</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="spec-tab-alarms" id="spec-key-alarms">Alarms</button>
+          <button type="button" class="ac-tab" role="tab" aria-selected="false" aria-controls="spec-tab-presets" id="spec-key-presets">Presets</button>
+        </div>
+        <!-- REAL PANELS, NOT THREE LOOSE BUTTONS. A `role="tab"` that controls
+             nothing is an incomplete widget: a screen reader announces "tab 1 of
+             3" and then has nowhere to go. This specimen is the markup people
+             copy, so it carries the whole model — aria-controls both ways, one
+             panel per key — rather than only the half that is visible. -->
+        <div class="ac-panel" id="spec-tab-functions" role="tabpanel" aria-labelledby="spec-key-functions">
+          <span class="ac-panel__title">Functions</span>
+          <div class="ac-stack"><span class="ac-readout ac-readout--inline"><span class="ac-readout__label">Lamp</span><span class="ac-readout__value">RUN</span></span></div>
+        </div>
+        <div class="ac-panel" id="spec-tab-alarms" role="tabpanel" aria-labelledby="spec-key-alarms" hidden>
+          <span class="ac-panel__title">Alarms</span>
+          <div class="ac-stack"><span class="ac-readout ac-readout--inline"><span class="ac-readout__label">Active</span><span class="ac-readout__value">NONE</span></span></div>
+        </div>
+        <div class="ac-panel" id="spec-tab-presets" role="tabpanel" aria-labelledby="spec-key-presets" hidden>
+          <span class="ac-panel__title">Presets</span>
+          <div class="ac-stack"><span class="ac-readout ac-readout--inline"><span class="ac-readout__label">Loaded</span><span class="ac-readout__value">SCOPE 70</span></span></div>
+        </div>
         </div>
         <span class="doc-faint doc-small">Arrow keys, Home and End move between them when the optional JS module is loaded.</span>
-        <code class="doc-code">&lt;div class="ac-tabs" role="tablist" data-ac="tabs"&gt;
-  &lt;button class="ac-tab" role="tab" aria-selected="true" aria-controls="panel-1"&gt;Functions&lt;/button&gt;
-&lt;/div&gt;</code>
+        <span class="doc-faint doc-small"><strong>The selected tab is stated twice, and both are
+          load-bearing.</strong> <code>aria-selected="true"</code> is the truth for assistive tech and
+          is what the CSS styles; <code>.ac-tab--active</code> is the same fact as a class, for a
+          consumer whose own component sets a class and not ARIA. The JS module writes both, along
+          with <code>tabindex</code> — only the selected tab is tabbable, which is the roving-focus
+          half of the tablist model. Driving this from React or Vue? Write the same attributes
+          yourself and skip the module entirely; nothing here reads back.</span>
+        <code class="doc-code">&lt;div class="ac-tabs" role="tablist" data-ac="tabs" aria-label="Console views"&gt;
+  &lt;button class="ac-tab ac-tab--active" role="tab" aria-selected="true"
+          tabindex="0" id="key-1" aria-controls="panel-1"&gt;Functions&lt;/button&gt;
+  &lt;button class="ac-tab" role="tab" aria-selected="false" tabindex="-1"
+          id="key-2" aria-controls="panel-2"&gt;Alarms&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div id="panel-1" role="tabpanel" aria-labelledby="key-1"&gt; … &lt;/div&gt;
+&lt;div id="panel-2" role="tabpanel" aria-labelledby="key-2" hidden&gt; … &lt;/div&gt;</code>
         <p class="doc-when">Navigation between pages — that is <code>.ac-nav</code>. Tabs swap a region,
           not a screen.</p>
       </div>
@@ -555,7 +624,14 @@
           <label class="ac-radio"><input type="radio" name="doc-mode" checked><span>Auto</span></label>
           <label class="ac-radio"><input type="radio" name="doc-mode"><span>Manual</span></label>
           <label class="ac-radio"><input type="radio" name="doc-mode"><span>Remote</span></label>
-          <code class="doc-code">&lt;label class="ac-radio"&gt;&lt;input type="radio" name="mode"&gt;&lt;span&gt;Auto&lt;/span&gt;&lt;/label&gt;</code>
+          <label class="ac-radio ac-radio--disabled"><input type="radio" name="doc-mode" disabled><span>Service</span></label>
+          <span class="doc-faint doc-small">The last one is <code>.ac-radio--disabled</code>. Like the
+            disabled checkbox and the disabled key, it drops to faint <em>and</em> loses its halo —
+            inert hardware does not glow. Set the class alongside the input's own
+            <code>disabled</code>; the class styles the label, the attribute is what actually stops
+            the click.</span>
+          <code class="doc-code">&lt;label class="ac-radio"&gt;&lt;input type="radio" name="mode"&gt;&lt;span&gt;Auto&lt;/span&gt;&lt;/label&gt;
+&lt;label class="ac-radio ac-radio--disabled"&gt;&lt;input type="radio" disabled&gt;…&lt;/label&gt;</code>
           <p class="doc-when">More than about five options — that is an <code>.ac-select</code>.</p>
         </div>
         <div class="doc-demo doc-demo--col"><span class="doc-cap">TOGGLE — HARD SNAP, ON/OFF READOUT</span>
@@ -583,19 +659,35 @@
           <button type="button" class="ac-btn ac-keypad__key">0</button>
           <button type="button" class="ac-btn ac-keypad__key ac-keypad__key--fn ac-btn--filled">Ent</button>
         </div>
-        <code class="doc-code">&lt;div class="ac-keypad"&gt;&lt;button class="ac-btn ac-keypad__key"&gt;7&lt;/button&gt;…&lt;/div&gt;</code>
+        <span class="doc-faint doc-small">Keys are square and sized for a gloved finger.
+          <code>.ac-keypad--dense</code> is the same pad with the gap and the key floor pulled in, for
+          a mouse-driven panel or a sidebar where the full pad does not fit — it is a
+          <em>concession</em>, not a variant to reach for first, and it drops below the 44px touch
+          target the full pad is built to clear. Digits stay centered under either corner style; a
+          single character has no label-and-value split for the classic top-left label to
+          serve.</span>
+        <code class="doc-code">&lt;div class="ac-keypad"&gt;&lt;button class="ac-btn ac-keypad__key"&gt;7&lt;/button&gt;…&lt;/div&gt;
+&lt;div class="ac-keypad ac-keypad--dense"&gt;   &lt;!-- mouse-driven only --&gt;</code>
         <p class="doc-when">Any screen with a keyboard attached. This exists because there is no keyboard
-          in a projection booth.</p>
+          in a projection booth. And <code>--dense</code> on a touch panel, for the same reason
+          <code>.ac-btn--sm</code> does not belong on one.</p>
       </div>
 
       <div class="doc-demo doc-demo--col"><span class="doc-cap">DIALOG — IT APPEARS; IT DOES NOT FADE IN</span>
         <button type="button" class="ac-btn" data-ac-dialog-open="guide-dialog">Open Dialog</button>
         <span class="doc-faint doc-small">Flat backdrop, no blur, no scale. Built on native <code>&lt;dialog&gt;</code>, so Escape and focus trapping come from the browser.</span>
+        <span class="doc-faint doc-small"><code>.ac-dialog--wide</code> is the second and last size, for
+          the one case a confirm box cannot serve: a dialog carrying a <em>table</em> or a form of
+          more than about four fields, where the default measure would wrap every row. There is no
+          small variant and no full-screen one — a dialog narrower than this is a banner, and a
+          dialog the size of the screen is a screen.</span>
         <code class="doc-code">&lt;dialog class="ac-dialog"&gt;&lt;form method="dialog"&gt;
   &lt;h2 class="ac-dialog__title"&gt;Confirm&lt;/h2&gt;
   &lt;div class="ac-dialog__body"&gt;…&lt;/div&gt;
   &lt;div class="ac-dialog__actions"&gt;…&lt;/div&gt;
-&lt;/form&gt;&lt;/dialog&gt;</code>
+&lt;/form&gt;&lt;/dialog&gt;
+
+&lt;dialog class="ac-dialog ac-dialog--wide"&gt;   &lt;!-- a table, or a real form --&gt;</code>
         <p class="doc-when">Anything the operator must see machine state behind. A modal on a control
           surface hides the panel; use an <code>.ac-banner</code> instead.</p>
       </div>
@@ -607,6 +699,8 @@
     <a class="doc-pager__link" href="guide-persistence.html">◄ Previous: Persistence</a>
     <a class="doc-pager__link" href="guide-display.html">Next: Display ►</a>
   </nav>
+
+  </main>
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 2.0 · MONOCHROME PLASMA UI</span>

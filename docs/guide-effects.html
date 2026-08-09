@@ -38,6 +38,7 @@
      CRT off. Any class or overlay node that is off by default must be absent here,
      or it paints for one frame on every load before initSims removes it. -->
 <div class="ac-screen ac-bloom" data-ac-screen>
+<a class="doc-skip" href="#content">Skip to content</a>
 <span class="ac-mesh"></span>
 
 <!-- @include _nav.html -->
@@ -240,6 +241,25 @@
         <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
           <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
         </button>
+        <!-- THE BAND STANDS UNDER CRT BECAUSE IT IS PART OF THE TUBE, and it is
+             the one switch here that is not a `data-ac-sim`. It earns an off
+             switch by being the only part of the tube that TRAVELS: scanlines,
+             vignette and the mains hum are texture and sit still, while this is
+             26% of the frame crossing all of it every 13s, over text somebody is
+             reading. So it is a comfort control — but it is a comfort control
+             over ONE SIMULATION'S effect, and the note below has always said so
+             in as many words. Standing it beside CLASSIC BUTTONS asked the reader
+             to hold both ideas at once: that the band is part of the CRT
+             simulation, and that it is not on the simulation side of the board.
+             It is gated the same way it reads — `needs: "ac-crt"` in the STYLES
+             table, so it disables itself wherever there is no tube to sweep.
+             See ../src/sim/crt.css, which also documents the author's version of
+             the same opt-out: leave the .ac-retrace child out of the frame and
+             there is nothing to switch. prefers-reduced-motion hides it either
+             way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true" disabled>
+          <span>Retrace Band</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
       </div>
 
       <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
@@ -254,8 +274,10 @@
           <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
         <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
-             the board with blink and smear rather than beside PLASMA and CRT: a bevel
-             makes no claim about which gas is in the gap. Cuts the corners off every
+             the board rather than beside PLASMA and CRT: a bevel makes no claim about
+             which gas is in the gap, and unlike the retrace band above it is not one
+             simulation's effect either — it reaches every bordered surface on the
+             page whichever display is fitted. Cuts the corners off every
              bordered surface, stands the keys on a hard offset edge and parks their
              labels top-left — one look, one switch. Ships ON, because that is what the
              panel was; switching it off asks for a smoother corner than the hardware
@@ -269,8 +291,12 @@
         </button>
       </div>
 
+      <!-- Ships VISIBLE, because the partial's own default is a gas and the band
+           is a CRT effect. The build hides it on the pages whose preset is a
+           phosphor — see expandBoard. -->
+      <p class="doc-displays__note" data-ac-style-note="retrace">The retrace band is part of the CRT simulation, and there is no sweep across a plasma panel to switch off.</p>
       <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
-      <p class="doc-displays__note" data-ac-engine-off hidden>JS Effects off: no ghosting, smear or framebuffer
+      <p hidden class="doc-displays__note" data-ac-engine-off>JS Effects off: no ghosting, smear or framebuffer
         decay. Everything else here is CSS.</p>
 
       <div class="doc-engine" data-ac-engine-on hidden>
@@ -377,7 +403,7 @@
   <div class="ac-setup__foot">
     <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
     <span class="ac-spacer"></span>
-    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable.</span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable — and Reset puts all of it back, switches, styles and engine alike.</span>
   </div>
 </div>
 <!-- @end -->
@@ -403,8 +429,19 @@
   <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
   <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
   <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+  <!-- 08 AND 09 ARE LOOKUP RATHER THAN READING, and they are still numbered.
+       An unnumbered appendix would have said "optional", which is the opposite of
+       what a complete index is for: the seven chapters before them argue a case
+       and can be read in order, these two answer "does the framework have X" and
+       "what happened to Y" without being read at all. Same strip, same weight —
+       the distinction lives in the blurb on the overview card, not in the
+       numbering. -->
+  <a class="doc-chapter" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
+  <a class="doc-chapter" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
 </nav>
 <!-- @end -->
+
+  <main id="content">
 
   <header class="doc-head doc-head--chapter">
     <div class="doc-kicker"><span class="doc-num">03</span> AMBER CONSOLE · SYSTEM GUIDE</div>
@@ -456,6 +493,26 @@
       identically to a panel that never had this rule. It is a budget rather than a taste setting —
       WCAG 2.3.1 governs the ceiling, and 0.18Hz sits more than an order of magnitude below the
       3–8Hz band it is written about.</p>
+    <p class="doc-dim"><strong>The retrace band is the one effect with an off switch</strong>, and it
+      earns one by being the only part of the tube that travels. The refresh itself is unwatchable for
+      the Nyquist reason above — but what a short phosphor actually did was never the whole screen
+      blinking: at any instant only the band the beam had just written was at full brightness, and
+      everything behind it had already given up. That is spatial rather than temporal, so it can move
+      as slowly as you like and still read. It is also 26% of the frame crossing all of it every 13s,
+      over text somebody is trying to read, which is a fair thing to not want. Hence
+      <code>data-ac-style-retrace="off"</code> on <code>&lt;html&gt;</code> — the Retrace Band switch on
+      the board writes it, and it is a comfort preference in the way blink is, not a claim that the
+      tube had no retrace. An author who never wants it has a cheaper answer: the band is a
+      <code>&lt;span class="ac-retrace"&gt;</code> you put in the frame yourself, so leave it out and
+      there is nothing to switch. <code>prefers-reduced-motion</code> hides it either way.</p>
+    <p class="doc-dim">Its amplitude is scaled by <code>--ac-flicker</code> like the hum is, and by the
+      same argument: <strong>the band is what a short phosphor looks like</strong>, so P11, P31 and P4
+      get one you can watch and P7 and P39 keep a lightening sweep that is almost invisible. Both
+      halves of the flicker number — how hard the picture breathes and where the tube has already gone
+      dark — come out of the one constant. It is deliberately drawn near the floor of perception: a
+      4.2% trough under a 5.3% edge at full flicker, which is half what it was in 2.0.0, because at
+      twice this it stopped reading as the panel's own unevenness and started reading as a bar sliding
+      over the page.</p>
     </div>
 
     <h3 style="margin:28px 0 12px">THE SCREEN DOOR</h3>
@@ -516,7 +573,8 @@
         <span class="ac-retrace"></span>
         <span class="doc-cap">.AC-CRT — THE TUBE</span>
         <span style="font-size:var(--ac-type-display);color:var(--ac-ink-bright);text-shadow:var(--ac-glow-text)">154<span class="ac-readout__unit">A</span></span>
-        <span class="doc-faint doc-small">Scanlines, vignette, drift, flicker, retrace.</span>
+        <span class="doc-faint doc-small">Scanlines, vignette, drift, flicker, retrace — the band on
+          its own switch, <code>data-ac-style-retrace</code>.</span>
       </div>
       <div class="doc-sim-tile ac-afterglow">
         <span class="ac-persist"></span>
@@ -547,6 +605,8 @@
     <a class="doc-pager__link" href="guide-type.html">◄ Previous: Type & Geometry</a>
     <a class="doc-pager__link" href="guide-persistence.html">Next: Persistence ►</a>
   </nav>
+
+  </main>
 
   <footer class="doc-foot">
     <span class="doc-mono">AMBER CONSOLE · REV 2.0 · MONOCHROME PLASMA UI</span>

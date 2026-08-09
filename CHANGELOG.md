@@ -4,11 +4,281 @@ All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] — 2026-08-04
+## [Unreleased]
+
+Nothing yet.
+
+## [2.0.0] — 2026-08-09
 
 A breaking release: every custom property this framework owns is now `--ac-*` prefixed, and the
 pre-prefix names are gone rather than aliased. If you never overrode a token, upgrading is a
 drop-in. If you did, prefix what you set with `ac-` and you are done.
+
+### Fixed — the stylesheet shipped two different licenses
+
+**`dist/amber-console.css` contradicted itself in its own first ten lines.** The generated banner
+said `BSD-3-Clause`; the source header inlined below it, seven lines down, still said `MIT licensed`.
+The [1.0.1](#101--2026-07-27) and 2.0 passes had corrected `LICENSE`, the README and `package.json`
+and missed the one header that gets copied into every build — so the entry below claiming the
+banners were fixed was itself half true. Both `dist/` stylesheets now say BSD-3-Clause once.
+
+- **The repo URL in that header was lowercase** `amber-console` where everything else says
+  `AmberConsole`. GitHub redirects, so it worked; it should still not disagree with `package.json`.
+- **The two ESM builds shipped with no version in their banner.** `src/` is not allowed to carry a
+  version number — the header of `src/amber-console.css` says so — and the ESM flavors were a
+  straight `copyFile`, so they inherited the unversioned source banner while the classic-script
+  builds got a stamped one. `scripts/build.mjs` now stamps all four, and drops the duplicated source
+  banner it used to nest inside each `.global.js`.
+
+### Fixed — the docs described a framework slightly different from this one
+
+Each of these was checkable against the thing it described, and each was wrong.
+
+- **The README's contrast section printed 5 of the 11 palettes** while its own opening sentence said
+  the gate "runs against **every palette**, so none of them ships untested". The five it did print
+  were accurate; the section simply stopped being regenerated when the palette count grew. All
+  eleven are there now, straight out of `node scripts/contrast.mjs --md`.
+- **`npm test` was documented as zero-dependency in both the README and CONTRIBUTING.** It leads with
+  `npm run lint`, so it has never run without `npm i` — and CONTRIBUTING contradicted itself two
+  lines later by listing `lint` separately as needing an install. Both now say what the command does
+  (lint, check, gas, contrast, build) and which four of those run bare.
+- **Three counts had gone stale:** CONTRIBUTING said `docs/` had twelve pages (fourteen), that the
+  computed suite ran 548 probes (644), and both files called the visual suite "14 captures" — 14 is
+  the page count; it takes 44 screenshots and probes the rest.
+- **`RATIONALE.md` was linked from nowhere and shipped nowhere.** Two dozen comments in `src/` point
+  into it by section, and `src/` is in `files` while it was not, so every one of those pointers was
+  dead for anyone reading the package out of `node_modules`. It is now packaged, and linked from the
+  README and CONTRIBUTING.
+
+### Fixed — the demo pages did not practice what the framework preaches
+
+- **No page had a `<main>` landmark and none had a skip link.** All fourteen now do. On the four
+  demos `.ac-screen__body` simply *is* the `<main>` — it is styled by class, so the element could
+  change with no CSS behind it — and `starter.html` and the README quickstart teach the same shape.
+- **The TABS specimen in CONTROLS was an incomplete ARIA widget**, and it is the markup people copy.
+  Three `role="tab"` buttons controlled nothing, on a page with no `role="tabpanel"` anywhere, so a
+  screen reader announced "tab 1 of 3" and had nowhere to send anyone — while the code sample
+  directly beneath it showed the `aria-controls` the live specimen did not have. It is now a working
+  three-panel tablist, and the sample shows both halves of the model.
+- **Three `role="tablist"` elements had no accessible name** (`index.html`, `server.html`, and that
+  specimen). `terminal.html` had been doing it right all along.
+- **Two classes were missing from a page that promises "every class"**: `.ac-readout__label--plain`,
+  which three demos use, and the `.ac-toggle` parts `__track` `__thumb` `__state`, where every
+  neighbouring row lists its parts.
+
+### Fixed — configuration that guarded a directory this repository does not have
+
+`.gitignore` carried thirty lines about campaign material in `promo/`, and `check-prohibitions.mjs`
+skipped the same directory. Neither `promo/` nor the `scripts/promo-capture.mjs` those comments
+pointed at has ever existed here. Both are gone; the note explaining why the visual baselines are
+committed stays, shorter.
+
+### Fixed — the README hero was a picture of 1.0, and nothing could regenerate it
+
+`docs/screenshot.png` still showed a REV 1.0 nav bar with two links and the gas switches inline in
+it — a layout that has not existed since the setup board landed. `scripts/make-assets.mjs`
+*consumed* that file to letterbox the social card and never produced it, so the og:image was stale
+by inheritance and no command in the repository could fix either. `npm run assets` now captures the
+console itself before building the card, so the hero, the card, the favicon and the touch icon all
+come out of one command and one stylesheet.
+
+### Added — the repository furniture an open-source project is expected to have
+
+`SECURITY.md` (with the actual surface stated plainly: no server, no network, no `innerHTML`, and
+one `localStorage` prefix), `FUNDING.yml`, two issue templates and a pull-request checklist built
+from the gates CONTRIBUTING already documents.
+
+### Added — the guide has an onramp, and it is `starter.html`
+
+The docs site described the system in nine chapters and demonstrated it in four whole products, and
+had nowhere to send somebody whose question was *what do I type*. **`starter.html` has existed at the
+repository root since 1.0 and the guide never mentioned it**, so the file the README calls the place
+to start was reachable only from the README.
+
+- **A `START HERE` section on the guide overview**, between the six laws and the chapter index —
+  what is on the file, the whole setup as four lines of markup, why it carries no JavaScript, why it
+  ships one display technology rather than both, and the three things its own footer ends on, each
+  pointed at the chapter that argues it.
+- **`SCREEN & BOARD` links it from SCREEN ANATOMY** as the smallest frame that still works, beside
+  the assembled console it already pointed at.
+
+### Fixed — the starter's panels did not space their own children
+
+`.ac-panel` draws a border and pads its inside; it does not lay its contents out, because nothing in
+this system puts margins between siblings. **The starter never wrapped a panel's rows in a layout
+box, so the status strip, the button row, the toggle, the meter and the alarm sat flush against each
+other at 0px** — the first page a new user opens was demonstrating the one spacing mistake the half-
+cell grid exists to prevent. Each panel now holds one `.ac-stack`, and the comment beside it says
+what happens if you delete it.
+
+- **The meter's value moved onto `.ac-meter__track`**, where `src/components/meter.css` has always
+  documented it, and the bar gained the `role="progressbar"` and `aria-value*` set that goes with it
+  plus an `.ac-meter__scale`. It worked on the bar — the property inherits — but it taught the wrong
+  shape.
+- **Every row is `.ac-row--wrap`**, so a narrow phone reflows instead of clipping.
+
+### Added — the starter is a small console rather than a swatch sheet
+
+It showed six components, which was enough to prove the stylesheet loads and not enough to show what
+a screen made of it looks like. It now opens on the `.ac-grid--console` split — what the operator
+does on the left, what the panel reports on the right, folding to one column below 900px on its own.
+
+- **Operating panel:** an `.ac-field` with an `.ac-input` well, an `.ac-select`, and `.ac-check`
+  status bits in a fieldset, beside the buttons, toggle, meter and alarm that were already there.
+- **Instrument panel,** on `.ac-panel--dim`: two `.ac-readout`s with units, an `.ac-hr`, an
+  `.ac-list` with leader dots, and three `.ac-badge`s.
+- Verified at 1440 and 390, and under forced colors, reduced motion and print: no horizontal
+  overflow and no console errors in any of them.
+
+### Fixed — four things the framework shipped and the guide never named
+
+Found by diffing every class, token, attribute and export defined in `src/` against all ten guide
+pages. **The reference chapter claims to be the complete index, so a gap in it is a wrong claim
+rather than a thin one.** Tokens came back clean — the numbered families are listed compressed
+(`--ac-space-1 -2 -3 …`), which is coverage, not an omission.
+
+- **`.ac-keypad__key--wide`** was in no page of the docs. The keypad row listed `__key` and
+  `__key--fn` and stopped.
+- **`.ac-nav__link--active`** was undocumented because every page in this repository writes
+  `aria-current="page"` instead. Both are in the same selector; only one was findable.
+- **`.ac-panel__barTitle`** appeared exactly once, inside a specimen's markup, and in no table or
+  code block — so `.ac-panel--bar` was documented without the child that draws its title. It is also
+  the one camel-cased name in the framework, which is how it slipped past a class sweep. The DISPLAY
+  chapter's code block now shows the child.
+- **`data-ac-dialog-close`** was missing from the hooks table while `data-ac-dialog-open` was in it.
+- **`init(scope)` is documented at all now.** Both modules bind themselves on `DOMContentLoaded`, so
+  nothing said what to do about markup inserted afterwards — or that the dialog pair is delegated and
+  the persistence module observes the tree, so neither needs the call.
+
+### Fixed — "Reset to Preset" reset two of the four axes
+
+The button cleared the stored value of a style flag only when that flag's default was *derived* from
+the simulation, and it never touched the engine key at all. `classic` has a fixed default, so it was
+in neither category: **a visitor who once switched Classic Buttons off could not get them back from
+this button, on any preset, ever**, and JS Effects was in the same position. Both survived a reload
+too, which is what made it read as a broken control rather than a stubborn preference.
+
+- **Every `ac.sim.style.*` key and `ac.sim.engine` are now cleared by the reset**, and the defaults
+  re-applied without being written back. Cleared is not the same as set-to-the-default: an absent key
+  means *the user has never said*, which is the only state a derived default is allowed to fill in.
+  Writing the default would claim the preference on their behalf and a derived flag would stop
+  following the simulation forever after.
+- **Classic Buttons is on by default under every emitter**, which it always was in the code — what
+  was missing was a way back to that default once a session had stored otherwise.
+- `styleDefault(name)` is split out of `styleOn(name)`, because the reset needs a flag's default while
+  the root is still carrying the value it is about to discard.
+
+### Changed — switching JS Effects off now reads `MOD`
+
+It deliberately did not, on the argument that a preset is a statement about hardware and how much of
+the library is running is not part of that claim. The reset above is what makes that argument stop
+holding: **once a control is something Reset puts back, it is part of what the preset describes.** A
+board that resets a switch it never admitted was moved is the readout and the button disagreeing
+about the same fact. Only reachable on P39 and P7, which are the only two panels where the switch is
+enabled at all.
+
+### Added — the retrace band is optional
+
+`data-ac-style-retrace="on|off"` on the root, exposed as a **Retrace Band** switch on the demo board.
+
+- **It is a style and not a simulation.** The band is real hardware — a short phosphor genuinely only
+  held the strip the beam had just written — but it is also the only part of the tube that *travels*:
+  26% of the frame, across all of it, every 13s, over text somebody is reading. "That motion bothers
+  me" is a comfort preference in exactly the way blink is, and turning it off is not a claim that the
+  tube had no retrace. The scanlines, vignette and hum stay unswitchable because they sit still.
+- **The author's opt-out costs a node rather than a rule.** The band is a `<span class="ac-retrace">`
+  you put in the frame yourself, so leaving it out removes it. The attribute exists because
+  `amber-console.js` mounts that child with the CRT simulation, so a page driving the simulation from
+  a toggle cannot say "CRT, but not the band" by omission alone. The flag hides rather than unmounts,
+  so flipping it is a style recalculation, not a remount of the simulation.
+- **The switch disables itself under a gas** — every rule drawing the band is scoped to `.ac-crt`.
+  Unlike JS Effects it does not care how long the phosphor holds or whether the effects module is
+  loaded, so P11 gets a working band switch and a dead engine switch at once. This revives the
+  `needs` mechanism that `data-ac-style-smear` left behind; the `engineOn()` half of its liveness
+  test is now opt-in via `needsEngine`, since welding it on would have disabled a pure-CSS switch for
+  every consumer running without the JavaScript.
+- `prefers-reduced-motion` hides the band either way, as it always did.
+
+### Changed — the retrace band is half as strong
+
+A 4.2% trough under a 5.3% edge at full flicker, down from 8.5% and 10.6%. At the old amplitude it
+was the first thing anybody saw and the last thing they stopped seeing — a bar sliding over the page
+rather than the panel's own unevenness, which is what a decayed region actually is. The shape, the
+13s period and the `--ac-flicker` scaling are unchanged, so the emitter axis still renders the
+difference it claims; P11 still gets several times what P39 gets. The brightest glyph in the system
+now moves by about one part in 255 rather than two.
+
+### Added — two guide chapters, and full coverage of the framework in the guide
+
+- **08 REFERENCE** — the complete index: every class grouped as `src/` is, every root attribute and
+  JS hook, every token *split by whether you set it or the framework does*, and every `ac.sim.*` key.
+  A guide made of specimens answers "how do I do X" well and "does this thing even have Y" badly;
+  both are real questions, and the second one was unanswerable without reading seven chapters
+  end to end.
+- **09 DEPRECATED** — the on-site copy of `DEPRECATIONS.md`: the `--ac-*` rename and why the old
+  names were not aliased, `--amber-*`, `--gas-*`, `data-ac-style-smear`, and the three hooks that go
+  in 3.0.
+- **22 classes were documented nowhere in the guide**, the entire layout family among them. `TYPE &
+  GEOMETRY` gains a LAYOUT section covering `.ac-grid` / `--ac-cols` / `.ac-col-*`, the four row
+  alignments, `.ac-grow`, `.ac-spacer`, `.ac-push`, `.ac-root` and `.ac-sr-only`; `CONTROLS` gains
+  `.ac-radio--disabled`, `.ac-keypad--dense`, `.ac-dialog--wide` and `.ac-tab--active`; `DISPLAY`
+  gains `.ac-list--dim/--bright`, `.ac-meter--lg/--alarm`, `.ac-readout--inline`, `.ac-banner--dim`
+  and `.ac-hr`; `PERSISTENCE` names `.ac-ghost` and `.ac-ghost--fast`. Every class in `src/` now
+  appears in the guide.
+- **`SCREEN & BOARD` said the engine floor was 5ms.** It has been 80ms since the perceptual floor
+  replaced the compositing one, so the chapter was telling readers P1 and P3 cleared a bar they do
+  not. Fixed, along with the board's control table, which now carries the Retrace Band row and a
+  Reset row that describes all four axes.
+
+### Fixed — the build's engine-off note rewrite was a silent no-op
+
+`expandBoard()` keyed on `<p hidden class=… data-ac-engine-off>` while the partial writes `hidden`
+*after* the hook attribute, so the pattern matched neither the partial nor its own output and the
+replacement never ran. It happened to be harmless — the partial already ships that note hidden — but
+it was one moved attribute away from not being. Both note rewrites now accept `hidden` in either
+position and are wrapped in `must()`, so a pattern that stops matching fails the build instead of
+quietly doing nothing.
+
+### Fixed — the CRT flicker was pointing the wrong way and had nowhere to be seen
+
+The catalog says P11 is "fully dark between frames" and that short persistence and heavy flicker are
+the same fact. Nothing on the screen showed it. `--ac-flicker` spans 0.091 to 1.000 across the seven
+phosphors and both ends looked identical, so the emitter axis was making a claim it never rendered.
+
+- **`ac-crt-hum` moved from the overlay's `opacity` to that overlay's `background-color`.**
+  `.ac-crt::after` is a DARKENING layer — a black vignette and black scanlines — so fading it out
+  made the panel *brighter*, which is backwards for a mains sag, and what moved was 3.5% of a layer
+  whose own mean darkening is 15%: half a percent of panel luminance, in the wrong direction. Filling
+  the same layer with black removes light directly, so the same 3.5% constant is now 3.5% of the
+  picture — sevenfold what you can see, for nothing extra spent against the flash budget. It costs no
+  additional work either: `ac-crt-drift` already animates `background-position` on that element, so
+  the layer is repainted every frame regardless.
+- **`.ac-retrace` is the other half, and it is the half that matters.** The refresh itself is
+  unwatchable for the Nyquist reason the file has always given, but a short phosphor never showed the
+  whole screen blinking: at any instant only the band the beam had just written was at full
+  brightness and everything behind it had decayed. That is spatial, so it has no frequency to alias.
+  The band now sweeps with a bright freshly-written leading edge and a decayed trough trailing it,
+  both scaled by `--ac-flicker` — the radar wake in `components/sweep.css` on a straight line instead
+  of a circle. P7 and P39 keep the almost-invisible sweep this was; P11, P31 and P4 get a band that
+  reads.
+- **It blends normally now instead of `screen`, and the trough is what forces it.** `screen` only
+  ever adds light, so the dark half would be a no-op — and a black child inside a screen-blended
+  element is a no-op too, so the trough could not hide in a pseudo-element either. The cost is that
+  the bright edge alpha-blends rather than adding: at full strength it moves the brightest glyph in
+  the system by two parts in 255, toward the halo colour it is already glowing in. The gain is one
+  fewer `mix-blend-mode` on the page, which `a11y.css` and `print.css` both keep notes about.
+- **The band's height does not scale with `--ac-flicker`** even though the decayed region physically
+  would. `ac-retrace` translates by percentages of the element's own box, so a taller band travels
+  further in the same 13s and starts spending most of the cycle off-screen — the timing would become
+  a property of the emitter, and the detune in RATIONALE.md has four other periods depending on this
+  one staying put. Amplitude carries it instead.
+- **Behaviour change for the gases.** They declare no `--ac-flicker` and inherit the `:root` default
+  of 1, so switching the CRT simulation on over a gas now gives it the pronounced band rather than
+  the old faint sweep. Deliberate — the simulation is the tube, and asking for the tube over a gas is
+  asking for what `--ac-flicker: 1` describes — but it is a change, and RATIONALE.md § The three
+  flash budgets now scopes its "renders identically" note to the hum alone.
+- RATIONALE.md § The two flash budgets is § **The three** flash budgets, with the arithmetic redone
+  for both changed effects, as the note in `sim/crt.css` demands of anyone who touches them.
 
 ### Fixed — the release audit
 
@@ -831,8 +1101,9 @@ would actually ship.
 
 - **The ramp is `--emit-100` … `--emit-30`.** `--amber-*` named a hue rather than a ramp and was
   already only historically true; with a lavender and a pink in the file it stopped being defensible.
-  `--amber-*` survives as a deprecated alias, removed in 3.0, and resolves per palette for free since
-  it points at `--emit-*`.
+  `--amber-*` was kept as a deprecated alias while this release was in development, and is **removed
+  in 2.0** with the rest of the pre-prefix names — see the token-prefix entry above for why an alias
+  nothing reads is worse than an absence. Use `--ac-emit-100` … `--ac-emit-30`.
 - `button.css` and `tabs.css` read `var(--amber-100)` where they meant `--ink-bright`; repointed. No
   component reaches past the semantic aliases now.
 - **Krypton's emission peak corrected to 587.1 nm.** NIST gives 587.09 at intensity 3000 as the
@@ -928,6 +1199,13 @@ would actually ship.
   the next `applySim`. Worse, `.ac-persist` is prepended to the frame, so a stale ghost came first in
   document order and was what a plain `querySelector` found instead of the real element. A ghost is a
   photograph; nothing may keep writing on it.
+
+## [1.0.1] — 2026-07-27
+
+### Fixed — the README still named the old license
+
+`LICENSE` had already been rewritten to BSD 3-Clause; the README's License section had not, and
+still read MIT. Documentation only — no code, no tokens and no packaged file changed.
 
 ## [1.0.0] — 2026-07-26
 
@@ -1128,5 +1406,8 @@ And one correction of fact, carried through the guide, the README and the source
   and `--ac-decay` were already neutral. "Afterglow" was always correct: it is the standard term for
   the decaying emission of a gas discharge after the current stops.
 
-[Unreleased]: https://github.com/DutchDiederik/amber-console/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/DutchDiederik/amber-console/releases/tag/v1.0.0
+<!-- Tags in this repository are unprefixed — `1.0.0`, not `v1.0.0`. -->
+[Unreleased]: https://github.com/DutchDiederik/AmberConsole/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/DutchDiederik/AmberConsole/compare/1.0.1...2.0.0
+[1.0.1]: https://github.com/DutchDiederik/AmberConsole/compare/1.0.0...1.0.1
+[1.0.0]: https://github.com/DutchDiederik/AmberConsole/releases/tag/1.0.0
