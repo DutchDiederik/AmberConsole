@@ -6,7 +6,159 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
-Nothing yet.
+A post-2.0 audit pass. No API changed and nothing was removed; everything here is either a contract
+the code was not keeping, a document describing a framework slightly different from this one, or a
+control that looked interactive and was not.
+
+### Fixed — the committed `dist/` JavaScript was one release behind its own source
+
+The 2.0.0 entry below records that `scripts/build.mjs` now stamps a version into all four JS
+banners. It does — but the four **committed artifacts** were never regenerated afterwards, so
+`dist/amber-console.js` and `dist/amber-console.effects.js` still shipped an unstamped banner and
+the two `.global.js` builds still carried the duplicated source banner the same change removed. The
+fix was real; the output was stale.
+
+This is exactly what the `Verify dist/ is up to date` step in CI exists to catch, and it would have
+caught it: `npm run build && git diff --exit-code -- dist/` exits 1 on the previous tree. It had not
+run because the step post-dates the commit that went stale.
+
+### Fixed — three components disagreed about what "disabled" looks like
+
+`components/button.css` states the law: *inert, so no halo at all — not a dimmer one.* `.ac-btn`,
+`.ac-check` and `.ac-radio` kept it. `.ac-tab` and `.ac-input` did not — both carried
+`--ac-glow-box-dim` while disabled, so a dead tab and a dead well still scattered light. `.ac-tab`
+was the worse of the two: its comment said *"Inert keeps no edge, the same as a disabled key"* while
+the declaration under it did the opposite.
+
+Both now go to `box-shadow: none`. The toggle **housing** keeps its dim halo and that is now written
+down as the one stated exception — it is a box that is still drawn rather than a cell that is no
+longer lit, which is the argument `components/toggle.css` already made where it makes it. The thumb
+inside it, which is the lamp, still goes dark.
+
+- **Neither state was measurable before.** The computed suite's fixture had a disabled *button* and a
+  disabled *toggle*, but an enabled input and no tab at all, and neither appears on any page the
+  screenshot suite baselines — so the whole 824-probe run came back clean across the change.
+  `test/computed/capture.mjs` now carries both, which is the 48 new probes.
+
+### Fixed — an over-range meter said so only while it was blinking
+
+`.ac-meter--alarm` promised *"inverse-video the whole track and blink it — there is no red"* and
+delivered a slightly brighter border plus a blinking bar. Blink is switched off by
+`prefers-reduced-motion`, by the blink style flag, by print and by forced colors — four environments
+in which an alarmed meter was indistinguishable from a healthy one.
+
+The track now fills with `--ac-fill` and the bar is cut out of it in `--ac-on-fill`. That way round
+is forced: the bar is already `--ac-fill`, so filling the track with the same token would make the
+reading vanish into it. Added to the inverse-video lists in `base/a11y.css` (Highlight /
+HighlightText) and to the `print-color-adjust: exact` list in `base/print.css`, without which the
+lit track simply does not print.
+
+- **The lagging ghost bar inverted with it.** `sim/afterglow.css` paints the shrink-ghost in
+  `--ac-fill`, which on an alarmed track is now the colour of the track behind it — so the one
+  bargraph where a falling reading matters most was the one that stopped trailing. It is drawn in
+  `--ac-on-fill` under `.ac-meter--alarm`.
+- **`.ac-meter--dim` no longer reads as full drive in forced colors.** The bar was matched
+  unconditionally and came back as `Highlight`; it takes `GrayText` now, the same word that mode
+  already uses for the disabled thumb. Print needed no equivalent — `--ac-ink-faint` re-points to a
+  mid grey there, so a dim bar already prints grey against a black one.
+
+### Fixed — a scoped embed resolved half a palette
+
+The semantic aliases (`--ac-ink`, `--ac-fill`, `--ac-stroke`, …) were declared on `:root` alone. They
+are indirections, and a `var()` is substituted **at the element that declares it**, then inherits as
+a resolved colour. So a consumer following the `base/reset-scoped.css` guidance — who puts
+`data-ac-tech` / `data-ac-emitter` on `.ac-root` rather than on `<html>`, which is the natural thing
+to do when you do not own `<html>` — moved the five `--ac-emit-*` stops on that subtree and nothing
+else. The surfaces changed and the text stayed neon.
+
+`tokens/colors.css` now declares the aliases on `:root, .ac-root`. Deliberately **not** on
+`[data-ac-tech][data-ac-emitter]`, which would cover more elements and weigh (0,2,0) — enough to beat
+a consumer's own `:root { --ac-ink: … }` and silently break the one override the REFERENCE chapter
+tells people they may write. `.ac-root` weighs the same as `:root` and wins for its subtree by
+proximity instead. `base/print.css` carries `.ac-root` in its re-point list for the same reason;
+without it that closer declaration would win and a scoped embed would print in amber.
+
+### Fixed — demo controls that were not wired
+
+- **The radar's Interference Rejection switch did nothing.** It carried no `data-ac="toggle"`, so
+  `amber-console.js` never bound it, and `radar.js` had no handler either. It flips now, and reveals
+  a run of asynchronous-interference spokes when the rejection is OFF — the thing the control
+  removes, which has to be visible for the control to mean anything. The state is followed with a
+  `MutationObserver` on `aria-pressed` rather than a second `click` listener: a plain `<script>` binds
+  before `amber-console.js` does its DOMContentLoaded pass, so a click handler read the attribute one
+  flip behind and ran backwards.
+- **`doc-echo--tracked` and `doc-echo--clutter` were on the radar markup with no rule behind them.**
+  A tracked contact looked exactly like a stray return. Tracked contacts now hold full amplitude
+  longer before draining — said with dwell rather than with brightness, which the selected-track ring
+  has already spent, and not with a raised trail floor, which would have been declared nearer than the
+  `.doc-scope` the TRAILS softkeys write and stopped those four buttons working.
+- **`initGas()` dragged a saved palette back to neon.** The deprecated two-position toggle runs last
+  and unconditionally applied one of its two gases, so a page still shipping that button reset a
+  visitor's P39 or krypton on every load, using a control that cannot reach those palettes. It now
+  restores only what it can express and leaves the rest alone.
+- **"Reset to Preset" left a stale readout** when no catalog row was selected.
+
+### Fixed — the guide described a framework slightly different from this one
+
+Each was checkable against the thing it described.
+
+- **Three contrast ratios in REFERENCE were each one stop out**, every row carrying the next row's
+  number: `--ac-ink` was listed at 5.2:1 (it is 7.0), `--ac-ink-bright` at 7.0 (10.5), `--ac-ink-dim`
+  at 3.4 (5.2). `--ac-ink-faint` and `--ac-ink-trace` now carry theirs too.
+- **The corner radius was documented as the opt-out value in three places** — REFERENCE, the README
+  cheat-sheet and a TYPE caption all said `8px` / `4px`. Since 2.0 made the cut corner the default
+  those are `.ac-rounded`'s values; the defaults are `2px 4px 8px 4px` and `1px 2px 4px 2px`. The
+  README contradicted itself, describing the `2 / 4 / 8 / 4` diagonal correctly 400 lines earlier.
+- **Law 1 on the guide's front page read "There is no phosphor in here"** directly above a catalog
+  offering seven of them, and titled itself ONE GAS while four of eleven emitters are gases. The
+  README had already been corrected to "One **emitter**"; the guide never got the edit. Its neon
+  figure was also P3's — 590nm against neon's 585.2nm.
+- **`--ac-halo-spread` / `-scatter` / `-flash` were described as "the three radii".** One is a radius,
+  one is an alpha multiplier and one is an `r, g, b` triple.
+- **`--ac-lit` was described as "read rather than animated"**, which is backwards — it is a registered
+  `@property` precisely so it can be transitioned, and it is.
+- **`--ac-persist-fast` was described three different ways and is read by nothing.** It is kept and
+  relabelled as what it is: documentation of where the hardcoded 4% crossover in `ac-ghost-cascade`
+  comes from, since keyframe offsets cannot read a custom property.
+- **One sentence contradicted itself** — "the last five … the only two tokens that could not be
+  aliased".
+- **`RATIONALE.md` still described the pre-token blink maintenance model**, warning that a new blink
+  site means editing four files. It has been one declaration pair on the site itself since 2.0.
+- **Stale source comments**: two pointed at "the top of this file" for things in other files, one
+  instructed future editors to keep a selector list in step with copies in `print.css` and
+  `a11y.css` that a refactor had already deleted, two gave `sim/afterglow.css` a line count it
+  outgrew, and `.ac-btn` was documented at 44px where it measures 46.
+
+### Added — what the guide was missing
+
+- **Five public tokens absent from a table headed EVERY TOKEN**: `--ac-backdrop` and the four
+  `--ac-sweep-*` knobs, two of which the radar demo itself overrides. Plus `--ac-smear`.
+- **`AmberConsoleEffects.transition(fn)`** — a public export documented in the README and nowhere in
+  the guide. REFERENCE now lists all three exported functions together.
+- **A section on the four environments the stylesheet answers on its own.** `forced-colors`,
+  `@media print` and `tokens/fonts-cdn.css` appeared in **no** guide chapter; searching all nine for
+  those strings returned nothing.
+- **Six documented features had no live example**: `.ac-keypad__key--wide`, `.ac-keypad--dense`,
+  `.ac-btn--block`, `.ac-list--bright`, `.ac-table--dense`, and the dim meter's missing scale and
+  progressbar ARIA.
+- **PERSISTENCE reconciled its own count.** Item 7 was labelled CSS and *"no script at all"* while the
+  board's engine panel advertises framebuffer decay as one of three JavaScript effects. Both are real
+  and they are different mechanisms — cross-document by CSS, same-document by `transition()` — and
+  only the first was described. The tally is now four pure CSS, two JavaScript, two by both routes.
+
+### Changed — guide layout
+
+- **Chapter intros run the full measure.** `.doc-lede` carried `max-width: 62ch` while every other
+  paragraph runs to `.doc-wrap`'s 1180px, so the first paragraph a reader meets was the one that
+  stopped halfway across the page.
+- **The Overview is numbered `00`** in the chapter strip, so the sequence reads 00–09 rather than
+  starting unnumbered.
+
+### Removed
+
+- `test/visual/baselines/guide-1440-rounded.png` — orphaned. The `1440-rounded` case is
+  `only: ["guide-controls"]`, so nothing has compared against it since that scoping landed. All 43
+  other baselines are live and none was missing.
 
 ## [2.0.0] — 2026-08-09
 

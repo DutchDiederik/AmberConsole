@@ -1737,6 +1737,22 @@
   transition: width var(--ac-persist-tail) var(--ac-decay-ease);
 }
 
+/* THE SAME GHOST ON AN OVER-RANGE METER, INVERTED WITH THE REST OF IT.
+   components/meter.css lights the alarm TRACK and cuts the bar out of it in
+   --ac-on-fill, so the rule above — which paints in --ac-fill — draws the ghost
+   in exactly the colour the track behind it now is, and the draining strip
+   becomes invisible. An alarmed bar was the one bargraph in the system that
+   snapped instead of trailing, which is the bug (5c) exists to fix, reintroduced
+   by the alarm fill for the one state where a falling reading matters most.
+   Same geometry, same timing, the other ink. */
+.ac-afterglow .ac-meter--alarm .ac-meter__track::before {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ac-on-fill) 0 8px,
+    transparent 8px 12px
+  );
+}
+
 /* (6) SCROLL SMEAR.
 
    Scrolling is the largest light-off event there is: every cell on the panel is

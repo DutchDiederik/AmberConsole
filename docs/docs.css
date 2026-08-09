@@ -595,8 +595,15 @@
   color: var(--ac-ink-dim);
   text-shadow: var(--ac-glow-text-dim);
 }
+/* THE CHAPTER INTRO RUNS THE FULL MEASURE, like every other paragraph here.
+   It used to carry `max-width: 62ch`, which is the classical readability measure
+   and the right instinct in general — but nothing else on these pages is
+   constrained, so the one paragraph a reader meets FIRST was the one paragraph
+   that stopped halfway across the page and read as an unfinished left column
+   beside empty space. Consistency wins over the measure here: .doc-prose,
+   .doc-dim and the tables all run to .doc-wrap's 1180px, and the lede now does
+   too. */
 .doc-lede {
-  max-width: 62ch;
   color: var(--ac-ink);
   text-shadow: var(--ac-glow-text);
   font-size: var(--ac-type-body);
