@@ -440,6 +440,41 @@ async function meters(browser, out) {
           const el = document.querySelector(sel);
           if (!el) return "MISSING";
           const cs = getComputedStyle(el);
+
+          /* SYSTEM COLOURS ARE REPORTED BY NAME, NEVER BY VALUE, and this group
+             is the only one in the file that has to care. Under forced colors
+             the UA substitutes its own emulated palette — Highlight came back
+             as rgb(55, 0, 110) here — and those numbers belong to the browser
+             build, not to this stylesheet. Every other probe in this file
+             measures something platform-neutral on purpose, because the computed
+             suite is the half of the testing that DOES run on a Linux CI runner
+             (see .github/workflows/ci.yml). Baking the emulated RGB into the
+             baseline would have made the first CI run red for a reason that is
+             not a regression. Resolving the keywords live and diffing the NAME
+             keeps the assertion — "the alarm track is Highlight" — and drops the
+             dependency on what Highlight happens to be today. */
+          /* EVERY match is reported, not the first, because several system
+             colours legitimately resolve to the same RGB — Canvas and
+             HighlightText are both white in the emulated palette, and
+             first-match-wins labelled the plain track "HighlightText" when it is
+             Canvas. Joining them is deterministic, states the ambiguity instead
+             of picking a side, and still fails loudly if the pair a rule lands
+             on ever changes. A colour that matches no keyword is a palette
+             colour and is returned as-is; those come from this stylesheet and
+             are the same everywhere. */
+          const named = (c) => {
+            if (c === "-" || !matchMedia("(forced-colors: active)").matches) return c;
+            const probe = document.createElement("span");
+            probe.style.display = "none";
+            document.body.appendChild(probe);
+            const hits = [];
+            for (const k of ["Canvas", "CanvasText", "Highlight", "HighlightText", "GrayText"]) {
+              probe.style.color = k;
+              if (getComputedStyle(probe).color === c) hits.push(k);
+            }
+            probe.remove();
+            return hits.length ? hits.join("|") : c;
+          };
           /* The bar is a repeating-linear-gradient, so its ink is the first
              colour in background-image rather than background-color. Reported as
              one field so a track and a bar read the same way in the diff. */
@@ -448,10 +483,16 @@ async function meters(browser, out) {
              track it has to invert with the component or it paints the colour of
              the track behind it and the drain goes invisible. */
           const ghost = getComputedStyle(el, "::before");
-          const ghostInk = ghost.content === "none"
+          /* `display: none` counts as absent, not just missing content. The
+             forced-colors block in base/a11y.css hides this ghost outright — a
+             trailing bar is a low-contrast duplicate of the live one, which is
+             what that mode exists to prevent — and reading only `content` made
+             the baseline report a colour for a pseudo-element that is never
+             painted. */
+          const ghostInk = ghost.content === "none" || ghost.display === "none"
             ? "-"
             : (ghost.backgroundImage.match(/rgba?\([^)]*\)/) || ["-"])[0];
-          return `ink=${ink} shadow=${cs.boxShadow === "none" ? "none" : "yes"} ghost=${ghostInk}`;
+          return `ink=${named(ink)} shadow=${cs.boxShadow === "none" ? "none" : "yes"} ghost=${named(ghostInk)}`;
         }, sel);
       }
       await ctx.close();

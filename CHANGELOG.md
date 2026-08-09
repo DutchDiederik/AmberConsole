@@ -60,6 +60,13 @@ lit track simply does not print.
   `#tab-services`. Two suites, one fixture between them, no coverage. `test/computed/capture.mjs`
   grew a `meters` group probing the plain, dim and alarmed track and bar — ink, halo and the
   afterglow ghost — across all four media and with the persistence layer on and off.
+  Under forced colors it records the system colour by **name** rather than by value: the emulated
+  palette belongs to the browser build, not to this stylesheet, and the computed suite is the half of
+  the testing that runs on a Linux CI runner. Every other probe in the file already measured
+  something platform-neutral; baking `rgb(55, 0, 110)` into the baseline would have made the first CI
+  run red for a reason that is not a regression. All matching keywords are joined rather than the
+  first taken, because Canvas and HighlightText are both white and first-match-wins mislabelled the
+  plain track.
 - **The lagging ghost bar inverted with it.** `sim/afterglow.css` paints the shrink-ghost in
   `--ac-fill`, which on an alarmed track is now the colour of the track behind it — so the one
   bargraph where a falling reading matters most was the one that stopped trailing. It is drawn in
