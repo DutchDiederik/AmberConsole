@@ -73,6 +73,27 @@ skipped the same directory. Neither `promo/` nor the `scripts/promo-capture.mjs`
 pointed at has ever existed here. Both are gone; the note explaining why the visual baselines are
 committed stays, shorter.
 
+### Fixed — half the palette never inverted for print, and the print tests had photographed it
+
+**Every filled element in the library printed as a solid black box with near-black text on it.**
+`base/print.css` re-points the palette to black-on-white from `:root` — specificity (0,1,0). The
+palettes in `tokens/colors.css` are `[data-ac-tech="…"][data-ac-emitter="…"]` — (0,2,0) — and a
+media query adds no specificity, so print lost every token the palettes declare and won every token
+they leave at `:root`. `--ac-fill` went black; `--ac-on-fill` stayed `#1e0c00` on top of it. **1.05:1
+on every status strip, panel title, filled key, active tab and invalid input on paper**, in all
+eleven palettes. `--ac-screen` never inverted either, so the setup board printed as a full page of
+solid ink above every demo.
+
+The print block now matches the specificity the palettes use, which — with this file imported last,
+the contract its header already runs on — is enough to win.
+
+- **`test/computed/` gained a `palette /` suite: 180 probes** reading the tokens off a real root
+  through the real cascade in all four media, plus a contrast assertion on the three inverse-video
+  components. **Nothing in the repository could see this bug.** `scripts/contrast.mjs` reads values
+  out of `colors.css` and never resolves a cascade, so it only ever knew about screen; and the five
+  print screenshots passed throughout, because a baseline that captured the broken page is a
+  baseline that reports it as correct forever. The new probes fail on the ratio, not the pixels.
+
 ### Fixed — the README hero was a picture of 1.0, and nothing could regenerate it
 
 `docs/screenshot.png` still showed a REV 1.0 nav bar with two links and the gas switches inline in

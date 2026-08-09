@@ -27,7 +27,7 @@ npm run test:visual
 npm install
 npm test             # lint + check + gas + contrast + build — what CI runs
 npm run test:visual  # 44 Playwright screenshots over 14 pages
-npm run test:computed  # 644 computed-style probes
+npm run test:computed  # 824 computed-style probes
 ```
 
 `npm test` lints the stylesheets, runs the prohibitions gate (no second hue, no svg, no emoji, no
@@ -54,8 +54,14 @@ These are enforced by `scripts/check-prohibitions.mjs`, which fails the build:
 > **Two test suites, and they see different things.** `npm run test:visual` compares screenshots; it
 > freezes animation and never hovers, so it is blind to which keyframe is running and to every
 > `:hover` / `:active` state. `npm run test:computed` reads computed styles for exactly those —
-> 644 probes over blink, the persistence layers and the corner styles. Run both before a release; the
-> computed one also runs in CI, the visual one cannot (font rasterisation differs on Linux).
+> 824 probes over blink, the persistence layers, the corner styles, and the palette as the cascade
+> actually resolves it in each medium. Run both before a release; the computed one also runs in CI,
+> the visual one cannot (font rasterisation differs on Linux).
+>
+> **A screenshot suite cannot report a bug its baseline already contains.** The five print captures
+> passed for a whole release while `base/print.css` was losing half the palette to a specificity
+> tie — they had photographed the broken page and called it correct. That is why the `palette /`
+> probes measure contrast instead of comparing pixels.
 
 - **No second hue.** No red, no green, no "success" color. Danger is blink plus inverse video.
   Literal hex is allowed only in `tokens/colors.css`, `base/print.css`, and the two `sim/` files that

@@ -276,6 +276,111 @@ async function suppression(browser, out) {
   }
 }
 
+/* -------------------------------------------------------------- palette -- */
+
+/**
+ * THE RESOLVED PALETTE, PER MEDIA — the gate that was missing when the print
+ * stylesheet half-worked for an entire release.
+ *
+ * base/print.css re-points the semantic tokens to black-on-white on `:root`.
+ * `:root` is (0,1,0); the palettes in tokens/colors.css are
+ * `[data-ac-tech="…"][data-ac-emitter="…"]`, which is (0,2,0), and a media query
+ * adds no specificity — so print won --ac-ink, --ac-fill and --ac-stroke, which
+ * colors.css declares at :root, and LOST --ac-screen, --ac-screen-raised,
+ * --ac-screen-well and --ac-on-fill, which it does not. Filled elements printed
+ * as solid black boxes with #1e0c00 text on them: 1.05:1, on every status strip,
+ * panel title and filled key in the library.
+ *
+ * NOTHING IN THE REPOSITORY COULD SEE IT. scripts/contrast.mjs reads the token
+ * values out of colors.css and never resolves a cascade, so it only ever knew
+ * about screen. The visual suite has five print captures and they all passed —
+ * they had photographed the bug and called it the baseline, which is the one
+ * failure mode a screenshot comparison cannot report.
+ *
+ * So this probe reads the tokens off a real root, through the real cascade, in
+ * every media — and asserts the pairs a human actually reads are still legible.
+ * A palette that stops inverting on paper changes a value here and fails in CI.
+ */
+const PALETTE_TOKENS = [
+  "--ac-screen", "--ac-screen-raised", "--ac-screen-well",
+  "--ac-ink", "--ac-ink-dim", "--ac-fill", "--ac-fill-bright",
+  "--ac-on-fill", "--ac-stroke",
+];
+
+/* One gas and one phosphor: the two palettes with their own selector block that
+   print has to beat. neon also answers to :root, p3 does not, and it was p3-shaped
+   pages that printed worst. */
+const PALETTE_SCOPES = [
+  ["default", {}],
+  ["plasma-neon", { "data-ac-tech": "plasma", "data-ac-emitter": "neon" }],
+  ["crt-p3", { "data-ac-tech": "crt", "data-ac-emitter": "p3" }],
+  ["crt-p7", { "data-ac-tech": "crt", "data-ac-emitter": "p7" }],
+];
+
+const srgb = (v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+const relLum = (rgb) => {
+  const [r, g, b] = rgb.map((c) => srgb(c / 255));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => {
+  const [l1, l2] = [relLum(a), relLum(b)];
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+};
+const parse = (c) => (c.match(/\d+(\.\d+)?/g) || []).slice(0, 3).map(Number);
+/* Only rgba() with a literal zero alpha. Testing the string for a trailing
+   ", 0)" reads opaque BLACK — `rgb(0, 0, 0)` — as transparent, which is exactly
+   the colour every one of these probes is supposed to be looking at. */
+const isTransparent = (c) => {
+  const m = c.match(/rgba?\(([^)]+)\)/);
+  if (!m) return true;
+  const parts = m[1].split(",").map((s) => parseFloat(s));
+  return parts.length === 4 && parts[3] === 0;
+};
+
+async function palette(browser, out) {
+  const BODY = `<div class="ac-screen" id="frame"><div class="ac-screen__body">
+    <div class="ac-statusbar" id="p-status"><span>S</span></div>
+    <div class="ac-panel"><span class="ac-panel__title" id="p-title">T</span></div>
+    <button class="ac-btn ac-btn--filled" id="p-filled">F</button>
+  </div></div>`;
+
+  for (const [mName, media] of MEDIA) {
+    for (const [sName, attrs] of PALETTE_SCOPES) {
+      const { p, ctx } = await page$(browser, media, BODY);
+      await p.evaluate((a) => {
+        for (const [k, v] of Object.entries(a)) document.documentElement.setAttribute(k, v);
+      }, attrs);
+
+      for (const t of PALETTE_TOKENS) {
+        out[`palette / ${mName} / ${sName} / ${t}`] = await p.evaluate(
+          (tok) => getComputedStyle(document.documentElement).getPropertyValue(tok).trim(),
+          t
+        );
+      }
+
+      /* The point of the whole suite: inverse video has to stay readable in
+         every medium. forced-colors is exempt — the UA replaces both sides with
+         system colors there, so the author values say nothing about what a
+         reader sees. */
+      if (mName !== "forced-colors") {
+        for (const id of ["p-status", "p-title", "p-filled"]) {
+          const pair = await p.evaluate((i) => {
+            const s = getComputedStyle(document.getElementById(i));
+            return [s.color, s.backgroundColor];
+          }, id);
+          const [fg, bg] = pair.map(parse);
+          out[`palette / ${mName} / ${sName} / ${id} / legible`] = isTransparent(pair[1])
+            ? "transparent-bg"
+            : contrast(fg, bg) >= 4.5
+              ? "AA"
+              : `FAIL ${contrast(fg, bg).toFixed(2)}:1 ${pair[0]} on ${pair[1]}`;
+        }
+      }
+      await ctx.close();
+    }
+  }
+}
+
 async function corners(browser, out) {
   const { p, ctx } = await page$(browser, MEDIA[0][1], CORNER_BODY);
   for (const [label, attrs, frameCls, selfCls] of CORNER_SCOPES) {
@@ -320,6 +425,7 @@ await blink(browser, out);
 await layers(browser, out);
 await corners(browser, out);
 await suppression(browser, out);
+await palette(browser, out);
 await browser.close();
 
 await mkdir(BASELINES, { recursive: true });

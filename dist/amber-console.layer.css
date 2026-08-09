@@ -4592,7 +4592,24 @@ textarea.ac-input {
    =========================================================================== */
 
 @media print {
-  :root {
+  /* THE SELECTOR LIST IS THE FIX, AND IT HAS TO STAY THIS SHAPE.
+     `:root` alone is specificity (0,1,0). The palettes in tokens/colors.css are
+     `[data-ac-tech="crt"][data-ac-emitter="p3"]` — (0,2,0) — and a media query
+     adds NO specificity, so a plain `:root` here loses to every palette for the
+     four tokens they declare: --ac-screen, --ac-screen-raised, --ac-screen-well
+     and --ac-on-fill.
+     It lost silently and it lost HALF the palette, which is the dangerous shape.
+     --ac-ink, --ac-fill and --ac-stroke are declared at :root in colors.css, so
+     those inverted correctly and the inverse-video fills went solid black — over
+     text that stayed --ac-on-fill #1e0c00. Black on near-black, 1.05:1, on every
+     status strip, panel title, filled key and input on paper. The setup board
+     kept --ac-screen too and printed as a full page of solid ink.
+     Matching (0,2,0) and relying on this file being imported LAST is the same
+     contract the rest of the file already runs on — see the header. Anything
+     that beats the palettes works; nothing weaker does. */
+  :root,
+  [data-ac-tech][data-ac-emitter],
+  [data-ac-gas] {
     --ac-screen: #ffffff;
     --ac-screen-raised: #f2f2f2;
     --ac-screen-well: #ffffff;

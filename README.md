@@ -1088,7 +1088,8 @@ npm test             # lint + check + gas + contrast + build — what CI runs
 npm run lint         # stylelint: ac- BEM pattern, no transitions in components
 npm run test:visual  # playwright: 14 pages — 44 screenshots across widths, a11y
                      # modes and print, plus layout probes on the rest
-npm run test:computed  # 644 computed-style probes: blink, persistence, corners
+npm run test:computed  # 824 computed-style probes: blink, persistence,
+                     # corners, and the resolved palette per medium
 ```
 
 `npm run fonts` re-downloads the webfonts and regenerates `src/tokens/fonts.css`.
