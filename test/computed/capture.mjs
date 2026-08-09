@@ -215,12 +215,24 @@ const CORNER_BODY = `
     <span class="ac-toggle__state"></span></label>
   <div class="ac-panel" id="p-panel">P</div>
   <input class="ac-input" id="i-input">
+  <!-- THE INERT PAIR, AND THEY ARE HERE BECAUSE NOTHING COULD SEE THEM.
+       "Inert keeps no halo" is stated as law in components/button.css, and
+       .ac-tab:disabled and .ac-input:disabled both broke it — they carried
+       --ac-glow-box-dim while the key, the checkbox and the radio went dark.
+       Neither state appears on any page the visual suite baselines, and the
+       fixture above had a disabled BUTTON and a disabled TOGGLE but an enabled
+       input and no tab at all, so the whole 824-probe run came back clean across
+       the fix. boxShadow is already in CORNER_PROPS; these two just had to exist
+       to be measured. -->
+  <button class="ac-tab" disabled id="tb-dis">T</button>
+  <input class="ac-input" disabled id="i-input-dis">
 </div></div>`;
 
 const CORNER_TARGETS = [
   "#b-plain", "#b-filled", "#b-pressed", "#b-dim", "#b-disabled", "#b-ariadis",
   "#b-block", "#b-pad", "#b-keypad", "#t-track", "#t-track-dis",
   "#t-track-inp", "#t-track-inp-dis", "#p-panel", "#i-input",
+  "#tb-dis", "#i-input-dis",
 ];
 
 /* `bare` is the CSS-only consumer — no attribute, no class, no JavaScript. It is

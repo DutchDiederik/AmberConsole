@@ -279,6 +279,39 @@
     });
   });
 
+  /* INTERFERENCE REJECTION. The switch shipped painted but unwired — it carried
+     no data-ac="toggle", so amber-console.js never bound it, and nothing here
+     listened either. It looked like a control and was set dressing.
+
+     The attribute is on it now, so the shared toggle handler flips aria-pressed
+     and the ON/OFF word, and this only has to follow it.
+
+     WATCHING THE ATTRIBUTE RATHER THAN THE CLICK, and that is a correctness fix
+     rather than a preference. A second `click` listener on the same element runs
+     in BIND order, and this file is a plain <script> while amber-console.js
+     binds its toggles at DOMContentLoaded — so this one is bound FIRST and read
+     aria-pressed one flip behind, leaving the spokes showing when the switch
+     said ON and hiding them when it said OFF. Observing the attribute cannot get
+     that wrong whichever module happens to load first, and it also picks up a
+     state set from anywhere else.
+
+     ON hides them, which is the way round that trips people: the switch names
+     the REJECTION, not the interference, so ON means the circuit is working and
+     the screen is clean. */
+  var ir = $("#ir");
+  if (ir) {
+    var paintIr = function () {
+      var on = ir.getAttribute("aria-pressed") === "true";
+      $("#interf").hidden = on;
+      setText($("#st-ir"), on ? "IR ON" : "IR OFF");
+    };
+    new MutationObserver(paintIr).observe(ir, {
+      attributes: true,
+      attributeFilter: ["aria-pressed"],
+    });
+    paintIr();
+  }
+
   /* --- transmitter ------------------------------------------------------ */
 
   var tx = "TRANSMIT";

@@ -50,9 +50,17 @@
  * palette means adding one block and nothing else.
  *
  * A BLOCK MAY ALSO CARRY TIME, where the emitter has a documented decay:
- * --ac-persist, --ac-flicker, --ac-decay-ease, and --ac-persist-fast on a
- * two-layer phosphor. These are consumed WITH A CAP by tokens/effects.css, not
- * raw. The four gases declare none of them and fall back to its :root defaults.
+ * --ac-persist, --ac-flicker and --ac-decay-ease. These are consumed WITH A CAP
+ * by tokens/effects.css, not raw. The four gases declare none of them and fall
+ * back to its :root defaults.
+ *
+ * --ac-persist-fast IS THE ODD ONE OUT: it is DOCUMENTATION, not an input. A
+ * two-layer phosphor declares it to record how fast its FIRST coating decays,
+ * and nothing reads it — no rule, no keyframe, no script. It exists because
+ * keyframe offsets cannot read a custom property, so ac-ghost-cascade in
+ * sim/afterglow.css has to hardcode the crossover as a percentage, and without
+ * this token there would be no machine-readable record of the figure that
+ * percentage was computed from. Do not wire it up expecting it to do something.
  *
  * EVERY PALETTE IS GATED. scripts/contrast.mjs runs the full pair table against
  * each block independently — a ratio that passes under one emitter and fails
@@ -540,10 +548,31 @@
   --ac-decay-ease: linear(0, 0.118 0.5%, 0.197 0.9%, 0.313 1.6%, 0.465 2.9%, 0.632 5.3%, 0.781 9.5%, 0.889 17%, 0.953 31%, 0.985 56%, 1.000 100%);
 }
 
-/* Aliases and structural tokens — defined ONCE, for every palette. Anything
-   that is the same shape regardless of which gas is in the panel belongs here;
-   anything that is a color belongs in a palette block above. */
-:root {
+/* Aliases and structural tokens — defined once per PALETTE SCOPE, for every
+   palette. Anything that is the same shape regardless of which gas is in the
+   panel belongs here; anything that is a color belongs in a palette block above.
+
+   THE SELECTOR LIST IS NOT DECORATION, AND `:root` ALONE WAS A FOOTGUN. These
+   are indirections — `--ac-ink: var(--ac-emit-90)` — and a var() is substituted
+   AT THE ELEMENT THAT DECLARES IT, then inherits as a resolved color. Declared
+   only on :root, they resolve once against whatever palette the ROOT carries and
+   every descendant inherits that answer.
+   So a consumer following the embed guidance in base/reset-scoped.css, who puts
+   data-ac-tech / data-ac-emitter on .ac-root rather than on <html>, changed the
+   five --ac-emit-* stops on that subtree and nothing else: --ac-ink, --ac-fill
+   and --ac-stroke stayed resolved from :root's neon. Half a palette, silently —
+   the surfaces moved and the text did not.
+   .ac-root IS THE WHOLE FIX, AND THE ATTRIBUTE SELECTORS ARE DELIBERATELY NOT
+   HERE. `[data-ac-tech][data-ac-emitter]` would cover every element that can
+   carry a palette — and would weigh (0,2,0), which beats a consumer's own
+   `:root { --ac-ink: … }` at (0,1,0) and silently breaks the one override the
+   REFERENCE chapter tells people they may write. .ac-root weighs the same
+   (0,1,0) as :root and wins for its subtree by PROXIMITY rather than by weight,
+   which is exactly the behaviour wanted: closer scope, same authority.
+   base/print.css carries .ac-root in its own re-point list for the same reason —
+   drop it there and a scoped embed prints in amber. */
+:root,
+.ac-root {
   --ac-ink: var(--ac-emit-90);
   --ac-ink-bright: var(--ac-emit-100);
   --ac-ink-dim: var(--ac-emit-70);

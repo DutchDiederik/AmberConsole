@@ -6,7 +6,6 @@
 (function () {
 "use strict";
 
-/*! Amber Console | BSD-3-Clause | https://github.com/DutchDiederik/AmberConsole */
 /**
  * Amber Console — optional PERSISTENCE module.
  *

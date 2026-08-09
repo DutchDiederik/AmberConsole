@@ -4,7 +4,7 @@ A project by <a href="https://diederik.blog" target="_blank" rel="noopener noref
 
 [![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
 [![CSS only](https://img.shields.io/badge/runtime%20deps-0-brightgreen.svg)](#install)
-[![Size](https://img.shields.io/badge/minified-53kb%20%C2%B7%209.4kb%20gzipped-lightgrey.svg)](#install)
+[![Size](https://img.shields.io/badge/minified-54kb%20%C2%B7%209.4kb%20gzipped-lightgrey.svg)](#install)
 [![CI](https://github.com/DutchDiederik/AmberConsole/actions/workflows/ci.yml/badge.svg)](https://github.com/DutchDiederik/AmberConsole/actions/workflows/ci.yml)
 
 A monochrome amber-terminal CSS framework — the look of a late-1980s industrial control panel, the
@@ -53,7 +53,7 @@ import "amber-console/layer";    // wrapped in @layer amber-console
 | File | Use it when |
 | --- | --- |
 | `dist/amber-console.css` | Default. Readable, sourcemapped, custom properties intact. |
-| `dist/amber-console.min.css` | Production. 53kb, 9.4kb gzipped, same behavior. |
+| `dist/amber-console.min.css` | Production. 54kb, 9.4kb gzipped, same behavior. |
 | `dist/amber-console.layer.css` | Dropping into an existing app — `@layer` makes the framework lose specificity fights against your own rules. Use *instead of*, never alongside. |
 | `dist/amber-console.layer.min.css` | The same, minified. Production embedding. |
 | `dist/amber-console.js` | Optional **behavior**, ES module. For bundlers. |
@@ -706,7 +706,9 @@ Override any of these; see [what you may safely change](#theming).
 --ac-tracking-display .1em  --ac-tracking-body .04em  --ac-tracking-micro .08em  --ac-leading 1.15
 
 --ac-space-1 4px … --ac-space-12 48px      --ac-border-w 2px
---ac-radius 8px   --ac-radius-sm 4px       (0–2px on strips and badges)
+--ac-radius 2px 4px 8px 4px   --ac-radius-sm 1px 2px 4px 2px    (classic — the default)
+--ac-radius 8px               --ac-radius-sm 4px                (.ac-rounded)
+                                                                (0–2px on strips and badges)
 
 --ac-glow-text  --ac-glow-box
 --ac-edge-3d    2px+5px hard offset · the extruded key edge, the one shadow that is not a halo

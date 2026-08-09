@@ -70,8 +70,13 @@
 .ac-tab:disabled {
   color: var(--ac-ink-faint);
   border-color: var(--ac-stroke-dim);
-  /* Inert keeps no edge, the same as a disabled key. */
-  box-shadow: var(--ac-glow-box-dim);
+  /* Inert keeps NO HALO AND NO EDGE, the same as a disabled key — and this line
+     used to say exactly that while carrying --ac-glow-box-dim, which is a
+     dimmer halo rather than none. A tab is the same species as .ac-btn and
+     .ac-btn:disabled goes to `none`, so the two were rendering different
+     answers to the same question. See the drive-tier note in
+     components/button.css: dim is a LIT cell driven low, off is not lit. */
+  box-shadow: none;
   text-shadow: none;
   cursor: default;
 }

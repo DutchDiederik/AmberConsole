@@ -45,7 +45,8 @@
 @media (prefers-reduced-motion: reduce) {
   /* Everything this block switches off that has a token, switched off in one
      place. No selector lists and no specificity restatement — see the blink
-     header at the top of this file.
+     contract at the top of base/blink.css, which is where that mechanism is
+     documented.
 
        blink        every blink site at once.
        smear        smearing the whole viewport in response to scrolling is the

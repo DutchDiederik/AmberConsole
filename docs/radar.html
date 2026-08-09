@@ -490,6 +490,30 @@
               <!-- Guard zone: 040 to 080, outside 55% of range. -->
               <span class="doc-guard" id="guard"></span>
 
+              <!-- ASYNCHRONOUS INTERFERENCE — another set on the same band.
+                   Its pulses arrive at a different repetition rate from ours, so
+                   each one paints at a slightly different range on each sweep and
+                   the result is a curved run of dashes rather than a target. This
+                   is what the INTERFERENCE REJECTION switch removes: the set
+                   compares successive sweeps and keeps only what repeats.
+                   Hidden while the switch is ON, which is how it ships. -->
+              <span class="doc-interf" id="interf" hidden>
+                <span style="--brg:22;--rng:0.30"></span>
+                <span style="--brg:24;--rng:0.44"></span>
+                <span style="--brg:26;--rng:0.58"></span>
+                <span style="--brg:118;--rng:0.26"></span>
+                <span style="--brg:120;--rng:0.40"></span>
+                <span style="--brg:122;--rng:0.55"></span>
+                <span style="--brg:124;--rng:0.69"></span>
+                <span style="--brg:243;--rng:0.35"></span>
+                <span style="--brg:245;--rng:0.49"></span>
+                <span style="--brg:247;--rng:0.63"></span>
+                <span style="--brg:311;--rng:0.22"></span>
+                <span style="--brg:313;--rng:0.36"></span>
+                <span style="--brg:315;--rng:0.50"></span>
+                <span style="--brg:317;--rng:0.64"></span>
+              </span>
+
               <!-- Ship's heading marker. Re-struck once per revolution like
                    everything else on the face, which is the whole point. -->
               <span class="doc-shm" style="--brg:0"></span>
@@ -769,7 +793,12 @@
           <button type="button" class="ac-btn" data-pulse="Medium · 300 ns" aria-pressed="false">Med</button>
           <button type="button" class="ac-btn" data-pulse="Long · 1000 ns" aria-pressed="false">Long</button>
         </div>
-        <button type="button" class="ac-toggle" id="ir" aria-pressed="true">
+        <!-- data-ac="toggle" is what makes this flip. Without it the switch is
+             painted but never wired — amber-console.js finds toggles by that
+             attribute, and every other switch on the site carries it. radar.js
+             then reads the state to add or remove the asynchronous-interference
+             spokes below. -->
+        <button type="button" class="ac-toggle ac-toggle--on" id="ir" data-ac="toggle" aria-pressed="true">
           <span>Interference Rejection</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
         </button>
       </div>
@@ -823,6 +852,7 @@
       <span id="st-pres">HEAD-UP</span>
       <span>RELATIVE MOTION</span>
       <span id="st-trails">TRAILS 3 MIN</span>
+      <span id="st-ir">IR ON</span>
       <span id="st-ant">ANT 24 RPM</span>
       <span class="ac-spacer"></span>
       <span id="clock">UTC 00:00:00</span>

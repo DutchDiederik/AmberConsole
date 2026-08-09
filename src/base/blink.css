@@ -32,7 +32,9 @@
    ADDING A BLINK SITE is now one declaration pair on the site itself. Nothing
    else in this file, and nothing in print.css or a11y.css, has to learn it.
 
-   The two defaults are declared in the :root block at the top of this file. */
+   The two defaults are declared in tokens/effects.css, NOT here. This file is the
+   contract and the keyframes; the token block that seeds them sits with the other
+   tokens, because a consumer overriding blink overrides it there. */
 
 /* Hard on/off blink — no fades on a plasma panel */
 @keyframes ac-blink { 0%, 54% { opacity: 1; } 55%, 100% { opacity: 0.1; } }

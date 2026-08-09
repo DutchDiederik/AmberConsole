@@ -229,6 +229,33 @@
     box-shadow: none;
   }
 
+  /* OVER-RANGE, WITH THE SAME INVERSION THE PALETTE DOES. components/meter.css
+     lights the track and cuts the bar out of it, because the blink that used to
+     be the only alarm signal is switched off in this mode. Restated here or the
+     rule above would paint the bar Highlight on a Canvas track and the alarm
+     would read as an ordinary meter — which is the exact failure the fill was
+     added to prevent. */
+  .ac-meter--alarm .ac-meter__track {
+    forced-color-adjust: none;
+    background: Highlight;
+    box-shadow: none;
+  }
+  .ac-meter--alarm .ac-meter__bar {
+    background: HighlightText;
+  }
+
+  /* A meter driven below full is not the same reading as one at full drive, and
+     Highlight has no way to say "less". The rule above matched every bar
+     unconditionally, so a .ac-meter--dim bar — which is deliberately drawn at
+     the faint tier with its halo off — came back at full strength here and
+     claimed a reading it does not have. GrayText is this mode's own word for
+     present-but-not-active, and it is what the disabled thumb already uses.
+     Print needs no equivalent: base/print.css re-points --ac-ink-faint to a mid
+     grey, so a dim bar already prints grey against a black one. */
+  .ac-meter--dim .ac-meter__bar {
+    background: GrayText;
+  }
+
   /* The radio keeps its ring: the gap is punched with an inset shadow, so this
      one cannot take `box-shadow: none` with the rest — the lamp would fill in
      solid and stop reading as a radio. Restate the gap in Canvas instead. */

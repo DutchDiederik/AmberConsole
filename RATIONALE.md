@@ -675,16 +675,30 @@ panel a user reaching for that switch is looking at.
 
 The same trap catches `prefers-reduced-motion` (a media query adds no specificity,
 so `.ac-mesh` at 0,1,0 loses to `.ac-bloom > .ac-mesh` at 0,2,0), forced colors, and
-print. It is why the same selector lists are restated in four files.
+print. It is why the same selector lists *used to be* restated in four files.
 
 A blanket cannot serve for `animation` the way it does for `transition`:
 `animation: none` on `*` would take the bloom, the retrace and the mesh buzz with
 it, and none of those is a blink.
 
-> **Known cost.** Adding a blink site means editing `effects.css` twice, `print.css`
-> and `a11y.css`. This is tracked as a real maintenance defect, not a design
-> feature — see the review notes on routing blink through a token indirection the
-> way `--ac-blink-anim` and `--ac-ghost-anim` already are.
+> **Resolved in 2.0, and this is what it cost to resolve.** The paragraph above
+> described a real maintenance defect: adding a blink site meant editing
+> `effects.css` twice, `print.css` and `a11y.css`, and the mirrored selector lists
+> drifted apart twice before anybody noticed.
+>
+> Blink now runs on the token indirection `--ac-blink-anim` and `--ac-ghost-anim`
+> already used. A site declares the pair `--ac-blink-name` / `--ac-blink-ease` on
+> itself and nothing else has to learn where it is; an environment that wants blink
+> changed sets `--ac-blink-force` / `--ac-blink-force-ease` **once**, on the root.
+> The `-force` half exists because custom properties resolve by proximity rather
+> than by weight: an override on `:root` would otherwise lose to the simulation's
+> own declaration on the nearer `.ac-afterglow` frame, which is exactly the
+> inversion the doubled `[data-ac-style-blink="off"] .ac-afterglow …` selectors
+> were paying for.
+>
+> **Adding a blink site is now one declaration pair on the site itself.** Nothing in
+> `base/blink.css`, `base/print.css` or `base/a11y.css` has to change. The contract
+> is at the top of `src/base/blink.css`.
 
 `.ac-mesh` is the one overlay that keeps rendering under reduced motion, and it is
 in the animation rule rather than the display rule beside `.ac-retrace`: the screen

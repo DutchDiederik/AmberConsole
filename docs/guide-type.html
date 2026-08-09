@@ -487,13 +487,17 @@
         <div style="width:100%;height:56px;border:var(--ac-border-w) solid var(--ac-stroke)"></div>
         <span class="doc-faint doc-small">No hairlines — a 1px rule cannot exist on this panel. The one
           exception is <code>.ac-badge</code>, which is a chip rather than structure.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">RADIUS · 8 PADS / 4 WELLS / 0 STRIPS</span>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">RADIUS · KEYS / WELLS / STRIPS</span>
         <div style="display:flex;gap:10px">
           <div style="width:56px;height:44px;border:var(--ac-border-w) solid var(--ac-stroke);border-radius:var(--ac-radius)"></div>
           <div style="width:56px;height:44px;border:var(--ac-border-w) solid var(--ac-stroke-dim);border-radius:var(--ac-radius-sm);background:var(--ac-screen-well)"></div>
           <div style="width:56px;height:44px;background:var(--ac-fill)"></div>
         </div>
-        <span class="doc-faint doc-small">CRT-rounded corners, never pills.</span></div>
+        <span class="doc-faint doc-small">Three steps, and the first two follow the corner style rather
+          than a fixed number. Classic — the default — cuts <code>--ac-radius</code> to
+          <code>2 4 8 4</code> and <code>--ac-radius-sm</code> to <code>1 2 4 2</code>, deepest at the
+          near corner; <code>.ac-rounded</code> spends the same budget on an arc, 8px and 4px. A strip
+          is square in both. Never pills.</span></div>
     </div>
   </section>
 

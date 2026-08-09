@@ -465,6 +465,12 @@
         <span class="doc-faint doc-small">Outline is default. Filled is inverse video — one primary per region. Dim is secondary. Disabled drops to faint and loses its glow.</span>
         <code class="doc-code">class="ac-btn"  ac-btn--filled  ac-btn--dim  ac-btn--block  [disabled]
 &lt;!-- or drive it with ARIA: --&gt;  &lt;button class="ac-btn" aria-pressed="true"&gt;</code>
+        <span class="doc-faint doc-small" style="margin-top:14px"><code>--block</code> takes the full
+          width of whatever it is in, which is what you want at the foot of a narrow instrument
+          column where a key floated left reads as unfinished:</span>
+        <div style="width:100%;max-width:320px;border:var(--ac-border-w) solid var(--ac-stroke-dim);padding:10px">
+          <button type="button" class="ac-btn ac-btn--block">Start Scrub</button>
+        </div>
         <p class="doc-when">More than one filled button in a region. Inverse video means "the machine is
           doing this"; two of them means neither reads.</p>
       </div>
@@ -635,7 +641,7 @@
           <p class="doc-when">More than about five options — that is an <code>.ac-select</code>.</p>
         </div>
         <div class="doc-demo doc-demo--col"><span class="doc-cap">TOGGLE — HARD SNAP, ON/OFF READOUT</span>
-          <button type="button" class="ac-toggle" data-ac="toggle" aria-pressed="true"><span>Lamp</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button>
+          <button type="button" class="ac-toggle ac-toggle--on" data-ac="toggle" aria-pressed="true"><span>Lamp</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span></button>
           <label class="ac-toggle ac-toggle--input"><span>Douser</span><input type="checkbox"><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state"></span></label>
           <button type="button" class="ac-toggle" disabled><span>Spare</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span></button>
           <span class="doc-faint doc-small">The thumb jumps; it does not slide. Text state is mandatory — a switch position alone is ambiguous on a monochrome panel. The middle one is the CSS-only variant: no JavaScript at all.</span>
@@ -659,6 +665,23 @@
           <button type="button" class="ac-btn ac-keypad__key">0</button>
           <button type="button" class="ac-btn ac-keypad__key ac-keypad__key--fn ac-btn--filled">Ent</button>
         </div>
+        <span class="doc-faint doc-small" style="margin-top:14px">The same pad
+          <code>--dense</code>, with <code>__key--wide</code> on the Enter key so it spans two of the
+          three columns — the layout every calculator and entry keypad settles on, because the key you
+          press last is the one worth making hard to miss:</span>
+        <div class="ac-keypad ac-keypad--dense" style="max-width:260px">
+          <button type="button" class="ac-btn ac-keypad__key">7</button>
+          <button type="button" class="ac-btn ac-keypad__key">8</button>
+          <button type="button" class="ac-btn ac-keypad__key">9</button>
+          <button type="button" class="ac-btn ac-keypad__key">4</button>
+          <button type="button" class="ac-btn ac-keypad__key">5</button>
+          <button type="button" class="ac-btn ac-keypad__key">6</button>
+          <button type="button" class="ac-btn ac-keypad__key">1</button>
+          <button type="button" class="ac-btn ac-keypad__key">2</button>
+          <button type="button" class="ac-btn ac-keypad__key">3</button>
+          <button type="button" class="ac-btn ac-keypad__key">0</button>
+          <button type="button" class="ac-btn ac-keypad__key ac-keypad__key--fn ac-keypad__key--wide ac-btn--filled">Ent</button>
+        </div>
         <span class="doc-faint doc-small">Keys are square and sized for a gloved finger.
           <code>.ac-keypad--dense</code> is the same pad with the gap and the key floor pulled in, for
           a mouse-driven panel or a sidebar where the full pad does not fit — it is a
@@ -667,7 +690,8 @@
           single character has no label-and-value split for the classic top-left label to
           serve.</span>
         <code class="doc-code">&lt;div class="ac-keypad"&gt;&lt;button class="ac-btn ac-keypad__key"&gt;7&lt;/button&gt;…&lt;/div&gt;
-&lt;div class="ac-keypad ac-keypad--dense"&gt;   &lt;!-- mouse-driven only --&gt;</code>
+&lt;div class="ac-keypad ac-keypad--dense"&gt;   &lt;!-- mouse-driven only --&gt;
+&lt;button class="ac-btn ac-keypad__key ac-keypad__key--wide"&gt;Ent&lt;/button&gt;</code>
         <p class="doc-when">Any screen with a keyboard attached. This exists because there is no keyboard
           in a projection booth. And <code>--dense</code> on a touch panel, for the same reason
           <code>.ac-btn--sm</code> does not belong on one.</p>

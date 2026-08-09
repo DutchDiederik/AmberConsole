@@ -522,6 +522,21 @@ class="ac-readout ac-readout--lg"      ac-readout--inline</code>
               </tbody>
             </table>
           </div>
+          <span class="doc-faint doc-small" style="margin-top:14px">The same table
+            <code>--dense</code>, which pulls the cell padding in from 6/12 to 2/10. It is for a log
+            that has to show twenty rows in the space of eight — the type size does not change, so
+            nothing gets harder to read; only the air between rows goes:</span>
+          <div class="ac-table-scroll" style="width:100%">
+            <table class="ac-table ac-table--zebra ac-table--dense">
+              <thead><tr><th>TIME</th><th>CODE</th><th>DESCRIPTION</th><th class="ac-table__num">FRAME</th><th>STATE</th></tr></thead>
+              <tbody>
+                <tr><td>22:28:41</td><td>E-114</td><td>DOUSER NOT CONFIRMED</td><td class="ac-table__num">255315</td><td>ACTIVE</td></tr>
+                <tr><td>22:14:02</td><td>W-062</td><td>LAMP CURRENT LOW 148A</td><td class="ac-table__num">234880</td><td>CLEARED</td></tr>
+                <tr><td>21:58:37</td><td>W-041</td><td>REEL UNIT SLACK</td><td class="ac-table__num">212104</td><td>CLEARED</td></tr>
+                <tr><td>21:41:19</td><td>I-003</td><td>SHOW STARTED</td><td class="ac-table__num">000000</td><td>LOGGED</td></tr>
+              </tbody>
+            </table>
+          </div>
           <code class="doc-code">class="ac-table ac-table--zebra ac-table--dense"   &lt;td class="ac-table__num"&gt;
 &lt;tr class="ac-table__row--active ac-blink"&gt;</code>
           <p class="doc-when">A fixed set of named readings — that is <code>.ac-list</code>.</p>
@@ -531,6 +546,10 @@ class="ac-readout ac-readout--lg"      ac-readout--inline</code>
             <div class="ac-list__item"><dt class="ac-list__key">Lamp Hours</dt><span class="ac-list__fill"></span><dd class="ac-list__value">1284</dd></div>
             <div class="ac-list__item"><dt class="ac-list__key">Reel</dt><span class="ac-list__fill"></span><dd class="ac-list__value">04 / 06</dd></div>
             <div class="ac-list__item"><dt class="ac-list__key">Format</dt><span class="ac-list__fill"></span><dd class="ac-list__value">70MM</dd></div>
+          </dl>
+          <dl class="ac-list ac-list--bright" style="width:100%">
+            <div class="ac-list__item"><dt class="ac-list__key">Lamp V</dt><span class="ac-list__fill"></span><dd class="ac-list__value">41.0</dd></div>
+            <div class="ac-list__item"><dt class="ac-list__key">Lamp A</dt><span class="ac-list__fill"></span><dd class="ac-list__value">152</dd></div>
           </dl>
           <dl class="ac-list ac-list--dense ac-list--dim" style="width:100%">
             <div class="ac-list__item"><dt class="ac-list__key">Rack</dt><span class="ac-list__fill"></span><dd class="ac-list__value">B</dd></div>
@@ -558,7 +577,8 @@ class="ac-list ac-list--dense"    ac-list--dim    ac-list--bright</code>
             <div class="ac-meter__scale"><span>0</span><span>50</span><span>100</span></div>
           </div>
           <div class="ac-meter ac-meter--dim" style="width:100%">
-            <div class="ac-meter__track" style="--ac-meter-value:28"><div class="ac-meter__bar"></div></div>
+            <div class="ac-meter__track" style="--ac-meter-value:28" role="progressbar" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100" aria-label="Blower"><div class="ac-meter__bar"></div></div>
+            <div class="ac-meter__scale"><span>0</span><span>50</span><span>100</span></div>
           </div>
           <div class="ac-meter ac-meter--lg ac-meter--alarm" style="width:100%">
             <div class="ac-meter__track" style="--ac-meter-value:94" role="progressbar" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100" aria-label="Coolant"><div class="ac-meter__bar"></div></div>
@@ -637,7 +657,7 @@ class="ac-banner"    ac-banner--filled    ac-banner--dim</code>
 
   <nav class="doc-pager" aria-label="Chapter">
     <a class="doc-pager__link" href="guide-controls.html">◄ Previous: Controls</a>
-    <a class="doc-pager__link" href="guide-screen.html">Next: Screen & Board ►</a>
+    <a class="doc-pager__link" href="guide-screen.html">Next: Screen &amp; Board ►</a>
   </nav>
 
   </main>

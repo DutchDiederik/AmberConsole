@@ -77,11 +77,35 @@
   box-shadow: none;
 }
 
-/* Over-range. Inverse-video the whole track and blink it — there is no red. */
+/* Over-range. Inverse video on the whole track, and blink on top — there is no
+   red, so the FILL is what carries the alarm and the blink is the emphasis.
+
+   THE TRACK LIGHTS AND THE BAR CUTS INTO IT, which is the only way round that
+   works. The bar is already --ac-fill, so filling the track with the same token
+   would make the bar vanish into it and the reading would be gone. Inverting the
+   pair keeps the value legible and states the alarm at the same time.
+
+   THE FILL IS NOT DECORATION ON TOP OF THE BLINK, IT IS THE HALF THAT SURVIVES.
+   Blink is switched off by prefers-reduced-motion, by the blink style flag, by
+   print and by forced colors — four environments in which this rule used to
+   leave an over-range meter looking exactly like a normal one, because a
+   strengthened border was the only thing it changed. That is the same argument
+   .ac-banner--filled and .ac-table__row--active already make, and this component
+   was the one place the system did not follow it. */
 .ac-meter--alarm .ac-meter__track {
   border-color: var(--ac-stroke);
+  background: var(--ac-fill);
+  box-shadow: var(--ac-glow-box);
 }
 .ac-meter--alarm .ac-meter__bar {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ac-on-fill) 0 8px,
+    transparent 8px 12px
+  );
+  /* Unlit cells on a lit block do not scatter — the same rule that takes the
+     halo off every other piece of inverse video in the framework. */
+  box-shadow: none;
   /* A blink site: reads the pair declared in tokens/effects.css and explained in
      base/blink.css, which is also what switches it off for the blink flag,
      reduced motion, print and forced colors. Nothing outside this rule needs to

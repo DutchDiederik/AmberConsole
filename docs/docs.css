@@ -1272,6 +1272,114 @@
   height: calc(var(--sz, 8) * 0.3px);
 }
 
+/* A TRACKED CONTACT — one the ARPA has a solution on, and the four rows in the
+   plot below. Both this and --clutter were on the markup with no rule behind
+   them, so a tracked target looked exactly like a stray return and the class
+   documented an intention rather than anything you could see.
+
+   IT IS SAID WITH DWELL, NOT WITH BRIGHTNESS OR WITH A FLOOR, and both of those
+   near-misses are worth recording. Brightness is already spent: the SELECTED
+   track is the bright one, ringed by --sel below. And a raised
+   --doc-trail-floor — the obvious way to say "held between sweeps" — would be
+   declared on the ::after, which is NEARER than the .doc-scope the TRAILS
+   softkey writes that same property on, so it would win and those four buttons
+   would stop moving the tracked contacts at all.
+
+   So it is a second keyframe instead, identical to the one above except that the
+   strike holds full amplitude to 10% rather than 4% before draining to the SAME
+   var(--doc-trail-floor). Only animation-name is overridden, so duration, delay
+   and easing all still come from the base rule. Physically it is the right
+   reading too: the set is integrating this return over several revolutions,
+   which is what having a track on something means. */
+.doc-echo--tracked::after {
+  animation-name: doc-echo-strike-tracked;
+}
+
+@keyframes doc-echo-strike-tracked {
+  0% {
+    opacity: 1;
+    background-color: rgb(var(--ac-halo-flash, var(--ac-halo-1)));
+  }
+  10% {
+    opacity: 1;
+    background-color: rgb(var(--ac-halo-1));
+  }
+  100% {
+    opacity: var(--doc-trail-floor, 0);
+    background-color: rgb(var(--ac-halo-3));
+  }
+}
+
+/* ASYNCHRONOUS INTERFERENCE, AND WHAT THE REJECTION SWITCH IS FOR.
+   Another set transmitting on the same band, at a repetition rate that is not
+   ours. Each of its pulses lands at a slightly different range on each of our
+   sweeps, so it paints as a curved run of dashes marching outward instead of a
+   return that stays put — which is exactly the property the rejection circuit
+   keys on: it keeps what repeats sweep to sweep and discards what does not.
+
+   The dashes reuse .doc-echo's geometry — a span pinned at the centre, given a
+   height in percent, rotated to a bearing — because every mark on this face is
+   drawn that way and law 6 bans the SVG element that would be the alternative.
+   They are deliberately NOT re-struck by the beam: interference is not a target,
+   it does not belong to a bearing, and animating it per sweep would make it look
+   like one. It just sits there being wrong, which is what it does on a real
+   scope. */
+/* Stated rather than relying on .ac-sweep being the nearest positioned ancestor:
+   the spokes size themselves in PERCENT, so they need a containing block that is
+   definitely the face and definitely the right size. A bare <span> is inline and
+   would hand them whatever happened to be positioned above it. */
+.doc-interf {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.doc-interf > span {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: 50% 100%;
+  width: 2px;
+  height: calc(var(--rng, 0.5) * 50%);
+  transform: rotate(calc(var(--brg, 0) * 1deg));
+  pointer-events: none;
+}
+
+.doc-interf > span::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 7px;
+  transform: translate(-50%, -50%);
+  background-color: rgba(var(--ac-halo-2), 0.55);
+}
+
+/* Interference is a receiver artefact, so it goes with the receiver: a set on
+   standby is not listening and cannot be interfered with. Same rule the echoes
+   already follow. */
+.doc-scope[data-standby] .doc-interf {
+  display: none;
+}
+
+/* SEA CLUTTER — wave tops, and what the A/C SEA knob exists to remove. A
+   wind-driven return is weak and has no hull to have a length, so it is drawn
+   ROUND rather than as the flattened arc a vessel gets, and dimmer.
+
+   `filter` rather than `opacity`, and that is the same trap as the floor above:
+   the strike keyframe animates opacity, so a static opacity here would simply be
+   overridden for the whole cycle. A filter composes with the animation instead
+   of competing with it.
+
+   radar.js still does the actual suppressing off data-clutter — this class is
+   what a suppressed return looks like BEFORE the knob removes it, which is the
+   half a reader has to be able to see for the control to mean anything. */
+.doc-echo--clutter::after {
+  height: calc(var(--sz, 8) * 1px);
+  filter: opacity(0.6);
+}
+
 /* The selected track, ringed. With one hue available, "this one" is a marker
    and a brightness, never a color. */
 .doc-echo--sel::before {

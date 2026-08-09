@@ -66,6 +66,11 @@
   color: var(--ac-ink-faint);
   text-shadow: none;
   border-color: var(--ac-ink-trace);
+  /* Inert, so no halo at all — the base rule above carries --ac-glow-box-dim and
+     without this line a dead well kept it, glowing harder than its own
+     trace-level border implied. Matches .ac-btn:disabled; see the drive-tier
+     note in components/button.css. */
+  box-shadow: none;
 }
 
 .ac-input:read-only {

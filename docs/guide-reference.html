@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>REFERENCE — Amber Console</title>
-<meta name="description" content="The complete index: every class, every root attribute, every token and every stored key in the framework.">
+<meta name="description" content="The complete index: every class, every root attribute, every token, every stored key and every environment the framework renders in.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -15,7 +15,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amber Console">
 <meta property="og:title" content="REFERENCE — Amber Console System Guide">
-<meta property="og:description" content="The complete index: every class, every root attribute, every token and every stored key in the framework.">
+<meta property="og:description" content="The complete index: every class, every root attribute, every token, every stored key and every environment the framework renders in.">
 <meta property="og:url" content="https://dutchdiederik.github.io/AmberConsole/docs/guide-reference.html">
 <meta property="og:image" content="https://dutchdiederik.github.io/AmberConsole/docs/social-card.png">
 <meta property="og:image:width" content="1200">
@@ -670,6 +670,29 @@
       persistence module watches the whole tree with a <code>MutationObserver</code> — ghosting and
       smear find new nodes on their own, which is why <code>AmberConsoleEffects.init()</code> is
       called for you and is not something you normally touch.</p>
+
+    <h3 style="margin:32px 0 12px">THE THREE FUNCTIONS · everything either module exports</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>CALL</th><th>WHEN YOU NEED IT</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">AmberConsole.init(el?)</td><td>Wire markup that arrived <em>after</em> load. Both modules bind themselves at <code>DOMContentLoaded</code>, so a static page never calls this. Idempotent — it remembers what it has already wired.</td></tr>
+        <tr><td class="doc-tok">AmberConsoleEffects.afterglow(el)</td><td>Leave a decaying copy of an element behind. Call it <strong>before</strong> you remove the element — a detached node has no rectangle, so there is nowhere to pin the ghost. Text rewrites ghost themselves; this is for a node about to stop existing.</td></tr>
+        <tr><td class="doc-tok">AmberConsoleEffects.transition(fn)</td><td>Run a change and let the screen it replaces decay <em>per pixel</em>, rather than element by element. Wrap discrete swaps only — a tab switch, a dialog, a panel replacement.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <code class="doc-code">AmberConsoleEffects.transition(() =&gt; {   // falls back to a plain call
+  panel.replaceChildren(nextScreen);     // when the API, the simulation or the
+});                                      // engine flag is unavailable</code>
+    <p class="doc-faint doc-small" style="margin-top:12px"><strong>Only discrete changes, and the
+      reason is mechanical rather than aesthetic.</strong> A new view transition <em>cancels</em> the
+      one already running, so wrapping a per-second text tick would mean P7's three-second snapshot
+      being thrown away sixty times a second and never completing once — strictly worse than not
+      doing it. Frequent text is what the ghost mechanism is for; ghosts compose rather than
+      cancelling. <code>transition()</code> is always safe to call: it declines and simply runs your
+      function when the API is missing, motion is reduced, the tab is hidden, the persistence
+      simulation is off, or the page asked for the CSS-only engine.</p>
   </section>
 
   <section id="tokens">
@@ -687,11 +710,11 @@
     <table class="doc-table">
       <thead><tr><th>TOKEN</th><th>WHAT IT IS</th></tr></thead>
       <tbody>
-        <tr><td class="doc-tok">--ac-ink</td><td>Body text. The 5.2:1 stop.</td></tr>
-        <tr><td class="doc-tok">--ac-ink-bright</td><td>The live value. 7.0:1.</td></tr>
-        <tr><td class="doc-tok">--ac-ink-dim</td><td>Secondary drive. 3.4:1 — a cell driven at 70%, not an off state.</td></tr>
-        <tr><td class="doc-tok">--ac-ink-faint</td><td>Furniture and disabled text.</td></tr>
-        <tr><td class="doc-tok">--ac-ink-trace</td><td>The faintest mark the panel can make — leader dots, unlit scale ticks.</td></tr>
+        <tr><td class="doc-tok">--ac-ink</td><td>Body text. The 7.0:1 stop.</td></tr>
+        <tr><td class="doc-tok">--ac-ink-bright</td><td>The live value. 10.5:1.</td></tr>
+        <tr><td class="doc-tok">--ac-ink-dim</td><td>Secondary drive. 5.2:1 — a cell driven at 70%, not an off state.</td></tr>
+        <tr><td class="doc-tok">--ac-ink-faint</td><td>Furniture and disabled text. 3.4:1 — below the text floor, which is why it is furniture.</td></tr>
+        <tr><td class="doc-tok">--ac-ink-trace</td><td>The faintest mark the panel can make — leader dots, unlit scale ticks. 1.63:1, non-text only.</td></tr>
         <tr><td class="doc-tok">--ac-screen</td><td>The glass. One of three warm blacks.</td></tr>
         <tr><td class="doc-tok">--ac-screen-well</td><td>A recessed surface: inputs, selects.</td></tr>
         <tr><td class="doc-tok">--ac-screen-raised</td><td>A surface standing above the glass.</td></tr>
@@ -723,20 +746,28 @@
         <tr><td class="doc-tok">--ac-leading</td><td>Line height. One number for the whole system.</td></tr>
         <tr><td class="doc-tok">--ac-space-1 -2 -3 -4 -6 -8 -12</td><td>The scale, in 4px half-cells: 4 8 12 16 24 32 48.</td></tr>
         <tr><td class="doc-tok">--ac-border-w</td><td>2px. There are no hairlines on this panel.</td></tr>
-        <tr><td class="doc-tok">--ac-radius</td><td>8px — pads and keys.</td></tr>
-        <tr><td class="doc-tok">--ac-radius-sm</td><td>4px — wells.</td></tr>
+        <tr><td class="doc-tok">--ac-radius</td><td>Keys, panels, dialogs. <code>2px 4px 8px 4px</code> by default — the four corners are cut to different depths, TL TR BR BL. <code>8px</code> under <code>.ac-rounded</code>.</td></tr>
+        <tr><td class="doc-tok">--ac-radius-sm</td><td>Wells and switch housings. <code>1px 2px 4px 2px</code> — the same diagonal at half depth. <code>4px</code> under <code>.ac-rounded</code>.</td></tr>
         <tr><td class="doc-tok">--ac-gap</td><td><strong>Per element</strong>, not on the root: the gap of one row, stack or grid.</td></tr>
         <tr><td class="doc-tok">--ac-cols</td><td><strong>Per element</strong>: the track count of one <code>.ac-grid</code>.</td></tr>
         <tr><td class="doc-tok">--ac-screen-pad</td><td><strong>Per element</strong>: the padding of one <code>.ac-screen__body</code>.</td></tr>
         <tr><td class="doc-tok">--ac-meter-value</td><td><strong>Per element</strong>: 0–100 on an <code>.ac-meter__track</code>.</td></tr>
         <tr><td class="doc-tok">--ac-panel-title-bg</td><td><strong>Per element</strong>: what the legend chip masks itself against.</td></tr>
+        <tr><td class="doc-tok">--ac-backdrop</td><td><strong>Per element</strong>: what an open <code>.ac-dialog</code> paints behind itself. Defaults to flat 72% black — keep it opaque enough to read as a powered-down panel, and do not blur it.</td></tr>
+        <tr><td class="doc-tok">--ac-sweep-size</td><td><strong>Per element</strong>: the maximum diameter of an <code>.ac-sweep</code> face. Defaults to 260px; the radar demo overrides it.</td></tr>
+        <tr><td class="doc-tok">--ac-sweep-period</td><td><strong>Per element</strong>: seconds per revolution. Defaults to the phosphor's own tail × 1.5, floored at 2.5s — so a long phosphor comes round about as its trail finishes draining, and neon does not strobe.</td></tr>
+        <tr><td class="doc-tok">--ac-sweep-arc</td><td><strong>Per element</strong>: how many degrees of wake trail the beam. Defaults to 250°, which is what the period expression evaluates to. Lower it for an emitter below the persistence floor, or the wake is a thin spinning line.</td></tr>
+        <tr><td class="doc-tok">--ac-sweep-line</td><td><strong>Per element</strong>: the width of the writing beam itself, 3px by default. A constant width at every radius, because a CRT spot is.</td></tr>
       </tbody>
     </table>
     </div>
-    <p class="doc-faint doc-small" style="margin-top:12px">The last five are set on <em>your</em>
+    <p class="doc-faint doc-small" style="margin-top:12px">Every row marked <strong>per element</strong>
+      is set on <em>your</em>
       element rather than on <code>:root</code> — they are per-instance dials, and there is no global
-      value to override. That is also why they were the only two tokens in the 1.x rename that could
-      not be aliased: see <a href="guide-deprecations.html">DEPRECATED</a>.</p>
+      value to override. Two of them, <code>--ac-gap</code> and <code>--ac-cols</code>, are for that
+      reason the only tokens in the 1.x rename that could not be bridged with an alias: there was no
+      framework-level value to alias <em>from</em>, so they have to be renamed where you write them.
+      See <a href="guide-deprecations.html">DEPRECATED</a>.</p>
 
     <h3 style="margin:32px 0 12px">GLOW, MOTION AND PERSISTENCE · mostly the framework's</h3>
     <div class="doc-scroll">
@@ -748,10 +779,12 @@
         <tr><td class="doc-tok">--ac-glow-text-faint</td><td>you</td><td>The halo that belongs to <code>--ac-ink-faint</code>.</td></tr>
         <tr><td class="doc-tok">--ac-glow-box</td><td>you</td><td>The halo on a filled or focused surface.</td></tr>
         <tr><td class="doc-tok">--ac-glow-box-dim</td><td>you</td><td>Its receded twin.</td></tr>
-        <tr><td class="doc-tok">--ac-halo-spread<br>--ac-halo-scatter<br>--ac-halo-flash</td><td>framework</td><td>The three radii the glow tokens are assembled from.</td></tr>
+        <tr><td class="doc-tok">--ac-halo-spread</td><td>framework</td><td>How far the glow reaches, per palette. The only one of these three that is a <em>radius</em> — it multiplies the blur distance, and it is the square root of the scatter below.</td></tr>
+        <tr><td class="doc-tok">--ac-halo-scatter</td><td>framework</td><td>How <em>much</em> light reaches the halo, per palette. An alpha multiplier, not a distance — neon is 1.00 by definition and every other emitter is stated against it. Radius never scales with drive; only alpha does.</td></tr>
+        <tr><td class="doc-tok">--ac-halo-flash</td><td>framework</td><td>An <code>r, g, b</code> triple, not a number: the colour of a two-coating phosphor's fast layer. Declared by P7 alone, and the reason its sweep leads in blue over a yellow-green wake.</td></tr>
         <tr><td class="doc-tok">--ac-persist</td><td>framework</td><td>The working tail, per palette — capped for use in transitions.</td></tr>
         <tr><td class="doc-tok">--ac-persist-tail</td><td>framework</td><td>The <em>uncapped</em> tail. 35µs on P11, 3s on P7. What the engine gate reads.</td></tr>
-        <tr><td class="doc-tok">--ac-persist-fast</td><td>framework</td><td>The short tail, for values that rewrite often.</td></tr>
+        <tr><td class="doc-tok">--ac-persist-fast</td><td>framework</td><td><strong>Documentation only — no CSS reads it.</strong> The decay of a two-coating phosphor's <em>fast</em> layer (P7, 0.04ms). It records where the hardcoded 4% crossover in <code>ac-ghost-cascade</code> comes from; keyframe offsets cannot read a custom property, so the figure has to be written twice and this is the half that says why. Not the ghost duration — that is <code>.ac-ghost--fast</code>, which is <code>min(--ac-persist-tail, 400ms)</code>.</td></tr>
         <tr><td class="doc-tok">--ac-decay<br>--ac-decay-fast<br>--ac-decay-ease</td><td>framework</td><td>The decay durations and curve. Derived from the tail.</td></tr>
         <tr><td class="doc-tok">--ac-flicker</td><td>framework</td><td>0–1, per phosphor. Scales the mains hum <em>and</em> the retrace band, from one number.</td></tr>
         <tr><td class="doc-tok">--ac-drive-dim<br>--ac-drive-faint</td><td>framework</td><td>The drive fractions the dim and faint tiers are, arithmetically.</td></tr>
@@ -759,10 +792,11 @@
         <tr><td class="doc-tok">--ac-corner</td><td>framework</td><td><code>bevel</code> or <code>round</code>. What the classic flag actually flips.</td></tr>
         <tr><td class="doc-tok">--ac-edge<br>--ac-edge-press</td><td>framework</td><td>The key's extruded edge, and the same key pressed IN.</td></tr>
         <tr><td class="doc-tok">--ac-edge-3d<br>--ac-edge-3d-in</td><td>framework</td><td>The classic values those two point at.</td></tr>
-        <tr><td class="doc-tok">--ac-lit</td><td>framework</td><td>The afterimage's own halo, read rather than animated.</td></tr>
+        <tr><td class="doc-tok">--ac-lit</td><td>framework</td><td>0 or 1 — whether a control is currently lit. A registered <code>@property</code>, which is the whole point: registering it is what makes a custom property <em>animatable</em>, so the afterimage's alpha and radius decay together off this one number instead of needing a <code>box-shadow</code> transition per state.</td></tr>
         <tr><td class="doc-tok">--ac-blink-anim<br>--ac-blink-name<br>--ac-blink-ease</td><td>framework</td><td>The blink, assembled per palette.</td></tr>
         <tr><td class="doc-tok">--ac-blink-force<br>--ac-blink-force-ease</td><td>framework</td><td>The root-level override, read <em>first</em> at every blink site. How one rule stops every blink at once.</td></tr>
         <tr><td class="doc-tok">--ac-ghost-anim</td><td>framework</td><td>The ghost's decay animation.</td></tr>
+        <tr><td class="doc-tok">--ac-smear</td><td>framework</td><td>0–1, how fast the page is currently scrolling. Written onto the frame by <code>effects.js</code> every frame and read by the blur below. Read it; do not set it.</td></tr>
         <tr><td class="doc-tok">--ac-smear-filter</td><td>framework</td><td>The scroll smear. Set to <code>none</code> by reduced-motion and by print.</td></tr>
         <tr><td class="doc-tok">--ac-afterimage-display</td><td>framework</td><td>Switches the static afterimage halo off wholesale.</td></tr>
       </tbody>
@@ -815,6 +849,71 @@
           forever. Nothing is written back in that case either: the stored value still belongs to
           whichever page does ship the switch.</span></div>
     </div>
+  </section>
+
+  <section id="environments">
+    <div class="doc-sec-head"><h2>EVERY ENVIRONMENT</h2></div>
+    <p class="doc-dim">The framework renders in four environments it does not control, and it has a
+      considered answer in each. <strong>You do not switch any of these on.</strong> They are in the
+      stylesheet, they respond to the reader's own settings, and the reason they are listed here
+      rather than argued in a chapter is that the correct thing to know about them is that there is
+      nothing to do.</p>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>ENVIRONMENT</th><th>WHAT CHANGES</th><th>FILE</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="doc-tok">forced-colors<br>(high contrast)</td>
+          <td>The whole design is a colour trick, so this needs a real fallback rather than a broken
+            one. Every simulation overlay is removed; every border is restated in
+            <code>CanvasText</code>, because the borders <em>are</em> the layout; and every
+            inverse-video surface is restated in <code>Highlight</code> / <code>HighlightText</code>,
+            because "the machine is speaking" is information and must not flatten into an outline.
+            Blink survives — it carries the alarm — but returns to a hard edge.</td>
+          <td class="doc-tok">src/base/a11y.css</td>
+        </tr>
+        <tr>
+          <td class="doc-tok">@media print</td>
+          <td>The palette inverts to black on white by re-pointing the semantic tokens, so no
+            component needs a print rule of its own. The 2px rules stay because they are the layout;
+            glow, bloom, scanlines and every animation go, because they describe energized hardware
+            and paper is not. Filled surfaces carry <code>print-color-adjust: exact</code>, without
+            which a browser silently drops them and a set interlock bit prints as an empty square.</td>
+          <td class="doc-tok">src/base/print.css</td>
+        </tr>
+        <tr>
+          <td class="doc-tok">prefers-reduced-motion</td>
+          <td>All three simulations stop. The cell mesh is the one overlay that keeps rendering — it
+            is the <em>shape</em> of the panel rather than an effect playing over it, and only its
+            buzz is motion. Blink stops, the smear stops, ghosts are hidden outright, and every decay
+            transition is blanketed.</td>
+          <td class="doc-tok">src/sim/frame.css</td>
+        </tr>
+        <tr>
+          <td class="doc-tok">No vendored fonts</td>
+          <td>A build swap rather than a media query: replace the <code>tokens/fonts.css</code> import
+            with <code>tokens/fonts-cdn.css</code> and rebuild, and the five vendored
+            <code>woff2</code> files are dropped in favour of the same two faces from a CDN. Same
+            tokens, same stack, one fewer thing to host.</td>
+          <td class="doc-tok">src/tokens/fonts-cdn.css</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="doc-faint doc-small" style="margin-top:12px">Two of the four are <strong>gated rather
+      than trusted</strong>. <code>npm run contrast</code> runs the full pair table against all eleven
+      palettes independently, so a ratio that passes under one emitter and fails under another is a
+      build failure; and the visual suite captures a forced-colors and a print case for every demo
+      page. The one thing the suite <em>cannot</em> see is a missing
+      <code>print-color-adjust</code> — Playwright renders print to a screen surface, which honours
+      backgrounds regardless — so that list is checked by hand against a real print preview.</p>
+    <p class="doc-faint doc-small" style="margin-top:12px">There is also a <strong>scoped embed</strong>
+      for putting the framework inside an app that owns the page: swap
+      <code>base/reset.css</code> for <code>base/reset-scoped.css</code>, wrap your markup in
+      <code>.ac-root</code>, and use <code>dist/amber-console.layer.css</code> so the framework loses
+      specificity fights against your own rules. The palette attributes may go on
+      <code>&lt;html&gt;</code> or on the <code>.ac-root</code> wrapper — both resolve correctly — but
+      do not split them across the two.</p>
   </section>
 
   <nav class="doc-pager" aria-label="Chapter">

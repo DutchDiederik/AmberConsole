@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AFTERGLOW & PERSISTENCE — Amber Console</title>
-<meta name="description" content="Eight separate phenomena, five of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
+<meta name="description" content="Eight separate phenomena, four of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#100600">
@@ -15,7 +15,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Amber Console">
 <meta property="og:title" content="AFTERGLOW & PERSISTENCE — Amber Console System Guide">
-<meta property="og:description" content="Eight separate phenomena, five of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
+<meta property="og:description" content="Eight separate phenomena, four of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
 <meta property="og:url" content="https://dutchdiederik.github.io/AmberConsole/docs/guide-persistence.html">
 <meta property="og:image" content="https://dutchdiederik.github.io/AmberConsole/docs/social-card.png">
 <meta property="og:image:width" content="1200">
@@ -447,7 +447,7 @@
     <div class="doc-kicker"><span class="doc-num">04</span> AMBER CONSOLE · SYSTEM GUIDE</div>
     <h1>AFTERGLOW &amp; PERSISTENCE</h1>
   </header>
-  <p class="doc-lede">Nothing on either technology goes dark on the next refresh, and they do not go dark for the same reason. Persistence is eight separate phenomena — five of them pure CSS.</p>
+  <p class="doc-lede">Nothing on either technology goes dark on the next refresh, and they do not go dark for the same reason. Persistence is eight separate phenomena — four of them pure CSS.</p>
 
   <section id="persistence">
     <div class="doc-sec-head"><h2>AFTERGLOW AND PERSISTENCE</h2></div>
@@ -460,14 +460,16 @@
       ranges over four orders of magnitude between the parts on the board above. Most of the light
       is gone early either way, then a tail whose length is the whole difference between them.
       <code>.ac-afterglow</code> is that relaxation, and it is several separate things because
-      persistence is eight separate phenomena. <strong>Five of them are pure CSS, and three are
-      not</strong> — and the three are not withheld, they are genuinely not expressible. Nothing in
-      the cascade remembers the string a readout held one frame ago; scroll <em>velocity</em> cannot
-      be derived from a scroll timeline, which exposes position only; and
+      persistence is eight separate phenomena. <strong>Four of them are pure CSS, two need
+      JavaScript outright, and two arrive by both routes</strong> — and where JavaScript is needed it
+      is not being withheld, the thing is genuinely not expressible in a stylesheet. Nothing in the
+      cascade remembers the string a readout held one frame ago; scroll <em>velocity</em> cannot be
+      derived from a scroll timeline, which exposes position only; and
       <code>startViewTransition</code> is the one API that hands you a picture of the screen you just
-      replaced. Those three live in <code>amber-console.effects.js</code>, which is optional and
-      separate from <code>amber-console.js</code> — the stylesheet alone still decays, de-energizes,
-      throbs and sweeps.</p>
+      replaced <em>without navigating away from it</em>. Those three capabilities live in
+      <code>amber-console.effects.js</code>, which is optional and separate from
+      <code>amber-console.js</code> — the stylesheet alone still decays, de-energizes, throbs,
+      sweeps, and drains a whole page into the next one.</p>
     <p class="doc-dim"><strong>How long it lasts belongs to the emitter, not to this file.</strong>
       A palette that knows its own decay declares it, and every timing below is derived from that one
       number — so the panel does not have a persistence setting, it has whatever persistence the
@@ -539,15 +541,25 @@
           once, which is the largest light-off event there is, and the image trails. Scaled by real
           scroll <em>velocity</em>, which is why it cannot be CSS: a scroll timeline exposes
           position, and velocity is not derivable from it. Scroll this page briskly.</span></div>
-      <div class="doc-demo doc-demo--col"><span class="doc-cap">7 · PAGE PERSISTENCE — CSS</span>
-        <span class="doc-faint doc-small">The only place a <em>real framebuffer snapshot</em> is
-          available with no script at all. Everything above decays an element — something the cascade
-          can name. A phosphor decays whatever was drawn, including the parts of the screen no
-          element owns. Navigate to the console and back under P39 and the old page drains behind the
-          new one, per pixel. Needs one line —
-          <code>@view-transition { navigation: auto }</code> — in your own stylesheet, because it is
-          a document-level switch and linking a stylesheet must not rewrite how your site
-          navigates.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">7 · FRAMEBUFFER DECAY — CSS <em>and</em> effects.js</span>
+        <span class="doc-faint doc-small">The one place a <em>real framebuffer snapshot</em> is
+          available. Everything above decays an element — something the cascade can name. A phosphor
+          decays whatever was <em>drawn</em>, including the parts of the screen no element owns.
+          <strong>It arrives twice, by two different routes</strong>, which is why the board's engine
+          panel lists framebuffer decay as a JavaScript effect while this half needs no script at
+          all.</span>
+        <span class="doc-faint doc-small"><strong>Between pages — CSS.</strong> Navigate to the
+          console and back under P39 and the old page drains behind the new one, per pixel. Needs one
+          line in your own stylesheet — <code>@view-transition</code> with
+          <code>navigation: auto</code> — because it is a document-level switch, and linking a
+          stylesheet must not rewrite how your site navigates.</span>
+        <span class="doc-faint doc-small"><strong>Within a page — effects.js.</strong> A tab switch or
+          a dialog replaces most of the screen without navigating anywhere, and CSS has no hook for
+          that. The effects module exports <code>transition(fn)</code>, which wraps the change in a
+          view transition so the same decay runs over it; <code>amber-console.js</code> already calls
+          it for tabs and dialogs. This is the half that goes dark when JS Effects is switched off —
+          and the signature is in <a href="guide-reference.html#attributes">REFERENCE</a> with the
+          other two exported functions.</span></div>
       <div class="doc-demo doc-demo--col"><span class="doc-cap">8 · A LIT AREA SHRINKING — CSS + effects.js</span>
         <span class="doc-faint doc-small">A bargraph does none of the seven things above: the element
           stays, its text is elsewhere, its color never moves. What changes is its <em>width</em>, so

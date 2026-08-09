@@ -29,8 +29,17 @@
      kept --ac-screen too and printed as a full page of solid ink.
      Matching (0,2,0) and relying on this file being imported LAST is the same
      contract the rest of the file already runs on — see the header. Anything
-     that beats the palettes works; nothing weaker does. */
+     that beats the palettes works; nothing weaker does.
+
+     .ac-root IS THE FOURTH ENTRY AND IT IS NOT OPTIONAL. tokens/colors.css
+     declares the semantic aliases on `:root, .ac-root` so that a scoped embed
+     re-resolves them against its own palette. That rule sits on a CLOSER element
+     than this one, and proximity beats a same-weight declaration on an ancestor
+     — so without .ac-root here, `--ac-ink: var(--ac-emit-90)` on the wrapper
+     would win over `--ac-ink: #000` on :root and a scoped embed would print the
+     whole panel in amber on white. The two lists have to move together. */
   :root,
+  .ac-root,
   [data-ac-tech][data-ac-emitter],
   [data-ac-gas] {
     --ac-screen: #ffffff;
@@ -177,7 +186,12 @@
   .ac-check input:checked,
   .ac-radio input:checked,
   .ac-toggle__thumb,
-  .ac-meter__bar {
+  .ac-meter__bar,
+  /* The over-range track, which is inverse video like everything above it and
+     is the ONLY thing left saying "alarm" on paper — the blink that used to
+     carry it cannot print. Without this the track drops its background and an
+     alarmed meter prints as an ordinary one. See components/meter.css. */
+  .ac-meter--alarm .ac-meter__track {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

@@ -8,6 +8,15 @@
 
    Use ONE of reset.css or reset-scoped.css, not both. amber-console.css imports
    the global one; to switch, edit that single @import line and rebuild.
+
+   THE PALETTE MAY GO ON THIS ELEMENT, AND THAT IS WORTH STATING BECAUSE IT ONCE
+   DID NOT WORK. Put data-ac-tech / data-ac-emitter on <html> and everything is
+   normal. Put them HERE instead — which is the natural thing to do when you are
+   embedding and do not own <html> — and the five --ac-emit-* stops changed on
+   this subtree while --ac-ink, --ac-fill and --ac-stroke stayed resolved from
+   the document root's default: the surfaces moved and the text did not.
+   tokens/colors.css now declares the semantic aliases on `:root, .ac-root`, so
+   both placements work. Either is supported; do not split them across the two.
    =========================================================================== */
 
 .ac-root,

@@ -35,6 +35,8 @@
   pointer-events: none;
   color: var(--ac-ink);
   text-shadow: var(--ac-glow-text);
+  /* Below the 18px VT323 floor on purpose — a triangle has no letterform to lose
+     to resampling. One of the two stated exceptions in tokens/typography.css. */
   font-size: 14px;
   font-family: var(--ac-font-terminal);
 }

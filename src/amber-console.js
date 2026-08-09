@@ -457,7 +457,20 @@ function initDisplay() {
       applyEngine(ENGINE_DEFAULT_JS, false);
 
       const current = radios.find((r) => r.checked);
-      if (current) current.dispatchEvent(new Event("change", { bubbles: true }));
+      if (current) {
+        current.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
+      /* NO CATALOG ROW IS SELECTED — a board that ships the reset button without
+         the radios, or one whose stored palette was dropped from the catalog. The
+         change handler above is what normally clears MOD and repaints, so
+         without this the styles and the engine went back while the readout went
+         on saying MOD for a board that is now exactly on its defaults. Nothing
+         restores a palette here because there is no preset to restore it from. */
+      modified = false;
+      writeStored("mod", "0");
+      paintReadout();
     });
   }
 }
@@ -593,8 +606,26 @@ function initGas() {
     paintReadout();
   };
 
+  /* RESTORE ONLY WHAT THIS CONTROL CAN EXPRESS, and otherwise leave the panel
+     alone. initGas runs LAST, after initDisplay has already restored the real
+     catalog — so falling back to LEGACY_GASES[0] here meant a page that still
+     ships the old button dragged a visitor's saved P39 or krypton back to neon
+     on every load, silently, using a control that cannot even reach those
+     palettes. A two-position switch has no opinion about the other nine.
+
+     When the stored emitter is one of its two, paint it so the switch shows the
+     right position. When it is not, repaint only the button's own label — the
+     palette on the root stays whatever initDisplay restored. */
   const stored = readStored("emitter");
-  apply(LEGACY_GASES.find((e) => e.emitter === stored) ?? LEGACY_GASES[0]);
+  const legacy = LEGACY_GASES.find((e) => e.emitter === stored);
+  if (legacy) apply(legacy);
+  else {
+    for (const btn of buttons) {
+      btn.classList.remove("ac-toggle--on");
+      const state = btn.querySelector(".ac-toggle__state");
+      if (state) state.textContent = (root.getAttribute("data-ac-emitter") ?? "").toUpperCase();
+    }
+  }
 
   for (const btn of buttons) {
     if (wired.has(btn)) continue;

@@ -45,6 +45,8 @@
 /* A typeset block, not a logo. There is no logo — see law 6 in README.md. */
 .ac-nav__mark::before {
   content: "█";
+  /* Below the 18px VT323 floor on purpose — a filled block has no letterform to
+     lose. The other stated exception in tokens/typography.css. */
   font-size: 16px;
   color: var(--ac-fill);
 }

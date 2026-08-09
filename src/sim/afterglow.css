@@ -1,6 +1,6 @@
 /* ===========================================================================
    AFTERGLOW — the persistence engine, and by a wide margin the most expensive
-   thing in the framework: 476 lines, a viewport-sized backdrop-filter, and a
+   thing in the framework: ~490 lines, a viewport-sized backdrop-filter, and a
    registered @property. It is also the most droppable — nothing else needs it.
 
    THE ONE FILE ALLOWED TO HOLD A `transition`, together with sim/frame.css.
@@ -370,7 +370,11 @@
    when the picture moves. .ac-nav--sticky is excluded from the other direction:
    it is pinned to the viewport, so its pixels are NOT being handed a new value.
 
-   (Keep this list identical to the copies in print.css and a11y.css.)
+   (THERE ARE NO COPIES OF THIS LIST ANY MORE, and this note used to say to keep
+   three of them in step. print.css and a11y.css each carried their own duplicate
+   of the selector until --ac-smear-filter replaced both with one declaration —
+   so if you change the list, change it HERE and nowhere else. Recreating a copy
+   in either of those files is the thing this paragraph now exists to prevent.)
 
    The blur is isotropic and a real smear is not; the directional form costs
    every page an inline SVG node, which is not worth the axis. See
@@ -440,7 +444,9 @@
    one color fading but TWO in sequence: the flash, then the afterglow.
 
    4% is the crossover, hardcoded because keyframe offsets cannot read a custom
-   property; --ac-persist-fast carries the true figure. The color is ANIMATED
+   property. --ac-persist-fast in tokens/colors.css carries the true figure
+   (0.04ms on P7) and is read by nothing — it exists so this 4% has a stated
+   provenance rather than looking like a number somebody liked. The color is ANIMATED
    rather than set, so it beats the inline `color` amber-console.js copies onto
    the clone. Palettes with one coating never reach this keyframe.
    See RATIONALE.md § Ghosts. */
