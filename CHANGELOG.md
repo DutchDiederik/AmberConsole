@@ -94,6 +94,14 @@ without it that closer declaration would win and a scoped embed would print in a
   `MutationObserver` on `aria-pressed` rather than a second `click` listener: a plain `<script>` binds
   before `amber-console.js` does its DOMContentLoaded pass, so a click handler read the attribute one
   flip behind and ran backwards.
+- **The radar's fourth track never finished acquiring.** `revolution()` carried a generic
+  `if (state === "Acquiring" && tcpa === null) state = "Tracked"` inside its loop *and* a
+  T4-specific block after it that set both the state and the track's first TCPA. The generic test
+  ran first, so by the time the specific block looked, T4 was already `Tracked` and its condition
+  was false — dead code. T4 was promoted but never received a TCPA, and its column in the target
+  plot read `—` for the life of the page instead of counting down from 15:00. Acquiring and being
+  solved are one event; splitting them across two tests is what let them disagree. The generic line
+  is gone and T4 now reads 14:56, 14:51, 14:47 … one tick per revolution.
 - **`doc-echo--tracked` and `doc-echo--clutter` were on the radar markup with no rule behind them.**
   A tracked contact looked exactly like a stray return. Tracked contacts now hold full amplitude
   longer before draining — said with dwell rather than with brightness, which the selected-track ring

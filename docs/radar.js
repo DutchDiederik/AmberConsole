@@ -521,10 +521,18 @@
       t.brg = deg(t.brg + t.dBrg * hours);
       t.rng = clamp(t.rng + t.dRng * hours, 0.05, 24);
       if (t.tcpa !== null) t.tcpa = Math.max(0, t.tcpa - period);
-      if (t.state === "Acquiring" && t.tcpa === null) t.state = "Tracked";
     }
     /* T4 was still being acquired at frame zero; one full scan is what that
-       takes. */
+       takes, and the solution it comes back with is its first TCPA.
+
+       THE PROMOTION HAS TO HAPPEN HERE AND NOWHERE ELSE. A generic
+       `if (state === "Acquiring" && tcpa === null) state = "Tracked"` used to sit
+       in the loop above, and being generic it ran FIRST — so by the time this
+       block looked, T4 was already "Tracked" and the condition was false. The
+       block was dead code, T4 never received a TCPA, and its column read "—" for
+       the life of the page instead of counting down from 15:00. Acquiring and
+       being solved are one event; splitting them across two tests is what let
+       them disagree. */
     if (TRACKS[4].state === "Acquiring") {
       TRACKS[4].state = "Tracked";
       TRACKS[4].tcpa = 900;
