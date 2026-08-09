@@ -393,6 +393,72 @@ async function palette(browser, out) {
   }
 }
 
+/* ------------------------------------------------------------- meters -- */
+
+/* THE METER'S DRIVE LEVELS, WHICH NOTHING IN EITHER SUITE COULD SEE.
+   `.ac-meter--alarm` is inverse video plus blink, and the FILL is the half that
+   has to survive — blink is switched off by reduced motion, the blink flag,
+   print and forced colors, and without the fill an over-range meter is
+   indistinguishable from a healthy one in all four. `.ac-meter--dim` is the
+   opposite claim: a reading below full drive, which forced colors flattened to
+   Highlight and so reported at full strength.
+
+   NEITHER WAS MEASURABLE. The blink group above already renders an alarm meter,
+   but it records animation properties only — name, easing, duration, filter —
+   so the entire inverse-video change was invisible to it. And the only alarmed
+   meter on a baselined page lives inside server.html's `#view-storage`, which
+   ships `hidden`; the visual harness clicks `#tab-services`, so it never renders.
+   Two suites, one fixture between them, and zero coverage of the state.
+
+   Colour rather than shadow, because colour is the whole claim here — and across
+   all four media, because the three environment stylesheets each restate this
+   pair by hand and a hand-written selector list is exactly what drifts. */
+const METER_BODY = `
+<div class="ac-screen" id="frame"><div class="ac-screen__body">
+  <div class="ac-meter"><div class="ac-meter__track" id="m-plain" style="--ac-meter-value:60">
+    <div class="ac-meter__bar" id="m-plain-bar"></div></div></div>
+  <div class="ac-meter ac-meter--dim"><div class="ac-meter__track" id="m-dim" style="--ac-meter-value:30">
+    <div class="ac-meter__bar" id="m-dim-bar"></div></div></div>
+  <div class="ac-meter ac-meter--alarm"><div class="ac-meter__track" id="m-alarm" style="--ac-meter-value:94">
+    <div class="ac-meter__bar" id="m-alarm-bar"></div></div></div>
+</div></div>`;
+
+const METER_TARGETS = [
+  "#m-plain", "#m-plain-bar", "#m-dim", "#m-dim-bar", "#m-alarm", "#m-alarm-bar",
+];
+
+async function meters(browser, out) {
+  for (const [mName, media] of MEDIA) {
+    for (const frameCls of ["", "ac-afterglow"]) {
+      const { p, ctx } = await page$(browser, media, METER_BODY);
+      if (frameCls) {
+        await p.evaluate((c) => document.getElementById("frame").classList.add(c), frameCls);
+      }
+      const scope = frameCls || "bare";
+      for (const sel of METER_TARGETS) {
+        out[`meters / ${mName} / ${scope} / ${sel}`] = await p.evaluate((sel) => {
+          const el = document.querySelector(sel);
+          if (!el) return "MISSING";
+          const cs = getComputedStyle(el);
+          /* The bar is a repeating-linear-gradient, so its ink is the first
+             colour in background-image rather than background-color. Reported as
+             one field so a track and a bar read the same way in the diff. */
+          const ink = (cs.backgroundImage.match(/rgba?\([^)]*\)/) || [cs.backgroundColor])[0];
+          /* The lagging ghost only exists under .ac-afterglow, and on an alarmed
+             track it has to invert with the component or it paints the colour of
+             the track behind it and the drain goes invisible. */
+          const ghost = getComputedStyle(el, "::before");
+          const ghostInk = ghost.content === "none"
+            ? "-"
+            : (ghost.backgroundImage.match(/rgba?\([^)]*\)/) || ["-"])[0];
+          return `ink=${ink} shadow=${cs.boxShadow === "none" ? "none" : "yes"} ghost=${ghostInk}`;
+        }, sel);
+      }
+      await ctx.close();
+    }
+  }
+}
+
 async function corners(browser, out) {
   const { p, ctx } = await page$(browser, MEDIA[0][1], CORNER_BODY);
   for (const [label, attrs, frameCls, selfCls] of CORNER_SCOPES) {
@@ -435,6 +501,7 @@ const browser = await chromium.launch();
 const out = {};
 await blink(browser, out);
 await layers(browser, out);
+await meters(browser, out);
 await corners(browser, out);
 await suppression(browser, out);
 await palette(browser, out);

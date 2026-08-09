@@ -53,6 +53,13 @@ reading vanish into it. Added to the inverse-video lists in `base/a11y.css` (Hig
 HighlightText) and to the `print-color-adjust: exact` list in `base/print.css`, without which the
 lit track simply does not print.
 
+- **Neither meter state was measurable either, and the alarm is now the better-covered of the two.**
+  The blink group already rendered an alarmed meter but recorded animation properties only, so the
+  whole inverse-video change was invisible to it; and the only alarmed meter on a baselined page sits
+  inside `server.html`'s `#view-storage`, which ships `hidden` while the visual harness clicks
+  `#tab-services`. Two suites, one fixture between them, no coverage. `test/computed/capture.mjs`
+  grew a `meters` group probing the plain, dim and alarmed track and bar — ink, halo and the
+  afterglow ghost — across all four media and with the persistence layer on and off.
 - **The lagging ghost bar inverted with it.** `sim/afterglow.css` paints the shrink-ghost in
   `--ac-fill`, which on an alarmed track is now the colour of the track behind it — so the one
   bargraph where a falling reading matters most was the one that stopped trailing. It is drawn in
@@ -149,6 +156,32 @@ Each was checkable against the thing it described.
   instructed future editors to keep a selector list in step with copies in `print.css` and
   `a11y.css` that a refactor had already deleted, two gave `sim/afterglow.css` a line count it
   outgrew, and `.ac-btn` was documented at 44px where it measures 46.
+
+### Fixed — the COLOR chapter gave a migration instruction that is not true
+
+It said `--amber-*` *"survives as a deprecated alias and goes in 3.0"*. It does not survive: it was
+**removed in 2.0**, which both `DEPRECATIONS.md` and the DEPRECATED chapter state correctly, and
+`grep -r -- "--amber-" src/` returns nothing. A custom property that no longer exists resolves to
+nothing rather than erroring, so a reader trusting that sentence would keep writing `--amber-90` and
+watch it silently do nothing — the exact failure mode the deprecations chapter opens by warning
+about.
+
+### Fixed — five chapters printed their own intro twice
+
+`.doc-lede` is a condensed copy of the first body paragraph, and on COLOR, CONTROLS and DISPLAY the
+two were **word for word identical**; EFFECTS and PERSISTENCE repeated their opening sentence before
+going on. It had been survivable while the lede was narrower than the prose under it. Widening it to
+the full measure — see below — put two identical full-width paragraphs directly on top of each
+other, which is why it is fixed here rather than left. The duplicates are gone and the overlapping
+openings start at their own material; SCREEN's shorter echo went with them.
+
+- **`P31` was missing from the flicker list.** EFFECTS said *"P11 and P4 are fully dark between
+  frames"* two paragraphs above a sentence correctly naming *"P11, P31 and P4"*. All three declare
+  `--ac-flicker: 1.000`.
+- **`.ac-root` was described as if it worked from the shipped bundle.** TYPE & GEOMETRY said putting
+  it on a wrapper scopes the reset — true only after swapping `base/reset.css` for
+  `base/reset-scoped.css` and rebuilding, which it did not mention. On the default build the class
+  styles nothing on its own.
 
 ### Added — what the guide was missing
 

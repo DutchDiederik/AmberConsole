@@ -27,7 +27,7 @@ npm run test:visual
 npm install
 npm test             # lint + check + gas + contrast + build — what CI runs
 npm run test:visual  # 99 Playwright captures over 14 pages, 43 baselined
-npm run test:computed  # 872 computed-style probes
+npm run test:computed  # 920 computed-style probes
 ```
 
 `npm test` lints the stylesheets, runs the prohibitions gate (no second hue, no svg, no emoji, no
@@ -54,7 +54,8 @@ These are enforced by `scripts/check-prohibitions.mjs`, which fails the build:
 > **Two test suites, and they see different things.** `npm run test:visual` compares screenshots; it
 > freezes animation and never hovers, so it is blind to which keyframe is running and to every
 > `:hover` / `:active` state. `npm run test:computed` reads computed styles for exactly those —
-> 872 probes over blink, the persistence layers, the corner styles, the inert states, and the
+> 920 probes over blink, the persistence layers, the corner styles, the inert states, the meter
+> drive levels, and the
 > palette as the cascade actually resolves it in each medium. Run both before a release; the
 > computed one also runs in CI,
 > the visual one cannot (font rasterisation differs on Linux).

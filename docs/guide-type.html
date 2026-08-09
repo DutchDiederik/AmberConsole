@@ -630,7 +630,12 @@ style="--ac-gap: 12px"          &lt;!-- per instance, not a root token --&gt;</c
           <code>--ac-screen-pad</code>.</span>
         <span class="doc-faint doc-small"><code>.ac-root</code> is the <strong>scoped reset</strong>:
           put it on a wrapper when you are embedding the framework in a page you do not own, and the
-          box-sizing and margin reset applies inside it instead of globally.
+          box-sizing and type reset applies inside it instead of to <code>body</code>. It needs the
+          swap to go with it — <code>base/reset-scoped.css</code> in place of
+          <code>base/reset.css</code> in <code>amber-console.css</code>, then rebuild; the shipped
+          bundle carries the global reset, so on that build the class styles nothing on its own. The
+          palette attributes may go on the wrapper rather than on <code>&lt;html&gt;</code> and
+          resolve correctly either way.
           <code>.ac-sr-only</code> is the visually-hidden utility — it exists for the
           <code>&lt;legend&gt;</code> of a bit group whose visible label is already the panel's own
           title, which is the one place the accessible name and the drawn name legitimately

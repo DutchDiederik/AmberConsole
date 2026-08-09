@@ -451,9 +451,8 @@
 
   <section id="effects">
     <div class="doc-sec-head"><h2>THE THREE EFFECTS</h2></div>
-    <p class="doc-dim">The only three effects in the system. Glow marks energization, blink marks alarm,
-      scanlines sit once on the outermost frame. There is no fourth effect, and no component
-      anywhere in the CSS carries a transition — a control does not ease into being pressed. The one
+    <p class="doc-dim">No component anywhere in the CSS carries a transition — a control does not
+      ease into being pressed. The one
       timing function in the whole framework belongs to the gas, not to the UI: see
       <code>.ac-afterglow</code> in <a href="guide-persistence.html">PERSISTENCE</a>.</p>
     <h3 style="margin:28px 0 12px">THE THREE SIMULATIONS</h3>
@@ -488,7 +487,7 @@
       refreshing at 60Hz, has no headroom to show a 60Hz modulation — that is Nyquist, not a browser
       limitation. What is renderable is the slow beat underneath it, so the scanline layer dips
       3.5% at its deepest on a 5.5s cycle, which moves the panel's own luminance by well under 1%.
-      The depth is scaled by the phosphor: P11 and P4 are fully dark between frames and take the
+      The depth is scaled by the phosphor: P11, P31 and P4 are fully dark between frames and take the
       whole budget, P7 and P39 take 9% of it, and a gas declares no flicker at all and renders
       identically to a panel that never had this rule. It is a budget rather than a taste setting —
       WCAG 2.3.1 governs the ceiling, and 0.18Hz sits more than an order of magnitude below the
