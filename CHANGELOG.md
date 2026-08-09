@@ -6,9 +6,18 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
-A post-2.0 audit pass. No API changed and nothing was removed; everything here is either a contract
-the code was not keeping, a document describing a framework slightly different from this one, or a
-control that looked interactive and was not.
+Nothing yet.
+
+## [2.0.0] — 2026-08-10
+
+A breaking release: every custom property this framework owns is now `--ac-*` prefixed, and the
+pre-prefix names are gone rather than aliased. If you never overrode a token, upgrading is a
+drop-in. If you did, prefix what you set with `ac-` and you are done.
+
+Entries run newest first. The last work before release was an audit of the whole tree against its
+own documentation — the first eleven groups below. Nothing there changed the API or removed
+anything; it closed contracts the code was not keeping and corrected documents that described a
+framework slightly different from this one.
 
 ### Fixed — the committed `dist/` JavaScript was one release behind its own source
 
@@ -136,7 +145,7 @@ out of it.
 - **`make-assets.mjs` still described the palette as something `data-ac-gas` changes** — the
   deprecated single attribute, rather than `data-ac-tech` / `data-ac-emitter`.
 
-### Fixed — the guide described a framework slightly different from this one
+### Fixed — the guide stated things the code contradicts
 
 Each was checkable against the thing it described.
 
@@ -223,17 +232,11 @@ openings start at their own material; SCREEN's shorter echo went with them.
 - **The Overview is numbered `00`** in the chapter strip, so the sequence reads 00–09 rather than
   starting unnumbered.
 
-### Removed
+### Removed — an orphaned visual baseline
 
 - `test/visual/baselines/guide-1440-rounded.png` — orphaned. The `1440-rounded` case is
   `only: ["guide-controls"]`, so nothing has compared against it since that scoping landed. All 43
   other baselines are live and none was missing.
-
-## [2.0.0] — 2026-08-09
-
-A breaking release: every custom property this framework owns is now `--ac-*` prefixed, and the
-pre-prefix names are gone rather than aliased. If you never overrode a token, upgrading is a
-drop-in. If you did, prefix what you set with `ac-` and you are done.
 
 ### Fixed — the stylesheet shipped two different licenses
 
