@@ -11,7 +11,8 @@ A monochrome amber-terminal CSS framework — the look of a late-1980s industria
 kind of amber plasma display that drove heavy machinery. One stylesheet, no dependencies, no build
 step, no JavaScript required for any component's appearance.
 
-**[Live demo — ORION-70 console](https://dutchdiederik.github.io/AmberConsole/docs/index.html) · [D-STAR server dashboard](https://dutchdiederik.github.io/AmberConsole/docs/server.html) · [SEASCAN radar](https://dutchdiederik.github.io/AmberConsole/docs/radar.html) · [TELEMARK terminal](https://dutchdiederik.github.io/AmberConsole/docs/terminal.html) · [System guide](https://dutchdiederik.github.io/AmberConsole/docs/guide.html)**
+## Demos
+**[ORION-70 console](https://dutchdiederik.github.io/AmberConsole/docs/index.html) · [D-STAR server dashboard](https://dutchdiederik.github.io/AmberConsole/docs/server.html) · [SEASCAN radar](https://dutchdiederik.github.io/AmberConsole/docs/radar.html) · [TELEMARK terminal](https://dutchdiederik.github.io/AmberConsole/docs/terminal.html) · [System guide](https://dutchdiederik.github.io/AmberConsole/docs/guide.html)**
 
 ![The ORION-70 console demo](docs/screenshot.png)
 
