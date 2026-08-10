@@ -22,38 +22,46 @@
 .ac-meter {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  font-family: var(--font-terminal);
+  gap: var(--ac-space-1);
+  font-family: var(--ac-font-terminal);
   min-width: 0;
 }
 
 .ac-meter__track {
   position: relative;
   height: 24px;
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius-sm);
-  background: var(--screen-well);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
+  border-radius: var(--ac-radius-sm);
+  background: var(--ac-screen-well);
   overflow: hidden;
 }
 
 .ac-meter__bar {
+  /* POSITIONED SO IT PAINTS ABOVE ITS OWN GHOST. sim/afterglow.css hangs a
+     lagging copy of this bar on .ac-meter__track::before, and an unpositioned
+     block child paints BELOW any positioned pseudo-element — so without this the
+     draining ghost would cover the live bar instead of trailing behind it. With
+     both positioned, tree order settles it and ::before goes underneath. */
+  position: relative;
   height: 100%;
   width: calc(var(--ac-meter-value, 0) * 1%);
   background: repeating-linear-gradient(
     90deg,
-    var(--fill) 0 8px,
+    var(--ac-fill) 0 8px,
     transparent 8px 12px
   );
-  box-shadow: var(--glow-box);
+  box-shadow: var(--ac-glow-box);
 }
 
 .ac-meter__scale {
   display: flex;
   justify-content: space-between;
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 
 .ac-meter--lg .ac-meter__track {
@@ -63,22 +71,47 @@
 .ac-meter--dim .ac-meter__bar {
   background: repeating-linear-gradient(
     90deg,
-    var(--ink-faint) 0 8px,
+    var(--ac-ink-faint) 0 8px,
     transparent 8px 12px
   );
   box-shadow: none;
 }
 
-/* Over-range. Inverse-video the whole track and blink it — there is no red. */
+/* Over-range. Inverse video on the whole track, and blink on top — there is no
+   red, so the FILL is what carries the alarm and the blink is the emphasis.
+
+   THE TRACK LIGHTS AND THE BAR CUTS INTO IT, which is the only way round that
+   works. The bar is already --ac-fill, so filling the track with the same token
+   would make the bar vanish into it and the reading would be gone. Inverting the
+   pair keeps the value legible and states the alarm at the same time.
+
+   THE FILL IS NOT DECORATION ON TOP OF THE BLINK, IT IS THE HALF THAT SURVIVES.
+   Blink is switched off by prefers-reduced-motion, by the blink style flag, by
+   print and by forced colors — four environments in which this rule used to
+   leave an over-range meter looking exactly like a normal one, because a
+   strengthened border was the only thing it changed. That is the same argument
+   .ac-banner--filled and .ac-table__row--active already make, and this component
+   was the one place the system did not follow it. */
 .ac-meter--alarm .ac-meter__track {
-  border-color: var(--stroke);
+  border-color: var(--ac-stroke);
+  background: var(--ac-fill);
+  box-shadow: var(--ac-glow-box);
 }
 .ac-meter--alarm .ac-meter__bar {
-  animation: ac-blink 1.1s steps(1) infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ac-meter--alarm .ac-meter__bar {
-    animation: none;
-  }
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ac-on-fill) 0 8px,
+    transparent 8px 12px
+  );
+  /* Unlit cells on a lit block do not scatter — the same rule that takes the
+     halo off every other piece of inverse video in the framework. */
+  box-shadow: none;
+  /* A blink site: reads the pair declared in tokens/effects.css and explained in
+     base/blink.css, which is also what switches it off for the blink flag,
+     reduced motion, print and forced colors. Nothing outside this rule needs to
+     know this element blinks. */
+  animation-name: var(--ac-blink-force, var(--ac-blink-name));
+  animation-duration: 1.1s;
+  animation-timing-function: var(--ac-blink-force-ease, var(--ac-blink-ease));
+  animation-iteration-count: infinite;
 }

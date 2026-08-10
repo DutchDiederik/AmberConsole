@@ -1,0 +1,234 @@
+/* ===========================================================================
+   Classic — the corner a real panel could actually draw, the extruded key edge
+   that came with it, and the label parked in the corner of the face.
+
+   THIS IS THE DEFAULT LOOK. An 8px quarter-circle is a thing a modern rasterizer
+   does; a gas-discharge panel addressing a coarse cell grid could not, and the
+   keys on one stood on a hard offset edge with their label in the top-left corner
+   and the body left empty for a value. That is what these panels were, so it is
+   what the framework ships. The smooth corner is still here and still supported —
+   it is now the thing you opt into rather than the thing you opt out of.
+
+   IT IS THE DEFAULT IN CSS, WITH NO JAVASCRIPT. `:root` carries the classic
+   tokens, so a page that links the stylesheet and authors nothing at all gets
+   the chamfer and the extruded edge. This used to be true only when
+   ../amber-console.js was loaded — that file writes data-ac-style-classic="on",
+   and without it a CSS-only consumer silently got the rounded corner this
+   paragraph calls an opt-out. The stylesheet says what it means now.
+
+     (nothing)                    classic. The default.
+     .ac-rounded                  the way back to the arc, at any scope.
+     data-ac-style-classic="off"  the same opt-out for a whole page; what the
+                                  optional JS writes when the switch is thrown.
+     .ac-classic                  back to classic inside a rounded region.
+     data-ac-style-classic="on"   the page-level form of that.
+
+   All are the same set of rules reading the same tokens; none is more real than
+   the others, and they nest in either direction.
+
+   HOW THE SCOPING WORKS — the thing to understand before editing. The three
+   scopes set nothing but CUSTOM PROPERTIES, and custom properties inherit. Every
+   rule below is written ONCE and reads its values out of the cascade, so
+   `.ac-rounded` needs no mirror of any rule and nesting resolves by ordinary
+   inheritance rather than a specificity coin toss. Adding a fourth scope, or a
+   per-region override, is a token block and nothing else.
+
+   IT IS `border-radius` / `corner-shape` AND NOT A CLIP because `clip-path` and
+   `mask-image` clip the element's ENTIRE painting, outer box-shadow included —
+   so a clipped corner would buy a stepped edge by deleting the discharge halo
+   off all four sides. The two corner paths carry different radii rather than one
+   degraded chamfer, so Firefox loses the chamfer and nothing else. Both in
+   RATIONALE.md § components/classic.css.
+
+   =========================================================================== */
+
+/* --- (1) The scopes. Tokens only; no rule below is repeated per scope. --- */
+
+/* CLASSIC IS THE DEFAULT, IN CSS, WITH NO JAVASCRIPT.
+   `:root` leads this list, which is the whole point: a page that links the
+   stylesheet and authors no attribute and no class gets the classic corner. The
+   two opt-in scopes ride along so a classic REGION works inside a rounded page,
+   and so the attribute the optional JS writes keeps meaning what it says. */
+:root,
+.ac-classic,
+[data-ac-style-classic="on"] {
+  /* Grid-quantized corner, from tokens/spacing.css. Restated here only so a
+     .ac-classic region nested inside a .ac-rounded one gets it back. */
+  --ac-radius: 2px;
+  --ac-radius-sm: 2px;
+  --ac-corner: bevel;
+  --ac-edge: var(--ac-edge-3d);
+  --ac-edge-press: var(--ac-edge-3d-in);
+}
+
+@supports (corner-shape: bevel) {
+  /* The default's chamfer. It sits HERE, above the opt-out, and that position is
+     load-bearing: `:root` and `[data-ac-style-classic="off"]` both match <html>
+     at the same weight, so whichever is written last wins. Below the opt-out,
+     this block handed the bevel radii back to a page that had explicitly asked
+     for round corners — visible as a chamfered key with no extrusion, which is
+     neither of the two looks this file ships. */
+  :root {
+    --ac-radius: 2px 4px 8px 4px;
+    --ac-radius-sm: 1px 2px 4px 2px;
+  }
+}
+
+/* The opt-out, at any scope: a page (the attribute, which is what the optional
+   JS writes) or a region (the class). Declared AFTER the :root default above so
+   that when both land on <html> — `:root` and `[data-ac-style-classic="off"]`
+   weigh the same — the explicit off wins on order. */
+.ac-rounded,
+[data-ac-style-classic="off"] {
+  --ac-radius: 8px;
+  --ac-radius-sm: 4px;
+  --ac-corner: round;
+  /* A shadow that paints nothing, rather than `none`: `none` is not a valid item
+     inside a comma-separated shadow list, so `var(--ac-glow-box), none` would
+     invalidate the whole declaration and take the halo down with it. */
+  --ac-edge: 0 0 0 transparent;
+  --ac-edge-press: 0 0 0 transparent;
+}
+
+@supports (corner-shape: bevel) {
+  /* Where the shape can be cut, the radius is spent on the CUT instead of an arc,
+     and NOT EVENLY: these keys are lit from the top left, so the far corner is
+     barely cut and the near one is cut hardest. Cut all four the same and the key
+     reads as an octagon. 2 / 4 / 8 / 4 in TL TR BR BL order, from the system's own
+     radius steps; --ac-radius-sm runs the same diagonal at half depth.
+     See RATIONALE.md § The four corners are not the same size.
+
+     The :root half of this is declared above the opt-out; these two scopes are
+     declared below it, so a classic REGION inside a rounded page is chamfered
+     rather than inheriting the opt-out's arc. */
+  .ac-classic,
+  [data-ac-style-classic="on"] {
+    --ac-radius: 2px 4px 8px 4px;
+    --ac-radius-sm: 1px 2px 4px 2px;
+  }
+}
+
+/* --- (2) The corner. One rule, three scopes, value from the cascade. --- */
+
+/* THE LIST IS THE EIGHT PLACES A RADIUS IS DECLARED, and it was derived rather
+   than chosen: grep `border-radius: var(--ac-radius` across components/ and this is
+   what comes back. .ac-badge and .ac-banner are literal 2px, .ac-check is square,
+   and .ac-radio and .ac-sweep are circles — a circle has no corner to cut, so none
+   of the five belong here. Add to this list when a new component takes a --ac-radius,
+   or its corner will stay round while everything around it is cut. */
+@supports (corner-shape: bevel) {
+  /* The scope half is folded into one :is() so the component list is written
+     ONCE. Specificity is unchanged — :is() takes the highest of its arguments,
+     so both halves weigh (0,1,0) exactly as the two-selector form did, and the
+     pair still lands at (0,2,0). A complex selector inside :is() is safe to lean
+     on HERE and nowhere else in this file: everything in this block is already
+     gated behind corner-shape, which no engine lacking Selectors-4 supports. */
+  :is(
+    .ac-classic,
+    .ac-rounded,
+    :is(.ac-classic, .ac-rounded, [data-ac-style-classic="on"]) *
+  ):is(
+    .ac-btn, .ac-tab, .ac-panel, .ac-dialog, .ac-input, .ac-nav__link,
+    .ac-toggle__track, .ac-meter__track
+  ) {
+    /* stylelint-disable-next-line property-no-unknown -- corner-shape is newer
+       than the property list stylelint ships. The @supports is the real gate; an
+       engine that does not know the property never reads this block. */
+    corner-shape: var(--ac-corner, round);
+  }
+}
+
+/* --- (3) The extrusion — on the controls, and only on the controls. --- */
+
+/* A KEY IS EXTRUDED; A PANEL IS A HOLE IN THE BEZEL. The corner belongs to the
+   raster and reaches everything, but a drop shadow claims the thing stands off the
+   glass, and that is true of a soft key and a switch housing and of nothing else
+   on the board. Giving .ac-panel an edge too was tried and reads as a floating
+   card, which is a different design language from a control surface.
+
+   THE RULES THAT USED TO BE HERE ARE GONE, AND THIS FILE IS BETTER FOR IT.
+   Four scope-prefixed rules once lived at this point — the resting edge, the
+   pressed edge, a blank for disabled, and one for the toggle housing — each
+   repeating the same doubled `:is(scopes):is(X), :is(scopes) :is(X)` prefix.
+   They existed only to APPEND --ac-edge to a box-shadow the component had
+   already declared, and they did it by out-specifying the component, which is
+   what made a dim key glow at full drive.
+
+   components/button.css and components/toggle.css now write
+   `var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent)` on each state
+   themselves, reading a token this file sets. Outside a corner scope --ac-edge
+   is undefined and paints nothing, so nothing needs to match a scope at all —
+   which is exactly what the scopes-set-only-tokens design at the top of this
+   file promised, and what these four rules were quietly breaking.
+
+   Disabled needs no rule for the same reason: button.css already blanks the
+   shadow, and nothing outranks it any more. */
+
+/* --- (4) The face: label top-left. --- */
+
+/* A soft key is a label plus room for a value, so the label parks in the corner
+   and the body is left empty. This is .ac-btn--pad's alignment WITHOUT its 96px
+   height, so it applies at any key size and composes with --pad unchanged.
+
+   NO `display` HERE, DELIBERATELY: inline-flex would outweigh .ac-btn--block's
+   `display: block` and .ac-btn--pad's `flex`, and a corner style that silently
+   unblocks a full-width key is worse than one that does nothing. The three
+   properties it does set are inert on a non-flex box.
+
+   THE KEYPAD IS EXEMPT — a digit has no label/value split to serve, and those
+   keys are centered on purpose. keypad.css states the reason. */
+.ac-classic.ac-btn:not(.ac-keypad__key),
+.ac-classic .ac-btn:not(.ac-keypad__key),
+[data-ac-style-classic="on"] .ac-btn:not(.ac-keypad__key) {
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* Back to undeclared, which is what a bare .ac-btn computes to — `normal` on both
+   flex properties and an inherited text-align. NOT `center`: that would center a
+   --pad, and a pad parks its label top-left in either corner style. --pad is
+   excluded outright for the same reason, since it out-specifies nothing here.
+
+   `text-align` is restated rather than token-driven because a CSS-wide keyword
+   arriving through var() substitution is the one part of this mechanism not worth
+   betting the alignment on. */
+.ac-rounded.ac-btn:not(.ac-btn--pad),
+.ac-rounded .ac-btn:not(.ac-btn--pad) {
+  align-items: normal;
+  justify-content: normal;
+  text-align: inherit;
+}
+
+/* --- (5) Inert keeps nothing, and it no longer has to be said twice. --- */
+
+/* NOTHING HERE ANY MORE, DELIBERATELY.
+
+   Two rules used to sit at this point: one blanking the shadow on a disabled key,
+   one restoring the dimmed housing on a disabled toggle. Both existed purely to
+   win back ground the extrusion rules above had taken by out-specifying the
+   components — `[data-ac-style-classic="on"] .ac-btn` weighs the same as
+   `.ac-btn:disabled` and landed later, so a dead key was being handed its halo
+   back and needed it removed again.
+
+   With the edge declared on the components, `.ac-btn:disabled { box-shadow:
+   none }` in button.css is simply the last word, and `.ac-toggle:disabled
+   .ac-toggle__track` in toggle.css already carried --ac-glow-box-dim at a weight
+   nothing here contested. Both rules were restating what those files say.
+
+   scripts/check-prohibitions.mjs could never have caught the underlying bug —
+   it gates an ink level set without its halo, and the extrusion rules set no
+   color — which is the argument for not having written them that way. */
+
+/* --- (6) Print pays for shadow in ink. --- */
+
+/* The extrusion goes and the cut corner stays: the corner is the shape of the
+   control and survives being printed, the shadow is a lighting effect and does
+   not. Blanked through the token rather than by restating four selectors — which
+   is the same reason `--ac-edge` exists at all. */
+@media print {
+  :root {
+    --ac-edge-3d: 0 0 0 transparent;
+    --ac-edge-3d-in: 0 0 0 transparent;
+  }
+}

@@ -1,0 +1,51 @@
+name: Component or feature request
+description: Propose something the framework does not have yet.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This is a genre framework, and the answer to most requests is no.** That
+        is not hostility — it is the thing that makes the system coherent. A
+        proposal is judged on whether it follows from the constraints of an amber
+        plasma panel, not on whether it would be useful in general.
+
+        Read [the six laws](https://github.com/DutchDiederik/AmberConsole#the-six-laws)
+        first. Requests that need a second hue, an icon set, SVG, a light mode,
+        type below 18px, or a transition on a component are already answered
+        there, and `npm run check` fails the build on most of them.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What you want, and what you are building that needs it
+    validations:
+      required: true
+
+  - type: textarea
+    id: laws
+    attributes:
+      label: Which law justifies it?
+      description: >
+        Name the one it follows from and say how. "It would be handy" is not an
+        argument here; "the panel had a physical key for this and nothing in the
+        vocabulary draws one" is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: existing
+    attributes:
+      label: Why the existing vocabulary cannot express it
+      description: >
+        Check the [reference index](https://dutchdiederik.github.io/AmberConsole/docs/guide-reference.html)
+        first — it lists every class, attribute and token. Most requests turn out
+        to be a composition of two things that already exist.
+    validations:
+      required: true
+
+  - type: textarea
+    id: markup
+    attributes:
+      label: Minimum markup you imagine writing
+      render: html

@@ -8,6 +8,15 @@
 
    Use ONE of reset.css or reset-scoped.css, not both. amber-console.css imports
    the global one; to switch, edit that single @import line and rebuild.
+
+   THE PALETTE MAY GO ON THIS ELEMENT, AND THAT IS WORTH STATING BECAUSE IT ONCE
+   DID NOT WORK. Put data-ac-tech / data-ac-emitter on <html> and everything is
+   normal. Put them HERE instead — which is the natural thing to do when you are
+   embedding and do not own <html> — and the five --ac-emit-* stops changed on
+   this subtree while --ac-ink, --ac-fill and --ac-stroke stayed resolved from
+   the document root's default: the surfaces moved and the text did not.
+   tokens/colors.css now declares the semantic aliases on `:root, .ac-root`, so
+   both placements work. Either is supported; do not split them across the two.
    =========================================================================== */
 
 .ac-root,
@@ -18,12 +27,13 @@
 }
 
 .ac-root {
-  background: var(--screen);
-  color: var(--ink);
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
-  line-height: var(--leading);
-  letter-spacing: var(--tracking-body);
+  background: var(--ac-screen);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
+  line-height: var(--ac-leading);
+  letter-spacing: var(--ac-tracking-body);
   -webkit-font-smoothing: none;
 }
 
@@ -37,18 +47,20 @@
 }
 
 .ac-root a {
-  color: var(--ink-bright);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 .ac-root a:hover {
-  color: var(--fill-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-fill-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-root ::selection {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
+  text-shadow: none;
 }
 
 .ac-root button,
@@ -60,9 +72,10 @@
   line-height: inherit;
   letter-spacing: inherit;
   color: inherit;
+  text-shadow: inherit;
 }
 
 .ac-root :focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }

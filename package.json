@@ -1,6 +1,6 @@
 {
   "name": "amber-console",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A monochrome amber-terminal CSS framework — the look of a late-1980s industrial control panel. Zero runtime dependencies.",
   "keywords": [
     "css",
@@ -13,7 +13,7 @@
     "monochrome",
     "no-dependencies"
   ],
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "author": "Diederik (https://diederik.blog)",
   "type": "module",
   "main": "dist/amber-console.css",
@@ -22,7 +22,10 @@
     "*.css",
     "./dist/amber-console.js",
     "./dist/amber-console.global.js",
-    "./src/amber-console.js"
+    "./dist/amber-console.effects.js",
+    "./dist/amber-console.effects.global.js",
+    "./src/amber-console.js",
+    "./src/amber-console.effects.js"
   ],
   "exports": {
     ".": "./dist/amber-console.css",
@@ -31,6 +34,8 @@
     "./min": "./dist/amber-console.min.css",
     "./js": "./dist/amber-console.js",
     "./js/global": "./dist/amber-console.global.js",
+    "./effects": "./dist/amber-console.effects.js",
+    "./effects/global": "./dist/amber-console.effects.global.js",
     "./src/*": "./src/*",
     "./fonts/*": "./fonts/*",
     "./package.json": "./package.json"
@@ -39,8 +44,11 @@
     "dist",
     "src",
     "fonts",
+    "starter.html",
     "README.md",
     "CHANGELOG.md",
+    "DEPRECATIONS.md",
+    "RATIONALE.md",
     "LICENSE"
   ],
   "scripts": {
@@ -52,7 +60,9 @@
     "dev": "node scripts/build.mjs --watch --serve",
     "lint": "stylelint \"src/**/*.css\"",
     "test:visual": "node test/visual/capture.mjs",
-    "test": "npm run check && npm run contrast && npm run build"
+    "test:computed": "node test/computed/capture.mjs",
+    "test": "npm run lint && npm run check && npm run gas -- --check && npm run contrast && npm run build",
+    "gas": "node scripts/derive-gas.mjs"
   },
   "devDependencies": {
     "playwright": "^1.62.0",
@@ -64,7 +74,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DutchDiederik/amber-console.git"
+    "url": "git+https://github.com/DutchDiederik/AmberConsole.git"
   },
-  "homepage": "https://github.com/DutchDiederik/amber-console#readme"
+  "homepage": "https://github.com/DutchDiederik/AmberConsole#readme"
 }

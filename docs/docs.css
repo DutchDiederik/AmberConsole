@@ -6,28 +6,353 @@
    this file is required to use the framework.
    =========================================================================== */
 
+/* CROSS-DOCUMENT PERSISTENCE, OPTED IN HERE RATHER THAN IN THE FRAMEWORK.
+   `@view-transition` is a document-level switch and cannot be scoped to a
+   selector, so shipping it inside amber-console.css would change how navigation
+   behaves for everyone who links the stylesheet — including people who never
+   asked for a screen simulation. Linking a stylesheet must not rewrite how a
+   site navigates, so the framework styles the transition and leaves this one
+   line to the page. It is the whole opt-in.
+
+   With it, moving between the three demo pages under a long phosphor leaves the
+   previous screen genuinely draining behind the new one, per pixel, with no
+   JavaScript involved at all. tokens/effects.css does the rest. */
+@view-transition {
+  navigation: auto;
+}
+
 /* --------------------------------------------------------------- shared -- */
 
+/* SKIP LINK — the first focusable thing on every page in docs/.
+
+   DOCS-ONLY, AND DELIBERATELY NOT AN `.ac-` CLASS. A skip link belongs to a
+   *page*, not to a component library: it has to know where the page's main
+   region starts, and the framework has no opinion about that. Shipping an
+   `.ac-skip` would also add public API that the reference index, the guide and
+   the README all have to carry, for a rule that is nine lines of CSS a consumer
+   can write against their own layout.
+
+   Not `display: none` when unfocused — a hidden element is not focusable, which
+   is the one thing this must be. It is pulled out of the flow by size instead
+   and returns to the top-left of the frame on focus, inside the bezel rather
+   than over the browser chrome, so the simulations reach it like everything
+   else on the panel. */
+.doc-skip {
+  position: absolute;
+  left: -9999px;
+  z-index: 200;
+  /* 44px like every other interactive thing in this system — a skip link is the
+     first control on the page and does not get to be the one exception. */
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--ac-space-2) var(--ac-space-3);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-on-fill);
+  /* Inverse video: dark ink on lit amber, so no halo — same pairing every other
+     --ac-on-fill site makes. */
+  text-shadow: none;
+  background: var(--ac-fill);
+  text-decoration: none;
+}
+.doc-skip:focus {
+  left: var(--ac-space-3);
+  top: var(--ac-space-3);
+}
+
+/* THE TABS SPECIMEN, SIZED SO SWITCHING A TAB DOES NOT RESIZE THE BOX.
+
+   `.doc-demo--col` aligns its children to flex-start, so each panel would take
+   its own content width — three different widths, and the specimen would jump
+   as you moved between them. A widget whose job is to demonstrate a widget must
+   not do that.
+
+   `width: max-content` on the wrapper makes it as wide as its widest child (the
+   soft-key strip), and stretch does the rest, so the panels line up under the
+   keys at whatever width the font renders them. No magic number to go stale. */
+.doc-tabspec {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ac-space-3);
+  width: max-content;
+  max-width: 100%;
+}
+
 .doc-byline {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   text-decoration: none;
 }
 .doc-byline:hover {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
-.doc-nav-sims {
+/* ----------------------------------------------------------- setup board -- */
+
+/* The bar's display readout. The board scrolls away and the bar does not, so
+   this is the one that is always visible — and it always names the TECHNOLOGY
+   before the emitter: "CRT · P3", never a bare "P3" that could be mistaken for
+   one more gas. */
+.doc-nav-display {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
+  gap: var(--ac-space-2);
+  white-space: nowrap;
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
-.doc-nav-sims .ac-toggle {
-  font-size: var(--type-small);
+.doc-nav-display [data-ac-display-out] {
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+}
+
+/* All four switches live in ONE region now — see the SWITCHES panel in the demo
+   markup — so the rows fill the width and the label pushes the track and its
+   ON/OFF to the right edge. Four labels running from "CRT" to "Scroll Smear"
+   read as scattered when each row is only as wide as its own contents.
+
+   A fixed label column would have been the obvious way to line the tracks up and
+   is the wrong one: the longest label plus its JS badge needs about 15ch, and a
+   quarter of this board has roughly 298px of inner width at 1440. That overflows,
+   and .ac-setup is the one region in the system that is not allowed to scroll. */
+.doc-switches {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ac-space-2);
+}
+.doc-switches .ac-toggle {
+  display: flex;
+  width: 100%;
+}
+.doc-switches .ac-toggle > :first-child {
+  margin-right: auto;
+}
+
+/* The axis a group of switches belongs to. Micro type and tight margins: this is
+   a divider that happens to have words on it, not a paragraph — the board's four
+   quarters are the real headings and this sits a level under them.
+
+   It exists because merging Simulation, Style and Engine into one box costs the
+   thing three separate panels were saying for free. Those are three different
+   KINDS of statement — what the hardware is, what the viewer prefers, how much of
+   the library is running — and a flat list of four switches quietly claims Plasma
+   and JS Effects are the same sort of thing. See the header of components/setup.css. */
+.doc-switches__axis {
+  margin: var(--ac-space-4) 0 var(--ac-space-2);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  line-height: 1.6;
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+  text-transform: uppercase;
+}
+.doc-switches__axis:first-of-type {
+  margin-top: 0;
+}
+
+/* No cap and no scroller. Every emitter the panel has is on the glass at once —
+   which is affordable only because the catalog is split across two quarters by
+   technology. Four gases and seven phosphors side by side are shorter than
+   eleven rows in one column, and the split is the thing that made a board with
+   no scrolling in it possible at all. */
+.doc-displays {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* The group heading is what makes the list two catalogs instead of one. It is
+   not decoration and it does not collapse into the rows. */
+.doc-displays__head {
+  margin: var(--ac-space-4) 0 0;
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  color: var(--ac-ink-bright);
+  text-transform: uppercase;
+  text-shadow: var(--ac-glow-text);
+}
+.doc-displays__head:first-child {
+  margin-top: 0;
+}
+
+/* Divides the CRT catalog into what a phosphor was BUILT FOR. Four of the seven
+   were made to be looked at for hours; three were made to do a job that reading
+   was not part of, and picking one of those for a UI is a deliberate choice
+   rather than a palette preference. See tokens/colors.css. */
+.doc-displays__group {
+  margin: var(--ac-space-3) 0 var(--ac-space-1);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ac-ink-trace);
+  padding-bottom: 3px;
+}
+.doc-displays__group:first-of-type {
+  margin-top: 0;
+}
+
+.doc-displays__note {
+  margin: var(--ac-space-2) 0 var(--ac-space-3);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  line-height: 1.6;
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+  text-transform: uppercase;
+}
+
+/* A KEY:VALUE row wearing a radio, so eleven of them still read as one column
+   of the character grid rather than eleven floating labels.
+
+   align-items is baseline and not the center .ac-radio ships, because the leader
+   dots are the reason this is a row at all. An empty flex item's baseline is its
+   bottom margin edge, which is what drops the dotted rule exactly onto the text
+   baseline — but only if the text is in the same baseline group. One item
+   aligned to a baseline nothing else shares has no baseline to find, and the
+   rule floats up between the rows. The lamp is the one thing that does not want
+   a baseline: it is a 20px box, so it centers. */
+.doc-display {
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  min-height: 36px;
+  font-size: var(--ac-type-small);
+}
+
+.doc-display input {
+  align-self: center;
+}
+
+.doc-display__name {
+  flex: none;
+}
+
+/* What the tube was FOR, beside its part number. The part number alone is only
+   meaningful to someone who already knows the catalog, which is the person least
+   in need of the panel. Kept short on purpose: the row is
+   [radio] NAME USE …dots… SPECTRUM, and the dotted leader is what absorbs the
+   slack — a long label eats it and then overflows the column at 390px. */
+.doc-display__use {
+  flex: none;
+  margin-left: 0.55em;
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+  text-transform: uppercase;
+}
+
+.doc-display__fill {
+  flex: 1;
+  /* COLLAPSIBLE TO NOTHING, and that is what keeps the row on one line. This
+     used to hold a 24px floor, which is fine when the row is [number] …dots…
+     [spectrum] and not fine once a purpose label sits between them: in the
+     printed board the columns are 254px and the reserved dots pushed every row
+     13px past the edge. The leader is decoration and the two labels are not, so
+     the leader is what gives way. */
+  min-width: 0;
+  align-self: baseline;
+  border-bottom: var(--ac-border-w) dotted var(--ac-ink-trace);
+}
+
+.doc-display__note {
+  flex: none;
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+  text-transform: uppercase;
+}
+
+/* 36px is a comfortable row on a mouse and too tight for a thumb. Where the
+   pointer is coarse, take the height back to the 44px floor. */
+@media (pointer: coarse) {
+  .doc-display {
+    min-height: 44px;
+  }
+}
+
+/* The technology note. VT323 at 18px rather than the Silkscreen micro the other
+   notes use: this one is a paragraph to be read, not a label to be glanced at,
+   and Silkscreen at 8px is unreadable past about a dozen words. */
+/* WHAT THE OPTIONAL MODULE IS ACTUALLY DOING, shown only while it is doing it.
+   The switch beside it says ON; this says what ON bought. Three effects, and the
+   reason each one cannot be CSS is the reason the module exists at all — so the
+   box states that rather than just naming them. Hidden by the `hidden`
+   attribute, driven from syncEngineControls in ../src/amber-console.js. */
+.doc-engine {
+  margin-top: var(--ac-space-3);
+  padding: var(--ac-space-3);
+  border: 1px solid var(--ac-ink-trace);
+  border-radius: var(--ac-radius-sm);
+  background: var(--ac-screen-well);
+}
+.doc-engine__title {
+  display: block;
+  margin-bottom: var(--ac-space-2);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  text-transform: uppercase;
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+}
+.doc-engine__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
+  line-height: 1.25;
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+}
+.doc-engine__list li + li {
+  margin-top: 6px;
+}
+/* The effect's name carries the drive level; its description is the dim half of
+   the same line, so the three names scan as a list without a bullet. */
+.doc-engine__list b {
+  font-weight: normal;
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  text-transform: uppercase;
+}
+
+.doc-info {
+  margin: 0;
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
+  line-height: 1.35;
+  letter-spacing: var(--ac-tracking-body);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+}
+
+.doc-setup-hint {
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+  text-transform: uppercase;
 }
 
 /* ------------------------------------------------------- console screen -- */
@@ -36,29 +361,29 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: var(--space-6);
+  gap: var(--ac-space-6);
   flex-wrap: wrap;
 }
 
 .doc-wordmark {
-  font-size: var(--type-title);
+  font-size: var(--ac-type-title);
   letter-spacing: 0.18em;
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 .doc-console-head h1 {
-  font-size: var(--type-display);
-  letter-spacing: var(--tracking-display);
-  text-shadow: var(--glow-text);
-  border-bottom: var(--border-w) solid var(--stroke);
+  font-size: var(--ac-type-display);
+  letter-spacing: var(--ac-tracking-display);
+  text-shadow: var(--ac-glow-text);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke);
   padding-bottom: 4px;
 }
 
 .doc-fields {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
 }
 .doc-fields .ac-field {
   width: min(100%, 60%);
@@ -76,7 +401,7 @@
 .doc-lamp {
   display: flex;
   justify-content: center;
-  gap: var(--space-6);
+  gap: var(--ac-space-6);
   flex-wrap: wrap;
 }
 
@@ -96,7 +421,7 @@
   min-width: 0;
   max-width: 1180px;
   margin: 0 auto;
-  padding: var(--space-8) var(--space-8) 80px;
+  padding: var(--ac-space-8) var(--ac-space-8) 80px;
 }
 
 /* Documentation tables have a large min-content width (long token names in
@@ -107,68 +432,333 @@
   max-width: 100%;
 }
 
+/* ------------------------------------------------------- guide chapters -- */
+
+/* THE GUIDE'S SECOND LEVEL. The top bar names the five destinations in this
+   project; this names the seven chapters of one of them, and the two must not
+   look like the same kind of control — so this is a rule with words on it rather
+   than a second bar. Not sticky: the menu bar is the thing that has to survive
+   scrolling, and two stacked sticky strips eat a quarter of a laptop viewport.
+
+   Ten chapters do not fit one line at any width we design for, so the strip
+   is two rows rather than one scrolling row: a row that runs off the edge hides
+   its own tail, and a chapter index whose last entries are invisible is not an
+   index.
+
+   Five columns rather than free wrapping, because free wrapping at the wrap's
+   full width puts nine chapters on one line and one orphan under them, which
+   reads as a mistake. A fixed 5x2 grid reads as a plan, and the columns line up
+   the way a printed index does.
+
+   The block of columns is centred under the rule; the words inside each column
+   are not. Centring the items too would ragged the columns and lose the one
+   thing the grid was for. */
+.doc-chapters {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  justify-content: center;
+  justify-items: start;
+  gap: var(--ac-space-3) var(--ac-space-6);
+  align-items: baseline;
+  margin-bottom: var(--ac-space-6);
+  padding-bottom: var(--ac-space-3);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
+}
+
+.doc-chapter {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ac-space-2);
+  flex: none;
+  font-size: var(--ac-type-small);
+  line-height: 1;
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.doc-chapter:hover {
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+}
+
+/* The chapter you are on is INVERSE VIDEO, which is law 2 doing the work a
+   color would do anywhere else — the machine saying "this one". */
+.doc-chapter[aria-current="page"] {
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
+  text-shadow: none;
+  padding: 3px var(--ac-space-2);
+}
+.doc-chapter[aria-current="page"] .doc-chapter__n {
+  color: var(--ac-on-fill);
+  text-shadow: none;
+}
+
+.doc-chapter__n {
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+}
+
+/* The directory on the overview page. Each card is the whole target — a title
+   that is a link with dead prose under it makes the prose look unclickable. */
+.doc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--ac-space-4);
+}
+
+.doc-card {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 4px var(--ac-space-3);
+  align-items: baseline;
+  padding: var(--ac-space-4);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius);
+  text-decoration: none;
+}
+.doc-card:hover {
+  border-color: var(--ac-stroke);
+  box-shadow: var(--ac-glow-box-dim);
+}
+
+.doc-card__n {
+  grid-row: span 2;
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+}
+.doc-card__title {
+  font-size: var(--ac-type-body);
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+}
+.doc-card__blurb {
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+}
+.doc-card:hover .doc-card__blurb {
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+}
+
+/* Previous / next. A chapter that is a whole page needs a way out of the end of
+   it that is not the browser's back button. */
+.doc-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ac-space-4);
+  margin-top: var(--ac-space-8);
+  padding-top: var(--ac-space-4);
+  border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
+}
+.doc-pager__link {
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+  text-decoration: none;
+}
+.doc-pager__link:hover {
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+}
+
 .doc-head {
-  border-bottom: var(--border-w) solid var(--stroke);
-  padding-bottom: var(--space-4);
-  margin-bottom: var(--space-3);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke);
+  padding-bottom: var(--ac-space-4);
+  margin-bottom: var(--ac-space-3);
+}
+
+/* A chapter masthead is one step down from the overview's. Same rule under it,
+   smaller voice: the front page is the system, a chapter is a part of it. */
+.doc-head--chapter h1 {
+  font-size: var(--ac-type-display);
 }
 .doc-head h1 {
   font-size: 56px;
-  letter-spacing: var(--tracking-display);
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  letter-spacing: var(--ac-tracking-display);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 .doc-kicker {
-  font-size: var(--type-title);
+  font-size: var(--ac-type-title);
   letter-spacing: 0.2em;
-  color: var(--ink-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
+/* THE CHAPTER INTRO RUNS THE FULL MEASURE, like every other paragraph here.
+   It used to carry `max-width: 62ch`, which is the classical readability measure
+   and the right instinct in general — but nothing else on these pages is
+   constrained, so the one paragraph a reader meets FIRST was the one paragraph
+   that stopped halfway across the page and read as an unfinished left column
+   beside empty space. Consistency wins over the measure here: .doc-prose,
+   .doc-dim and the tables all run to .doc-wrap's 1180px, and the lede now does
+   too. */
 .doc-lede {
-  max-width: 62ch;
-  color: var(--ink);
-  font-size: var(--type-body);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  font-size: var(--ac-type-body);
   margin: 20px 0 0;
 }
 
+/* WHY THIS PAGE SCROLLS BADLY AND THE DEMOS DO NOT, measured rather than
+   guessed — every plausible suspect was wrong.
+
+   The frame's overlays cost nothing. Removing the bloom's viewport
+   backdrop-filter, its blend mode, its mask and the cell mesh, one at a time,
+   moved a 130-frame scroll by less than a millisecond each. What costs
+   everything is --ac-glow-text: four text-shadow layers out to a 56px radius, on
+   every text node of a 26,000px page. Applied with no simulation running at all
+   it reproduces the whole problem; taken off .ac-bloom the problem disappears.
+   The numbers, at 1440x900, median frame time over a 130-frame scroll:
+
+     no simulation .......................... 16.7ms   0 frames over 32ms
+     .ac-bloom .............................. 48.2ms  79
+     .ac-bloom minus the backdrop-filter .... 47.2ms  80   <- not the overlay
+     no simulation, but the bloom's glow .... 49.9ms  76   <- it is the glow
+     .ac-bloom with content-visibility ...... 16.8ms  38
+
+   So the fix cannot be to make the halo cheaper — the halo is the system. It is
+   to stop painting 26,000px of it for a 900px window. content-visibility skips
+   layout and paint for sections that are off screen entirely, which is a paint
+   the reader was never going to see. Nothing about the rendering of a section
+   you ARE looking at changes.
+
+   THE INTRINSIC SIZES ARE FIRST-PAINT ESTIMATES AND NOTHING ELSE. `auto` means
+   the browser replaces each guess with the real measurement the first time a
+   section renders, so a stale number here costs a slightly wrong scrollbar
+   before you reach that section and nothing after. They are per-section rather
+   than one blanket value because this page runs from a 313px section to a
+   7,300px one, and one average makes the scrollbar jump at every boundary. They
+   were measured at 1440; a narrower viewport is taller and self-corrects on
+   first render. */
 .doc-wrap section {
   margin-top: 56px;
 }
+
+/* WHY THE SPECIMENS ARE SKIPPED WHEN THEY ARE OFF SCREEN, and it is not the
+   reason you would guess. The frame's overlays cost nothing: removing the
+   bloom's viewport backdrop-filter, its blend mode, its mask and the cell mesh,
+   one at a time, each moved a 130-frame scroll by less than a millisecond. What
+   costs everything is --ac-glow-text — four text-shadow layers out to a 56px radius,
+   on every text node on the page. Applied with no simulation running at all it
+   reproduces the whole problem; taken off .ac-bloom the problem disappears.
+
+   Measured at 1440x900, median frame time over a 130-frame scroll of the guide
+   when the guide was still one 26,000px document:
+
+     no simulation .......................... 16.7ms   0 frames over 32ms
+     .ac-bloom .............................. 48.2ms  79
+     .ac-bloom minus the backdrop-filter .... 47.2ms  80   <- not the overlay
+     no simulation, but the bloom's glow .... 49.9ms  76   <- it is the glow
+     .ac-bloom with this rule ............... 16.8ms  38
+
+   So the fix cannot be to make the halo cheaper — the halo is the system. It is
+   to stop painting more of it than the window can show. Splitting the guide into
+   chapters did most of that on its own; this catches what is left, which is the
+   long specimen runs on CONTROLS and DISPLAY.
+
+   THE UNIT IS THE SPECIMEN CARD, not the section: a chapter is now roughly one
+   section, so containing the section would contain the whole page and skip
+   nothing. Finer than this was measurably worse — nesting the containment inside
+   the grids cost more in containment overhead than it saved in paint.
+
+   `auto` on contain-intrinsic-size means the browser keeps the real measurement
+   after a card has rendered once, so the guessed height only ever affects the
+   scrollbar before you have reached that part of the page. */
+.doc-demo,
+.doc-sim-tile {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}
+
+/* A skipped card is skipped for the printer too on some engines, and a chapter
+   that prints half its specimens is a worse bug than the one above. Nothing is
+   scrolling on paper, so there is nothing to buy here anyway. */
+@media print {
+  .doc-demo,
+  .doc-sim-tile {
+    content-visibility: visible;
+  }
+}
 .doc-wrap h2 {
-  font-size: var(--type-title);
+  font-size: var(--ac-type-title);
   letter-spacing: 0.14em;
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 .doc-wrap h3 {
-  font-size: var(--type-body);
+  font-size: var(--ac-type-body);
   letter-spacing: 0.1em;
-  color: var(--ink);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
 }
+/* PROSE RUNS THE FULL WIDTH OF THE WRAP, AND IT IS ONE RULE FOR EVERY PARAGRAPH.
+
+   It used to be two. Paragraphs were capped at a 68ch measure, and because the
+   wrap is 1180px that left the right half of the page empty; a `.doc-prose`
+   wrapper then set `columns: 2` on selected runs to reclaim it. The result was a
+   page that changed layout without changing subject — some intros half-width
+   with a dead column beside them, some split into two ragged columns that rarely
+   balanced, and no way for a reader to tell which they were about to get.
+
+   One measure for every paragraph is the fix. A reader tracking a long line is a
+   real cost, and it is the smaller of the two here: the inconsistency was the
+   thing that read as unfinished.
+
+   If a narrower measure is wanted later it belongs on .doc-wrap, so the specimens
+   and the prose stay in the same column — capping the paragraph alone is what
+   produced the empty half in the first place. */
 .doc-wrap p {
-  max-width: 68ch;
-  font-size: var(--type-body);
-  margin: 0 0 var(--space-3);
+  font-size: var(--ac-type-body);
+  margin: 0 0 var(--ac-space-3);
+}
+
+/* Vestigial: a grouping wrapper that used to set `columns: 2`. Kept so the
+   markup in four guide chapters still has something to hang its spacing on. */
+.doc-prose {
+  margin-bottom: var(--ac-space-4);
+}
+.doc-prose p:last-child {
+  margin-bottom: 0;
 }
 
 .doc-sec-head {
   display: flex;
   align-items: baseline;
-  gap: var(--space-4);
-  border-bottom: var(--border-w) solid var(--stroke-dim);
-  padding-bottom: var(--space-2);
-  margin-bottom: var(--space-6);
+  gap: var(--ac-space-4);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
+  padding-bottom: var(--ac-space-2);
+  margin-bottom: var(--ac-space-6);
 }
 .doc-num,
 .doc-mono {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 
-.doc-dim { color: var(--ink-dim); }
-.doc-faint { color: var(--ink-faint); }
-.doc-small { font-size: var(--type-small); }
+/* GLOW FOLLOWS THE DRIVE LEVEL, which is the rule section 04 states and this
+   pair was breaking: .doc-faint carried the FULL --ac-glow-text at --ac-ink-faint ink,
+   so the faintest text on the page wore the hottest halo — the drive tiers wired
+   backwards, in the one file that documents them. It also carried a --ac-glow-box,
+   which put a rectangular halo around a run of caption text; a box halo belongs
+   to a lit SURFACE, and a caption is not one. `npm run check` gates the missing
+   halo but not the wrong one, so neither showed up. */
+.doc-dim { color: var(--ac-ink-dim); text-shadow: var(--ac-glow-text-dim); }
+.doc-faint { color: var(--ac-ink-faint); text-shadow: var(--ac-glow-text-faint); }
+.doc-small { font-size: var(--ac-type-small); }
 
 .doc-grid2 {
   display: grid;
@@ -178,7 +768,7 @@
 .doc-grid3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-6);
+  gap: var(--ac-space-6);
 }
 .doc-span2 { grid-column: span 2; }
 
@@ -189,22 +779,23 @@
   align-items: start;
 }
 .doc-law-n {
-  font-size: var(--type-title);
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+  font-size: var(--ac-type-title);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
   line-height: 1;
 }
 .doc-law h3 { margin: 0 0 6px; }
 .doc-law p {
   margin: 0;
-  font-size: var(--type-small);
-  color: var(--ink-dim);
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 
 /* A specimen card. Dim frame so it never competes with what it contains. */
 .doc-demo {
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius);
   padding: 22px;
   display: flex;
   flex-wrap: wrap;
@@ -218,10 +809,11 @@
 }
 
 .doc-cap {
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  color: var(--ink-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
   display: block;
   margin: 0 0 10px;
   width: 100%;
@@ -233,10 +825,26 @@
   gap: 6px;
   flex: 1;
   min-width: 120px;
+  /* TOP-ALIGNED, against .doc-demo's align-items: center. Centring is right for
+     a row of buttons, and wrong for a row of swatches: one caption wrapping to
+     two lines made that swatch taller, and centring then lifted its chip 13px
+     above the others — a ragged row of colour boxes with one riding high. The
+     chips are the thing being compared, so they line up. */
+  align-self: flex-start;
 }
 .doc-chip {
   height: 72px;
-  border: 1px solid var(--ink-trace);
+  border: 1px solid var(--ac-ink-trace);
+}
+/* Inline code inside a small caption inherits the caption's size. .doc-wrap code
+   is 20px, which is larger than .doc-small's 18px — so a caption naming two
+   tokens was set bigger than the label above it and wrapped a line earlier than
+   it needed to. */
+.doc-small code {
+  font-size: inherit;
+  /* A token is one word. Without this `--ac-fill` wrapped as `--` + `ac-fill`
+     across two lines, which reads as two different properties. */
+  white-space: nowrap;
 }
 
 /* Plain documentation tables — deliberately not .ac-table, which is a data
@@ -244,80 +852,110 @@
 .doc-table {
   border-collapse: collapse;
   width: 100%;
-  font-size: var(--type-small);
+  font-size: var(--ac-type-small);
 }
 .doc-table th {
   text-align: left;
   font-weight: 400;
-  color: var(--ink-faint);
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
-  padding: 0 var(--space-4) var(--space-2) 0;
-  border-bottom: var(--border-w) solid var(--stroke-dim);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  padding: 0 var(--ac-space-4) var(--ac-space-2) 0;
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
 }
 .doc-table td {
-  padding: var(--space-2) var(--space-4) var(--space-2) 0;
-  color: var(--ink);
-  border-bottom: 1px solid var(--ink-trace);
+  padding: var(--ac-space-2) var(--ac-space-4) var(--ac-space-2) 0;
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  border-bottom: 1px solid var(--ac-ink-trace);
   vertical-align: top;
 }
 .doc-table td.doc-tok {
-  color: var(--ink-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
   white-space: nowrap;
+}
+/* THE EMPHASIZED ROW OF A DOC TABLE, and it is deliberately NOT
+   .ac-table__row--active. That modifier is a matched pair — it fills the row
+   with --ac-fill and repaints the text --ac-on-fill, which is the near-black
+   that makes the fill readable — and only half of the pair survives here.
+   `.ac-table__row--active td` and `.doc-table td` are both 0-1-1, docs.css is
+   linked after dist/amber-console.css, so the later file takes `color` back to
+   --ac-ink. The fill lands, the counter-color does not, and the deprecation
+   table rendered amber text on an amber fill at 1.00:1 — the STATUS column,
+   under a heading promising a status at a glance, was invisible.
+
+   A raised region needs no counter-color at all, so there is no pair to break:
+   the wash moves the background one step and the ink is left where the rest of
+   the table already puts it. Emphasis then arrives the way this system says
+   energization arrives — MORE DRIVE, not inverse video — by lifting the token
+   cells off their dim tier onto the full one the other columns are already at. */
+.doc-table__row--gone td {
+  background: var(--ac-screen-raised);
+}
+.doc-table__row--gone td.doc-tok {
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
 }
 
 .doc-dodont {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0;
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius);
   overflow: hidden;
 }
 .doc-dodont > div { padding: 18px 20px; }
-.doc-dodont > div + div { border-left: var(--border-w) solid var(--stroke-dim); }
+.doc-dodont > div + div { border-left: var(--ac-border-w) solid var(--ac-stroke-dim); }
 .doc-dd-h {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
+  text-shadow: none;
   padding: 3px 10px;
   display: inline-block;
-  font-size: var(--type-small);
-  margin-bottom: var(--space-3);
+  font-size: var(--ac-type-small);
+  margin-bottom: var(--ac-space-3);
 }
 .doc-dd-h--off {
   background: transparent;
-  color: var(--ink-faint);
-  border: var(--border-w) solid var(--stroke-dim);
+  color: var(--ac-ink-faint);
+  text-shadow: none;
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
 }
 
 .doc-wrap ul {
   margin: 0;
   padding-left: 1.2em;
-  font-size: var(--type-small);
-  color: var(--ink-dim);
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 .doc-wrap li { margin-bottom: 6px; }
 
 .doc-wrap code {
-  font-family: var(--font-terminal);
+  font-family: var(--ac-font-terminal);
   font-size: 20px;
-  color: var(--ink-bright);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 /* The copyable class string under every component specimen. */
 .doc-code {
   display: block;
   width: 100%;
-  margin: var(--space-3) 0 0;
-  padding: var(--space-2) var(--space-3);
-  background: var(--screen-well);
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-terminal);
-  font-size: var(--type-small);
+  margin: var(--ac-space-3) 0 0;
+  padding: var(--ac-space-2) var(--ac-space-3);
+  background: var(--ac-screen-well);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius-sm);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
   line-height: 1.3;
-  color: var(--ink-bright);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -325,24 +963,25 @@
 /* "When not to use it" — deliberately faint; it is a caveat, not a heading. */
 .doc-when {
   width: 100%;
-  margin: var(--space-2) 0 0;
-  font-size: var(--type-small);
-  color: var(--ink-faint);
+  margin: var(--ac-space-2) 0 0;
+  font-size: var(--ac-type-small);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
 }
 .doc-when::before {
   content: "NOT FOR: ";
-  font-family: var(--font-micro);
-  font-size: var(--type-micro);
-  letter-spacing: var(--tracking-micro);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
 }
 
 .doc-foot {
   margin-top: 72px;
-  border-top: var(--border-w) solid var(--stroke-dim);
-  padding-top: var(--space-4);
+  border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
+  padding-top: var(--ac-space-4);
   display: flex;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--ac-space-4);
   flex-wrap: wrap;
 }
 
@@ -351,32 +990,751 @@
 .doc-sim-tile {
   position: relative;
   min-height: 150px;
-  padding: var(--space-4);
-  border: var(--border-w) solid var(--stroke-dim);
-  border-radius: var(--radius);
-  background: var(--screen);
+  padding: var(--ac-space-4);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius);
+  background: var(--ac-screen);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
   justify-content: center;
   align-items: center;
   text-align: center;
 }
 
+/* ---------------------------------------------------------- server page -- */
+
+/* Four instrument values across, dropping to two and then one as the frame
+   narrows. minmax rather than a fixed count because --ac-type-display is 44px:
+   below about 140px a track the value cannot fit in gets clipped by the frame's
+   overflow:clip instead of wrapping, which is the failure mode the visual
+   suite's overflow probe exists to catch. */
+.doc-vitals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--ac-space-4);
+  align-items: end;
+}
+
+.doc-net {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ac-space-2);
+}
+
+/* A sparkline made of boxes.
+
+   Law 6 bans the SVG element and `npm run check` greps for it, so there is no
+   path to draw and no chart library to reach for. That is not a limitation
+   being worked around: a panel of this era drew a history as a row of lit
+   cells because a character grid is what it had, and one lit cell per day is
+   exactly as much resolution as an availability strip deserves.
+
+   Height rides on an inline `--h` (a number, so it is invisible to the glow
+   gate, which only inspects color declarations). A day that lost time drops to
+   --ac-ink-faint with the halo off, because glow is the signal of energization and
+   an outage is the one thing on the strip that was not lit. */
+.doc-spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 44px;
+  margin-top: var(--ac-space-4);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
+}
+
+.doc-spark__bar {
+  flex: 1 1 0;
+  min-width: 2px;
+  height: calc(var(--h, 100) * 1%);
+  background: var(--ac-fill);
+  box-shadow: var(--ac-glow-box);
+}
+
+.doc-spark__bar--down {
+  background: var(--ac-ink-faint);
+  box-shadow: none;
+}
+
+/* The caption row under a strip chart. Shared with the radar page's A-scope —
+   see .doc-ascope__scale in the radar block below. */
+
+/* The service table. Only the switch column is pinned narrow; everything else
+   keeps its natural width and the whole table scrolls inside .ac-table-scroll
+   on a phone rather than each cell squeezing to unreadable. */
+.doc-services td:nth-child(1),
+.doc-services td:nth-child(2),
+.doc-services td:nth-child(3),
+.doc-services td:nth-child(6) {
+  white-space: nowrap;
+}
+.doc-services td:last-child,
+.doc-services th:last-child {
+  width: 1%;
+}
+
+.doc-svc-toggle {
+  gap: var(--ac-space-2);
+}
+
+/* A stopped container is still listed — an operator needs to see the thing that
+   is not running — but it is no longer reporting, so it recedes to the faintest
+   ink with the halo off. This is the whole color argument in one rule: with a
+   single hue available, "off" is said with brightness rather than with red. */
+.doc-services tr[data-stopped] td {
+  color: var(--ac-ink-faint);
+  text-shadow: none;
+}
+
+.doc-datasets td:nth-child(1) {
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------- radar page -- */
+
+/* THE DIAL, AND WHY EVERYTHING ON IT IS AN ARM.
+   .ac-sweep draws the face, the rings and the wake; everything a particular
+   radar has on its screen is page furniture and belongs here. All of it is
+   polar — a bearing and a range — and none of it may be an SVG, which law 6
+   bans and `npm run check` greps for.
+
+   So each mark is a zero-width span pinned with its BOTTOM at the center of the
+   dial, given a height in percent and rotated by its bearing. The far end then
+   lands exactly where polar coordinates say it does, at any dial size, with no
+   arithmetic in JavaScript and nothing to recompute on resize. The mark itself
+   is the arm's ::after, so one element carries both the position and the light.
+
+   --ac-sweep-period is re-declared here with the SAME expression the component
+   uses as its fallback, which changes nothing about the sweep and gives the
+   contacts a value they can do arithmetic on: each one delays its strike by its
+   own bearing's share of a revolution. The beam and the light it leaves are then
+   the same event by construction rather than by two numbers being kept in step. */
+.doc-scope {
+  --ac-sweep-period: max(2.5s, calc(var(--ac-persist-tail, 2s) * 1.5));
+  /* How much light a contact still has when the beam comes round again — the
+     TRAILS control, set by radar.js. Not the phosphor: see the note on the
+     soft key in radar.html. */
+  --doc-trail-floor: 0.2;
+}
+
+.doc-ppi {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 620px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+
+/* The bezel gap the bearing scale lives in. */
+.doc-ppi .ac-sweep {
+  --ac-sweep-size: calc(100% - 76px);
+}
+
+.doc-brg,
+.doc-brgn,
+.doc-shm,
+.doc-ebl,
+.doc-echo {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 0;
+  height: 50%;
+  transform-origin: bottom center;
+  pointer-events: none;
+}
+
+.doc-brg,
+.doc-brgn {
+  transform: rotate(calc(var(--b, 0) * 1deg));
+}
+
+.doc-brg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -1px;
+  width: 2px;
+  height: 11px;
+  background: var(--ac-ink-trace);
+}
+.doc-brg--maj::before {
+  height: 19px;
+  background: var(--ac-ink-faint);
+}
+
+/* Counter-rotated so the numerals stay upright, which is what a printed bezel
+   ring did — the card turned, the numbers did not. */
+.doc-brgn > span {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translate(-50%, 0) rotate(calc(var(--b, 0) * -1deg));
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+}
+
+/* Ship's heading marker: where the bow is pointing, full radius. */
+.doc-shm {
+  width: 2px;
+  margin-left: -1px;
+  transform: rotate(calc(var(--brg, 0) * 1deg));
+  background: rgba(var(--ac-halo-1), 0.45);
+}
+
+/* Electronic bearing line — dashed, because it is drawn by the set rather than
+   returned by anything. */
+.doc-ebl {
+  width: 2px;
+  margin-left: -1px;
+  transform: rotate(calc(var(--brg, 0) * 1deg));
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(var(--ac-halo-2), 0.5) 0 9px,
+    transparent 9px 16px
+  );
+}
+
+/* Variable range marker. --rng is a fraction of the RADIUS everywhere on this
+   page, and 100% of the square face is the diameter, so the multiplication is
+   already right. */
+.doc-vrm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--rng, 0.5) * 100%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: var(--ac-border-w) dashed rgba(var(--ac-halo-2), 0.45);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Guard zone: a sector with the middle punched out. closest-side pins the mask's
+   100% to the radius rather than to the corner, so the inner edge is a range and
+   not an approximation of one. */
+.doc-guard {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(from 40deg, rgba(var(--ac-halo-4), 0.12) 0 40deg, transparent 40deg);
+  -webkit-mask: radial-gradient(circle closest-side at 50% 50%, transparent 0 55%, black 55%);
+  mask: radial-gradient(circle closest-side at 50% 50%, transparent 0 55%, black 55%);
+}
+
+/* A CONTACT, WHICH IS THE POINT OF THE WHOLE PAGE.
+   The beam crosses this bearing once per revolution and re-strikes it. On P7
+   that strike lands in the blue layer and the yellow-green one behind it takes
+   over within a frame — so the keyframes below cross from --ac-halo-flash to the
+   afterglow ramp, exactly as ac-ghost-cascade does in tokens/effects.css, and
+   for the same reason. The drain runs on --ac-decay-ease, which is the palette's
+   own sampled Becquerel curve rather than anything chosen here. */
+.doc-echo {
+  height: calc(var(--rng, 0.5) * 50%);
+  transform: rotate(calc(var(--brg, 0) * 1deg));
+}
+
+.doc-echo::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: calc(var(--sz, 8) * 1px);
+  height: calc(var(--sz, 8) * 0.6px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background-color: rgb(var(--ac-halo-flash, var(--ac-halo-1)));
+  animation: doc-echo-strike var(--ac-sweep-period) var(--ac-decay-ease) infinite;
+  /* Negative by one full period so the face is already in steady state on the
+     first frame instead of lighting up bearing by bearing on load. */
+  animation-delay: calc(var(--brg, 0) / 360 * var(--ac-sweep-period) - var(--ac-sweep-period));
+}
+
+@keyframes doc-echo-strike {
+  0% {
+    opacity: 1;
+    background-color: rgb(var(--ac-halo-flash, var(--ac-halo-1)));
+  }
+  4% {
+    opacity: 0.92;
+    background-color: rgb(var(--ac-halo-1));
+  }
+  100% {
+    opacity: var(--doc-trail-floor, 0);
+    background-color: rgb(var(--ac-halo-3));
+  }
+}
+
+/* Land does not move and returns hard, so it is drawn as a flatter, wider arc
+   than a hull is. */
+.doc-echo--land::after {
+  height: calc(var(--sz, 8) * 0.3px);
+}
+
+/* A TRACKED CONTACT — one the ARPA has a solution on, and the four rows in the
+   plot below. Both this and --clutter were on the markup with no rule behind
+   them, so a tracked target looked exactly like a stray return and the class
+   documented an intention rather than anything you could see.
+
+   IT IS SAID WITH DWELL, NOT WITH BRIGHTNESS OR WITH A FLOOR, and both of those
+   near-misses are worth recording. Brightness is already spent: the SELECTED
+   track is the bright one, ringed by --sel below. And a raised
+   --doc-trail-floor — the obvious way to say "held between sweeps" — would be
+   declared on the ::after, which is NEARER than the .doc-scope the TRAILS
+   softkey writes that same property on, so it would win and those four buttons
+   would stop moving the tracked contacts at all.
+
+   So it is a second keyframe instead, identical to the one above except that the
+   strike holds full amplitude to 10% rather than 4% before draining to the SAME
+   var(--doc-trail-floor). Only animation-name is overridden, so duration, delay
+   and easing all still come from the base rule. Physically it is the right
+   reading too: the set is integrating this return over several revolutions,
+   which is what having a track on something means. */
+.doc-echo--tracked::after {
+  animation-name: doc-echo-strike-tracked;
+}
+
+@keyframes doc-echo-strike-tracked {
+  0% {
+    opacity: 1;
+    background-color: rgb(var(--ac-halo-flash, var(--ac-halo-1)));
+  }
+  10% {
+    opacity: 1;
+    background-color: rgb(var(--ac-halo-1));
+  }
+  100% {
+    opacity: var(--doc-trail-floor, 0);
+    background-color: rgb(var(--ac-halo-3));
+  }
+}
+
+/* ASYNCHRONOUS INTERFERENCE, AND WHAT THE REJECTION SWITCH IS FOR.
+   Another set transmitting on the same band, at a repetition rate that is not
+   ours. Each of its pulses lands at a slightly different range on each of our
+   sweeps, so it paints as a curved run of dashes marching outward instead of a
+   return that stays put — which is exactly the property the rejection circuit
+   keys on: it keeps what repeats sweep to sweep and discards what does not.
+
+   The dashes reuse .doc-echo's geometry — a span pinned at the centre, given a
+   height in percent, rotated to a bearing — because every mark on this face is
+   drawn that way and law 6 bans the SVG element that would be the alternative.
+   They are deliberately NOT re-struck by the beam: interference is not a target,
+   it does not belong to a bearing, and animating it per sweep would make it look
+   like one. It just sits there being wrong, which is what it does on a real
+   scope. */
+/* Stated rather than relying on .ac-sweep being the nearest positioned ancestor:
+   the spokes size themselves in PERCENT, so they need a containing block that is
+   definitely the face and definitely the right size. A bare <span> is inline and
+   would hand them whatever happened to be positioned above it. */
+.doc-interf {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.doc-interf > span {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: 50% 100%;
+  width: 2px;
+  height: calc(var(--rng, 0.5) * 50%);
+  transform: rotate(calc(var(--brg, 0) * 1deg));
+  pointer-events: none;
+}
+
+.doc-interf > span::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 7px;
+  transform: translate(-50%, -50%);
+  background-color: rgba(var(--ac-halo-2), 0.55);
+}
+
+/* Interference is a receiver artefact, so it goes with the receiver: a set on
+   standby is not listening and cannot be interfered with. Same rule the echoes
+   already follow. */
+.doc-scope[data-standby] .doc-interf {
+  display: none;
+}
+
+/* SEA CLUTTER — wave tops, and what the A/C SEA knob exists to remove. A
+   wind-driven return is weak and has no hull to have a length, so it is drawn
+   ROUND rather than as the flattened arc a vessel gets, and dimmer.
+
+   `filter` rather than `opacity`, and that is the same trap as the floor above:
+   the strike keyframe animates opacity, so a static opacity here would simply be
+   overridden for the whole cycle. A filter composes with the animation instead
+   of competing with it.
+
+   radar.js still does the actual suppressing off data-clutter — this class is
+   what a suppressed return looks like BEFORE the knob removes it, which is the
+   half a reader has to be able to see for the control to mean anything. */
+.doc-echo--clutter::after {
+  height: calc(var(--sz, 8) * 1px);
+  filter: opacity(0.6);
+}
+
+/* The selected track, ringed. With one hue available, "this one" is a marker
+   and a brightness, never a color. */
+.doc-echo--sel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: calc(var(--sz, 8) * 1px + 16px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: var(--ac-border-w) solid rgba(var(--ac-halo-4), 0.6);
+  border-radius: 50%;
+}
+
+/* THE A-SCOPE. Amplitude against range on the bearing the beam is on — what a
+   radar was before the PPI existed, and here it is the control experiment: same
+   light, same decay, on a straight line instead of a circle. Every bar shares
+   one animation rather than carrying its own delay, because they are all the
+   same bearing and are therefore all struck at the same instant. */
+.doc-ascope {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 56px;
+  margin-top: var(--ac-space-4);
+  padding: 0 2px;
+  background: var(--ac-screen-well);
+  border: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-radius: var(--ac-radius-sm);
+}
+
+.doc-ascope__bar {
+  flex: 1 1 0;
+  min-width: 2px;
+  height: calc(var(--h, 4) * 1%);
+  background-color: rgb(var(--ac-halo-1));
+  animation: doc-ascope-drain var(--ac-sweep-period) var(--ac-decay-ease) infinite;
+}
+
+@keyframes doc-ascope-drain {
+  0% {
+    opacity: 1;
+    background-color: rgb(var(--ac-halo-flash, var(--ac-halo-1)));
+  }
+  4% {
+    opacity: 0.92;
+    background-color: rgb(var(--ac-halo-1));
+  }
+  100% {
+    opacity: var(--doc-trail-floor, 0);
+    background-color: rgb(var(--ac-halo-3));
+  }
+}
+
+.doc-ascope__scale,
+.doc-spark__scale {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ac-space-2);
+  margin-top: var(--ac-space-1);
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+  text-transform: uppercase;
+}
+
+/* Forced colors maps every author background away, and on this page that empties
+   the radar face: the wake is already dropped by base/a11y.css for reasons of its
+   own, and the contacts, the bearing ticks and the A-scope are all filled boxes.
+   A blank circle is worse than a plain one, so everything that carries
+   INFORMATION is redrawn in the user's own palette — system color keywords are
+   the one set of values this mode does not override. The decorative marks (the
+   guard sector, the range marker) are left to disappear. */
+@media (forced-colors: active) {
+  .doc-brg::before,
+  .doc-ascope__bar {
+    background: CanvasText;
+  }
+  .doc-echo::after {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* Standby stops the antenna and stops writing. Nothing here fades anything out:
+   the picture is simply no longer being drawn, and on a long phosphor what you
+   watch is the last of it draining — which radar.js gets by wrapping the switch
+   in the effects module's framebuffer decay, the same call the range change
+   uses. */
+.doc-scope[data-standby] .ac-sweep__beam,
+.doc-scope[data-standby] .doc-echo,
+.doc-scope[data-standby] .doc-ascope__bar {
+  display: none;
+}
+
+/* A rotating light is unambiguously motion, and so is a re-struck contact. When
+   motion is reduced the beam stops (sweep.css does that) and these must stop
+   with it — a face full of pulsing marks under a stationary beam is worse than
+   either. What is left is a lit sector and a static plot, which is still a
+   radar picture. */
+@media (prefers-reduced-motion: reduce) {
+  .doc-echo::after,
+  .doc-ascope__bar {
+    animation: none;
+  }
+}
+
+/* The receiver controls. On the real set these were knobs; this system has no
+   rotary input and will not grow one, so each is the instrument it always was
+   with a pair of soft keys to move it — which is how the digital sets at the
+   end of this era replaced the knobs anyway. */
+.doc-knobs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--ac-space-6) var(--ac-space-8);
+}
+
+.doc-knob {
+  display: flex;
+  align-items: center;
+  gap: var(--ac-space-2);
+  min-width: 0;
+}
+.doc-knob .ac-meter {
+  flex: 1;
+}
+.doc-knob .ac-btn {
+  flex: none;
+  padding: 10px 14px;
+}
+
+.doc-softkeys {
+  margin-top: var(--ac-space-6);
+}
+
+.doc-softkeys__key,
+.doc-marker__key {
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+  text-transform: uppercase;
+}
+
+.doc-marker {
+  display: flex;
+  align-items: center;
+  gap: var(--ac-space-3);
+}
+.doc-marker__key {
+  min-width: 3em;
+}
+.doc-marker__value {
+  margin-right: auto;
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
+  line-height: 1;
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+  font-variant-numeric: tabular-nums;
+}
+.doc-marker .ac-btn {
+  padding: 8px 14px;
+}
+
+.doc-fix {
+  margin-top: var(--ac-space-3);
+}
+
+.doc-targets td:nth-child(2) {
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------- terminal page -- */
+
+/* Three clocks, sized so they do not compete with the wordmark beside them.
+   A dealing room ran on all three and the desk was awake for all three. */
+.doc-clocks {
+  min-width: 190px;
+}
+
+.doc-pagebar__entry {
+  flex: none;
+  width: 15ch;
+}
+
+/* Contributor and center codes. Four letters that are an identifier rather than
+   a word, so they get the micro face and stop competing with the numbers. */
+.doc-ctr {
+  font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro);
+  letter-spacing: var(--ac-tracking-micro);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
+}
+
+/* A FIELD THAT JUST CHANGED, and this is the law-1 answer to the question every
+   market screen has to answer: how do you flag a change with no color to flag
+   it in? The same way these screens did before color tubes were affordable —
+   invert the cell for a couple of seconds. terminal.js adds the class and takes
+   it off; the ghost of the previous value is drawn by the effects module and is
+   a separate mechanism entirely, which is why the two read as one event and not
+   as two.
+
+   No `transition` here: this file is not gated for it the way src/components/
+   is, but a value snapping to inverse and back is what the hardware did, and a
+   fade would make the change harder to catch rather than easier.
+
+   THE SELECTOR HAS TO BEAT `.ac-table td`, which is (0,1,1) and sets the ink for
+   every cell in the table. A bare `.doc-tick` is (0,1,0) and loses — the cell
+   took the inverse background and kept the lit foreground, so the value flashed
+   green on green and vanished for a second and a half. */
+.ac-table td.doc-tick {
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
+  text-shadow: none;
+}
+
+/* The cross-rate matrix. Its row headers are the only <th> in the system that
+   are not a column heading, so they get the same inverse treatment the thead
+   already carries — otherwise the grid reads as though it has lost its left
+   edge. The diagonal is not a rate and must not look like one. */
+.doc-xrat th[scope="row"] {
+  text-align: left;
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
+  text-shadow: none;
+  white-space: nowrap;
+}
+
+.doc-xrat__self {
+  color: var(--ac-ink-faint);
+  text-shadow: var(--ac-glow-text-faint);
+  text-align: center;
+}
+
+.doc-depo th[scope="row"] {
+  text-align: left;
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
+  text-shadow: none;
+}
+
+/* Nothing in a quote may wrap. A bid broken across two lines is not a bid, and
+   every one of these columns is a fixed-width figure that would rather scroll
+   inside .ac-table-scroll than fold. */
+.doc-fxsp td,
+.doc-depo td,
+.doc-govt td,
+.doc-indx td,
+.doc-xrat td,
+.doc-book td {
+  white-space: nowrap;
+}
+
+/* THE TAPE. A translate rather than a scroll, which buys three things at once:
+   it cannot widen the page, it costs no layout, and it rewrites no text — so it
+   spends nothing against the ghost budget that the rest of this page is being
+   careful with. */
+.doc-ticker {
+  overflow: hidden;
+  border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
+  border-bottom: var(--ac-border-w) solid var(--ac-stroke-dim);
+  padding: var(--ac-space-2) 0;
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-small);
+  line-height: 1;
+  letter-spacing: var(--ac-tracking-body);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* THE METRONOME. It paints nothing and occupies nothing; it exists so the page
+   can take its pulse from an animation rather than from setInterval. The
+   difference matters exactly once, and decisively: the visual suite disables
+   every animation before it screenshots, so a tick driven from here cannot land
+   mid-capture at any machine speed, while a timed one is a race that gets worse
+   every time a page is added to the suite. terminal.js says the rest.
+
+   The animated property is deliberately one that changes nothing anyone can see.
+   `animationiteration` fires on the cycle regardless of what the keyframes do. */
+.doc-metronome {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  animation: doc-metronome 1.4s steps(1) infinite;
+}
+
+@keyframes doc-metronome {
+  from { opacity: 1; }
+  to   { opacity: 1; }
+}
+
+/* The run carries the tape TWICE and slides by half its own width, which is what
+   makes the loop seamless — at -50% the second copy is exactly where the first
+   one started. It also means the tape is fully on screen at frame zero. Starting
+   it at `padding-left: 100%` is the usual marquee trick and is wrong here: it
+   parks the text off the right edge, so every frozen screenshot in the visual
+   suite would capture an empty band. */
+.doc-ticker__run {
+  display: inline-block;
+  animation: doc-tape 60s linear infinite;
+}
+
+@keyframes doc-tape {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* A tape crawling under prose is motion with no state behind it, and unlike the
+   radar's beam it is not the hardware doing something — it is the hardware
+   showing you a list. Stopped, it is a list, which is all it ever was. */
+@media (prefers-reduced-motion: reduce) {
+  .doc-ticker__run {
+    animation: none;
+  }
+}
+
 @media (max-width: 860px) {
   .doc-grid2,
   .doc-grid3,
-  .doc-dodont {
+  .doc-dodont,
+  /* .ac-grid holds whatever --ac-cols says at every width — only --console carries
+     a breakpoint. Two panels of dense figures side by side are about 155px each
+     on a phone, which is narrower than one of their own rows, so this one has to
+     say when to stop. */
+  .doc-desk {
     grid-template-columns: minmax(0, 1fr);
   }
   .doc-span2 { grid-column: auto; }
+  /* One column of 40ch is not a measure, it is a stack of fragments. */
+  .doc-prose { columns: 1; }
   .doc-dodont > div + div {
     border-left: none;
-    border-top: var(--border-w) solid var(--stroke-dim);
+    border-top: var(--ac-border-w) solid var(--ac-stroke-dim);
   }
   .doc-wrap {
-    padding: var(--space-6) var(--space-4) 64px;
+    padding: var(--ac-space-6) var(--ac-space-4) 64px;
   }
-  .doc-head h1 { font-size: var(--type-display); }
+  .doc-head h1 { font-size: var(--ac-type-display); }
+  /* Five columns on a phone is five columns of one word each. Stacked, the
+     chapters are a list — which is what a chapter index is anyway. */
+  .doc-chapters {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

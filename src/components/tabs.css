@@ -11,7 +11,7 @@
 
 .ac-tabs {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--ac-space-2);
   /* Three title-size soft keys need ~455px. Wrap to a second row rather than
      be clipped — same rule as .ac-nav, and for the same reason: a control panel
      shows you every key it has. */
@@ -19,42 +19,69 @@
 }
 
 .ac-tab {
-  font-family: var(--font-terminal);
-  font-size: var(--type-title);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-title);
   line-height: 1;
-  color: var(--ink);
+  color: var(--ac-ink);
   background: transparent;
   text-transform: none;
-  border: var(--border-w) solid var(--stroke);
-  border-radius: var(--radius);
+  border: var(--ac-border-w) solid var(--ac-stroke);
+  /* A TAB IS A KEY, so it is extruded like one. It was not, and that was the
+     visible inconsistency: a tab is a bordered, cut-cornered, pressable box that
+     is the same species as .ac-btn, sitting beside real buttons with the same
+     corner and no edge. "A key is extruded; a panel is a hole in the bezel" —
+     a tab is on the key side of that line. Same token, same states, so the two
+     cannot drift apart again. See components/button.css. */
+  box-shadow: var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent);
+  border-radius: var(--ac-radius);
   /* The 20px bottom padding is dead space that makes a soft key read as a
      physical key. It is intentional. Do not snap it to the 4/8px grid. */
   padding: 8px 24px 20px;
   cursor: pointer;
-  text-shadow: var(--glow-text);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-tab:hover {
-  color: var(--ink-bright);
-  border-color: var(--amber-100);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+  border-color: var(--ac-ink-bright);
+  box-shadow: var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent);
+}
+
+/* A selected tab is latched, so it presses IN — same as .ac-btn[aria-pressed]. */
+.ac-tab:active {
+  box-shadow: var(--ac-glow-box), var(--ac-edge-press, 0 0 0 transparent);
 }
 
 .ac-tab--active,
 .ac-tab[aria-selected="true"] {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
-  box-shadow: var(--glow-box);
+  box-shadow: var(--ac-glow-box), var(--ac-edge-press, 0 0 0 transparent);
+}
+/* Restated because .ac-tab:hover weighs the same and lands earlier: without it
+   a hovered selected tab would pop back out to the raised edge. */
+.ac-tab--active:hover,
+.ac-tab[aria-selected="true"]:hover {
+  box-shadow: var(--ac-glow-box), var(--ac-edge-press, 0 0 0 transparent);
 }
 
 .ac-tab:disabled {
-  color: var(--ink-faint);
-  border-color: var(--stroke-dim);
+  color: var(--ac-ink-faint);
+  border-color: var(--ac-stroke-dim);
+  /* Inert keeps NO HALO AND NO EDGE, the same as a disabled key — and this line
+     used to say exactly that while carrying --ac-glow-box-dim, which is a
+     dimmer halo rather than none. A tab is the same species as .ac-btn and
+     .ac-btn:disabled goes to `none`, so the two were rendering different
+     answers to the same question. See the drive-tier note in
+     components/button.css: dim is a LIT cell driven low, off is not lit. */
+  box-shadow: none;
   text-shadow: none;
   cursor: default;
 }
 
 .ac-tab:focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }

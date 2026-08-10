@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFTERGLOW & PERSISTENCE — Amber Console</title>
+<meta name="description" content="Eight separate phenomena, four of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#100600">
+
+<!-- Social cards. og:image MUST be absolute — a relative path is ignored by
+     every scraper — so these are the only URLs in the project hardcoded to the
+     Pages host. They are inert over file://, which costs nothing. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Amber Console">
+<meta property="og:title" content="AFTERGLOW & PERSISTENCE — Amber Console System Guide">
+<meta property="og:description" content="Eight separate phenomena, four of them pure CSS, and the PPI sweep that is the whole argument in one widget.">
+<meta property="og:url" content="https://dutchdiederik.github.io/AmberConsole/docs/guide-persistence.html">
+<meta property="og:image" content="https://dutchdiederik.github.io/AmberConsole/docs/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ORION-70 projection console: an amber plasma control panel of framed regions, inverse-video status strips and instrument readouts.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@DutchDiederik">
+
+<link rel="stylesheet" href="../dist/amber-console.css">
+<link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<!-- The nav lives INSIDE the frame. A menu bar floating above the simulations
+     is a menu bar that is not part of the screen — no bleed, no scanlines, no
+     vignette on it. .ac-screen uses overflow:clip precisely so a sticky bar can
+     sit inside the frame and still stick to the viewport.
+
+     The frame ships in the DEFAULT state, not the everything-on state: plasma on,
+     CRT off. Any class or overlay node that is off by default must be absent here,
+     or it paints for one frame on every load before initSims removes it. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+<a class="doc-skip" href="#content">Skip to content</a>
+<span class="ac-mesh"></span>
+
+<!-- @include _nav.html -->
+<!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
+<nav class="ac-nav ac-nav--sticky">
+  <span class="ac-nav__mark">Amber Console</span>
+  <div class="ac-nav__links">
+    <a class="ac-nav__link" href="index.html">Console</a>
+    <a class="ac-nav__link" href="server.html">Server</a>
+    <a class="ac-nav__link" href="radar.html">Radar</a>
+    <a class="ac-nav__link" href="terminal.html">Terminal</a>
+    <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
+  </div>
+  <span class="ac-nav__meta">
+    <!-- The bar is the sticky half of the anti-confusion job: the board below
+         scrolls away, this does not, and it always names the TECHNOLOGY first
+         and the emitter second. -->
+    <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">PLASMA · NEON</span></span>
+    <!-- Stamped from package.json by scripts/build.mjs — see stampRev. Editing
+         the number here does nothing; the next build overwrites it. -->
+    <span>REV 2.0</span>
+    <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
+  </span>
+</nav>
+<!-- @end -->
+
+<!-- @include _board.html emitter="neon" -->
+<!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- ============================================================ SETUP ==
+     Four quarters. Four axes, and they are never the same axis:
+
+       DISPLAY     what hardware is in the panel. Sets the color.
+                   TWO regions, one per technology, never one list of eleven.
+       SIMULATION  what the glass does about it. Never sets a color.
+       STYLE       preferences that make no claim about the hardware at all.
+       ENGINE      how much of the library is running. Not hardware, and not a
+                   preference either — see the SWITCHES quarter.
+
+     The last three share one quarter and are told apart by the labels inside it
+     rather than by three panel borders, because three regions of switches ran
+     606px on a board that is not allowed to scroll.
+
+     Splitting the catalog across two quarters is not only about confusion,
+     though that is the point of it: eleven rows in one column is also taller
+     than a board that never scrolls is allowed to be. Four gases and seven
+     phosphors side by side fit.
+
+     data-ac-peak IS NOT THE SAME KIND OF NUMBER ON BOTH SIDES, which is the
+     clearest single reason these two catalogs are not one list:
+
+       A GAS emits a LINE SPECTRUM. The number is the strongest VISIBLE line,
+       and it is NOT the perceived hue — that is the CIE integral of every line
+       at once, which is the whole argument tokens/colors.css makes for landing
+       neon at 24deg rather than at its 585.2nm line. Argon reads violet on the
+       glass while its strongest visible line is deep red at 696.5nm, and most
+       of what argon emits is not visible at all. No contradiction: they are
+       answers to different questions.
+
+       A PHOSPHOR emits a BROAD BAND. The number is the band peak, and it does
+       correspond to the perceived hue, because there is only one band.
+
+     Two phosphors carry two numbers and both are real hardware, not a hedge.
+     P4 is a BLEND of a blue and a yellow emitter, mixed to white; P7 is two
+     LAYERS, a fast blue flash over a yellow-green glow that outlasts it by
+     seconds. Neither has a single peak to state.
+
+     Every row below carries its peak, and all eleven are fitted — the four
+     gases and the seven phosphors each have a block in tokens/colors.css. Adding
+     a twelfth is one block there plus one row here carrying
+     data-ac-display/-tech/-emitter/-sims, and nothing else. -->
+<div class="ac-setup">
+  <div class="ac-setup__grid">
+
+    <!-- ------------------------------------------------- 1/4 · plasma -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▮ Plasma Gases</span>
+      <p class="doc-displays__note">Gas emitting directly. No phosphor in the stack.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">Plasma gases</legend>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" checked
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
+          <span class="doc-display__name">Neon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Orange-red 585nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="helium" data-ac-sims="plasma" data-ac-peak="587.6 nm">
+          <span class="doc-display__name">Helium</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Pale pink 588nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="argon" data-ac-sims="plasma" data-ac-peak="696.5 nm">
+          <span class="doc-display__name">Argon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Lavender 696nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="krypton" data-ac-sims="plasma" data-ac-peak="587.1 nm">
+          <span class="doc-display__name">Krypton</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Violet 587nm</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <!-- ---------------------------------------------------- 1/4 · crt -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▯ CRT Phosphors</span>
+      <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">CRT phosphors</legend>
+        <p class="doc-displays__group">General purpose · built to be read</p>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
+          <span class="doc-display__name">P1</span>
+          <span class="doc-display__use">Scope</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 525nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
+          <span class="doc-display__name">P3</span>
+          <span class="doc-display__use">Terminal</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Amber 590nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
+          <span class="doc-display__name">P4</span>
+          <span class="doc-display__use">Television</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">White 450+560nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
+          <span class="doc-display__name">P31</span>
+          <span class="doc-display__use">Monitor</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 520nm</span>
+        </label>
+        <p class="doc-displays__group">Specialized · built for an instrument</p>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
+          <span class="doc-display__name">P7</span>
+          <span class="doc-display__use">Radar</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Blue+green 450/558nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
+          <span class="doc-display__name">P11</span>
+          <span class="doc-display__use">Photographic</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Blue 460nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
+          <span class="doc-display__name">P39</span>
+          <span class="doc-display__use">Slow decay</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 525nm</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <!-- ------------------------------------------------ 1/4 · switches -- -->
+    <!-- ONE REGION FOR ALL FOUR SWITCHES, WITH TWO GROUP LABELS INSIDE IT.
+
+         Three panels — SIMULATION, STYLE, ENGINE — read correctly and cost 606px
+         of a board that is not allowed to scroll, against 250 and 350 for the two
+         catalogs beside them. One region is about 370px, and the quarter stops
+         being the tallest thing on the glass.
+
+         THE LABELS ARE NOT DECORATION, THEY ARE WHAT THE PANEL BORDERS WERE
+         SAYING. These are three different KINDS of statement — what the hardware
+         is, what the viewer prefers, and how much of the library is running.
+         Merge them without replacing the boundary and the board quietly claims
+         PLASMA and JS EFFECTS are the same sort of switch, which is the exact
+         confusion the four quarters exist to prevent. -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">Switches</span>
+
+      <p class="doc-switches__axis">Simulation · never a color</p>
+      <div class="doc-switches">
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-sim="plasma" aria-pressed="true">
+          <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+        <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+          <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+        </button>
+        <!-- THE BAND STANDS UNDER CRT BECAUSE IT IS PART OF THE TUBE, and it is
+             the one switch here that is not a `data-ac-sim`. It earns an off
+             switch by being the only part of the tube that TRAVELS: scanlines,
+             vignette and the mains hum are texture and sit still, while this is
+             26% of the frame crossing all of it every 13s, over text somebody is
+             reading. So it is a comfort control — but it is a comfort control
+             over ONE SIMULATION'S effect, and the note below has always said so
+             in as many words. Standing it beside CLASSIC BUTTONS asked the reader
+             to hold both ideas at once: that the band is part of the CRT
+             simulation, and that it is not on the simulation side of the board.
+             It is gated the same way it reads — `needs: "ac-crt"` in the STYLES
+             table, so it disables itself wherever there is no tube to sweep.
+             See ../src/sim/crt.css, which also documents the author's version of
+             the same opt-out: leave the .ac-retrace child out of the frame and
+             there is nothing to switch. prefers-reduced-motion hides it either
+             way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true" disabled>
+          <span>Retrace Band</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+      </div>
+
+      <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
+      <div class="doc-switches">
+        <!-- No BLINK switch here on purpose. Blink is law-2 emphasis, and every
+             page carrying this board has a live alarm on it somewhere, so they
+             keep it on and do not offer to turn it off. The style flag itself is
+             still in the framework — write data-ac-style="blink" on a toggle to
+             expose it, or set data-ac-style-blink="off" on <html>.
+             prefers-reduced-motion stops it either way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true" disabled>
+          <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+        <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
+             the board rather than beside PLASMA and CRT: a bevel makes no claim about
+             which gas is in the gap, and unlike the retrace band above it is not one
+             simulation's effect either — it reaches every bordered surface on the
+             page whichever display is fitted. Cuts the corners off every
+             bordered surface, stands the keys on a hard offset edge and parks their
+             labels top-left — one look, one switch. Ships ON, because that is what the
+             panel was; switching it off asks for a smoother corner than the hardware
+             could draw. Where corner-shape is unsupported the corners quantize to 2px
+             instead of cutting, so both positions mean something in every browser.
+             See ../src/components/classic.css, and .ac-rounded for the same opt-out
+             scoped to one region — which is how the guide's CONTROLS chapter shows
+             both corners at once regardless of where this switch is standing. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="classic" aria-pressed="true">
+          <span>Classic Buttons</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+      </div>
+
+      <!-- Ships VISIBLE, because the partial's own default is a gas and the band
+           is a CRT effect. The build hides it on the pages whose preset is a
+           phosphor — see expandBoard. -->
+      <p class="doc-displays__note" data-ac-style-note="retrace">The retrace band is part of the CRT simulation, and there is no sweep across a plasma panel to switch off.</p>
+      <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
+      <p hidden class="doc-displays__note" data-ac-engine-off>JS Effects off: no ghosting, smear or framebuffer
+        decay. Everything else here is CSS.</p>
+
+      <div class="doc-engine" data-ac-engine-on hidden>
+        <span class="doc-engine__title">Running · what CSS cannot do</span>
+        <ul class="doc-engine__list">
+          <li><b>Ghosting</b> — rewritten text leaves its old value to decay</li>
+          <li><b>Scroll smear</b> — the image trails while the page moves</li>
+          <li><b>Framebuffer decay</b> — the old screen drains behind the new</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ----------------------------------------- 1/4 · state, the note -- -->
+    <div class="ac-stack" style="--ac-gap: 24px">
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">State</span>
+        <dl class="ac-list ac-list--dense">
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Technology</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="tech">PLASMA</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emitter</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emission</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="peak">585.2 nm</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Mode</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Engine</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="engine">CSS + JS</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- The prose is markup, one node per key, all but the matching one
+           hidden. A key is a technology, or an exact tech/emitter pair where
+           one phosphor does not behave like the rest of its family. -->
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">Technology</span>
+        <!-- FALLBACK ONLY, and no longer reached. paintInfo() in
+             ../src/amber-console.js prefers an exact "tech/emitter" key over a bare
+             "tech" one, and all eleven emitters now carry their own paragraph. These
+             two stay as the safety net for an emitter added without prose — delete
+             them only if you also drop that fallback. The technology is explained on
+             screen either way by the note under each catalog title. -->
+        <p class="doc-info" data-ac-display-info="plasma">A gas in a sealed gap, struck by a
+          sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
+          hue and varies only how hard it is driven.</p>
+        <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
+             deep red, while the panel is plainly lavender — that looks like a bug
+             until you know the eye is doing the arithmetic. -->
+        <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
+          output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
+          strongest line, not the color. What you see is the faint 415–475nm group, a hundred
+          times weaker and a hundred times better placed. It is also why argon is a dim GAS — though not a dim palette: every stop here is solved to the same contrast ratio as every other, so what changes between displays is the hue, never the brightness.</p>
+        <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
+          visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
+          yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
+          panel reads violet rather than any one of those colors.</p>
+        <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
+          which emits while struck and then persists. The color belongs to the phosphor, not the
+          beam; the P-number names the compound.</p>
+        <p class="doc-info" data-ac-display-info="plasma/neon">The gas the plasma panel was actually built on, and what this framework opens to. In a low-pressure glow the 2p→1s array dominates — the lowest excited states that radiate visibly, populated far more heavily than anything above them — so the discharge is one narrow orange-red rather than a mixture. Nixie tubes and the first flat panels ran on it.</p>
+        <p class="doc-info" data-ac-display-info="plasma/helium" hidden>The palest gas here, and structurally so: helium has no low-lying manifold to dominate the way the heavier gases do. Its visible lines all fall from n=3 and n=4 at comparable energies, so none outranks the rest and every one contributes. That integrates to near-white with a pink cast — 587.6nm carries the luminance while 447.1nm and 667.8nm pull it off the blackbody locus. A display gas by mixture rather than on its own.</p>
+        <p class="doc-info" data-ac-display-info="crt/p1" hidden>Zn₂SiO₄:Mn — willemite, the oldest CRT phosphor and the one the first oscilloscopes and radar indicators were built around. A silicate host rather than a sulfide, so a narrow 48nm band against P31's 78nm: a purer green, and a less efficient one. P39 is this same compound with arsenic added to stretch the decay.</p>
+        <p class="doc-info" data-ac-display-info="crt/p3" hidden>The amber terminal, and the ramp this framework was drawn against. Not a pure orange but a broad band with real green content — the fit lands at 594nm across 110nm — which is what holds amber text legible at small sizes. It was the standard alternative to green on office terminals, sold on being easier on the eyes across a working day.</p>
+        <p class="doc-info" data-ac-display-info="crt/p31" hidden>ZnS:Cu — the green everybody actually pictures when they picture a terminal or a laboratory oscilloscope. It carries the highest luminous efficiency of any phosphor here, sitting near the peak of the eye's photopic curve, which is why it displaced the willemites for anything meant to be looked at directly rather than photographed.</p>
+        <p class="doc-info" data-ac-display-info="crt/p7" hidden>The radar phosphor, and it went onto scope tubes for a reason: the flash gives
+          position and the trail gives history. Two coatings, not one. The beam writes into a blue
+          ZnS:Ag layer that decays in microseconds, and that layer's own photons pump a
+          yellow-green one behind it which holds for seconds. So the ink is blue and the halo is
+          green: text you are reading is being re-struck sixty times a second, and text that stops
+          being written leaves only the glow.</p>
+        <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
+          and leaves the color alone — this palette and P1 are the same green, and differ only in
+          how long it lasts. At hundreds of milliseconds the screen is still near full brightness
+          when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
+          paid for in smear.</p>
+        <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
+          P11 was fitted to screens meant to be photographed rather than watched — and watched, it
+          is the worst screen here. It decays in tens of microseconds, three orders below a
+          refresh interval, so the screen is genuinely dark between frames. Short persistence and
+          heavy flicker are the same fact.</p>
+        <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
+          mixed into one coating, emitting together, which the eye integrates to white. That is
+          what separates it from P7 — two powders mixed have one color, two powders layered emit
+          in sequence and the color changes as you watch.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ac-setup__foot">
+    <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
+    <span class="ac-spacer"></span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable — and Reset puts all of it back, switches, styles and engine alike.</span>
+  </div>
+</div>
+<!-- @end -->
+
+<div class="doc-wrap">
+
+<!-- @include _chapters.html -->
+<!-- GENERATED from docs/_chapters.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- The guide's own second level. The top bar names the four demos and the
+     guide; this names the guide's chapters, and it is deliberately NOT sticky —
+     the bar above it is the one thing that must survive scrolling, and two
+     stacked sticky strips eat a quarter of a laptop viewport.
+
+     Not .ac-tabs, though it looks like a row of soft keys: tabs swap a region
+     and these are page loads, which is the distinction the TABS specimen in the
+     CONTROLS chapter draws itself. Marked with aria-current by the build. -->
+<nav class="doc-chapters" aria-label="Guide chapters">
+  <a class="doc-chapter" href="guide.html"><span class="doc-chapter__n">00</span>Overview</a>
+  <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
+  <a class="doc-chapter" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
+  <a class="doc-chapter" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
+  <a class="doc-chapter" aria-current="page" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
+  <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
+  <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
+  <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+  <!-- 08 AND 09 ARE LOOKUP RATHER THAN READING, and they are still numbered.
+       An unnumbered appendix would have said "optional", which is the opposite of
+       what a complete index is for: the seven chapters before them argue a case
+       and can be read in order, these two answer "does the framework have X" and
+       "what happened to Y" without being read at all. Same strip, same weight —
+       the distinction lives in the blurb on the overview card, not in the
+       numbering. -->
+  <a class="doc-chapter" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
+  <a class="doc-chapter" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
+</nav>
+<!-- @end -->
+
+  <main id="content">
+
+  <header class="doc-head doc-head--chapter">
+    <div class="doc-kicker"><span class="doc-num">04</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>AFTERGLOW &amp; PERSISTENCE</h1>
+  </header>
+  <p class="doc-lede">Nothing on either technology goes dark on the next refresh, and they do not go dark for the same reason. Persistence is eight separate phenomena — four of them pure CSS.</p>
+
+  <section id="persistence">
+    <div class="doc-sec-head"><h2>AFTERGLOW AND PERSISTENCE</h2></div>
+    <div class="doc-prose">
+    <p class="doc-dim">A gas gap that stops being driven leaves excited and metastable
+      atoms behind, and that population keeps emitting while it relaxes and recombines — an
+      afterglow that is a property of the gas and of no coating at all. A phosphor is the opposite
+      case: the persistence <em>is</em> the coating, it is what the compound was chosen for, and it
+      ranges over four orders of magnitude between the parts on the board above. Most of the light
+      is gone early either way, then a tail whose length is the whole difference between them.
+      <code>.ac-afterglow</code> is that relaxation, and it is several separate things because
+      persistence is eight separate phenomena. <strong>Four of them are pure CSS, two need
+      JavaScript outright, and two arrive by both routes</strong> — and where JavaScript is needed it
+      is not being withheld, the thing is genuinely not expressible in a stylesheet. Nothing in the
+      cascade remembers the string a readout held one frame ago; scroll <em>velocity</em> cannot be
+      derived from a scroll timeline, which exposes position only; and
+      <code>startViewTransition</code> is the one API that hands you a picture of the screen you just
+      replaced <em>without navigating away from it</em>. Those three capabilities live in
+      <code>amber-console.effects.js</code>, which is optional and separate from
+      <code>amber-console.js</code> — the stylesheet alone still decays, de-energizes, throbs,
+      sweeps, and drains a whole page into the next one.</p>
+    <p class="doc-dim"><strong>How long it lasts belongs to the emitter, not to this file.</strong>
+      A palette that knows its own decay declares it, and every timing below is derived from that one
+      number — so the panel does not have a persistence setting, it has whatever persistence the
+      hardware in it had. Which is also why <em>persistence and flicker are the same number read in
+      two directions</em>: a screen redraws every frame, and what is still lit when the next frame
+      arrives is the smear while what is missing is the flicker. A screen cannot be steady and
+      smear-free at once. P11 is fully dark between frames — no persistence, maximum flicker, which
+      is why it was fitted to tubes meant to be <em>photographed</em> rather than watched. P39 is
+      still at 91% — no flicker at any refresh rate, paid for in smear, which is why it went on
+      radar. Both come off one decay constant and cannot disagree.</p>
+    </div>
+
+    <h3 style="margin:32px 0 12px">WHAT A LONG PHOSPHOR COSTS</h3>
+    <div class="doc-prose">
+    <p class="doc-dim">Two consequences worth knowing before the switches surprise you. The long
+      phosphors are <strong>capped where you wait on them and uncapped where you do not</strong>:
+      P7's tail is three seconds, which is correct and would be an unusable dialog close, so anything
+      that has to actually leave is clamped to 250ms and the ghosts run the full three. And a
+      long-persistence phosphor does not decay exponentially — it follows a power law, a fast knee
+      over a very long tail, which no single easing curve expresses. Those palettes ship a
+      <code>linear()</code> sampled from the decay model itself.</p>
+    <p class="doc-dim"><strong>P7 is the one that is worth turning on.</strong> It is two coatings
+      rather than one: the beam writes into a blue layer that decays in microseconds, and that
+      layer's own photons pump a yellow-green layer behind it that holds for seconds. So the ink is
+      blue and the halo is green — text you are reading is being re-struck sixty times a second, and
+      text that stops being written leaves only the glow behind. It is the only palette here whose
+      halo is a different spectrum from its ink, which inverts a rule the rest of the system relies
+      on, and it is the reason a radar sweep is still legible when the beam comes round again.</p>
+    </div>
+    <div class="doc-grid3" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">1 · DECAY-OUT — CSS</span>
+        <span class="doc-faint doc-small">Anything that disappears drains instead of switching off —
+          a tab panel, a closing dialog, an acknowledged alarm. Pure CSS, and the one part that
+          carries the effect on its own. The transition is declared on the hidden state only, so
+          hiding decays and showing snaps back instantly. Nothing here ever fades <em>in</em>.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">2 · GHOSTING — effects.js</span>
+        <span class="doc-faint doc-small">Text rewritten in place leaves the previous value behind
+          for a beat. Watch the clock and the frame counter on the console page. This is the one part
+          CSS cannot do — nothing in the cascade remembers the old string — so a MutationObserver in
+          <code>amber-console.effects.js</code> parks a copy at the rect it occupied.</span>
+        <span class="doc-faint doc-small">The copy is <strong><code>.ac-ghost</code></strong>, and it
+          is worth knowing the name: it is a real element in your DOM for the length of the tail, it
+          is <code>aria-hidden</code> and <code>pointer-events: none</code>, and it is the hook to
+          style or suppress if a ghost lands somewhere you do not want one.
+          <code>.ac-ghost--fast</code> is the same node on the short tail, used where a value rewrites
+          often enough that the full decay would stack copies on top of each other. Both are removed
+          when they finish; nothing accumulates.</span>
+        <code class="doc-code">&lt;span class="ac-ghost"&gt;    &lt;!-- mounted and removed by effects.js --&gt;
+.ac-ghost { display: none }   /* suppress it in one region, without the module */</code></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">3 · RESIDUAL PATCHES — CSS</span>
+        <span class="doc-faint doc-small">The glass never sits perfectly uniform; charge relaxes
+          unevenly. Four overlapping pools at 3% over the amber, drifting on a 47s cycle. You do not
+          notice it directly — you notice when it stops.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">4 · THE BLINK OFF-EDGE — CSS</span>
+        <span class="doc-faint doc-small">A blinking alarm is the thing on the panel that stops being
+          driven most often — once a second, forever — so it is the last place the decay should be
+          missing. <code>.ac-blink</code> stays <code>steps(1)</code> by default; with persistence on,
+          only the <em>ON</em> edge stays hard. Instant up, curve down.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">5 · DE-ENERGIZING — CSS</span>
+        <span class="doc-faint doc-small">The commonest light-off event on a control panel is not a
+          node disappearing, it is a lamp going out: a pressed button releasing, a tab deselecting,
+          an interlock unchecking. <strong>Split by what each property describes:</strong> the
+          structure — background, border, color — releases fast so the control reads as off
+          immediately, while the <em>halo</em> decays on the full uncapped tail, because the halo is
+          the scattered light that persists. Under P39 a released button glows for a second and a
+          half. Hover is excluded on purpose — a wake behind the cursor reads as lag.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">6 · SCROLL SMEAR — effects.js</span>
+        <span class="doc-faint doc-small">Scrolling hands every cell on the panel a new value at
+          once, which is the largest light-off event there is, and the image trails. Scaled by real
+          scroll <em>velocity</em>, which is why it cannot be CSS: a scroll timeline exposes
+          position, and velocity is not derivable from it. Scroll this page briskly.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">7 · FRAMEBUFFER DECAY — CSS <em>and</em> effects.js</span>
+        <span class="doc-faint doc-small">The one place a <em>real framebuffer snapshot</em> is
+          available. Everything above decays an element — something the cascade can name. A phosphor
+          decays whatever was <em>drawn</em>, including the parts of the screen no element owns.
+          <strong>It arrives twice, by two different routes</strong>, which is why the board's engine
+          panel lists framebuffer decay as a JavaScript effect while this half needs no script at
+          all.</span>
+        <span class="doc-faint doc-small"><strong>Between pages — CSS.</strong> Navigate to the
+          console and back under P39 and the old page drains behind the new one, per pixel. Needs one
+          line in your own stylesheet — <code>@view-transition</code> with
+          <code>navigation: auto</code> — because it is a document-level switch, and linking a
+          stylesheet must not rewrite how your site navigates.</span>
+        <span class="doc-faint doc-small"><strong>Within a page — effects.js.</strong> A tab switch or
+          a dialog replaces most of the screen without navigating anywhere, and CSS has no hook for
+          that. The effects module exports <code>transition(fn)</code>, which wraps the change in a
+          view transition so the same decay runs over it; <code>amber-console.js</code> already calls
+          it for tabs and dialogs. This is the half that goes dark when JS Effects is switched off —
+          and the signature is in <a href="guide-reference.html#attributes">REFERENCE</a> with the
+          other two exported functions.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">8 · A LIT AREA SHRINKING — CSS + effects.js</span>
+        <span class="doc-faint doc-small">A bargraph does none of the seven things above: the element
+          stays, its text is elsewhere, its color never moves. What changes is its <em>width</em>, so
+          the strip it vacates was lit a moment ago and is now simply not drawn. On a two-second
+          phosphor that was the most visible wrong thing on the panel — everything around the bar
+          trailed and the bar itself snapped. A second bar now lags behind the live one on
+          <code>--ac-persist-tail</code>, and the asymmetry needs no rule of its own: on a fall the
+          ghost is <em>wider</em> and its trailing strip drains, and on a rise it is
+          <em>narrower</em>, so it hides underneath and nothing fades in. Watch a load bar on the
+          server dashboard under P39.</span></div>
+    </div>
+    <p class="doc-dim" style="margin-top:16px">The eighth is the one place the two tiers do different
+      things rather than one filling a gap the other leaves, and the difference is real. A bar falling
+      <em>gradually</em> stops driving each cell at a slightly different moment, so the honest result
+      is a taper behind a receding edge — which is what the CSS draws, and what a drifting value
+      actually does. A bar that drops <em>suddenly</em> stops every vacated cell at once and should
+      fade uniformly instead. CSS cannot hold the old width, so it cannot tell those apart;
+      <code>effects.js</code> recovers the old geometry and parks a proper uniform ghost for that
+      case — which is also how the radar's A-scope and echoes get theirs, since it watches for any
+      lit area that shrank rather than for anything named.</p>
+    <div class="doc-grid2" style="margin-top:16px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">BLINK — ALARM</span>
+        <span class="ac-blink" style="background:var(--ac-fill);color:var(--ac-on-fill);padding:4px 14px;text-shadow:none">✳ LAMP FAULT ✳</span>
+        <span class="doc-faint doc-small">Toggle CRT on the board above and watch this one. Off, it
+          snaps between full and 10%. On, it holds, then drains over an ~88ms window of the 1.1s
+          cycle — deliberately near the floor of what registers as a decay at all.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">EVERY BLINK SITE FOLLOWS</span>
+        <span class="doc-faint doc-small">One rule swaps the <em>animation-name</em> rather than the
+          shorthand, so <code>.ac-blink</code>, <code>.ac-cursor</code>, an invalid
+          <code>.ac-input</code> and an over-range <code>.ac-meter--alarm</code> bar all keep their own
+          cycle length and pick up the same curve. The de-energizing rules use the same trick as
+          decay-out: the transition is declared on the UNLIT half, so going out drains and coming
+          on is instant.</span></div>
+    </div>
+    <code class="doc-code">&lt;div class="ac-screen ac-afterglow"&gt;&lt;span class="ac-persist"&gt;&lt;/span&gt; … &lt;/div&gt;</code>
+
+    <h3 style="margin:32px 0 12px">THE PPI SWEEP</h3>
+    <div class="doc-prose">
+    <p class="doc-dim">The one widget where persistence <em>is</em> the whole thing, and the one
+      place a decaying trail is achievable in pure CSS. The obvious way to draw a radar wake is to
+      stamp a mark every frame and fade each one, which is a per-pixel framebuffer problem and needs
+      a canvas. But a PPI trail is not a history of marks — it is one continuous falloff behind a
+      rotating line, and a <code>conic-gradient</code> already is that falloff. Rotate it and the
+      decay comes for free, on the GPU, in one element, with no script at all.</p>
+    <p class="doc-dim">The angular stops are the phosphor's decay curve read in degrees rather than
+      milliseconds, which is a substitution rather than a pun: the beam turns at a constant rate, so
+      angle behind the beam <em>is</em> time since that bearing was painted. Same curve, same
+      fast-knee-long-tail shape, different axis. The rotation period comes off
+      <code>--ac-persist-tail</code>, so the sweep returns about as the trail finishes draining —
+      which is precisely the trade P7 and P39 were bought to make.</p>
+    </div>
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">PPI — NO SCRIPT</span>
+        <div class="ac-sweep" role="img" aria-label="Search radar sweep, no contacts"><span class="ac-sweep__beam"></span></div>
+        <span class="doc-faint doc-small">Switch the display to P7 and the leading edge turns blue
+          against a yellow-green wake — that is <code>--ac-halo-flash</code> against
+          <code>--ac-halo-1</code>, the two coatings doing exactly what they did on the real tube. Every
+          other emitter has one coating, so its leading edge is simply the brighter end of its own
+          trail. The line itself is a constant-width arm rather than the first few degrees of the
+          gradient, which would be a wedge and would thin to nothing near the middle; the center
+          is bright because all 360 bearings cross it and it takes the whole revolution's
+          dose.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">WHY IT SLOWS DOWN</span>
+        <span class="doc-faint doc-small">Under P39 the sweep takes 3s and under P7 4.5s, because
+          both are scaled from the tail. Neon would scale to 0.16s, which is not a radar but a
+          strobe, so the period has a floor. A face whose trail has not drained by the time the beam
+          returns never reads as dark, and stops looking like a radar at all — it looks like a
+          spinning pie chart.</span></div>
+    </div>
+    <code class="doc-code">&lt;div class="ac-sweep" role="img" aria-label="Search radar"&gt;&lt;span class="ac-sweep__beam"&gt;&lt;/span&gt;&lt;/div&gt;</code>
+    <p class="doc-when">Assuming a removed node ghosts itself. The observer only sees text change;
+      a node that stops existing has no rect left to pin a ghost to, so ghost it
+      <em>before</em> you remove it — <code>AmberConsoleEffects.afterglow(row)</code>, then
+      <code>row.remove()</code>. Retune the decay with the three tokens it is built from, none of
+      which is a duration you set directly — each is the palette's own
+      <code>--ac-persist</code> under a different cap. <code>--ac-decay</code> is capped at 250ms and
+      belongs to things that must actually leave; <code>--ac-decay-fast</code> is capped at 60ms and
+      belongs to de-energizing controls and hover release, because it fires on every control the
+      pointer crosses; <code>--ac-persist-tail</code> is uncapped and belongs to the ghosts and the
+      residual patches, which is where a long phosphor is allowed to be long. Rewritten text is its
+      own case at 400ms, enough to keep one generation legible and not two.
+      <code>--ac-decay-ease</code> is the curve.</p>
+
+  </section>
+
+  <nav class="doc-pager" aria-label="Chapter">
+    <a class="doc-pager__link" href="guide-effects.html">◄ Previous: Effects</a>
+    <a class="doc-pager__link" href="guide-controls.html">Next: Controls ►</a>
+  </nav>
+
+  </main>
+
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 2.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="index.html" style="color:var(--ac-ink-dim);text-shadow:var(--ac-glow-text-dim)">GO TO CONSOLE ►</a>
+  </footer>
+
+</div>
+</div>
+
+<script src="../dist/amber-console.global.js"></script>
+<script src="../dist/amber-console.effects.global.js"></script>
+</body>
+</html>

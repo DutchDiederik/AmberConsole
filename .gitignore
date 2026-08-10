@@ -13,7 +13,8 @@ node_modules/
 .env
 .env.*
 
-# Visual-regression run output. Only baselines/ is committed.
+# Visual-regression run output — written only for a capture that FAILED, so it
+# can be eyeballed against its baseline. Throwaway; the next run rewrites it.
 test/visual/*.actual.png
 
 # scripts/make-assets.mjs unlinks this; it only survives a crashed run.
@@ -28,3 +29,13 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+# NOTHING HERE IGNORES test/visual/baselines/, AND THAT IS DELIBERATE.
+#
+# A baseline IS the test. Ignoring one does not spare the repository the bytes,
+# it only spares them review — and it costs the suite the thing it exists for,
+# a fresh clone that can say whether the pages still render the way they did.
+# An ignored file is not reported as missing, so the gap is silent.
+#
+# The full set is committed as of 2.0. Adding a page means committing its
+# baselines with it.

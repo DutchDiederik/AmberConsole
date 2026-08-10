@@ -2,7 +2,7 @@
    Toggle — a two-position switch.
 
    The literal ON / OFF text is MANDATORY. On a monochrome panel a thumb
-   position alone is ambiguous: there is no colour to say "this one is live".
+   position alone is ambiguous: there is no color to say "this one is live".
 
    The thumb jumps. No transition.
 
@@ -27,14 +27,15 @@
 .ac-toggle {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--ac-space-3);
   min-height: 44px;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   line-height: 1;
-  color: var(--ink);
+  color: var(--ac-ink);
+  text-shadow: var(--ac-glow-text);
   text-transform: uppercase;
-  letter-spacing: var(--tracking-body);
+  letter-spacing: var(--ac-tracking-body);
   background: none;
   border: none;
   padding: 0;
@@ -46,8 +47,13 @@
   width: 64px;
   height: 28px;
   flex: none;
-  border: var(--border-w) solid var(--stroke);
-  border-radius: var(--radius-sm);
+  border: var(--ac-border-w) solid var(--ac-stroke);
+  /* The switch housing is extruded like a key — see the note in button.css for
+     why the edge is declared on the component rather than in classic.css. The
+     disabled rules below deliberately drop it: a housing that is not driven is
+     still drawn, but it no longer stands off the glass. */
+  box-shadow: var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent);
+  border-radius: var(--ac-radius-sm);
 }
 
 .ac-toggle__thumb {
@@ -56,43 +62,51 @@
   left: 3px;
   width: 26px;
   height: 18px;
-  background: var(--ink-faint);
+  background: var(--ac-ink-faint);
 }
 
+/* The three ON hooks, stated once: the modifier class, the ARIA state, and the
+   CSS-only variant's :checked. They were three identical blocks in two places
+   and had already drifted apart on the disabled track below. */
 .ac-toggle--on .ac-toggle__thumb,
-.ac-toggle[aria-pressed="true"] .ac-toggle__thumb {
+.ac-toggle[aria-pressed="true"] .ac-toggle__thumb,
+.ac-toggle--input input:checked ~ .ac-toggle__track .ac-toggle__thumb {
   left: auto;
   right: 3px;
-  background: var(--fill);
-  box-shadow: var(--glow-box);
+  background: var(--ac-fill);
+  box-shadow: var(--ac-glow-box);
 }
 
 .ac-toggle__state {
   min-width: 2.2em;
   text-align: left;
-  color: var(--ink-dim);
+  color: var(--ac-ink-dim);
+  text-shadow: var(--ac-glow-text-dim);
 }
 
 .ac-toggle--on .ac-toggle__state,
-.ac-toggle[aria-pressed="true"] .ac-toggle__state {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
+.ac-toggle[aria-pressed="true"] .ac-toggle__state,
+.ac-toggle--input input:checked ~ .ac-toggle__state {
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-toggle:disabled {
-  color: var(--ink-faint);
+  color: var(--ac-ink-faint);
+  text-shadow: none;
   cursor: default;
 }
 .ac-toggle:disabled .ac-toggle__track {
-  border-color: var(--stroke-dim);
+  border-color: var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
 }
 .ac-toggle:disabled .ac-toggle__thumb {
-  background: var(--ink-trace);
+  background: var(--ac-ink-trace);
   box-shadow: none;
 }
 
 .ac-toggle:focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }
 
@@ -112,30 +126,31 @@
   content: "OFF";
 }
 
-.ac-toggle--input input:checked ~ .ac-toggle__track .ac-toggle__thumb {
-  left: auto;
-  right: 3px;
-  background: var(--fill);
-  box-shadow: var(--glow-box);
-}
-
-.ac-toggle--input input:checked ~ .ac-toggle__state {
-  color: var(--ink-bright);
-  text-shadow: var(--glow-text);
-}
+/* The lit thumb and state colour for this variant are declared with the other
+   two ON hooks above; only the generated text is specific to it. */
 .ac-toggle--input input:checked ~ .ac-toggle__state::after {
   content: "ON";
 }
 
+/* Matches .ac-toggle:disabled above, and that is the point: the two forms are
+   documented as equivalent, so they have to LOOK equivalent. This one used to
+   blank the shadow while the button form dimmed it, which meant a disabled
+   switch built the CSS-only way sat flat on the panel while the same switch
+   built the button way still read as a drawn housing.
+
+   The housing dims rather than going dark because it is a box that is still
+   there, not a lamp that is out. The THUMB is the lamp, and it does go dark —
+   see the rule below. */
 .ac-toggle--input input:disabled ~ .ac-toggle__track {
-  border-color: var(--stroke-dim);
+  border-color: var(--ac-stroke-dim);
+  box-shadow: var(--ac-glow-box-dim);
 }
 .ac-toggle--input input:disabled ~ .ac-toggle__track .ac-toggle__thumb {
-  background: var(--ink-trace);
+  background: var(--ac-ink-trace);
   box-shadow: none;
 }
 
 .ac-toggle--input input:focus-visible ~ .ac-toggle__track {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }

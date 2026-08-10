@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEPRECATED — Amber Console</title>
+<meta name="description" content="Everything taken away since 1.0, everything going away next, and what to write instead.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#100600">
+
+<!-- Social cards. og:image MUST be absolute — a relative path is ignored by
+     every scraper — so these are the only URLs in the project hardcoded to the
+     Pages host. They are inert over file://, which costs nothing. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Amber Console">
+<meta property="og:title" content="DEPRECATED — Amber Console System Guide">
+<meta property="og:description" content="Everything taken away since 1.0, everything going away next, and what to write instead.">
+<meta property="og:url" content="https://dutchdiederik.github.io/AmberConsole/docs/guide-deprecations.html">
+<meta property="og:image" content="https://dutchdiederik.github.io/AmberConsole/docs/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ORION-70 projection console: an amber plasma control panel of framed regions, inverse-video status strips and instrument readouts.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@DutchDiederik">
+
+<link rel="stylesheet" href="../dist/amber-console.css">
+<link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<!-- The nav lives INSIDE the frame. A menu bar floating above the simulations
+     is a menu bar that is not part of the screen — no bleed, no scanlines, no
+     vignette on it. .ac-screen uses overflow:clip precisely so a sticky bar can
+     sit inside the frame and still stick to the viewport.
+
+     The frame ships in the DEFAULT state, not the everything-on state: plasma on,
+     CRT off. Any class or overlay node that is off by default must be absent here,
+     or it paints for one frame on every load before initSims removes it. -->
+<div class="ac-screen ac-bloom" data-ac-screen>
+<a class="doc-skip" href="#content">Skip to content</a>
+<span class="ac-mesh"></span>
+
+<!-- @include _nav.html -->
+<!-- GENERATED from docs/_nav.html by scripts/build.mjs — edit the partial, not this. -->
+<nav class="ac-nav ac-nav--sticky">
+  <span class="ac-nav__mark">Amber Console</span>
+  <div class="ac-nav__links">
+    <a class="ac-nav__link" href="index.html">Console</a>
+    <a class="ac-nav__link" href="server.html">Server</a>
+    <a class="ac-nav__link" href="radar.html">Radar</a>
+    <a class="ac-nav__link" href="terminal.html">Terminal</a>
+    <a class="ac-nav__link" href="guide.html" aria-current="page">System Guide</a>
+  </div>
+  <span class="ac-nav__meta">
+    <!-- The bar is the sticky half of the anti-confusion job: the board below
+         scrolls away, this does not, and it always names the TECHNOLOGY first
+         and the emitter second. -->
+    <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">PLASMA · NEON</span></span>
+    <!-- Stamped from package.json by scripts/build.mjs — see stampRev. Editing
+         the number here does nothing; the next build overwrites it. -->
+    <span>REV 2.0</span>
+    <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
+  </span>
+</nav>
+<!-- @end -->
+
+<!-- @include _board.html emitter="neon" -->
+<!-- GENERATED from docs/_board.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- ============================================================ SETUP ==
+     Four quarters. Four axes, and they are never the same axis:
+
+       DISPLAY     what hardware is in the panel. Sets the color.
+                   TWO regions, one per technology, never one list of eleven.
+       SIMULATION  what the glass does about it. Never sets a color.
+       STYLE       preferences that make no claim about the hardware at all.
+       ENGINE      how much of the library is running. Not hardware, and not a
+                   preference either — see the SWITCHES quarter.
+
+     The last three share one quarter and are told apart by the labels inside it
+     rather than by three panel borders, because three regions of switches ran
+     606px on a board that is not allowed to scroll.
+
+     Splitting the catalog across two quarters is not only about confusion,
+     though that is the point of it: eleven rows in one column is also taller
+     than a board that never scrolls is allowed to be. Four gases and seven
+     phosphors side by side fit.
+
+     data-ac-peak IS NOT THE SAME KIND OF NUMBER ON BOTH SIDES, which is the
+     clearest single reason these two catalogs are not one list:
+
+       A GAS emits a LINE SPECTRUM. The number is the strongest VISIBLE line,
+       and it is NOT the perceived hue — that is the CIE integral of every line
+       at once, which is the whole argument tokens/colors.css makes for landing
+       neon at 24deg rather than at its 585.2nm line. Argon reads violet on the
+       glass while its strongest visible line is deep red at 696.5nm, and most
+       of what argon emits is not visible at all. No contradiction: they are
+       answers to different questions.
+
+       A PHOSPHOR emits a BROAD BAND. The number is the band peak, and it does
+       correspond to the perceived hue, because there is only one band.
+
+     Two phosphors carry two numbers and both are real hardware, not a hedge.
+     P4 is a BLEND of a blue and a yellow emitter, mixed to white; P7 is two
+     LAYERS, a fast blue flash over a yellow-green glow that outlasts it by
+     seconds. Neither has a single peak to state.
+
+     Every row below carries its peak, and all eleven are fitted — the four
+     gases and the seven phosphors each have a block in tokens/colors.css. Adding
+     a twelfth is one block there plus one row here carrying
+     data-ac-display/-tech/-emitter/-sims, and nothing else. -->
+<div class="ac-setup">
+  <div class="ac-setup__grid">
+
+    <!-- ------------------------------------------------- 1/4 · plasma -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▮ Plasma Gases</span>
+      <p class="doc-displays__note">Gas emitting directly. No phosphor in the stack.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">Plasma gases</legend>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display" checked
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="neon" data-ac-sims="plasma" data-ac-peak="585.2 nm">
+          <span class="doc-display__name">Neon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Orange-red 585nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="helium" data-ac-sims="plasma" data-ac-peak="587.6 nm">
+          <span class="doc-display__name">Helium</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Pale pink 588nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="argon" data-ac-sims="plasma" data-ac-peak="696.5 nm">
+          <span class="doc-display__name">Argon</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Lavender 696nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="plasma" data-ac-emitter="krypton" data-ac-sims="plasma" data-ac-peak="587.1 nm">
+          <span class="doc-display__name">Krypton</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Violet 587nm</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <!-- ---------------------------------------------------- 1/4 · crt -- -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">▯ CRT Phosphors</span>
+      <p class="doc-displays__note">A beam on a phosphor, which emits and then persists.</p>
+      <fieldset class="doc-displays">
+        <legend class="ac-sr-only">CRT phosphors</legend>
+        <p class="doc-displays__group">General purpose · built to be read</p>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p1" data-ac-sims="crt" data-ac-peak="525 nm">
+          <span class="doc-display__name">P1</span>
+          <span class="doc-display__use">Scope</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 525nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt" data-ac-peak="590 nm">
+          <span class="doc-display__name">P3</span>
+          <span class="doc-display__use">Terminal</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Amber 590nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p4" data-ac-sims="crt" data-ac-peak="450+560 nm">
+          <span class="doc-display__name">P4</span>
+          <span class="doc-display__use">Television</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">White 450+560nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p31" data-ac-sims="crt" data-ac-peak="520 nm">
+          <span class="doc-display__name">P31</span>
+          <span class="doc-display__use">Monitor</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 520nm</span>
+        </label>
+        <p class="doc-displays__group">Specialized · built for an instrument</p>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p7" data-ac-sims="crt" data-ac-peak="450/558 nm">
+          <span class="doc-display__name">P7</span>
+          <span class="doc-display__use">Radar</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Blue+green 450/558nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p11" data-ac-sims="crt" data-ac-peak="460 nm">
+          <span class="doc-display__name">P11</span>
+          <span class="doc-display__use">Photographic</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Blue 460nm</span>
+        </label>
+        <label class="ac-radio doc-display">
+          <input type="radio" name="ac-display"
+                 data-ac-display data-ac-tech="crt" data-ac-emitter="p39" data-ac-sims="crt" data-ac-peak="525 nm">
+          <span class="doc-display__name">P39</span>
+          <span class="doc-display__use">Slow decay</span>
+          <span class="doc-display__fill"></span>
+          <span class="doc-display__note">Green 525nm</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <!-- ------------------------------------------------ 1/4 · switches -- -->
+    <!-- ONE REGION FOR ALL FOUR SWITCHES, WITH TWO GROUP LABELS INSIDE IT.
+
+         Three panels — SIMULATION, STYLE, ENGINE — read correctly and cost 606px
+         of a board that is not allowed to scroll, against 250 and 350 for the two
+         catalogs beside them. One region is about 370px, and the quarter stops
+         being the tallest thing on the glass.
+
+         THE LABELS ARE NOT DECORATION, THEY ARE WHAT THE PANEL BORDERS WERE
+         SAYING. These are three different KINDS of statement — what the hardware
+         is, what the viewer prefers, and how much of the library is running.
+         Merge them without replacing the boundary and the board quietly claims
+         PLASMA and JS EFFECTS are the same sort of switch, which is the exact
+         confusion the four quarters exist to prevent. -->
+    <div class="ac-panel">
+      <span class="ac-panel__title">Switches</span>
+
+      <p class="doc-switches__axis">Simulation · never a color</p>
+      <div class="doc-switches">
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-sim="plasma" aria-pressed="true">
+          <span>Plasma</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+        <button type="button" class="ac-toggle" data-ac-sim="crt" aria-pressed="false">
+          <span>CRT</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">OFF</span>
+        </button>
+        <!-- THE BAND STANDS UNDER CRT BECAUSE IT IS PART OF THE TUBE, and it is
+             the one switch here that is not a `data-ac-sim`. It earns an off
+             switch by being the only part of the tube that TRAVELS: scanlines,
+             vignette and the mains hum are texture and sit still, while this is
+             26% of the frame crossing all of it every 13s, over text somebody is
+             reading. So it is a comfort control — but it is a comfort control
+             over ONE SIMULATION'S effect, and the note below has always said so
+             in as many words. Standing it beside CLASSIC BUTTONS asked the reader
+             to hold both ideas at once: that the band is part of the CRT
+             simulation, and that it is not on the simulation side of the board.
+             It is gated the same way it reads — `needs: "ac-crt"` in the STYLES
+             table, so it disables itself wherever there is no tube to sweep.
+             See ../src/sim/crt.css, which also documents the author's version of
+             the same opt-out: leave the .ac-retrace child out of the frame and
+             there is nothing to switch. prefers-reduced-motion hides it either
+             way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="retrace" aria-pressed="true" disabled>
+          <span>Retrace Band</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+      </div>
+
+      <p class="doc-switches__axis">Style &amp; engine · never the hardware</p>
+      <div class="doc-switches">
+        <!-- No BLINK switch here on purpose. Blink is law-2 emphasis, and every
+             page carrying this board has a live alarm on it somewhere, so they
+             keep it on and do not offer to turn it off. The style flag itself is
+             still in the framework — write data-ac-style="blink" on a toggle to
+             expose it, or set data-ac-style-blink="off" on <html>.
+             prefers-reduced-motion stops it either way. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-engine aria-pressed="true" disabled>
+          <span>JS Effects</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+        <!-- A CORNER IS A STYLE, NOT HARDWARE, which is why it sits on this side of
+             the board rather than beside PLASMA and CRT: a bevel makes no claim about
+             which gas is in the gap, and unlike the retrace band above it is not one
+             simulation's effect either — it reaches every bordered surface on the
+             page whichever display is fitted. Cuts the corners off every
+             bordered surface, stands the keys on a hard offset edge and parks their
+             labels top-left — one look, one switch. Ships ON, because that is what the
+             panel was; switching it off asks for a smoother corner than the hardware
+             could draw. Where corner-shape is unsupported the corners quantize to 2px
+             instead of cutting, so both positions mean something in every browser.
+             See ../src/components/classic.css, and .ac-rounded for the same opt-out
+             scoped to one region — which is how the guide's CONTROLS chapter shows
+             both corners at once regardless of where this switch is standing. -->
+        <button type="button" class="ac-toggle ac-toggle--on" data-ac-style="classic" aria-pressed="true">
+          <span>Classic Buttons</span><span class="ac-toggle__track"><span class="ac-toggle__thumb"></span></span><span class="ac-toggle__state">ON</span>
+        </button>
+      </div>
+
+      <!-- Ships VISIBLE, because the partial's own default is a gas and the band
+           is a CRT effect. The build hides it on the pages whose preset is a
+           phosphor — see expandBoard. -->
+      <p class="doc-displays__note" data-ac-style-note="retrace">The retrace band is part of the CRT simulation, and there is no sweep across a plasma panel to switch off.</p>
+      <p class="doc-displays__note" data-ac-engine-note>JS Effects need the CRT simulation and a phosphor that holds long enough to see.</p>
+      <p hidden class="doc-displays__note" data-ac-engine-off>JS Effects off: no ghosting, smear or framebuffer
+        decay. Everything else here is CSS.</p>
+
+      <div class="doc-engine" data-ac-engine-on hidden>
+        <span class="doc-engine__title">Running · what CSS cannot do</span>
+        <ul class="doc-engine__list">
+          <li><b>Ghosting</b> — rewritten text leaves its old value to decay</li>
+          <li><b>Scroll smear</b> — the image trails while the page moves</li>
+          <li><b>Framebuffer decay</b> — the old screen drains behind the new</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ----------------------------------------- 1/4 · state, the note -- -->
+    <div class="ac-stack" style="--ac-gap: 24px">
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">State</span>
+        <dl class="ac-list ac-list--dense">
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Technology</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="tech">PLASMA</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emitter</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="emitter">NEON</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Emission</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="peak">585.2 nm</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Mode</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="mode">PRESET</dd>
+          </div>
+          <div class="ac-list__item">
+            <dt class="ac-list__key">Engine</dt>
+            <span class="ac-list__fill"></span>
+            <dd class="ac-list__value" data-ac-display-out="engine">CSS + JS</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- The prose is markup, one node per key, all but the matching one
+           hidden. A key is a technology, or an exact tech/emitter pair where
+           one phosphor does not behave like the rest of its family. -->
+      <div class="ac-panel ac-panel--dim">
+        <span class="ac-panel__title">Technology</span>
+        <!-- FALLBACK ONLY, and no longer reached. paintInfo() in
+             ../src/amber-console.js prefers an exact "tech/emitter" key over a bare
+             "tech" one, and all eleven emitters now carry their own paragraph. These
+             two stay as the safety net for an emitter added without prose — delete
+             them only if you also drop that fallback. The technology is explained on
+             screen either way by the note under each catalog title. -->
+        <p class="doc-info" data-ac-display-info="plasma">A gas in a sealed gap, struck by a
+          sustain pulse. It emits directly — no phosphor in the stack — so the panel lights one
+          hue and varies only how hard it is driven.</p>
+        <!-- Argon needs its own note. Its EMISSION readout says 696.5nm, which is
+             deep red, while the panel is plainly lavender — that looks like a bug
+             until you know the eye is doing the arithmetic. -->
+        <p class="doc-info" data-ac-display-info="plasma/argon" hidden>Argon puts most of its
+          output past 700nm, where the eye scores under 0.01 — so the 696.5nm peak above is the
+          strongest line, not the color. What you see is the faint 415–475nm group, a hundred
+          times weaker and a hundred times better placed. It is also why argon is a dim GAS — though not a dim palette: every stop here is solved to the same contrast ratio as every other, so what changes between displays is the hue, never the brightness.</p>
+        <p class="doc-info" data-ac-display-info="plasma/krypton" hidden>Krypton spreads its
+          visible output across a blue-violet cluster at 427–450nm, a green line at 557.0nm and a
+          yellow one at 587.1nm. Spread that wide integrates close to white, which is why the
+          panel reads violet rather than any one of those colors.</p>
+        <p class="doc-info" data-ac-display-info="crt" hidden>A beam sweeps a phosphor coating,
+          which emits while struck and then persists. The color belongs to the phosphor, not the
+          beam; the P-number names the compound.</p>
+        <p class="doc-info" data-ac-display-info="plasma/neon">The gas the plasma panel was actually built on, and what this framework opens to. In a low-pressure glow the 2p→1s array dominates — the lowest excited states that radiate visibly, populated far more heavily than anything above them — so the discharge is one narrow orange-red rather than a mixture. Nixie tubes and the first flat panels ran on it.</p>
+        <p class="doc-info" data-ac-display-info="plasma/helium" hidden>The palest gas here, and structurally so: helium has no low-lying manifold to dominate the way the heavier gases do. Its visible lines all fall from n=3 and n=4 at comparable energies, so none outranks the rest and every one contributes. That integrates to near-white with a pink cast — 587.6nm carries the luminance while 447.1nm and 667.8nm pull it off the blackbody locus. A display gas by mixture rather than on its own.</p>
+        <p class="doc-info" data-ac-display-info="crt/p1" hidden>Zn₂SiO₄:Mn — willemite, the oldest CRT phosphor and the one the first oscilloscopes and radar indicators were built around. A silicate host rather than a sulfide, so a narrow 48nm band against P31's 78nm: a purer green, and a less efficient one. P39 is this same compound with arsenic added to stretch the decay.</p>
+        <p class="doc-info" data-ac-display-info="crt/p3" hidden>The amber terminal, and the ramp this framework was drawn against. Not a pure orange but a broad band with real green content — the fit lands at 594nm across 110nm — which is what holds amber text legible at small sizes. It was the standard alternative to green on office terminals, sold on being easier on the eyes across a working day.</p>
+        <p class="doc-info" data-ac-display-info="crt/p31" hidden>ZnS:Cu — the green everybody actually pictures when they picture a terminal or a laboratory oscilloscope. It carries the highest luminous efficiency of any phosphor here, sitting near the peak of the eye's photopic curve, which is why it displaced the willemites for anything meant to be looked at directly rather than photographed.</p>
+        <p class="doc-info" data-ac-display-info="crt/p7" hidden>The radar phosphor, and it went onto scope tubes for a reason: the flash gives
+          position and the trail gives history. Two coatings, not one. The beam writes into a blue
+          ZnS:Ag layer that decays in microseconds, and that layer's own photons pump a
+          yellow-green one behind it which holds for seconds. So the ink is blue and the halo is
+          green: text you are reading is being re-struck sixty times a second, and text that stops
+          being written leaves only the glow.</p>
+        <p class="doc-info" data-ac-display-info="crt/p39" hidden>P1's willemite with arsenic added, which lengthens the decay by orders of magnitude
+          and leaves the color alone — this palette and P1 are the same green, and differ only in
+          how long it lasts. At hundreds of milliseconds the screen is still near full brightness
+          when the next refresh arrives, so there is no flicker to see at any refresh rate. It is
+          paid for in smear.</p>
+        <p class="doc-info" data-ac-display-info="crt/p11" hidden>A photographic-recording phosphor. Blue is where film emulsion is most sensitive, so
+          P11 was fitted to screens meant to be photographed rather than watched — and watched, it
+          is the worst screen here. It decays in tens of microseconds, three orders below a
+          refresh interval, so the screen is genuinely dark between frames. Short persistence and
+          heavy flicker are the same fact.</p>
+        <p class="doc-info" data-ac-display-info="crt/p4" hidden>The television white, and a BLEND rather than a cascade: a blue and a yellow emitter
+          mixed into one coating, emitting together, which the eye integrates to white. That is
+          what separates it from P7 — two powders mixed have one color, two powders layered emit
+          in sequence and the color changes as you watch.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ac-setup__foot">
+    <button type="button" class="ac-btn" data-ac-display-reset>Reset to Preset</button>
+    <span class="ac-spacer"></span>
+    <span class="doc-setup-hint">A preset sets the display and its simulation. Everything stays adjustable — and Reset puts all of it back, switches, styles and engine alike.</span>
+  </div>
+</div>
+<!-- @end -->
+
+<div class="doc-wrap">
+
+<!-- @include _chapters.html -->
+<!-- GENERATED from docs/_chapters.html by scripts/build.mjs — edit the partial, not this. -->
+<!-- The guide's own second level. The top bar names the four demos and the
+     guide; this names the guide's chapters, and it is deliberately NOT sticky —
+     the bar above it is the one thing that must survive scrolling, and two
+     stacked sticky strips eat a quarter of a laptop viewport.
+
+     Not .ac-tabs, though it looks like a row of soft keys: tabs swap a region
+     and these are page loads, which is the distinction the TABS specimen in the
+     CONTROLS chapter draws itself. Marked with aria-current by the build. -->
+<nav class="doc-chapters" aria-label="Guide chapters">
+  <a class="doc-chapter" href="guide.html"><span class="doc-chapter__n">00</span>Overview</a>
+  <a class="doc-chapter" href="guide-color.html"><span class="doc-chapter__n">01</span>Color</a>
+  <a class="doc-chapter" href="guide-type.html"><span class="doc-chapter__n">02</span>Type &amp; Geometry</a>
+  <a class="doc-chapter" href="guide-effects.html"><span class="doc-chapter__n">03</span>Effects</a>
+  <a class="doc-chapter" href="guide-persistence.html"><span class="doc-chapter__n">04</span>Persistence</a>
+  <a class="doc-chapter" href="guide-controls.html"><span class="doc-chapter__n">05</span>Controls</a>
+  <a class="doc-chapter" href="guide-display.html"><span class="doc-chapter__n">06</span>Display</a>
+  <a class="doc-chapter" href="guide-screen.html"><span class="doc-chapter__n">07</span>Screen &amp; Board</a>
+  <!-- 08 AND 09 ARE LOOKUP RATHER THAN READING, and they are still numbered.
+       An unnumbered appendix would have said "optional", which is the opposite of
+       what a complete index is for: the seven chapters before them argue a case
+       and can be read in order, these two answer "does the framework have X" and
+       "what happened to Y" without being read at all. Same strip, same weight —
+       the distinction lives in the blurb on the overview card, not in the
+       numbering. -->
+  <a class="doc-chapter" href="guide-reference.html"><span class="doc-chapter__n">08</span>Reference</a>
+  <a class="doc-chapter" aria-current="page" href="guide-deprecations.html"><span class="doc-chapter__n">09</span>Deprecated</a>
+</nav>
+<!-- @end -->
+
+  <main id="content">
+
+  <header class="doc-head doc-head--chapter">
+    <div class="doc-kicker"><span class="doc-num">09</span> AMBER CONSOLE · SYSTEM GUIDE</div>
+    <h1>DEPRECATED</h1>
+  </header>
+  <p class="doc-lede">Everything the framework has taken away, everything it is going to take away,
+    and what to write instead. If you are upgrading from 1.x, this is the chapter.</p>
+
+  <section id="short-version">
+    <div class="doc-sec-head"><h2>THE SHORT VERSION</h2></div>
+    <div class="doc-prose">
+      <p class="doc-dim">The 1.x <strong>token names</strong> are gone. The 1.x <strong>attributes and
+        JavaScript calls</strong> all still work. So the upgrade only breaks for people who
+        <em>overrode custom properties</em> — if you linked the stylesheet and wrote your own markup,
+        2.0 is a drop-in and there is nothing on this page for you.</p>
+    </div>
+
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">DEPRECATED</span>
+        <span class="doc-faint doc-small">Still works, still tested, still shipped. Announced in the
+          <code>CHANGELOG</code> and listed here with the release that removes it. <strong>Nothing is
+          removed in a minor or patch release</strong> — a deprecation announced in 2.x goes in 3.0 at
+          the earliest, so there is always a whole major cycle to migrate in.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">REMOVED</span>
+        <span class="doc-faint doc-small">Gone from the code. Only ever happens in a
+          <strong>major</strong> version. And while a feature is listed as deprecated it keeps working
+          <em>as documented</em> — it does not quietly degrade first. There is one deliberate
+          exception, and it is argued below: the custom properties were removed outright rather than
+          aliased, because a silently-ignored alias turned out to be worse than an honest
+          absence.</span></div>
+    </div>
+
+    <h3 style="margin:32px 0 12px">STATUS AT A GLANCE</h3>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>FEATURE</th><th>STATUS</th><th>DEPRECATED IN</th><th>REMOVED IN</th><th>USE INSTEAD</th></tr></thead>
+      <tbody>
+        <tr class="doc-table__row--gone"><td class="doc-tok">Unprefixed tokens — --ink, --gap, …</td><td>REMOVED</td><td>—</td><td>2.0</td><td class="doc-tok">--ac-ink, --ac-gap, …</td></tr>
+        <tr class="doc-table__row--gone"><td class="doc-tok">--amber-* ramp tokens</td><td>REMOVED</td><td>1.x</td><td>2.0</td><td class="doc-tok">--ac-emit-100 … --ac-emit-30</td></tr>
+        <tr class="doc-table__row--gone"><td class="doc-tok">--gas-* halo tokens</td><td>REMOVED</td><td>1.x</td><td>2.0</td><td class="doc-tok">--ac-halo-1 … --ac-halo-4</td></tr>
+        <tr class="doc-table__row--gone"><td class="doc-tok">data-ac-style-smear</td><td>REMOVED</td><td>—</td><td>2.0</td><td>Nothing — the smear is automatic now</td></tr>
+        <tr><td class="doc-tok">data-ac-gas="neon" | "amber"</td><td>Deprecated</td><td>2.0</td><td>3.0</td><td class="doc-tok">data-ac-tech + data-ac-emitter</td></tr>
+        <tr><td class="doc-tok">data-ac-gas-toggle</td><td>Deprecated</td><td>2.0</td><td>3.0</td><td class="doc-tok">[data-ac-display] radios</td></tr>
+        <tr><td class="doc-tok">AmberConsole.afterglow(el)</td><td>Deprecated</td><td>2.0</td><td>3.0</td><td class="doc-tok">AmberConsoleEffects.afterglow(el)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="removed">
+    <div class="doc-sec-head"><h2>REMOVED IN 2.0</h2></div>
+
+    <h3 style="margin:28px 0 12px">EVERY CUSTOM PROPERTY IS NOW --AC- PREFIXED</h3>
+    <div class="doc-prose">
+      <p class="doc-dim"><strong>This is the only breaking change in 2.0, and it fails
+        silently.</strong> Setting <code>--ink: lime</code> does not error, does not warn, and does
+        not work — the framework reads <code>--ac-ink</code> and never looks at <code>--ink</code>.</p>
+    </div>
+    <code class="doc-code">/* 1.x — silently ignored in 2.0 */
+:root { --ink: #ffb000; --radius: 0; --leading: 1.4; }
+
+/* 2.0 */
+:root { --ac-ink: #ffb000; --ac-radius: 0; --ac-leading: 1.4; }</code>
+    <div class="doc-prose" style="margin-top:16px">
+      <p class="doc-dim"><strong>To migrate: put <code>ac-</code> in front of every Amber Console
+        property you set.</strong> Values, cascade behaviour and per-palette resolution are all
+        unchanged — this is a rename and nothing more. The complete list of what to rename
+        <em>to</em> is in <a href="guide-reference.html#tokens">REFERENCE · EVERY TOKEN</a>.</p>
+    </div>
+
+    <div class="doc-grid2" style="margin-top:20px">
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">WHY THEY WERE NOT KEPT AS ALIASES</span>
+        <span class="doc-faint doc-small">They were, briefly, and it was worse than useless. Nothing
+          in the framework <em>read</em> the old names, so <code>--ink: red</code> did nothing
+          <strong>and said nothing</strong> — the hardest kind of bug to diagnose. An absent name at
+          least behaves consistently: it does nothing, everywhere, for one obvious reason.</span></div>
+      <div class="doc-demo doc-demo--col"><span class="doc-cap">WHY THEY WERE RENAMED AT ALL</span>
+        <span class="doc-faint doc-small">Not tidiness. <code>dist/amber-console.layer.css</code>
+          exists so the framework can be embedded in an app that owns the page, and <strong>cascade
+          layers do not protect custom properties</strong> — an unlayered
+          <code>:root { --radius: 12px }</code> in the host beats a layered one. A host that happened
+          to use <code>--radius</code>, <code>--gap</code> or <code>--cols</code> silently re-cornered
+          every button, panel, dialog, input, toggle and meter in the framework. <code>--gap</code>
+          and <code>--cols</code> were near-certain collisions in any real codebase.
+          <code>stylelint</code> enforces the prefix now, so the next token cannot go bare.</span></div>
+    </div>
+
+    <h4 class="doc-cap" style="display:block;margin:28px 0 8px">--AC-GAP AND --AC-COLS NEED RENAMING AT THE CALL SITE</h4>
+    <div class="doc-prose">
+      <p class="doc-dim">These two are <strong>consumer-set</strong>: <code>.ac-row</code>,
+        <code>.ac-stack</code> and <code>.ac-grid</code> read them off <em>your</em> element, not off
+        <code>:root</code>. So there was no framework-level value to bridge, and no alias was possible
+        even in principle. Rename them where you write them.</p>
+    </div>
+    <code class="doc-code">&lt;!-- 1.x --&gt;
+&lt;div class="ac-row" style="--gap: 12px"&gt;
+&lt;div class="ac-grid" style="--cols: 3"&gt;
+
+&lt;!-- 2.0 --&gt;
+&lt;div class="ac-row" style="--ac-gap: 12px"&gt;
+&lt;div class="ac-grid" style="--ac-cols: 3"&gt;</code>
+
+    <h4 class="doc-cap" style="display:block;margin:28px 0 8px">--AMBER-* AND --GAS-*</h4>
+    <div class="doc-prose">
+      <p class="doc-dim">Deprecated in 1.x, removed here with the rest.
+        <code>--amber-*</code> named a <em>hue</em> rather than a <em>ramp</em>, which stopped being
+        defensible once the catalog held a lavender and a pink. <code>--gas-*</code> named a
+        <em>gas</em> when what it carried was the halo — the light scattered in the glass — which is a
+        property of the emitter, not the fill.</p>
+    </div>
+    <div class="doc-scroll">
+    <table class="doc-table">
+      <thead><tr><th>1.X</th><th>2.0</th></tr></thead>
+      <tbody>
+        <tr><td class="doc-tok">--amber-100 … --amber-30</td><td class="doc-tok">--ac-emit-100 … --ac-emit-30</td></tr>
+        <tr><td class="doc-tok">--gas-1 … --gas-4</td><td class="doc-tok">--ac-halo-1 … --ac-halo-4</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3 style="margin:32px 0 12px">DATA-AC-STYLE-SMEAR</h3>
+    <div class="doc-prose">
+      <p class="doc-dim">The scroll smear no longer has a switch. It is simply part of what
+        <code>amber-console.effects.js</code> does: on wherever the persistence simulation is running
+        and the engine flag permits it, off everywhere else.</p>
+      <p class="doc-dim">It was a style flag that could only ever be on under CRT — every selector
+        implementing it is scoped to <code>.ac-afterglow</code>, and a plasma cell is driven
+        continuously and has nothing that trails. So it spent most of its life disabled and explaining
+        why, which is a third axis of state for a preference nobody was expressing.
+        <code>prefers-reduced-motion</code> still stops the smear, which was the only accessibility
+        case the flag was actually carrying.</p>
+      <p class="doc-dim"><strong>Nothing breaks if you leave the attribute in your markup</strong> —
+        it is simply inert. Delete it at your convenience.</p>
+      <p class="doc-dim">The mechanism it was written for did not go with it. A style flag can still
+        declare the frame class it is a no-op without, and the switch will disable itself and say why
+        — <code>data-ac-style-retrace</code> is the flag that uses it now. See
+        <a href="guide-screen.html#board">SCREEN &amp; BOARD</a>.</p>
+    </div>
+  </section>
+
+  <section id="deprecated">
+    <div class="doc-sec-head"><h2>DEPRECATED — STILL WORKS, REMOVED IN 3.0</h2></div>
+
+    <h3 style="margin:28px 0 12px">DATA-AC-GAS="NEON" | "AMBER"</h3>
+    <div class="doc-prose">
+      <p class="doc-dim">The 1.x one-attribute palette switch. <strong>It still selects a
+        palette</strong>, so a 1.x page keeps rendering.</p>
+    </div>
+    <code class="doc-code">&lt;!-- Deprecated, works through 2.x --&gt;
+&lt;html data-ac-gas="neon"&gt;
+&lt;html data-ac-gas="amber"&gt;
+
+&lt;!-- 2.0 --&gt;
+&lt;html data-ac-tech="plasma" data-ac-emitter="neon"&gt;
+&lt;html data-ac-tech="crt"    data-ac-emitter="p3"&gt;</code>
+    <div class="doc-prose" style="margin-top:16px">
+      <p class="doc-dim"><strong>The name was the bug.</strong> <code>amber</code> was never a gas —
+        it is P3, a CRT phosphor — and a control that calls a phosphor a gas is exactly the confusion
+        2.0 exists to remove. An emitter is only meaningful inside its technology, which is why naming
+        a palette now takes two attributes: <code>data-ac-tech</code> is what is making light at all,
+        <code>data-ac-emitter</code> is which gas or which phosphor inside it.</p>
+    </div>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:16px"><span class="doc-cap">IT IS A PARTIAL ALIAS — THE ONE BEHAVIOURAL DIFFERENCE WORTH KNOWING</span>
+      <span class="doc-faint doc-small"><code>data-ac-gas</code> carries the <strong>colour</strong>
+        but not the <strong>persistence</strong>:</span>
+      <div class="doc-scroll" style="width:100%">
+      <table class="doc-table">
+        <thead><tr><th>MARKUP</th><th>INK</th><th class="ac-table__num">TAIL</th></tr></thead>
+        <tbody>
+          <tr><td class="doc-tok">data-ac-tech="crt" data-ac-emitter="p3"</td><td class="doc-tok">#ffae1e</td><td class="ac-table__num">25 ms — P3's real decay</td></tr>
+          <tr><td class="doc-tok">data-ac-gas="amber"</td><td class="doc-tok">#ffae1e</td><td class="ac-table__num">105 ms — the generic default</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <span class="doc-faint doc-small">So a 1.x page gets P3's amber with the generic plasma tail
+        rather than P3's own. Visually it is a slightly longer afterglow and nothing more; nothing
+        breaks. It is not worth fixing in the deprecated path, because the two-attribute form is right
+        there — but if your page leans on persistence timing, migrate rather than relying on the
+        alias. Migrating also <strong>unlocks the other nine palettes</strong>:
+        <code>data-ac-gas</code> can only ever reach these two and will not grow to reach more.</span>
+    </div>
+
+    <h3 style="margin:32px 0 12px">DATA-AC-GAS-TOGGLE</h3>
+    <div class="doc-prose">
+      <p class="doc-dim">The old two-position GAS button hook. Still cycles the same two palettes
+        through the new attributes, so a page using it stays correct while it migrates. It cannot
+        reach the rest of the catalog.</p>
+      <p class="doc-dim">Replace it with one <code>[data-ac-display]</code> radio per palette — the
+        catalog is markup, not a table inside the JavaScript, so you can ship your own rows without
+        touching the module.</p>
+    </div>
+    <code class="doc-code">&lt;input type="radio" name="ac-display" data-ac-display
+       data-ac-tech="crt" data-ac-emitter="p3" data-ac-sims="crt"&gt;</code>
+
+    <h3 style="margin:32px 0 12px">AMBERCONSOLE.AFTERGLOW(EL)</h3>
+    <div class="doc-prose">
+      <p class="doc-dim">A forwarding shim. Ghosting moved to
+        <code>amber-console.effects.js</code>, because it is an <em>effect</em> and
+        <code>amber-console.js</code> is <em>behaviour</em> — and the two files are independently
+        optional, which only means anything if neither imports the other.</p>
+    </div>
+    <code class="doc-code">AmberConsole.afterglow(row);         // deprecated, still works
+AmberConsoleEffects.afterglow(row);  // 2.0
+row.remove();</code>
+    <div class="doc-prose" style="margin-top:16px">
+      <p class="doc-dim">The shim delegates when the effects module is present and does nothing when
+        it is not — the same no-op it always was with the simulation switched off. Call it
+        <strong>before</strong> you remove or empty the element: a detached node has no rect, so there
+        is nowhere to pin the ghost.</p>
+    </div>
+  </section>
+
+  <section id="checking">
+    <div class="doc-sec-head"><h2>CHECKING YOUR OWN CODEBASE</h2></div>
+    <p class="doc-dim">Three greps. The first two are the breaking change; the third is the
+      housekeeping.</p>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:16px"><span class="doc-cap">FIND BARE TOKENS</span>
+      <span class="doc-faint doc-small">Every line this prints sets or reads an Amber Console property
+        that 2.0 no longer sees.</span>
+      <code class="doc-code">grep -rnE '\-\-(ink|fill|screen|radius|leading|gap|cols|stroke|emit|halo|glow|space|type|tracking|font|border-w|decay|persist|drive|edge|on-fill|mesh|blink|flicker|smear|ghost|afterimage|amber|gas)\b' .</code>
+    </div>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:16px"><span class="doc-cap">OR LIST THE PROPERTY NAMES THEMSELVES</span>
+      <span class="doc-faint doc-small">Which also catches any bare token the list above misses. Your
+        own custom properties show up here too, so read it as a shortlist rather than a verdict.</span>
+      <code class="doc-code">grep -rhoE '\-\-[a-z][a-z0-9-]*' . | grep -v '^--ac-' | sort -u</code>
+    </div>
+
+    <div class="doc-demo doc-demo--col" style="margin-top:16px"><span class="doc-cap">FIND THE DEPRECATED HOOKS</span>
+      <span class="doc-faint doc-small">These all still work today and go in 3.0.</span>
+      <code class="doc-code">grep -rn 'data-ac-gas\|AmberConsole\.afterglow\|data-ac-style-smear' .</code>
+    </div>
+
+    <p class="doc-faint doc-small" style="margin-top:24px">This chapter is the on-site copy of
+      <code>DEPRECATIONS.md</code> in the repository, which is the canonical one and ships in the npm
+      package. <code>CHANGELOG.md</code> has the full reasoning behind each change, per release.</p>
+  </section>
+
+  <nav class="doc-pager" aria-label="Chapter">
+    <a class="doc-pager__link" href="guide-reference.html">◄ Previous: Reference</a>
+    <span></span>
+  </nav>
+
+  </main>
+
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 2.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="index.html" style="color:var(--ac-ink-dim);text-shadow:var(--ac-glow-text-dim)">GO TO CONSOLE ►</a>
+  </footer>
+
+</div>
+</div>
+
+<script src="../dist/amber-console.global.js"></script>
+<script src="../dist/amber-console.effects.global.js"></script>
+</body>
+</html>

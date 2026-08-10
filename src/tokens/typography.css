@@ -1,17 +1,28 @@
 :root {
-  --font-terminal: "VT323", "Courier New", ui-monospace, monospace;
-  --font-micro: "Silkscreen", "VT323", ui-monospace, monospace;
+  --ac-font-terminal: "VT323", "Courier New", ui-monospace, monospace;
+  --ac-font-micro: "Silkscreen", "VT323", ui-monospace, monospace;
 
-  /* VT323 is a bitmap face: it needs LARGE sizes. Never below 18px. */
-  --type-display: 44px; /* page titles, banners */
-  --type-title: 30px;   /* panel/soft-key headers */
-  --type-body: 22px;    /* default UI text */
-  --type-small: 18px;   /* field labels, legends */
-  --type-micro: 8px;    /* Silkscreen only — bit labels, badges */
+  /* VT323 is a bitmap face: it needs LARGE sizes. Never below 18px — below that
+     the grid collapses and it turns to mud. --ac-type-micro is Silkscreen's,
+     never VT323's; components/badge.css states the same rule from the other end.
 
-  --tracking-display: 0.1em;
-  --tracking-body: 0.04em;
-  --tracking-micro: 0.08em;
+     TWO DELIBERATE EXCEPTIONS, AND BOTH ARE GLYPHS RATHER THAN TEXT.
+     components/select.css sets the dropdown chevron at 14px and
+     components/nav.css sets the mark block at 16px, both in the terminal face.
+     The floor exists because a bitmap face loses its letterforms when it is
+     resampled small, and neither of these HAS a letterform to lose: they are
+     solid geometry, one triangle and one filled square, and they read the same
+     at any size. Nothing anybody has to READ goes below 18px. Add to that list
+     only for another single non-alphanumeric glyph, and say so at the site. */
+  --ac-type-display: 44px; /* page titles, banners */
+  --ac-type-title: 30px;   /* panel/soft-key headers */
+  --ac-type-body: 22px;    /* default UI text */
+  --ac-type-small: 18px;   /* field labels, legends */
+  --ac-type-micro: 8px;    /* Silkscreen only — bit labels, badges */
 
-  --leading: 1.15; /* terminal rows sit tight */
+  --ac-tracking-display: 0.1em;
+  --ac-tracking-body: 0.04em;
+  --ac-tracking-micro: 0.08em;
+
+  --ac-leading: 1.15; /* terminal rows sit tight */
 }

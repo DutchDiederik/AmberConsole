@@ -24,13 +24,25 @@ npm run test:visual
 ## Before opening a pull request
 
 ```bash
-npm test             # check + contrast + build, all zero-dependency
-npm run lint         # stylelint: ac- BEM pattern       (needs npm install)
-npm run test:visual  # 14 Playwright captures           (needs npm install)
+npm install
+npm test             # lint + check + gas + contrast + build — what CI runs
+npm run test:visual  # 99 Playwright captures over 14 pages, 43 baselined
+npm run test:computed  # 920 computed-style probes
 ```
 
-`npm test` runs the prohibitions gate (no second hue, no svg, no emoji, no transitions in
-components), recomputes the contrast table against both palettes, and rebuilds `dist/`.
+`npm test` lints the stylesheets, runs the prohibitions gate (no second hue, no svg, no emoji, no
+transitions in components), re-derives the generated gas palettes and fails on drift, recomputes the
+contrast table against every palette, and rebuilds `dist/`.
+
+**It leads with `npm run lint`, so `npm test` needs the dev dependencies** — the four gates behind
+it do not. If you have not installed anything, `npm run check && npm run gas -- --check && npm run
+contrast && npm run build` is the same coverage minus the linter.
+
+**The gas palettes are generated.** `plasma/helium`, `plasma/argon` and `plasma/krypton` are computed
+by `scripts/derive-gas.mjs` from the line tables in `scripts/data/emitters.json` — do not hand-edit
+those blocks in `colors.css`, change the line table or the selection rule and re-run `npm run gas`.
+Neon and `crt/p3` are hand-built and stay that way; neon is in the line table only as the
+known-answer gate the pipeline is checked against.
 
 `dist/` is committed on purpose: the demo pages link it directly and GitHub Pages serves them
 without a build step. Rebuild before you commit or the demos will be stale.
@@ -39,9 +51,25 @@ without a build step. Rebuild before you commit or the demos will be stale.
 
 These are enforced by `scripts/check-prohibitions.mjs`, which fails the build:
 
-- **No second hue.** No red, no green, no "success" colour. Danger is blink plus inverse video.
-  Literal hex is allowed only in `tokens/colors.css`, `tokens/effects.css` and `base/print.css`.
-- **No `transition` in `src/components/`.** State changes are instant — a redrawn screen has no
+> **Two test suites, and they see different things.** `npm run test:visual` compares screenshots; it
+> freezes animation and never hovers, so it is blind to which keyframe is running and to every
+> `:hover` / `:active` state. `npm run test:computed` reads computed styles for exactly those —
+> 920 probes over blink, the persistence layers, the corner styles, the inert states, the meter
+> drive levels, and the
+> palette as the cascade actually resolves it in each medium. Run both before a release; the
+> computed one also runs in CI,
+> the visual one cannot (font rasterisation differs on Linux).
+>
+> **A screenshot suite cannot report a bug its baseline already contains.** The five print captures
+> passed for a whole release while `base/print.css` was losing half the palette to a specificity
+> tie — they had photographed the broken page and called it correct. That is why the `palette /`
+> probes measure contrast instead of comparing pixels.
+
+- **No second hue.** No red, no green, no "success" color. Danger is blink plus inverse video.
+  Literal hex is allowed only in `tokens/colors.css`, `base/print.css`, and the two `sim/` files that
+  use `#000` inside a `mask-image` (where the value is alpha, not a color).
+- **No `transition` anywhere in `src/` except `sim/afterglow.css`, `sim/frame.css`, `base/a11y.css`
+  and `base/print.css`.** State changes are instant — a redrawn screen has no
   in-between frames. The only motion in the system is the `steps(1)` blink, the block cursor, and the
   two hardware simulations.
 - **No icon set, no emoji, no SVG, no imagery.** Ornament is typographic: `✳ █ ▮ ▯ ▲ ▼ ◄ ►` and
@@ -50,7 +78,7 @@ These are enforced by `scripts/check-prohibitions.mjs`, which fails the build:
 
 And two the linter cannot check:
 
-- **No hairlines on structure.** Every stroke is `var(--border-w)`. `.ac-badge` is the single
+- **No hairlines on structure.** Every stroke is `var(--ac-border-w)`. `.ac-badge` is the single
   legitimate 1px border, because a chip is not structure.
 - **Casing is semantic.** ALL CAPS for system text, Title Case for operator soft keys. Preserve the
   split in every example you write.
@@ -62,6 +90,11 @@ system and several look odd on purpose — `padding: 8px 24px 20px` on `.ac-tab`
 illusion, `min-width: 130px` on `.ac-btn--pad` is a gloved-finger target, the `1px` border on
 `.ac-badge` is deliberate.
 
+**Read [RATIONALE.md](RATIONALE.md) before you argue with a number.** It carries the derivation for
+most of them — why neon is 24deg, why the drive tiers are three tokens and not one multiplier, why
+the two corner paths use different radii — and the comments in `src/` point into it by section. If
+the value you want to change has a section there, answer that section.
+
 If you do change one, list it in `CHANGELOG.md` with the reason. Accessibility criteria are a valid
 reason; taste is not.
 
@@ -72,16 +105,38 @@ belong here. Every new component needs:
 
 - its own file in `src/components/`, added to the `@import` list in `src/amber-console.css`
 - a header comment stating what it is, the minimum markup, and **when not to use it**
-- a specimen in `docs/guide.html` §06 or §07 with a copyable class string and that same caveat
+- a specimen in `docs/guide-controls.html` or `docs/guide-display.html` with a copyable class string
+  and that same caveat
 - a row in the README class reference
-- correct behaviour under `prefers-reduced-motion`, `forced-colors: active` and `@media print`
+- correct behavior under `prefers-reduced-motion`, `forced-colors: active` and `@media print`
 - a 44×44 minimum hit area if it is interactive, and a `:focus-visible` ring
+
+## The docs pages are partly generated
+
+`docs/` has fourteen pages and all of them carry the same menu bar and the same setup board. Those
+live in `docs/_nav.html`, `docs/_board.html` and `docs/_chapters.html`, and `npm run build` expands
+them in place between markers:
+
+```html
+<!-- @include _board.html emitter="p7" -->
+…generated — do not edit…
+<!-- @end -->
+```
+
+**Edit the partial, not the expansion** — the next build overwrites it. The expansion is committed
+so `docs/` still opens over `file://` with no build having been run, and so a diff shows what
+actually changed on the page.
+
+The board takes one argument, the emitter the page loads with. Everything that follows from it —
+which catalog row is `checked`, whether the JS Effects switch has anything to do, which technology
+note is visible — is derived at build time from `src/tokens/colors.css`, so there is no second place
+for it to disagree.
 
 ## Accessibility is not optional
 
 This aesthetic actively fights accessibility, which is exactly why the gates exist. Anything
-interactive needs a visible focus ring on both `--screen` and inverse-video backgrounds. Anything
-that signals state must do so without relying on motion or on a single colour intensity. Run
+interactive needs a visible focus ring on both `--ac-screen` and inverse-video backgrounds. Anything
+that signals state must do so without relying on motion or on a single color intensity. Run
 `npm run contrast` if you touch the palette, and paste the regenerated table into the README.
 
 ## Packaging
@@ -93,9 +148,9 @@ Two things in `package.json` look wrong and are not:
   nothing. They are needed only by `npm run lint` and `npm run test:visual`; `build`, `check` and
   `contrast` are pure Node and need no install at all.
 - **`sideEffects` lists the JS builds as well as `*.css`, and must keep doing so.**
-  `import "amber-console/js"` is a bare side-effect import — the module auto-initialises and its
+  `import "amber-console/js"` is a bare side-effect import — the module auto-initializes and its
   exports go unused — so a bundler told the file is side-effect free will drop it silently. Trim
-  that array to `["*.css"]` and the optional behaviour disappears from production builds with no
+  that array to `["*.css"]` and the optional behavior disappears from production builds with no
   error anywhere.
 
 ## Fonts

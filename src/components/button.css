@@ -10,68 +10,114 @@
 
 .ac-btn {
   display: inline-block;
-  font-family: var(--font-terminal);
-  font-size: var(--type-body);
+  font-family: var(--ac-font-terminal);
+  font-size: var(--ac-type-body);
   line-height: 1;
   text-transform: uppercase;
   text-decoration: none;
-  letter-spacing: var(--tracking-body);
-  color: var(--ink);
+  letter-spacing: var(--ac-tracking-body);
+  color: var(--ac-ink);
   background: transparent;
-  border: var(--border-w) solid var(--stroke);
-  border-radius: var(--radius);
+  border: var(--ac-border-w) solid var(--ac-stroke);
+  /* HALO PLUS EXTRUSION, IN THAT ORDER, ON EVERY STATE THAT HAS A HALO.
+     --ac-edge is the classic key edge and is set only by a corner scope
+     (components/classic.css); outside one it is undefined and the fallback
+     paints nothing, so a rounded key is unchanged.
+
+     IT IS DECLARED HERE RATHER THAN IN classic.css, and that is the fix for a
+     real bug. classic.css used to add the edge from a scope-prefixed rule at
+     (0,2,0), which outranked .ac-btn--dim at (0,1,0) and handed a dim key the
+     FULL halo — so under the default corner style every dim key glowed as hard
+     as a lit one, contradicting the drive-tier law the framework gates
+     everywhere else. Each state now carries its own tier and its own edge, so
+     the two cannot disagree. */
+  box-shadow: var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent);
+  border-radius: var(--ac-radius);
   padding: 10px 22px;
   cursor: pointer;
-  text-shadow: var(--glow-text);
+  text-shadow: var(--ac-glow-text);
 }
 
 .ac-btn:hover {
-  color: var(--ink-bright);
-  border-color: var(--amber-100);
-  box-shadow: var(--glow-box);
+  color: var(--ac-ink-bright);
+  text-shadow: var(--ac-glow-text);
+  border-color: var(--ac-ink-bright);
+  box-shadow: var(--ac-glow-box), var(--ac-edge, 0 0 0 transparent);
 }
 
 /* Press snaps to inverse video. No transition — a redrawn screen has no
-   in-between frames. */
+   in-between frames. The edge flips to --ac-edge-press: a pressed key is IN, and
+   the light is what moves. */
 .ac-btn:active {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
+  box-shadow: var(--ac-glow-box), var(--ac-edge-press, 0 0 0 transparent);
 }
 
+/* A latched key reads pressed for as long as it is latched, so --filled and
+   aria-pressed take the pressed edge too. */
 .ac-btn--filled,
 .ac-btn[aria-pressed="true"] {
-  background: var(--fill);
-  color: var(--on-fill);
+  background: var(--ac-fill);
+  color: var(--ac-on-fill);
   text-shadow: none;
-  box-shadow: var(--glow-box);
+  box-shadow: var(--ac-glow-box), var(--ac-edge-press, 0 0 0 transparent);
 }
+/* Restated because .ac-btn:hover weighs the same and lands earlier: without it a
+   hovered latched key would pop back out to the resting edge. */
 .ac-btn--filled:hover,
 .ac-btn[aria-pressed="true"]:hover {
-  background: var(--fill-bright);
-  color: var(--on-fill);
+  background: var(--ac-fill-bright);
+  color: var(--ac-on-fill);
+  text-shadow: none;
+  box-shadow: var(--ac-glow-box), var(--ac-edge-press, 0 0 0 transparent);
 }
 
-/* Dim never glows — glow is the signal of energization. */
+/* Dim is a DRIVE LEVEL, not an off state — emit-50 is still a lit cell, so it
+   still scatters, just less. The key is still EXTRUDED, though: the edge is
+   geometry and does not answer to how hard the cell behind it is driven. Only
+   genuinely inert things go flat; see the :disabled rule below and the
+   drive-tier note in tokens/effects.css. */
 .ac-btn--dim {
-  color: var(--ink-faint);
-  border-color: var(--stroke-dim);
-  text-shadow: none;
+  color: var(--ac-ink-faint);
+  border-color: var(--ac-stroke-dim);
+  text-shadow: var(--ac-glow-text-faint);
+  box-shadow: var(--ac-glow-box-dim), var(--ac-edge, 0 0 0 transparent);
 }
 
 .ac-btn--lg {
-  font-size: var(--type-title);
+  font-size: var(--ac-type-title);
   padding: 14px 28px;
 }
 
-/* NOTE: --sm computes to roughly 30px tall, below the 44px hit-target floor.
-   The value is fixed by the source design system, so it is documented rather
-   than changed — see "Known constraints" in README.md. Reserve it for dense,
-   mouse-driven tooling; never use it for a primary control on a touch panel. */
+/* ---------------------------------------------------------------------------
+   ACCESSIBILITY WARNING — READ BEFORE USING THIS CLASS.
+
+   .ac-btn--sm computes to 34px tall. WCAG 2.2 Target Size (Minimum,
+   2.5.8, AA) asks for 24x24 CSS px and the widely-used practical floor is 44px;
+   this clears the spec minimum and misses the comfortable one. On a touch
+   screen it is genuinely hard to hit.
+
+   It is not silently resized because the value comes from the source design
+   system and every other size in the scale is solved against it.
+
+   SAFE:   dense mouse-driven tooling — a log filter, a table's row actions,
+           a settings row in an admin panel.
+   UNSAFE: anything on a touch panel, and any PRIMARY action anywhere. Use the
+           default .ac-btn for those — it measures 46px tall, clearing the 44px
+           practical floor, and it is the default for this reason. (46 rather
+           than a round 44 because the height is the sum of the parts: 22px body
+           text at line-height 1, plus 10px padding twice, plus a 2px border
+           twice. Nothing here is set to a target size directly.)
+
+   If you need small AND touch-safe, keep .ac-btn--sm for the look and give the
+   control padding or a pseudo-element that extends the hit area to 44px without
+   changing the drawn box. --------------------------------------------------- */
 .ac-btn--sm {
-  font-size: var(--type-small);
+  font-size: var(--ac-type-small);
   padding: 6px 14px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--ac-radius-sm);
 }
 
 /* The gloved-finger touch pad: label parked top-left, body deliberately empty. */
@@ -95,15 +141,25 @@
 
 .ac-btn:disabled,
 .ac-btn[aria-disabled="true"] {
-  color: var(--ink-faint);
-  border-color: var(--stroke-dim);
+  color: var(--ac-ink-faint);
+  border-color: var(--ac-stroke-dim);
   background: transparent;
   text-shadow: none;
+  /* Inert, so no halo at all — not a dimmer one. This is the half of law 1 that
+     the drive tiers must never quietly absorb.
+
+     THE RULE HOLDS FOR EVERY CONTROL THAT IS ITSELF THE LAMP: this key,
+     .ac-tab, .ac-input, .ac-check and .ac-radio all go to `none`. There is ONE
+     stated exception and it is the toggle HOUSING, which keeps
+     --ac-glow-box-dim because it is a box that is still drawn rather than a cell
+     that is no longer lit — components/toggle.css argues that case where it
+     makes it, and the thumb inside it, which IS the lamp, goes dark like
+     everything here. Anything else keeping a halo while disabled is drift. */
   box-shadow: none;
   cursor: default;
 }
 
 .ac-btn:focus-visible {
-  outline: 2px dashed var(--ink-dim);
+  outline: 2px dashed var(--ac-ink-dim);
   outline-offset: 3px;
 }

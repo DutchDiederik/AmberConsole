@@ -1,7 +1,7 @@
 /* ===========================================================================
    Forced colors
 
-   This whole design is a colour trick, so high-contrast mode needs a real
+   This whole design is a color trick, so high-contrast mode needs a real
    fallback rather than a broken one. Per the Forced Colors Mode spec the UA
    forces text-shadow and box-shadow to none, which kills the discharge glow —
    but ONLY while an element keeps forced-color-adjust: auto. What is left to do:
@@ -16,23 +16,65 @@
    POINT 4 IS NOT BOOKKEEPING. `forced-color-adjust: none` opts an element out
    of forced colors WHOLESALE, and that hands it back its box-shadow — so the
    very rules that preserve inverse video also reinstate an amber discharge halo
-   around it, which is an off-palette colour bleeding into the one mode that
-   exists to have no off-palette colours. Every block below that sets
+   around it, which is an off-palette color bleeding into the one mode that
+   exists to have no off-palette colors. Every block below that sets
    forced-color-adjust: none must also restate its shadows.
 
    The inverse-video list is the whole set of components that fill with
-   var(--fill). Grep for it before adding a component: a state that reads as
+   var(--ac-fill). Grep for it before adding a component: a state that reads as
    "the machine is speaking" and flattens to an outline here has lost its
    meaning, not just its styling.
    =========================================================================== */
 
 @media (forced-colors: active) {
+  /* THE HALO AND THE KEY EDGE ARE SWITCHED OFF AT THE TOKEN, NOT PER RULE.
+     ---------------------------------------------------------------------
+     Every box-shadow this framework paints is built from these four tokens, so
+     zeroing them here removes the discharge colour from all of them at once —
+     and, crucially, does it in a way NO component rule can out-specify. A rule
+     can beat `box-shadow: none` by weighing more; it cannot beat a token it is
+     itself reading.
+
+     That distinction is not theoretical. The per-selector suppression below
+     lists `.ac-btn--filled` and `.ac-tab--active` at (0,1,0), and a component
+     only has to say `.ac-btn--filled:hover` at (0,2,0) to take the halo back —
+     which is exactly what happened twice: once when components/classic.css
+     appended the extruded edge from a scope-prefixed rule, and again when
+     button.css and tabs.css restated the pressed edge on :hover. Both put a
+     full-strength rgba(255,120,30) glow around a latched control in the one
+     mode that exists to contain no off-palette colour at all.
+
+     `0 0 0 transparent` rather than `none`, because these are consumed inside a
+     comma-separated list — `var(--ac-glow-box), var(--ac-edge)` resolving to
+     `none, …` is not a valid shadow list and invalidates the whole declaration.
+     A transparent shadow paints nothing and stays valid.
+
+     The selector list is every element that REDECLARES one of these: .ac-bloom
+     amplifies the glow, and the corner scopes set the edge. Adding a new scope
+     means adding it here. */
+  :root,
+  .ac-bloom,
+  .ac-classic,
+  .ac-rounded,
+  [data-ac-style-classic] {
+    --ac-glow-box: 0 0 0 transparent;
+    --ac-glow-box-dim: 0 0 0 transparent;
+    --ac-edge: 0 0 0 transparent;
+    --ac-edge-press: 0 0 0 transparent;
+  }
+
   .ac-bloom::before,
   .ac-crt::after,
   .ac-scanlines::after,
   .ac-retrace,
   .ac-persist,
-  .ac-mesh {
+  .ac-mesh,
+  /* The radar wake is a gradient in --ac-halo-N, which forced colors has no way to
+     map and no reason to keep. It is also the last blended element left in this
+     mode, and one `mix-blend-mode` anywhere promotes the stacking context and
+     costs subpixel text antialiasing page-wide — see the matching note in
+     print.css. The face and its rings stay; they are drawn with borders. */
+  .ac-sweep__beam {
     display: none;
   }
 
@@ -44,8 +86,43 @@
     filter: none;
   }
 
+  /* Same argument for the de-energizing afterimage. The UA forces shadows off
+     for anything still at forced-color-adjust: auto, but this halo is built from
+     --ac-halo-N rather than from a forced system color, and the elements it sits on
+     are exactly the ones this file opts OUT of forced colors further down —
+     which hands them their box-shadow back.
+
+     Through the token, so the five selectors are not restated here — and being
+     an inherited value rather than a competing rule, there is no longer a weight
+     to match. The scroll smear rides along for the same reason, in case the page
+     is captured mid-scroll.
+
+     BLINK IS THE ONE THAT COMES BACK rather than going away. It carries the
+     alarm, so it survives forced colors — but it returns to a hard steps(1)
+     edge, because every frame the decay adds is a partly-transparent one, and a
+     user who asked for maximum contrast did not ask for an alarm that spends a
+     third of its cycle sliding through it. */
+  :root {
+    --ac-afterimage-display: none;
+    --ac-smear-filter: none;
+    --ac-blink-force: ac-blink;
+    --ac-blink-force-ease: steps(1);
+  }
+
+  /* A trailing bar is a low-contrast duplicate of the live one, which is what high-contrast mode exists to prevent. */
+  .ac-afterglow .ac-meter__track::before {
+    display: none;
+  }
+
+  /* A page dissolving into the next one is a low-contrast duplicate of the whole
+     screen, for the same reason the ghosts are. */
+  html:has(.ac-afterglow)::view-transition-old(root),
+  html:has(.ac-afterglow)::view-transition-new(root) {
+    animation: none;
+  }
+
   /* Blanket, for the same reason as the reduced-motion block in
-     tokens/effects.css: every decay is a descendant rule under .ac-afterglow and
+     sim/frame.css: every decay is a descendant rule under .ac-afterglow and
      outranks a plain reset, so catching them by name means missing the next one. */
   .ac-afterglow *,
   .ac-afterglow *::before,
@@ -53,24 +130,11 @@
     transition: none !important;
   }
 
-  /* And the scroll smear, in case the page is captured mid-scroll. The :not()
-     list mirrors the one in tokens/effects.css — keep them identical. */
-  .ac-afterglow[data-ac-scrolling] > *:not(.ac-persist, .ac-retrace, .ac-mesh) {
-    filter: none;
-  }
-
-  /* Blink survives forced colors — it carries the alarm — but it goes back to a
-     hard steps(1) edge. Every frame the decay adds is a partly-transparent one,
-     and a user who asked for maximum contrast did not ask for an alarm that
-     spends a third of its cycle sliding through it. */
-  .ac-afterglow .ac-blink,
-  .ac-afterglow .ac-cursor::after,
-  .ac-afterglow .ac-field--invalid .ac-input,
-  .ac-afterglow .ac-input[aria-invalid="true"],
-  .ac-afterglow .ac-meter--alarm .ac-meter__bar {
-    animation-name: ac-blink;
-    animation-timing-function: steps(1);
-    filter: none;
+  /* NOT redundant with the --ac-blink-force above. That one is what outranks the
+     CRT simulation's own blink curve; without this rule restating it for the
+     flag, the block above would restart a blink the user has switched off. */
+  [data-ac-style-blink="off"] {
+    --ac-blink-force: none;
   }
 
   .ac-btn,
@@ -163,6 +227,33 @@
     forced-color-adjust: none;
     background: Highlight;
     box-shadow: none;
+  }
+
+  /* OVER-RANGE, WITH THE SAME INVERSION THE PALETTE DOES. components/meter.css
+     lights the track and cuts the bar out of it, because the blink that used to
+     be the only alarm signal is switched off in this mode. Restated here or the
+     rule above would paint the bar Highlight on a Canvas track and the alarm
+     would read as an ordinary meter — which is the exact failure the fill was
+     added to prevent. */
+  .ac-meter--alarm .ac-meter__track {
+    forced-color-adjust: none;
+    background: Highlight;
+    box-shadow: none;
+  }
+  .ac-meter--alarm .ac-meter__bar {
+    background: HighlightText;
+  }
+
+  /* A meter driven below full is not the same reading as one at full drive, and
+     Highlight has no way to say "less". The rule above matched every bar
+     unconditionally, so a .ac-meter--dim bar — which is deliberately drawn at
+     the faint tier with its halo off — came back at full strength here and
+     claimed a reading it does not have. GrayText is this mode's own word for
+     present-but-not-active, and it is what the disabled thumb already uses.
+     Print needs no equivalent: base/print.css re-points --ac-ink-faint to a mid
+     grey, so a dim bar already prints grey against a black one. */
+  .ac-meter--dim .ac-meter__bar {
+    background: GrayText;
   }
 
   /* The radio keeps its ring: the gap is punched with an inset shadow, so this

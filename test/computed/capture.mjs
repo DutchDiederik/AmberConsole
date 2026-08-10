@@ -1,0 +1,582 @@
+#!/usr/bin/env node
+/**
+ * capture.mjs — computed-style regression for the things a SCREENSHOT CANNOT SEE.
+ *
+ *   npm run test:computed            compare against baselines
+ *   npm run test:computed -- --update  (re)write the baselines
+ *
+ * WHY THIS EXISTS, AND IT IS NOT THEORETICAL.
+ *
+ * test/visual/ freezes animation before it captures — it has to, or a blinking
+ * alarm makes every run non-deterministic. So at the frozen frame a blinking
+ * element and a stopped one are both fully opaque and look identical. It also
+ * never hovers and never presses, so the extruded key edge, the pressed edge and
+ * every :hover state are invisible to it.
+ *
+ * During the effects.css split an unterminated comment silently swallowed a live
+ * rule. stylelint passed. The build passed. All 85 screenshots passed. This
+ * suite caught it, because the rule it ate was `display: none` on an overlay
+ * whose computed value it checks.
+ *
+ * WHAT IT COVERS
+ *   blink    5 blink sites x 7 page states x 4 media  — which keyframe is
+ *            running, at what timing function, and whether the decay filter is
+ *            applied. This is the machinery with the most environment overrides
+ *            and the least screenshot coverage.
+ *   layers   the afterimage, the meter ghost and the scroll smear, in every
+ *            media that suppresses them. All are mid-decay-only effects.
+ *   corners  13 controls x 8 corner scopes x 3 interaction states — including
+ *            :hover and :active, which no screenshot in this repo takes.
+ *
+ * PLATFORM-INDEPENDENT, unlike the visual suite. Nothing here depends on font
+ * rasterisation, so unlike test/visual/ this one is safe to run in CI.
+ */
+import { chromium } from "playwright";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(HERE, "../..");
+const BASELINES = path.join(HERE, "baselines");
+const update = process.argv.includes("--update");
+
+const CSS = await readFile(path.join(ROOT, "dist/amber-console.css"), "utf8");
+
+/* Inlined rather than linked: page.setContent gives the page an about:blank
+   origin, which blocks file:// subresources — a linked stylesheet would
+   silently never apply and every probe would read the UA default. */
+const page$ = async (browser, media, body) => {
+  const ctx = await browser.newContext();
+  const p = await ctx.newPage();
+  await p.emulateMedia(media);
+  await p.setContent(
+    `<!doctype html><html><head><style>${CSS}</style></head><body>${body}</body></html>`
+  );
+  await p.waitForLoadState("load");
+  return { p, ctx };
+};
+
+const MEDIA = [
+  ["screen", { media: "screen", reducedMotion: "no-preference", forcedColors: "none" }],
+  ["reduced-motion", { media: "screen", reducedMotion: "reduce", forcedColors: "none" }],
+  ["forced-colors", { media: "screen", reducedMotion: "no-preference", forcedColors: "active" }],
+  ["print", { media: "print", reducedMotion: "no-preference", forcedColors: "none" }],
+];
+
+/* ---------------------------------------------------------------- blink -- */
+
+const BLINK_BODY = `
+<div class="ac-screen" id="frame"><div class="ac-screen__body">
+  <span class="ac-blink" id="s-blink">ALARM</span>
+  <span class="ac-cursor" id="s-cursor">RDY</span>
+  <div class="ac-field ac-field--invalid"><input class="ac-input" id="s-invalid-class" value="x"></div>
+  <input class="ac-input" id="s-invalid-aria" aria-invalid="true" value="x">
+  <div class="ac-meter ac-meter--alarm"><div class="ac-meter__track">
+    <div class="ac-meter__bar" id="s-meter"></div></div></div>
+</div></div>`;
+
+const BLINK_SITES = [
+  ["blink", "#s-blink", null],
+  ["cursor", "#s-cursor", "::after"],
+  ["invalid-class", "#s-invalid-class", null],
+  ["invalid-aria", "#s-invalid-aria", null],
+  ["meter-alarm", "#s-meter", null],
+];
+
+/* P7 and P39 select the long-decay keyframe, so both are worth a column. */
+const BLINK_STATES = [
+  ["default", {}, []],
+  ["blink-off", { "data-ac-style-blink": "off" }, []],
+  ["afterglow", {}, ["ac-afterglow"]],
+  ["afterglow+blink-off", { "data-ac-style-blink": "off" }, ["ac-afterglow"]],
+  ["afterglow+p39", { "data-ac-tech": "crt", "data-ac-emitter": "p39" }, ["ac-afterglow"]],
+  ["afterglow+p7", { "data-ac-tech": "crt", "data-ac-emitter": "p7" }, ["ac-afterglow"]],
+  ["afterglow+p39+blink-off",
+    { "data-ac-tech": "crt", "data-ac-emitter": "p39", "data-ac-style-blink": "off" },
+    ["ac-afterglow"]],
+];
+
+async function blink(browser, out) {
+  for (const [mName, media] of MEDIA) {
+    for (const [sName, attrs, frameCls] of BLINK_STATES) {
+      const { p, ctx } = await page$(browser, media, BLINK_BODY);
+      await p.evaluate(({ attrs, frameCls }) => {
+        for (const [k, v] of Object.entries(attrs)) document.documentElement.setAttribute(k, v);
+        for (const c of frameCls) document.getElementById("frame").classList.add(c);
+      }, { attrs, frameCls });
+
+      for (const [label, sel, pseudo] of BLINK_SITES) {
+        out[`blink / ${mName} / ${sName} / ${label}`] = await p.evaluate(
+          ({ sel, pseudo }) => {
+            const el = document.querySelector(sel);
+            if (!el) return "MISSING";
+            const cs = getComputedStyle(el, pseudo || undefined);
+            /* Only animation-NAME and filter render. Duration and timing are
+               inert once the name is `none`, and reporting them would make an
+               `animation: none` -> `animation-name: none` refactor look like a
+               regression when nothing about the paint changed. */
+            return cs.animationName === "none"
+              ? `name=none filter=${cs.filter}`
+              : `name=${cs.animationName} ease=${cs.animationTimingFunction} dur=${cs.animationDuration} filter=${cs.filter}`;
+          },
+          { sel, pseudo }
+        );
+      }
+      await ctx.close();
+    }
+  }
+}
+
+/* --------------------------------------------------------------- layers -- */
+
+const LAYER_BODY = `
+<div class="ac-screen ac-afterglow" id="frame">
+  <span class="ac-persist" id="persist"></span>
+  <div class="ac-screen__body" id="child">
+    <button class="ac-btn ac-btn--filled" id="a-btn">KEY</button>
+    <button class="ac-tab ac-tab--active" id="a-tab">TAB</button>
+    <a class="ac-nav__link" aria-current="page" id="a-nav">NAV</a>
+    <span class="ac-badge ac-badge--filled" id="a-badge">B</span>
+    <table class="ac-table"><tbody><tr class="ac-table__row--active">
+      <td id="a-td">C</td></tr></tbody></table>
+    <div class="ac-meter"><div class="ac-meter__track" id="a-track"></div></div>
+  </div>
+  <nav class="ac-nav ac-nav--sticky" id="sticky">S</nav>
+</div>`;
+
+const LAYER_SITES = [
+  ["afterimage-btn", "#a-btn", "::after", "boxShadow"],
+  ["afterimage-tab", "#a-tab", "::after", "boxShadow"],
+  ["afterimage-nav", "#a-nav", "::after", "boxShadow"],
+  ["afterimage-badge", "#a-badge", "::after", "boxShadow"],
+  ["afterimage-td", "#a-td", "::after", "boxShadow"],
+  ["afterimage-btn-display", "#a-btn", "::after", "display"],
+  ["afterimage-td-display", "#a-td", "::after", "display"],
+  ["meterghost-display", "#a-track", "::before", "display"],
+  ["smear-child", "#child", null, "filter"],
+  ["smear-persist", "#persist", null, "filter"],
+  ["smear-sticky", "#sticky", null, "filter"],
+  ["smearbloom-display", "#persist", "::after", "display"],
+];
+
+async function layers(browser, out) {
+  for (const [mName, media] of MEDIA) {
+    for (const scrolling of [false, true]) {
+      const { p, ctx } = await page$(browser, media, LAYER_BODY);
+      await p.evaluate((s) => {
+        const f = document.getElementById("frame");
+        /* --ac-smear is what the effects module drives, on the frame. */
+        if (s) { f.setAttribute("data-ac-scrolling", ""); f.style.setProperty("--ac-smear", "1"); }
+        document.getElementById("a-track").style.setProperty("--ac-meter-value", "40");
+      }, scrolling);
+
+      for (const [label, sel, pseudo, prop] of LAYER_SITES) {
+        out[`layers / ${mName} / scroll=${scrolling} / ${label}`] = await p.evaluate(
+          ({ sel, pseudo, prop }) => {
+            const el = document.querySelector(sel);
+            return el ? getComputedStyle(el, pseudo || undefined)[prop] : "MISSING";
+          },
+          { sel, pseudo, prop }
+        );
+      }
+      await ctx.close();
+    }
+  }
+}
+
+/* -------------------------------------------------------------- corners -- */
+
+const CORNER_BODY = `
+<div class="ac-screen" id="frame"><div class="ac-screen__body">
+  <button class="ac-btn" id="b-plain">A</button>
+  <button class="ac-btn ac-btn--filled" id="b-filled">B</button>
+  <button class="ac-btn" aria-pressed="true" id="b-pressed">C</button>
+  <button class="ac-btn ac-btn--dim" id="b-dim">D</button>
+  <button class="ac-btn" disabled id="b-disabled">E</button>
+  <button class="ac-btn" aria-disabled="true" id="b-ariadis">F</button>
+  <button class="ac-btn ac-btn--block" id="b-block">G</button>
+  <button class="ac-btn ac-btn--pad" id="b-pad">H</button>
+  <button class="ac-btn ac-keypad__key" id="b-keypad">7</button>
+  <button class="ac-toggle" id="t-btn"><span class="ac-toggle__track" id="t-track">
+    <span class="ac-toggle__thumb"></span></span></button>
+  <button class="ac-toggle" disabled id="t-btn-dis"><span class="ac-toggle__track" id="t-track-dis">
+    <span class="ac-toggle__thumb"></span></span></button>
+  <!-- The CSS-only toggle, in both states. It is a separate code path from the
+       button form above — a <label> wrapping a real checkbox — and the two are
+       documented as equivalent, so both have to be measured or they drift. They
+       had: the disabled button form dimmed its housing while this one blanked
+       it, and nothing in the suite could see the difference. -->
+  <label class="ac-toggle ac-toggle--input" id="t-inp"><input type="checkbox" checked>
+    <span class="ac-toggle__track" id="t-track-inp"><span class="ac-toggle__thumb"></span></span>
+    <span class="ac-toggle__state"></span></label>
+  <label class="ac-toggle ac-toggle--input" id="t-inp-dis"><input type="checkbox" disabled>
+    <span class="ac-toggle__track" id="t-track-inp-dis"><span class="ac-toggle__thumb"></span></span>
+    <span class="ac-toggle__state"></span></label>
+  <div class="ac-panel" id="p-panel">P</div>
+  <input class="ac-input" id="i-input">
+  <!-- THE INERT PAIR, AND THEY ARE HERE BECAUSE NOTHING COULD SEE THEM.
+       "Inert keeps no halo" is stated as law in components/button.css, and
+       .ac-tab:disabled and .ac-input:disabled both broke it — they carried
+       --ac-glow-box-dim while the key, the checkbox and the radio went dark.
+       Neither state appears on any page the visual suite baselines, and the
+       fixture above had a disabled BUTTON and a disabled TOGGLE but an enabled
+       input and no tab at all, so the whole 824-probe run came back clean across
+       the fix. boxShadow is already in CORNER_PROPS; these two just had to exist
+       to be measured. -->
+  <button class="ac-tab" disabled id="tb-dis">T</button>
+  <input class="ac-input" disabled id="i-input-dis">
+</div></div>`;
+
+const CORNER_TARGETS = [
+  "#b-plain", "#b-filled", "#b-pressed", "#b-dim", "#b-disabled", "#b-ariadis",
+  "#b-block", "#b-pad", "#b-keypad", "#t-track", "#t-track-dis",
+  "#t-track-inp", "#t-track-inp-dis", "#p-panel", "#i-input",
+  "#tb-dis", "#i-input-dis",
+];
+
+/* `bare` is the CSS-only consumer — no attribute, no class, no JavaScript. It is
+   the most important column here and the one that was wrong until 2.0. */
+const CORNER_SCOPES = [
+  ["bare", {}, [], null],
+  ["flag-on", { "data-ac-style-classic": "on" }, [], null],
+  ["flag-off", { "data-ac-style-classic": "off" }, [], null],
+  ["frame-classic", {}, ["ac-classic"], null],
+  ["frame-rounded", {}, ["ac-rounded"], null],
+  ["flag-on+frame-rounded", { "data-ac-style-classic": "on" }, ["ac-rounded"], null],
+  ["self-classic", {}, [], "ac-classic"],
+  ["flag-on+self-rounded", { "data-ac-style-classic": "on" }, [], "ac-rounded"],
+];
+
+const CORNER_PROPS = ["boxShadow", "borderRadius", "alignItems", "justifyContent", "textAlign", "display"];
+
+/* THE HALO MUST NOT SURVIVE INTO FORCED COLORS OR PRINT — AT REST *OR* HOVERED.
+   The per-selector suppression in a11y.css weighs (0,1,0), so any component rule
+   with more specificity takes the halo back. That has happened twice: once from
+   a scope-prefixed rule in classic.css, once from `:hover` restatements in
+   button.css and tabs.css. Both put a full-strength discharge glow around a
+   latched control in the one mode that must contain no off-palette colour.
+   Hover is the half a screenshot can never catch. */
+async function suppression(browser, out) {
+  const BODY = `<div class="ac-screen ac-bloom" id="frame"><div class="ac-screen__body">
+    <button class="ac-btn ac-btn--filled" id="s-btn">B</button>
+    <button class="ac-btn" aria-pressed="true" id="s-btn-p">P</button>
+    <button class="ac-tab ac-tab--active" aria-selected="true" id="s-tab">T</button>
+    <button class="ac-toggle" id="s-tog"><span class="ac-toggle__track" id="s-track">
+      <span class="ac-toggle__thumb"></span></span></button>
+  </div></div>`;
+  for (const [mName, media] of MEDIA) {
+    if (mName === "screen" || mName === "reduced-motion") continue;
+    for (const scope of ["", "ac-classic", "ac-rounded"]) {
+      const { p, ctx } = await page$(browser, media, BODY);
+      if (scope) await p.evaluate((c) => document.getElementById("frame").classList.add(c), scope);
+      for (const id of ["s-btn", "s-btn-p", "s-tab", "s-track"]) {
+        for (const state of ["rest", "hover"]) {
+          if (state === "hover") await p.hover("#" + id).catch(() => {});
+          /* Anything non-transparent here is an off-palette leak. */
+          out[`suppression / ${mName} / ${scope || "none"} / ${id} / ${state}`] =
+            await p.evaluate((i) => {
+              const sh = getComputedStyle(document.getElementById(i)).boxShadow;
+              if (sh === "none") return "none";
+              const opaque = sh.split(/,(?![^(]*\))/).filter((s) => !/rgba\([^)]*,\s*0\)/.test(s));
+              return opaque.length ? `LEAK ${opaque.join(",")}` : "transparent";
+            }, id);
+        }
+      }
+      await ctx.close();
+    }
+  }
+}
+
+/* -------------------------------------------------------------- palette -- */
+
+/**
+ * THE RESOLVED PALETTE, PER MEDIA — the gate that was missing when the print
+ * stylesheet half-worked for an entire release.
+ *
+ * base/print.css re-points the semantic tokens to black-on-white on `:root`.
+ * `:root` is (0,1,0); the palettes in tokens/colors.css are
+ * `[data-ac-tech="…"][data-ac-emitter="…"]`, which is (0,2,0), and a media query
+ * adds no specificity — so print won --ac-ink, --ac-fill and --ac-stroke, which
+ * colors.css declares at :root, and LOST --ac-screen, --ac-screen-raised,
+ * --ac-screen-well and --ac-on-fill, which it does not. Filled elements printed
+ * as solid black boxes with #1e0c00 text on them: 1.05:1, on every status strip,
+ * panel title and filled key in the library.
+ *
+ * NOTHING IN THE REPOSITORY COULD SEE IT. scripts/contrast.mjs reads the token
+ * values out of colors.css and never resolves a cascade, so it only ever knew
+ * about screen. The visual suite has five print captures and they all passed —
+ * they had photographed the bug and called it the baseline, which is the one
+ * failure mode a screenshot comparison cannot report.
+ *
+ * So this probe reads the tokens off a real root, through the real cascade, in
+ * every media — and asserts the pairs a human actually reads are still legible.
+ * A palette that stops inverting on paper changes a value here and fails in CI.
+ */
+const PALETTE_TOKENS = [
+  "--ac-screen", "--ac-screen-raised", "--ac-screen-well",
+  "--ac-ink", "--ac-ink-dim", "--ac-fill", "--ac-fill-bright",
+  "--ac-on-fill", "--ac-stroke",
+];
+
+/* One gas and one phosphor: the two palettes with their own selector block that
+   print has to beat. neon also answers to :root, p3 does not, and it was p3-shaped
+   pages that printed worst. */
+const PALETTE_SCOPES = [
+  ["default", {}],
+  ["plasma-neon", { "data-ac-tech": "plasma", "data-ac-emitter": "neon" }],
+  ["crt-p3", { "data-ac-tech": "crt", "data-ac-emitter": "p3" }],
+  ["crt-p7", { "data-ac-tech": "crt", "data-ac-emitter": "p7" }],
+];
+
+const srgb = (v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+const relLum = (rgb) => {
+  const [r, g, b] = rgb.map((c) => srgb(c / 255));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => {
+  const [l1, l2] = [relLum(a), relLum(b)];
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+};
+const parse = (c) => (c.match(/\d+(\.\d+)?/g) || []).slice(0, 3).map(Number);
+/* Only rgba() with a literal zero alpha. Testing the string for a trailing
+   ", 0)" reads opaque BLACK — `rgb(0, 0, 0)` — as transparent, which is exactly
+   the colour every one of these probes is supposed to be looking at. */
+const isTransparent = (c) => {
+  const m = c.match(/rgba?\(([^)]+)\)/);
+  if (!m) return true;
+  const parts = m[1].split(",").map((s) => parseFloat(s));
+  return parts.length === 4 && parts[3] === 0;
+};
+
+async function palette(browser, out) {
+  const BODY = `<div class="ac-screen" id="frame"><div class="ac-screen__body">
+    <div class="ac-statusbar" id="p-status"><span>S</span></div>
+    <div class="ac-panel"><span class="ac-panel__title" id="p-title">T</span></div>
+    <button class="ac-btn ac-btn--filled" id="p-filled">F</button>
+  </div></div>`;
+
+  for (const [mName, media] of MEDIA) {
+    for (const [sName, attrs] of PALETTE_SCOPES) {
+      const { p, ctx } = await page$(browser, media, BODY);
+      await p.evaluate((a) => {
+        for (const [k, v] of Object.entries(a)) document.documentElement.setAttribute(k, v);
+      }, attrs);
+
+      for (const t of PALETTE_TOKENS) {
+        out[`palette / ${mName} / ${sName} / ${t}`] = await p.evaluate(
+          (tok) => getComputedStyle(document.documentElement).getPropertyValue(tok).trim(),
+          t
+        );
+      }
+
+      /* The point of the whole suite: inverse video has to stay readable in
+         every medium. forced-colors is exempt — the UA replaces both sides with
+         system colors there, so the author values say nothing about what a
+         reader sees. */
+      if (mName !== "forced-colors") {
+        for (const id of ["p-status", "p-title", "p-filled"]) {
+          const pair = await p.evaluate((i) => {
+            const s = getComputedStyle(document.getElementById(i));
+            return [s.color, s.backgroundColor];
+          }, id);
+          const [fg, bg] = pair.map(parse);
+          out[`palette / ${mName} / ${sName} / ${id} / legible`] = isTransparent(pair[1])
+            ? "transparent-bg"
+            : contrast(fg, bg) >= 4.5
+              ? "AA"
+              : `FAIL ${contrast(fg, bg).toFixed(2)}:1 ${pair[0]} on ${pair[1]}`;
+        }
+      }
+      await ctx.close();
+    }
+  }
+}
+
+/* ------------------------------------------------------------- meters -- */
+
+/* THE METER'S DRIVE LEVELS, WHICH NOTHING IN EITHER SUITE COULD SEE.
+   `.ac-meter--alarm` is inverse video plus blink, and the FILL is the half that
+   has to survive — blink is switched off by reduced motion, the blink flag,
+   print and forced colors, and without the fill an over-range meter is
+   indistinguishable from a healthy one in all four. `.ac-meter--dim` is the
+   opposite claim: a reading below full drive, which forced colors flattened to
+   Highlight and so reported at full strength.
+
+   NEITHER WAS MEASURABLE. The blink group above already renders an alarm meter,
+   but it records animation properties only — name, easing, duration, filter —
+   so the entire inverse-video change was invisible to it. And the only alarmed
+   meter on a baselined page lives inside server.html's `#view-storage`, which
+   ships `hidden`; the visual harness clicks `#tab-services`, so it never renders.
+   Two suites, one fixture between them, and zero coverage of the state.
+
+   Colour rather than shadow, because colour is the whole claim here — and across
+   all four media, because the three environment stylesheets each restate this
+   pair by hand and a hand-written selector list is exactly what drifts. */
+const METER_BODY = `
+<div class="ac-screen" id="frame"><div class="ac-screen__body">
+  <div class="ac-meter"><div class="ac-meter__track" id="m-plain" style="--ac-meter-value:60">
+    <div class="ac-meter__bar" id="m-plain-bar"></div></div></div>
+  <div class="ac-meter ac-meter--dim"><div class="ac-meter__track" id="m-dim" style="--ac-meter-value:30">
+    <div class="ac-meter__bar" id="m-dim-bar"></div></div></div>
+  <div class="ac-meter ac-meter--alarm"><div class="ac-meter__track" id="m-alarm" style="--ac-meter-value:94">
+    <div class="ac-meter__bar" id="m-alarm-bar"></div></div></div>
+</div></div>`;
+
+const METER_TARGETS = [
+  "#m-plain", "#m-plain-bar", "#m-dim", "#m-dim-bar", "#m-alarm", "#m-alarm-bar",
+];
+
+async function meters(browser, out) {
+  for (const [mName, media] of MEDIA) {
+    for (const frameCls of ["", "ac-afterglow"]) {
+      const { p, ctx } = await page$(browser, media, METER_BODY);
+      if (frameCls) {
+        await p.evaluate((c) => document.getElementById("frame").classList.add(c), frameCls);
+      }
+      const scope = frameCls || "bare";
+      for (const sel of METER_TARGETS) {
+        out[`meters / ${mName} / ${scope} / ${sel}`] = await p.evaluate((sel) => {
+          const el = document.querySelector(sel);
+          if (!el) return "MISSING";
+          const cs = getComputedStyle(el);
+
+          /* SYSTEM COLOURS ARE REPORTED BY NAME, NEVER BY VALUE, and this group
+             is the only one in the file that has to care. Under forced colors
+             the UA substitutes its own emulated palette — Highlight came back
+             as rgb(55, 0, 110) here — and those numbers belong to the browser
+             build, not to this stylesheet. Every other probe in this file
+             measures something platform-neutral on purpose, because the computed
+             suite is the half of the testing that DOES run on a Linux CI runner
+             (see .github/workflows/ci.yml). Baking the emulated RGB into the
+             baseline would have made the first CI run red for a reason that is
+             not a regression. Resolving the keywords live and diffing the NAME
+             keeps the assertion — "the alarm track is Highlight" — and drops the
+             dependency on what Highlight happens to be today. */
+          /* EVERY match is reported, not the first, because several system
+             colours legitimately resolve to the same RGB — Canvas and
+             HighlightText are both white in the emulated palette, and
+             first-match-wins labelled the plain track "HighlightText" when it is
+             Canvas. Joining them is deterministic, states the ambiguity instead
+             of picking a side, and still fails loudly if the pair a rule lands
+             on ever changes. A colour that matches no keyword is a palette
+             colour and is returned as-is; those come from this stylesheet and
+             are the same everywhere. */
+          const named = (c) => {
+            if (c === "-" || !matchMedia("(forced-colors: active)").matches) return c;
+            const probe = document.createElement("span");
+            probe.style.display = "none";
+            document.body.appendChild(probe);
+            const hits = [];
+            for (const k of ["Canvas", "CanvasText", "Highlight", "HighlightText", "GrayText"]) {
+              probe.style.color = k;
+              if (getComputedStyle(probe).color === c) hits.push(k);
+            }
+            probe.remove();
+            return hits.length ? hits.join("|") : c;
+          };
+          /* The bar is a repeating-linear-gradient, so its ink is the first
+             colour in background-image rather than background-color. Reported as
+             one field so a track and a bar read the same way in the diff. */
+          const ink = (cs.backgroundImage.match(/rgba?\([^)]*\)/) || [cs.backgroundColor])[0];
+          /* The lagging ghost only exists under .ac-afterglow, and on an alarmed
+             track it has to invert with the component or it paints the colour of
+             the track behind it and the drain goes invisible. */
+          const ghost = getComputedStyle(el, "::before");
+          /* `display: none` counts as absent, not just missing content. The
+             forced-colors block in base/a11y.css hides this ghost outright — a
+             trailing bar is a low-contrast duplicate of the live one, which is
+             what that mode exists to prevent — and reading only `content` made
+             the baseline report a colour for a pseudo-element that is never
+             painted. */
+          const ghostInk = ghost.content === "none" || ghost.display === "none"
+            ? "-"
+            : (ghost.backgroundImage.match(/rgba?\([^)]*\)/) || ["-"])[0];
+          return `ink=${named(ink)} shadow=${cs.boxShadow === "none" ? "none" : "yes"} ghost=${named(ghostInk)}`;
+        }, sel);
+      }
+      await ctx.close();
+    }
+  }
+}
+
+async function corners(browser, out) {
+  const { p, ctx } = await page$(browser, MEDIA[0][1], CORNER_BODY);
+  for (const [label, attrs, frameCls, selfCls] of CORNER_SCOPES) {
+    for (const state of ["rest", "hover", "active"]) {
+      await p.setContent(
+        `<!doctype html><html><head><style>${CSS}</style></head><body>${CORNER_BODY}</body></html>`
+      );
+      await p.evaluate(({ attrs, frameCls, selfCls, targets }) => {
+        for (const [k, v] of Object.entries(attrs)) document.documentElement.setAttribute(k, v);
+        for (const c of frameCls) document.getElementById("frame").classList.add(c);
+        if (selfCls) for (const t of targets) document.querySelector(t)?.classList.add(selfCls);
+      }, { attrs, frameCls, selfCls, targets: CORNER_TARGETS });
+
+      for (const sel of CORNER_TARGETS) {
+        if (state !== "rest") {
+          const box = await p.locator(sel).boundingBox().catch(() => null);
+          if (!box) { out[`corners / ${label} / ${state} / ${sel}`] = "NOBOX"; continue; }
+          await p.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+          if (state === "active") await p.mouse.down();
+        }
+        out[`corners / ${label} / ${state} / ${sel}`] = await p.evaluate(
+          ({ sel, props }) => {
+            const el = document.querySelector(sel);
+            if (!el) return "MISSING";
+            const cs = getComputedStyle(el);
+            return props.map((k) => `${k}=${cs[k]}`).join(" ; ");
+          },
+          { sel, props: CORNER_PROPS }
+        );
+        if (state === "active") await p.mouse.up();
+      }
+    }
+  }
+  await ctx.close();
+}
+
+/* ----------------------------------------------------------------- main -- */
+
+const browser = await chromium.launch();
+const out = {};
+await blink(browser, out);
+await layers(browser, out);
+await meters(browser, out);
+await corners(browser, out);
+await suppression(browser, out);
+await palette(browser, out);
+await browser.close();
+
+await mkdir(BASELINES, { recursive: true });
+const file = path.join(BASELINES, "computed.json");
+const next = JSON.stringify(out, null, 2) + "\n";
+
+if (update) {
+  await writeFile(file, next);
+  console.log(`\n  ${Object.keys(out).length} probes, baselines updated\n`);
+  process.exit(0);
+}
+
+let prev;
+try {
+  prev = JSON.parse(await readFile(file, "utf8"));
+} catch {
+  console.error(
+    `\n  no baseline at ${path.relative(ROOT, file)} — run:\n` +
+      `    npm run test:computed -- --update\n`
+  );
+  process.exit(1);
+}
+
+const keys = [...new Set([...Object.keys(prev), ...Object.keys(out)])].sort();
+const diffs = keys.filter((k) => prev[k] !== out[k]);
+
+for (const k of diffs) {
+  console.error(`  CHANGED  ${k}\n    before  ${prev[k] ?? "(absent)"}\n    after   ${out[k] ?? "(absent)"}`);
+}
+console.log(
+  `\n  ${Object.keys(out).length} probes, ${diffs.length} change(s)` +
+    (diffs.length ? " — review, then re-run with --update if intended\n" : "\n")
+);
+process.exit(diffs.length ? 1 : 0);
