@@ -40,10 +40,6 @@ keeping them as siblings — the `@font-face` rules use `../fonts/`. Or:
 > breaking change; the 1.x attributes and JS calls all still work. Full migration table in
 > **[DEPRECATIONS.md](DEPRECATIONS.md)**.
 
-```bash
-npm install amber-console
-```
-
 ```js
 import "amber-console";          // dist/amber-console.css
 import "amber-console/layer";    // wrapped in @layer amber-console
