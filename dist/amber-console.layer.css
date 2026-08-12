@@ -1,4 +1,4 @@
-/*! Amber Console 2.0.0 | BSD-3-Clause | @layer build.
+/*! Amber Console 2.1.0 | BSD-3-Clause | @layer build.
  * Identical to amber-console.css, wrapped in @layer amber-console so the
  * framework loses specificity fights against your own unlayered rules.
  * Link this INSTEAD OF amber-console.css, never alongside it.
@@ -2497,16 +2497,139 @@ textarea {
   letter-spacing: var(--ac-tracking-micro);
   color: var(--ac-ink-faint);
   text-shadow: var(--ac-glow-text-faint);
+  /* THE READOUTS STAY AT THE RIGHT EDGE WHEN THE BAR BREAKS UP.
+     .ac-nav__mark's margin-right:auto holds them there only while all three fit
+     on one line; the moment the meta strip wraps to a line of its own, that auto
+     margin is on a different line and cannot reach it, so the readouts snapped
+     back to the left margin and sat under the mark. An auto margin resolves
+     against the free space of ITS OWN flex line, so this one is right either
+     way: sharing the line, or alone on it. */
+  margin-left: auto;
 }
 
+/* ===========================================================================
+   THE TWO STEPS BETWEEN ONE LINE AND THE PHONE STACK.
+
+   MEASURED, BECAUSE THE WHOLE PROBLEM WAS THAT NOBODY HAD. The docs bar wants
+   1326px to hold mark, keys, the display readout and the byline on one line —
+   so every laptop was already wrapping, and every width between that and the
+   phone stack was an accident rather than a layout. The worst of it was 760-480,
+   where the keys broke 4+2 against the left margin with the last two trailing
+   off into space: not a strip, not a stack, just a strip out of room.
+
+   STEP ONE, 1400: the keys give back 4px of padding a side. Small, invisible,
+   and worth 48px across six keys, which buys the one-line strip about a hundred
+   pixels of extra life.
+
+   STEP TWO, 1320: the keys stop sharing a line with anything and become a deck
+   of their own. `flex-basis: 100%` takes the whole width, and `flex: 1 1 auto`
+   on each key means every ROW of that deck is justified — four keys wide on one
+   row, two half-width keys on the next, all of it flush to both margins. A wrap
+   you can see the logic of reads as a keypad; the same wrap left ragged reads as
+   a bug. The mark and the readouts pair off on the line above, one at each end.
+
+   THE STEP IS AT 1320 AND NOT 1280 BECAUSE 1278 IS WHERE ONE LINE STOPS FITTING,
+   and a breakpoint sitting two pixels off the thing it is measuring will be
+   wrong the first time a font loads slightly wider. Round numbers are for
+   people; this one has to hold. =========================================== */
+@media (max-width: 1400px) {
+  .ac-nav__link {
+    padding: 0 var(--ac-space-3);
+  }
+}
+
+@media (max-width: 1320px) {
+  /* order:1 sends the keys below the readouts even though they come first in
+     the markup, which is what pairs the mark and the readouts off on one line —
+     masthead at one end, machine state at the other — instead of leaving the
+     readouts stranded on a third line of their own. */
+  .ac-nav__links {
+    order: 1;
+    flex-basis: 100%;
+    gap: var(--ac-space-2);
+  }
+
+  /* Grow to fill the row, and stand tall enough to be pressed: this band is
+     where the tablets are, and a 30px key is a mouse target. */
+  .ac-nav__link {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
+/* ===========================================================================
+   PHONE AND SMALL TABLET. One column, centered, and every key a touch target.
+
+   720 RATHER THAN 480, WHICH IS WHERE THIS STARTED. The justified deck above
+   holds together while a row can carry three or four keys; under about 720 it
+   is dealing two and then one, and a two-key row on a phone is a strip that has
+   run out of room rather than a menu. The whole band below the tablet gets the
+   same answer instead: a column.
+
+   Each key is full-bleed and 52px tall — past the 44px floor both Apple and
+   WCAG 2.5.5 put on a touch target — with a gap between them so a thumb that
+   lands slightly off hits nothing instead of the wrong page. Still no
+   hamburger: the panel shows every key it has, it just shows them in a column.
+
+   THE BAR STOPS BEING STICKY HERE, and that is the price of the stack rather
+   than an oversight. Six 44px keys plus the mark and the readouts is around
+   400px of bar; pinned to the top of a 660px phone viewport it would leave a
+   third of the screen for the page it is navigating. A menu that large scrolls
+   away like everything else.
+
+   THE READING ORDER IS MASTHEAD, STATE, KEYS — the panel names itself, says
+   what it is running, and then offers the controls, which is the order a real
+   one is labelled in. That needs the meta strip to come apart: the readouts
+   belong under the mark rather than after the keys. `display: contents` drops
+   the strip's own box so its children become items of the bar itself and can be
+   ordered independently; they keep its font and colour, which inherit straight
+   through. A page that puts something else in the strip can order it from
+   there — the component only claims the two positions it knows about.
+   =========================================================================== */
 @media (max-width: 720px) {
   .ac-nav {
-    padding: 0 var(--ac-space-4);
+    position: static;
+    justify-content: center;
+    /* The strip's own 16px gap goes with its box, so the bar restates it —
+       row 8px between stacked keys, column 16px between DISPLAY and REV on
+       their shared line. */
+    gap: var(--ac-space-2) var(--ac-space-4);
+    padding: var(--ac-space-2) var(--ac-space-3);
   }
-  /* Wrap to a second row rather than hiding anything behind a menu glyph. */
+
   .ac-nav__mark {
-    margin-right: 0;
+    order: 1;
+    justify-content: center;
     width: 100%;
+    padding-bottom: var(--ac-space-1);
+  }
+
+  .ac-nav__meta {
+    display: contents;
+  }
+
+  .ac-nav__meta > * {
+    order: 2;
+  }
+
+  .ac-nav__links {
+    order: 3;
+    flex-direction: column;
+    width: 100%;
+    gap: var(--ac-space-2);
+  }
+
+  /* A thumb, not a cursor: title size on a 52px slab, which is the 44px floor
+     with room left over rather than exactly at it. `flex: 0 0 auto` undoes the
+     justified-row rule from the band above — in a column that grow factor is
+     pointing down the page, and a key has no business stretching vertically. */
+  .ac-nav__link {
+    flex: 0 0 auto;
+    justify-content: center;
+    min-height: 52px;
+    margin: 0;
+    font-size: var(--ac-type-title);
   }
 }
 

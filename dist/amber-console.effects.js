@@ -1,4 +1,4 @@
-/*! Amber Console 2.0.0 | BSD-3-Clause | https://github.com/DutchDiederik/AmberConsole */
+/*! Amber Console 2.1.0 | BSD-3-Clause | https://github.com/DutchDiederik/AmberConsole */
 /**
  * Amber Console — optional PERSISTENCE module.
  *

@@ -1,6 +1,6 @@
 {
   "name": "amber-console",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A monochrome amber-terminal CSS framework — the look of a late-1980s industrial control panel. Zero runtime dependencies.",
   "keywords": [
     "css",

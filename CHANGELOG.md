@@ -8,6 +8,103 @@ All notable changes to this project are documented here. Format follows
 
 Nothing yet.
 
+## [2.1.0] — 2026-08-12
+
+A minor release: `.ac-nav` learned a phone layout, and the docs site around it grew a source link and
+an overview that says what ships. No token, class or JavaScript export was removed or renamed —
+existing markup keeps working, and the new nav behaviour arrives through the classes it already had.
+
+### Added — `.ac-nav` collapses in two deliberate steps instead of one accident
+
+The bar had exactly two layouts that looked designed: everything on one line, and nothing else. It
+wants 1326px to hold mark, keys and readouts on a line, so every laptop was already wrapping, and the
+band from there down was whatever flexbox happened to do. Between 760 and 480 it did the worst thing
+available — the keys broke 4+2 against the left margin with the last two trailing off into space.
+
+Three bands now, each measured rather than guessed:
+
+- **Below 1400** the keys give back 4px of padding a side. Invisible, worth 48px across six keys, and
+  it buys the one-line strip about a hundred pixels of extra life.
+- **Below 1320** the keys take a deck of their own: `flex-basis: 100%` for the row, `flex: 1 1 auto`
+  on each key so every row of that deck is justified flush to both margins — four keys on one row,
+  two half-width keys on the next, never a rag. The mark and the readouts pair off on the line above,
+  one at each end. 1320 rather than a round 1280 because 1278 is where one line actually stops
+  fitting, and a breakpoint two pixels from its own threshold is wrong the first time a font loads
+  wide.
+- **Below 720** the keys become a full-bleed centered column, each a 52px slab carrying its label at
+  title size — past the 44px floor both Apple's HIG and WCAG 2.5.5 state. Still no hamburger: the
+  panel shows every key it has, in a column.
+
+In that last band the bar also reads masthead, state, keys. `.ac-nav__meta` becomes
+`display: contents` so its children can be ordered independently of their box, putting the readouts
+under the mark where machine state belongs.
+
+The bar stops being sticky below 720 too, which is the price of the stack rather than an oversight:
+six 52px keys plus the mark and the readouts is around 450px of bar, and pinned to a 660px phone
+viewport that leaves a third of the screen for the page it is navigating.
+
+### Fixed — the meta readouts snapped left when the bar wrapped
+
+`.ac-nav__mark`'s `margin-right: auto` held the readouts at the right edge only while all three
+regions fitted on one line. The moment the meta strip wrapped to a line of its own that auto margin
+was on a different line and could not reach it, so the readouts jumped to the left margin and sat
+under the mark. `.ac-nav__meta` now carries `margin-left: auto`, which resolves against its own flex
+line and is therefore right either way.
+
+### Added — the bar links to the source
+
+Every page of the docs site now carries a `GitHub` key at the end of the nav strip, opening the
+repository in a new tab. Both links in the bar that leave the site — this and the byline — say so
+twice: a `↗` after the label and an `aria-label` that states it in words. Sized in `em` rather than the
+micro token, because neither VT323 nor Silkscreen has U+2197 and the substituted glyph has to be
+pinned to the label beside it.
+
+### Added — the guide's overview names the eleven displays
+
+The lede on `docs/guide.html` was a statement of intent that never said what ships. It now names all
+eleven — four plasma gases and seven CRT phosphors — and a `Recommended Displays` panel under it
+sorts them for a reader who has to pick one: neon, P3 and P31 to build on, P1 and P4 as the other
+iconic looks, and the remaining six as specialized or experimental.
+
+### Changed — the meta strip carries what changes, and `REV` moved to the footer
+
+The bar's readouts are down to two: the display you have selected, and the byline. `REV` is a build
+number — consulted once, if ever — so it sits in the page footer now, where it was already printed
+anyway, and the strip gets its 51px back.
+
+`A project by Diederik` also stopped being a bit label. It sat at Silkscreen 8px beside the machine
+readouts, which is the right size for a bit and the wrong size for the one line in that strip
+addressed to a person; it is 10px uppercase now, the top of Silkscreen's stated range in
+`tokens/typography.css`.
+
+### Removed — the skip link
+
+`.doc-skip` — the visually-hidden `Skip to content` anchor that was the first focusable thing on
+every page in `docs/` — is gone from the fourteen pages and from `docs/docs.css`, on request. The
+`#content` id is still on every `<main>`, so restoring it is one anchor plus the rule that used to
+sit at the top of that stylesheet:
+
+```css
+.doc-skip { position: absolute; left: -9999px; z-index: 200; display: flex; align-items: center;
+  min-height: 44px; padding: var(--ac-space-2) var(--ac-space-3); font-family: var(--ac-font-micro);
+  font-size: var(--ac-type-micro); letter-spacing: var(--ac-tracking-micro); color: var(--ac-on-fill);
+  text-shadow: none; background: var(--ac-fill); text-decoration: none; }
+.doc-skip:focus { left: var(--ac-space-3); top: var(--ac-space-3); }
+```
+
+### Added — the four demo pages have a footer
+
+`docs/index.html`, `server.html`, `radar.html` and `terminal.html` ended at `</main>` with no site
+chrome at all, so there was nowhere to put a build number. Each now carries the same `.doc-foot` the
+guide pages have, pointing the other way: the guides send you to the console, the console sends you
+to the guide.
+
+### Changed — `REV` carries the patch number
+
+`stampRev` derived MAJOR.MINOR, on the argument that a bezel never shows a patch. True of a bezel,
+and false of this one: it is the only place a reader of the docs site can see which build they are
+looking at. It now stamps whatever `package.json` says, in full.
+
 ## [2.0.0] — 2026-08-10
 
 A breaking release: every custom property this framework owns is now `--ac-*` prefixed, and the
@@ -1652,7 +1749,8 @@ And one correction of fact, carried through the guide, the README and the source
   the decaying emission of a gas discharge after the current stops.
 
 <!-- Tags in this repository are unprefixed — `1.0.0`, not `v1.0.0`. -->
-[Unreleased]: https://github.com/DutchDiederik/AmberConsole/compare/2.0.0...HEAD
+[Unreleased]: https://github.com/DutchDiederik/AmberConsole/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/DutchDiederik/AmberConsole/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/DutchDiederik/AmberConsole/compare/1.0.1...2.0.0
 [1.0.1]: https://github.com/DutchDiederik/AmberConsole/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/DutchDiederik/AmberConsole/releases/tag/1.0.0

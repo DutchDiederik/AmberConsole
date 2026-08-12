@@ -460,10 +460,13 @@ function expandNav(html, file) {
  * are. This is the one thing the build edits outside a marker; everything else
  * hand-written in docs/ is left exactly as it was typed.
  *
- * MAJOR.MINOR ONLY. A patch release does not re-photograph the panel, and
- * "REV 2.0.1" on a bezel is not a thing anybody has ever seen.
+ * THE FULL VERSION, PATCH INCLUDED. This read MAJOR.MINOR for a while, on the
+ * argument that a bezel never carries a patch number — true of a bezel, and
+ * false of this one, because the bar is also the only place a reader of the docs
+ * site can see which build they are looking at. A panel that reports its own
+ * state honestly does not round it off. Whatever package.json says, the bar says.
  */
-const REV = VERSION.split(".").slice(0, 2).join(".");
+const REV = VERSION;
 
 function stampRev(html) {
   return html.replace(/\bREV \d+\.\d+(\.\d+)?\b/g, `REV ${REV}`);

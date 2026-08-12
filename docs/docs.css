@@ -23,44 +23,11 @@
 
 /* --------------------------------------------------------------- shared -- */
 
-/* SKIP LINK — the first focusable thing on every page in docs/.
-
-   DOCS-ONLY, AND DELIBERATELY NOT AN `.ac-` CLASS. A skip link belongs to a
-   *page*, not to a component library: it has to know where the page's main
-   region starts, and the framework has no opinion about that. Shipping an
-   `.ac-skip` would also add public API that the reference index, the guide and
-   the README all have to carry, for a rule that is nine lines of CSS a consumer
-   can write against their own layout.
-
-   Not `display: none` when unfocused — a hidden element is not focusable, which
-   is the one thing this must be. It is pulled out of the flow by size instead
-   and returns to the top-left of the frame on focus, inside the bezel rather
-   than over the browser chrome, so the simulations reach it like everything
-   else on the panel. */
-.doc-skip {
-  position: absolute;
-  left: -9999px;
-  z-index: 200;
-  /* 44px like every other interactive thing in this system — a skip link is the
-     first control on the page and does not get to be the one exception. */
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  padding: var(--ac-space-2) var(--ac-space-3);
-  font-family: var(--ac-font-micro);
-  font-size: var(--ac-type-micro);
-  letter-spacing: var(--ac-tracking-micro);
-  color: var(--ac-on-fill);
-  /* Inverse video: dark ink on lit amber, so no halo — same pairing every other
-     --ac-on-fill site makes. */
-  text-shadow: none;
-  background: var(--ac-fill);
-  text-decoration: none;
-}
-.doc-skip:focus {
-  left: var(--ac-space-3);
-  top: var(--ac-space-3);
-}
+/* THE SKIP LINK IS GONE, and this note is here so nobody adds it back by
+   reflex. `.doc-skip` was the first focusable thing on every page in docs/ and
+   jumped to #content past the bar; it was removed on request. The #content id
+   is still on every <main>, so restoring it is one anchor and the rule that used
+   to live here — see the 2.1.0 entry in CHANGELOG.md for what it looked like. */
 
 /* THE TABS SPECIMEN, SIZED SO SWITCHING A TAB DOES NOT RESIZE THE BOX.
 
@@ -81,10 +48,28 @@
   max-width: 100%;
 }
 
+/* THE BYLINE, WHICH IS IN THE BAR AND REV IS NOT.
+
+   The meta strip holds two things now: the display you have selected, which
+   changes as you use the site, and the name of whoever is answerable for it.
+   REV went to the footer — a build number is consulted once, if ever, and it
+   was the cheapest 51px in the strip to give back.
+
+   SILKSCREEN AT 10px, ONE STEP OVER THE 8px DISPLAY READOUT BESIDE IT. Same
+   face, so the strip still reads as one run of machine type, and just enough
+   size difference that the one human thing in it is the one thing you notice.
+   10px is the top of that face's stated range in tokens/typography.css — 8-10px,
+   mud above it — so this is all the room there is without changing face. A
+   literal 10px because there is no token for it; --ac-type-micro is the 8px
+   everything else runs at, and moving that moves every bit label on the site.
+
+   ALL CAPS, WHICH SILKSCREEN IS BUILT FOR — its lowercase is a small-cap variant
+   anyway, so uppercase costs nothing and matches the readout it sits with. */
 .doc-byline {
   font-family: var(--ac-font-micro);
-  font-size: var(--ac-type-micro);
+  font-size: 10px;
   letter-spacing: var(--ac-tracking-micro);
+  text-transform: uppercase;
   color: var(--ac-ink-faint);
   text-shadow: var(--ac-glow-text-faint);
   text-decoration: none;
@@ -92,6 +77,39 @@
 .doc-byline:hover {
   color: var(--ac-ink-bright);
   text-shadow: var(--ac-glow-text);
+}
+
+/* THE OFF-SITE KEY IN THE BAR.
+
+   Every other link in the strip stays inside docs/; this one does not, and a
+   soft key that teleports you off the panel without warning is a lie about what
+   pressing it does. The ↗ is the warning, and it is a typographic mark rather
+   than an icon — the same allowance the mark's █ takes in components/nav.css.
+
+   VT323 has no U+2197 and neither does Silkscreen, so the browser substitutes
+   the glyph from a system face whatever we ask for. Hence em units rather than
+   the micro token: the arrow is pinned to the label it sits beside, at 0.8 of
+   it and raised a hair, so a font we do not control still lands where a
+   superscript mark belongs. `speak: never` keeps it out of the accessible name,
+   which the link's aria-label already states in words. */
+/* Both links in the bar that leave the site wear it — the GitHub key and the
+   byline. They are the only two, and a reader should not have to find out which
+   ones open a new tab by pressing them. Sized in em so the same declaration
+   works on a 22px soft key and a 10px byline. */
+.doc-nav-out::after,
+.doc-byline::after {
+  content: "\2197";
+  font-size: 0.8em;
+  line-height: 1;
+  margin-left: var(--ac-space-2);
+  transform: translateY(-0.15em);
+  speak: never;
+}
+
+/* The byline's marker sits closer: at 10px the 8px gap that suits a soft key
+   reads as a space between two words rather than a mark on one. */
+.doc-byline::after {
+  margin-left: var(--ac-space-1);
 }
 
 /* ----------------------------------------------------------- setup board -- */

@@ -64,7 +64,6 @@
      did; decimalizing either would date the screen to the wrong decade more
      loudly than any font could. -->
 <div class="ac-screen ac-bloom" data-ac-screen>
-  <a class="doc-skip" href="#content">Skip to content</a>
   <span class="ac-mesh"></span>
 
   <!-- @include _nav.html -->
@@ -77,16 +76,26 @@
     <a class="ac-nav__link" href="radar.html">Radar</a>
     <a class="ac-nav__link" href="terminal.html" aria-current="page">Terminal</a>
     <a class="ac-nav__link" href="guide.html">System Guide</a>
+    <!-- The one key on the strip that leaves the site, so it says so twice: the
+         ↗ that docs.css hangs off .doc-nav-out for the eye, and the label for
+         anyone who is not using one. expandNav in scripts/build.mjs skips this
+         line — its pattern stops at the href — which is correct: an off-site
+         link is never the current page. -->
+    <a class="ac-nav__link doc-nav-out" href="https://github.com/DutchDiederik/AmberConsole"
+       target="_blank" rel="noopener" aria-label="Source on GitHub (opens in a new tab)">GitHub</a>
   </div>
   <span class="ac-nav__meta">
     <!-- The bar is the sticky half of the anti-confusion job: the board below
          scrolls away, this does not, and it always names the TECHNOLOGY first
          and the emitter second. -->
     <span class="doc-nav-display">DISPLAY:<span data-ac-display-out="label">PLASMA · NEON</span></span>
-    <!-- Stamped from package.json by scripts/build.mjs — see stampRev. Editing
-         the number here does nothing; the next build overwrites it. -->
-    <span>REV 2.0</span>
-    <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener">A project by Diederik</a>
+    <!-- REV is not here on purpose. It is the one readout nobody consults while
+         reading — you check a build number once, if ever — so it sits in the
+         page footer, still stamped from package.json by scripts/build.mjs. What
+         stays up here is what changes as you use the site: the display you have
+         selected, and the name of whoever is answerable for it. -->
+    <a class="doc-byline" href="https://diederik.blog" target="_blank" rel="noopener"
+       aria-label="A project by Diederik (opens in a new tab)">A project by Diederik</a>
   </span>
 </nav>
   <!-- @end -->
@@ -754,6 +763,11 @@
       <span class="ac-spacer"></span>
       <span id="st-msg">READY</span><span class="ac-cursor" aria-hidden="true"></span>
     </div>
+  <!-- Site chrome, not part of the product on screen above it. -->
+  <footer class="doc-foot">
+    <span class="doc-mono">AMBER CONSOLE · REV 2.1.0 · MONOCHROME PLASMA UI</span>
+    <a class="doc-mono" href="guide.html" style="color:var(--ac-ink-dim);text-shadow:var(--ac-glow-text-dim)">GO TO SYSTEM GUIDE ►</a>
+  </footer>
   </main>
 </div>
 <!-- The classic build, not the ES module: type="module" is blocked over file://
