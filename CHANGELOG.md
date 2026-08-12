@@ -55,7 +55,12 @@ line and is therefore right either way.
 
 Every page of the docs site now carries a `GitHub` key at the end of the nav strip, opening the
 repository in a new tab. Both links in the bar that leave the site — this and the byline — say so
-twice: a `↗` after the label and an `aria-label` that states it in words. Sized in `em` rather than the
+twice: a `↗` after the label and an `aria-label` that states it in words.
+
+The key's mark is a `::before` ordered to the right rather than an `::after`, and that is load-
+bearing: `sim/afterglow.css` spends `.ac-nav__link::after` on the afterimage patch, so under any CRT
+phosphor that rule replaced the arrow and it vanished. An element has one `::after` and the
+simulation got there first — the same collision its own comment warns about. Sized in `em` rather than the
 micro token, because neither VT323 nor Silkscreen has U+2197 and the substituted glyph has to be
 pinned to the label beside it.
 

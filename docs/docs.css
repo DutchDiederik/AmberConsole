@@ -95,15 +95,29 @@
 /* Both links in the bar that leave the site wear it — the GitHub key and the
    byline. They are the only two, and a reader should not have to find out which
    ones open a new tab by pressing them. Sized in em so the same declaration
-   works on a 22px soft key and a 10px byline. */
-.doc-nav-out::after,
+   works on a 22px soft key and a 10px byline.
+
+   THE KEY USES ::before AND THE BYLINE USES ::after, WHICH IS NOT A STYLE CHOICE.
+   sim/afterglow.css spends `.ac-nav__link::after` on the afterimage patch — the
+   layer that holds a soft key's ghost after it de-energizes — so with the CRT
+   simulation running, that rule replaced this one and the ↗ simply vanished on
+   every phosphor. An element has one ::after and afterglow.css got there first;
+   its own comment warns about exactly this collision. ::before is free, and the
+   key is a flex container, so `order: 1` puts the mark back on the right of the
+   label where it belongs. The byline is not a flex container and afterglow.css
+   has no interest in it, so it keeps the simpler pseudo. */
+.doc-nav-out::before,
 .doc-byline::after {
   content: "\2197";
   font-size: 0.8em;
   line-height: 1;
-  margin-left: var(--ac-space-2);
   transform: translateY(-0.15em);
   speak: never;
+}
+
+.doc-nav-out::before {
+  order: 1;
+  margin-left: var(--ac-space-2);
 }
 
 /* The byline's marker sits closer: at 10px the 8px gap that suits a soft key

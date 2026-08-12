@@ -51,9 +51,11 @@
     <a class="ac-nav__link" href="guide.html">System Guide</a>
     <!-- The one key on the strip that leaves the site, so it says so twice: the
          ↗ that docs.css hangs off .doc-nav-out for the eye, and the label for
-         anyone who is not using one. expandNav in scripts/build.mjs skips this
-         line — its pattern stops at the href — which is correct: an off-site
-         link is never the current page. -->
+         anyone who is not using one. The mark is a ::before ordered to the right
+         rather than an ::after, because sim/afterglow.css owns ::after on every
+         soft key — see the note in docs.css. expandNav in scripts/build.mjs skips
+         this line — its pattern stops at the href — which is correct: an
+         off-site link is never the current page. -->
     <a class="ac-nav__link doc-nav-out" href="https://github.com/DutchDiederik/AmberConsole"
        target="_blank" rel="noopener" aria-label="Source on GitHub (opens in a new tab)">GitHub</a>
   </div>
