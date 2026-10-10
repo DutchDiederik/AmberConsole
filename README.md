@@ -1147,6 +1147,7 @@ BSD 3-Clause License — see [LICENSE](LICENSE). The bundled webfonts are SIL OF
 - Free to use, modify, and share this code freely in any way you want in private or commercial projects, as long as you keep my copyright notice and the license text.
 - Don’t use my name to promote your project.
 - The software comes with no guarantees, so use it at your own risk.
+- Using it in a project? Please let me know by <a href="https://github.com/DutchDiederik/AmberConsole/issues/new" target="_blank" rel="noopener noreferrer">opening an issue on GitHub</a> or sending a message to <a href="https://x.com/DutchDiederik" target="_blank" rel="noopener noreferrer">@DutchDiederik on X</a>, so I can keep a list of where it is used.
 - If this has been proven useful or if this helped you make a bunch of money, feel free to <a href="https://buymeacoffee.com/dutchdiederik" target="_blank" rel="noopener noreferrer">buy me a coffee</a>. 
 
 ## Acknowledgements
