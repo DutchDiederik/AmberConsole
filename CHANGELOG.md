@@ -6,7 +6,13 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
-Nothing yet.
+### Changed
+
+- Playwright 1.65.0 for the visual and computed-style suites (was 1.62.0):
+  its Chromium 158.0.8127.18 has security fixes the older builds lacked.
+  Chromium 158 reports a `flex-start` alignment as `flow-start`, so the
+  computed-style baselines take that spelling (87 probes; no style changed).
+  The visual suite fails the same 43 captures as on 1.62.0.
 
 ## [2.1.0] — 2026-08-12
 

@@ -65,7 +65,7 @@
     "gas": "node scripts/derive-gas.mjs"
   },
   "devDependencies": {
-    "playwright": "^1.62.0",
+    "playwright": "^1.65.0",
     "stylelint": "^16.26.1",
     "stylelint-config-standard": "^36.0.1"
   },
